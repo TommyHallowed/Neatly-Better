@@ -2,10 +2,11 @@ package net.hallowed;
 
 import net.fabricmc.api.ModInitializer;
 
-import net.hallowed.config.CommonConfigManager;
-import net.hallowed.mending.MendingNerf;
-import net.hallowed.network.NetworkInit;
-import net.hallowed.network.ServerHandlers;
+import net.hallowed.oldways.config.CommonConfigManager;
+import net.hallowed.oldways.mending.MendingNerf;
+import net.hallowed.oldways.network.NetworkInit;
+import net.hallowed.oldways.network.ServerHandlers;
+import net.hallowed.oldways.content.RainbowSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,7 @@ public class TheOldWays implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+        RainbowSet.register();
         CommonConfigManager.load();
         MendingNerf.init();
         NetworkInit.register();

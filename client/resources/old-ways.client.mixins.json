@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "net.hallowed.mixin.client",
+  "package": "net.hallowed.oldways.client.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
     "DebugHudMixin",
@@ -8,7 +8,9 @@
     "HandledScreenButtonsSupportMixin",
     "InventoryScreenButtonsInitMixin",
     "ItemEntityRendererMixin",
-    "ItemEntityRenderStateExt"
+    "ItemEntityRenderStateExt",
+    "RainbowBannerRendererMixin",
+    "RainbowBedRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

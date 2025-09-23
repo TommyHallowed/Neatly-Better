@@ -1,10 +1,10 @@
 package net.hallowed;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.hallowed.client.EnderCheckClient;
-import net.hallowed.client.SmallHudOverlay;
-import net.hallowed.client.TotemTooltip;
-import net.hallowed.client.config.ClientConfigManager;
+import net.hallowed.oldways.client.ui.EnderCheckClient;
+import net.hallowed.oldways.client.ui.SmallHudOverlay;
+import net.hallowed.oldways.client.ui.TotemTooltip;
+import net.hallowed.oldways.client.config.ClientConfigManager;
 
 
 public class TheOldWaysClient implements ClientModInitializer {
