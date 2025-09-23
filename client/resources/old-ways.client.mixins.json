@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "net.hallowed.mixin.client",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "DebugHudMixin",
+    "HandledScreenAccessor",
+    "HandledScreenButtonsSupportMixin",
+    "InventoryScreenButtonsInitMixin",
+    "ItemEntityRendererMixin",
+    "ItemEntityRenderStateExt"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+	}
+}

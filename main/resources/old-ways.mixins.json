@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "package": "net.hallowed.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AbstractMinecartSpeedMixin",
+    "AnvilScreenHandlerMixin",
+    "BedBlockMixin",
+    "ExperienceOrbEntityMixin",
+    "FireworkRocketItemMixin",
+    "PlayerEntityMixin",
+    "TotemCooldownMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+	}
+}
