@@ -16,7 +16,7 @@
 			"net.hallowed.TheOldWays"
 		],
 		"client": [
-			"net.hallowed.TheOldWaysClient"
+          "net.hallowed.TheOldWaysClient"
 		]
 	},
 	"mixins": [

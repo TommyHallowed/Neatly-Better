@@ -1,6 +1,6 @@
 package net.hallowed.oldways.client.mixin;
 
-import net.hallowed.oldways.client.ui.EnderCheckClient;
+import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.DebugHud;
