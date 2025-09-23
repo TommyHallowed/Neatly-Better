@@ -6,11 +6,12 @@
     "AbstractMinecartSpeedMixin",
     "AnvilScreenHandlerMixin",
     "BedBlockMixin",
+    "BlockEntityTypeBlocksAccessor",
     "ExperienceOrbEntityMixin",
     "FireworkRocketItemMixin",
     "PlayerEntityMixin",
-    "TotemCooldownMixin",
-    "SheepInteractMixin"
+    "SheepInteractMixin",
+    "TotemCooldownMixin"
   ],
   "injectors": {
     "defaultRequire": 1
