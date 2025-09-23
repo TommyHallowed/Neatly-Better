@@ -20,7 +20,6 @@ public class TheOldWays implements ModInitializer {
 	@Override
 	public void onInitialize() {
         CommonConfigManager.load();
-        net.hallowed.content.RainbowSet.register();
         MendingNerf.init();
         NetworkInit.register();
         ServerHandlers.register();
