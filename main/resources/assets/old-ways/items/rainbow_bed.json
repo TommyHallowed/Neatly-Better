@@ -1,10 +1,10 @@
 {
   "model": {
     "type": "minecraft:special",
-    "base": "oldways:item/rainbow_bed",
+    "base": "old-ways:item/rainbow_bed",
     "model": {
       "type": "minecraft:bed",
-      "texture": "oldways:rainbow"
+      "texture": "old-ways:rainbow"
     }
   }
 }

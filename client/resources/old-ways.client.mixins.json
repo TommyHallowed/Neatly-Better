@@ -9,8 +9,10 @@
     "InventoryScreenButtonsInitMixin",
     "ItemEntityRendererMixin",
     "ItemEntityRenderStateExt",
-    "RainbowBannerRendererMixin",
-    "RainbowBedRendererMixin"
+    "RainbowBedRendererMixin",
+    "RecipeBookCloseMixin",
+    "accessor.RecipeBookAccessor",
+    "accessor.RecipeBookScreenAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,4 +1,3 @@
-// src/main/java/net/hallowed/oldways/mixin/SheepInteractMixin.java
 package net.hallowed.oldways.mixin;
 
 import net.minecraft.entity.EquipmentSlot;
@@ -39,7 +38,7 @@ public class SheepInteractMixin {
 
         if (!self.hasCustomName()) return;
         String name = self.getCustomName() == null ? "" : self.getCustomName().getString();
-        if (!"jeb_".equals(name) && !"_jeb".equals(name)) return;
+        if (!"jeb_".equals(name)) return;
 
         if (!(self.getWorld() instanceof ServerWorld world)) return;
 

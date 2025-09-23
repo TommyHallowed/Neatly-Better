@@ -12,7 +12,7 @@ import net.minecraft.util.Identifier;
 public final class ModBlocks {
     private ModBlocks() {}
 
-    public static Block RAINBOW_WOOL, RAINBOW_CARPET, RAINBOW_BED, RAINBOW_BANNER, RAINBOW_WALL_BANNER;
+    public static Block RAINBOW_WOOL, RAINBOW_CARPET, RAINBOW_BED;
 
     private static Identifier id(String path) { return Identifier.of(TheOldWays.MOD_ID, path); }
     private static RegistryKey<Block> key(String path) { return RegistryKey.of(RegistryKeys.BLOCK, id(path)); }
@@ -39,17 +39,5 @@ public final class ModBlocks {
                 new BedBlock(DyeColor.WHITE, AbstractBlock.Settings.copy(Blocks.WHITE_BED).registryKey(key("rainbow_bed")))
         );
 
-        // RAINBOW_BANNER (standing + wall)
-        Identifier bannerId = id("rainbow_banner");
-        RAINBOW_BANNER = Registry.register(
-                Registries.BLOCK, bannerId,
-                new BannerBlock(DyeColor.WHITE, AbstractBlock.Settings.copy(Blocks.WHITE_BANNER).registryKey(key("rainbow_banner")))
-        );
-
-        Identifier wallBannerId = id("rainbow_wall_banner");
-        RAINBOW_WALL_BANNER = Registry.register(
-                Registries.BLOCK, wallBannerId,
-                new WallBannerBlock(DyeColor.WHITE, AbstractBlock.Settings.copy(Blocks.WHITE_WALL_BANNER).registryKey(key("rainbow_wall_banner")))
-        );
     }
 }

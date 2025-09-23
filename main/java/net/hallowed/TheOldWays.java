@@ -31,7 +31,6 @@ public class TheOldWays implements ModInitializer {
 
         // Add our custom blocks to vanilla BlockEntityType allow-lists
         addSupported(BlockEntityType.BED, ModBlocks.RAINBOW_BED);
-        addSupported(BlockEntityType.BANNER, ModBlocks.RAINBOW_BANNER, ModBlocks.RAINBOW_WALL_BANNER);
 
         // Rest of your init
         CommonConfigManager.load();
@@ -44,7 +43,6 @@ public class TheOldWays implements ModInitializer {
             entries.add(ModItems.RAINBOW_WOOL);
             entries.add(ModItems.RAINBOW_CARPET);
             entries.add(ModItems.RAINBOW_BED);
-            entries.add(ModItems.RAINBOW_BANNER);
         });
 
         LOGGER.info("The Old Ways Mod Loaded!");
@@ -57,4 +55,5 @@ public class TheOldWays implements ModInitializer {
         Collections.addAll(copy, toAdd);
         acc.oldways$setBlocks(copy); // write back
     }
+
 }
