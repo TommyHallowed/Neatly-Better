@@ -48,6 +48,11 @@ public final class ClientConfigManager {
         }
     }
 
+    // ===== recipe book toggle =====
+    public static boolean autoCloseRecipeBookEnabled() {
+        return CONFIG.recipeBook != null && CONFIG.recipeBook.autoClose;
+    }
+
     // ===== overlay reads =====
     public static boolean overlayEnabled() { return CONFIG.overlay != null && CONFIG.overlay.enabled; }
     public static boolean coordsVisible()  { return CONFIG.overlay == null || CONFIG.overlay.coordsVisible; }

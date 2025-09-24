@@ -2,7 +2,6 @@ package net.hallowed.oldways.config;
 
 import com.google.gson.annotations.SerializedName;
 
-
 public final class CommonConfig {
     @SerializedName("Mending Nerf")
     public MendingNerf mendingNerf = new MendingNerf();
@@ -19,28 +18,49 @@ public final class CommonConfig {
     @SerializedName("Totem Cooldown")
     public TotemCooldown totemCooldown = new TotemCooldown();
 
+    // Keep the object name as-is to preserve your file layout
+    @SerializedName("Protection Damage Reduction")
+    public ProtectionDamageAbsorption protection = new ProtectionDamageAbsorption();
+
+    // --- Sections ---
+
     public static final class MendingNerf {
+        @SerializedName("_comment")
+        public String comment = "changes mending enchantment to reset anvil repair cost";
         public boolean enabled = true;
     }
 
     public static final class ElytraBoosting {
-        // true = vanilla boosting works; false = disable air-use boost
+        @SerializedName("_comment")
+        public String comment = "Removes (vanilla) firework elytra boosting";
         public boolean enabled = false;
     }
 
     public static final class InfinityFix {
-        // true = You don't require arrow when you have infinity enchant
+        @SerializedName("_comment")
+        public String comment = "Removes the need for an arrow in the inventory when using infinity";
         public boolean enabled = true;
     }
 
     public static final class BedNerf {
-        // true = Bed let's you sleep only after you killed ender dragon
+        @SerializedName("_comment")
+        public String comment = "Allows players to sleep only after they kill Ender Dragon";
         public boolean enabled = true;
     }
 
     public static final class TotemCooldown {
-        // Number of seconds to apply as cooldown after a successful totem use.
-        // Set to 0 to disable the cooldown entirely.
+        @SerializedName("_comment")
+        public String comment = "Adds cooldown to the totem of undying";
         public int seconds = 60;
+    }
+
+    /** Fractions (0.10 = 10%). Scales linearly with total Protection levels up to 16 (Prot IV on 4 pieces). */
+    public static final class ProtectionDamageAbsorption {
+        @SerializedName("_comment")
+        public String comment = "Changes protection enchantment damage reduction [0.1 - 10%]";
+        @SerializedName("Max Reduction")            public float genericMax    = 0.10f;
+        @SerializedName("Max Fire Reduction")       public float fireMax       = 0.20f;
+        @SerializedName("Max Blast Reduction")      public float blastMax      = 0.20f;
+        @SerializedName("Max Projectile Reduction") public float projectileMax = 0.20f;
     }
 }

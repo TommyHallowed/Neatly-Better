@@ -30,7 +30,7 @@ public final class CommonConfigManager {
                     if (loaded != null) CONFIG = loaded;
                 }
             } else {
-                save(); // write defaults
+                save(); // write defaults incl. descriptions
             }
         } catch (IOException e) {
             TheOldWays.LOGGER.error("[{}] Failed to load common config: {}", TheOldWays.MOD_ID, e.toString());
@@ -47,22 +47,20 @@ public final class CommonConfigManager {
 
     public static CommonConfig get() { return CONFIG; }
 
-    // Convenience
-    public static boolean mendingNerfEnabled() { return CONFIG.mendingNerf.enabled; }
-
+    // toggles
+    public static boolean mendingNerfEnabled()    { return CONFIG.mendingNerf.enabled; }
     public static boolean elytraBoostingEnabled() { return CONFIG.elytraBoosting.enabled; }
+    public static boolean infinityFixEnabled()    { return CONFIG.infinityFix.enabled; }
+    public static boolean bedNerfEnabled()        { return CONFIG.bedNerf.enabled; }
 
-    public static boolean infinityFixEnabled() { return CONFIG.infinityFix.enabled; }
+    // totem
+    public static int  totemCooldownSeconds() { return Math.max(0, CONFIG.totemCooldown.seconds); }
+    public static int  totemCooldownTicks()   { return totemCooldownSeconds() * 20; }
 
-    public static boolean bedNerfEnabled() { return CONFIG.bedNerf.enabled; }
-
-
-    public static int totemCooldownSeconds() {
-        int s = CONFIG.totemCooldown.seconds;
-        return Math.max(0, s);
-    }
-
-    public static int totemCooldownTicks() {
-        return totemCooldownSeconds() * 20;
-    }
+    // protection caps (clamped to sane range)
+    private static float clampCap(float v) { return Math.max(0f, Math.min(0.80f, v)); }
+    public static float genericProtCap()    { return clampCap(CONFIG.protection.genericMax); }
+    public static float fireProtCap()       { return clampCap(CONFIG.protection.fireMax); }
+    public static float blastProtCap()      { return clampCap(CONFIG.protection.blastMax); }
+    public static float projectileProtCap() { return clampCap(CONFIG.protection.projectileMax); }
 }
