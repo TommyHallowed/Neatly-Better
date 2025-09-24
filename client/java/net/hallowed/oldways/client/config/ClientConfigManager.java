@@ -20,6 +20,7 @@ public final class ClientConfigManager {
 
     private ClientConfigManager() {}
 
+    /* ================= load/save ================= */
     public static void load() {
         try {
             if (!Files.exists(FILE)) saveDefaults();
@@ -48,59 +49,111 @@ public final class ClientConfigManager {
         }
     }
 
-    // ===== recipe book toggle =====
-    public static boolean autoCloseRecipeBookEnabled() {
-        return CONFIG.recipeBook != null && CONFIG.recipeBook.autoClose;
+    /* ================= Stuck projectiles ================= */
+    public static boolean stuckProjectilesEnabled() {
+        return CONFIG.stuckProjectiles == null || CONFIG.stuckProjectiles.enabled;
+    }
+    public static void setStuckProjectilesEnabled(boolean enabled) {
+        if (CONFIG.stuckProjectiles == null) CONFIG.stuckProjectiles = new ClientConfig.StuckProjectiles();
+        CONFIG.stuckProjectiles.enabled = enabled;
+        save();
+    }
+    public static void toggleStuckProjectiles() { setStuckProjectilesEnabled(!stuckProjectilesEnabled()); }
+
+    /* ================= Old Item Rendering (ground items) ================= */
+    public static boolean oldItemRenderingEnabled() {
+        return CONFIG.oldItemRendering != null && CONFIG.oldItemRendering.enabled;
     }
 
-    // ===== overlay reads =====
+    /* ================= Overlay flags ================= */
     public static boolean overlayEnabled() { return CONFIG.overlay != null && CONFIG.overlay.enabled; }
     public static boolean coordsVisible()  { return CONFIG.overlay == null || CONFIG.overlay.coordsVisible; }
     public static boolean timeVisible()    { return CONFIG.overlay == null || CONFIG.overlay.timeVisible; }
 
-    public static String overlayPosition() {
-        return (CONFIG.overlay != null && CONFIG.overlay.position != null) ? CONFIG.overlay.position : "top_left";
+    /** Called by the inventory buttons (LMB) */
+    public static void toggleCoordsVisible() {
+        if (CONFIG.overlay == null) CONFIG.overlay = new ClientConfig.Overlay();
+        CONFIG.overlay.coordsVisible = !CONFIG.overlay.coordsVisible;
+        save();
+    }
+    public static void toggleTimeVisible() {
+        if (CONFIG.overlay == null) CONFIG.overlay = new ClientConfig.Overlay();
+        CONFIG.overlay.timeVisible = !CONFIG.overlay.timeVisible;
+        save();
     }
 
+    /* ================= Per-line positions (RMB) ================= */
+    private static String fallbackPos() {
+        return (CONFIG.overlay != null && CONFIG.overlay.position != null) ? CONFIG.overlay.position : "top_left";
+    }
+    public static String coordsPosition() {
+        return (CONFIG.overlay != null && CONFIG.overlay.coordsPosition != null) ? CONFIG.overlay.coordsPosition : fallbackPos();
+    }
+    public static String timePosition() {
+        return (CONFIG.overlay != null && CONFIG.overlay.timePosition != null) ? CONFIG.overlay.timePosition : fallbackPos();
+    }
+    public static void cycleCoordsPosition() {
+        if (CONFIG.overlay == null) CONFIG.overlay = new ClientConfig.Overlay();
+        CONFIG.overlay.coordsPosition = nextCorner(coordsPosition());
+        save();
+    }
+    public static void cycleTimePosition() {
+        if (CONFIG.overlay == null) CONFIG.overlay = new ClientConfig.Overlay();
+        CONFIG.overlay.timePosition = nextCorner(timePosition());
+        save();
+    }
+    private static String nextCorner(String p) {
+        return switch (p.toLowerCase()) {
+            case "top_left" -> "top_right";
+            case "top_right" -> "bottom_right";
+            case "bottom_right" -> "bottom_left";
+            default -> "top_left";
+        };
+    }
+
+    /* ================= Recipe Book (client UX) ================= */
+    public static boolean autoCloseRecipeBookEnabled() {
+        return CONFIG.recipeBook != null && CONFIG.recipeBook.autoClose;
+    }
+
+    /* ================= Scale ================= */
     public static float overlayTextScale() {
         float s = (CONFIG.overlay != null) ? CONFIG.overlay.textScale : 1.0f;
         if (Float.isNaN(s) || s <= 0.05f) s = 1.0f;
         return Math.min(s, 10.0f);
     }
 
-    // ===== overlay writes (used by inventory icons) =====
-    public static void toggleCoordsVisible() { if (CONFIG.overlay != null) { CONFIG.overlay.coordsVisible = !CONFIG.overlay.coordsVisible; save(); } }
-    public static void toggleTimeVisible()   { if (CONFIG.overlay != null) { CONFIG.overlay.timeVisible   = !CONFIG.overlay.timeVisible;   save(); } }
-
-    public static void cyclePosition() {
-        if (CONFIG.overlay == null) return;
-        String p = overlayPosition();
-        CONFIG.overlay.position = switch (p) {
-            case "top_left" -> "top_right";
-            case "top_right" -> "bottom_right";
-            case "bottom_right" -> "bottom_left";
-            default -> "top_left";
-        };
-        save();
+    /* ================= Colors & strings ================= */
+    public static Line buildCoords(double x, double y, double z) {
+        String fmt = (CONFIG.overlay != null && CONFIG.overlay.coordsFormat != null) ? CONFIG.overlay.coordsFormat : "x: {x} | y: {y} | z: {z}";
+        Parsed p = parseLeadingColor(fmt);
+        String fx = String.format("%.2f", x), fy = String.format("%.2f", y), fz = String.format("%.2f", z);
+        String text = p.tail.replace("{x}", fx).replace("{y}", fy).replace("{z}", fz);
+        return new Line(text, p.argb);
+    }
+    public static Line buildTimeDay(String timeHHMM, int day) {
+        String fmt = (CONFIG.overlay != null && CONFIG.overlay.timeDayFormat != null) ? CONFIG.overlay.timeDayFormat : "time: {time} | Day: {day}";
+        Parsed p = parseLeadingColor(fmt);
+        String text = p.tail.replace("{time}", timeHHMM).replace("{day}", Integer.toString(day));
+        return new Line(text, p.argb);
     }
 
-    public static boolean oldItemRenderingEnabled() {
-        return CONFIG.oldItemRendering != null && CONFIG.oldItemRendering.enabled;
-    }
+    /** For button-outline color */
+    public static int coordsColorARGB() { return parseLeadingColor((CONFIG.overlay != null) ? CONFIG.overlay.coordsFormat : null).argb; }
+    public static int timeColorARGB()   { return parseLeadingColor((CONFIG.overlay != null) ? CONFIG.overlay.timeDayFormat : null).argb; }
 
     public static void cycleCoordsColor() {
         if (CONFIG.overlay == null) return;
         CONFIG.overlay.coordsFormat = cycleLeadingColor(CONFIG.overlay.coordsFormat);
         save();
     }
-
     public static void cycleTimeColor() {
         if (CONFIG.overlay == null) return;
         CONFIG.overlay.timeDayFormat = cycleLeadingColor(CONFIG.overlay.timeDayFormat);
         save();
     }
 
-    // ===== line builders =====
+    /* ================= Utility ================= */
     public static String ticksToHHMM(long dayTime) {
         long ticks = ((dayTime % 24000L) + 24000L) % 24000L;
         long adj = (ticks + 6000L) % 24000L;
@@ -109,22 +162,6 @@ public final class ClientConfigManager {
         return String.format("%02d:%02d", hours, minutes);
     }
 
-    public static Line buildCoords(double x, double y, double z) {
-        String fmt = (CONFIG.overlay != null && CONFIG.overlay.coordsFormat != null) ? CONFIG.overlay.coordsFormat : "x: {x} | y: {y} | z: {z}";
-        Parsed p = parseLeadingColor(fmt);
-        String fx = String.format("%.2f", x), fy = String.format("%.2f", y), fz = String.format("%.2f", z);
-        String text = p.tail.replace("{x}", fx).replace("{y}", fy).replace("{z}", fz);
-        return new Line(text, p.argb);
-    }
-
-    public static Line buildTimeDay(String timeHHMM, int day) {
-        String fmt = (CONFIG.overlay != null && CONFIG.overlay.timeDayFormat != null) ? CONFIG.overlay.timeDayFormat : "time: {time} | Day: {day}";
-        Parsed p = parseLeadingColor(fmt);
-        String text = p.tail.replace("{time}", timeHHMM).replace("{day}", Integer.toString(day));
-        return new Line(text, p.argb);
-    }
-
-    // ===== color helpers =====
     private static Parsed parseLeadingColor(String s) {
         if (s != null && s.length() >= 2 && (s.charAt(0) == '&' || s.charAt(0) == '§')) {
             Integer rgb = mcColorCodeToRGB(Character.toLowerCase(s.charAt(1)));
@@ -132,20 +169,16 @@ public final class ClientConfigManager {
         }
         return new Parsed(s == null ? "" : s, 0xFFFFFFFF);
     }
-
     private static String cycleLeadingColor(String fmt) {
-        // Colors cycle through this list:
         char[] order = new char[]{'f','6','b','a','c','e','9','d','2','3','4','5','7','8','0'};
-        // Extract current or assume white
         char current = 'f';
-        if (fmt != null && fmt.length() >= 2 && (fmt.charAt(0) == '&' || fmt.charAt(0) == '§')) current = Character.toLowerCase(fmt.charAt(1));
-        // Find next
+        if (fmt != null && fmt.length() >= 2 && (fmt.charAt(0) == '&' || fmt.charAt(0) == '§'))
+            current = Character.toLowerCase(fmt.charAt(1));
         int idx = 0;
         for (int i = 0; i < order.length; i++) if (order[i] == current) { idx = (i + 1) % order.length; break; }
-        String tail = (fmt == null) ? "" : ( (fmt.length() >= 2 && (fmt.charAt(0)=='&'||fmt.charAt(0)=='§')) ? fmt.substring(2) : fmt );
+        String tail = (fmt == null) ? "" : ((fmt.length() >= 2 && (fmt.charAt(0) == '&' || fmt.charAt(0) == '§')) ? fmt.substring(2) : fmt);
         return "&" + order[idx] + tail;
     }
-
     private static Integer mcColorCodeToRGB(char code) {
         return switch (code) {
             case '0' -> 0x000000; case '1' -> 0x0000AA; case '2' -> 0x00AA00; case '3' -> 0x00AAAA;

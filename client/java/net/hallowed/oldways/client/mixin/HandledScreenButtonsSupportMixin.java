@@ -1,15 +1,19 @@
 package net.hallowed.oldways.client.mixin;
 
-import net.hallowed.oldways.client.util.OverlayButtonsBridge;
 import net.hallowed.oldways.client.config.ClientConfigManager;
+import net.hallowed.oldways.client.util.EnderCheckClient;
+import net.hallowed.oldways.client.util.OverlayButtonsBridge;
+import net.hallowed.oldways.client.ui.GuiSprites;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,57 +21,68 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Renders custom button backgrounds + icons and handles RMB / Shift+LMB. */
+/**
+ * Draws GUI-atlas sprites for the overlay buttons (icon + tinted outline),
+ * hides buttons when the required item is missing, and handles RMB/Shift+LMB.
+ */
 @Mixin(HandledScreen.class)
 public abstract class HandledScreenButtonsSupportMixin extends Screen {
     protected HandledScreenButtonsSupportMixin(Text title) { super(title); }
 
-    // Draw custom bg (normal / hover / hidden) and the item icon + tooltip
-    @Inject(method = "render", at = @At("TAIL"))
-    private void hallowed$renderButtonIcons(DrawContext ctx, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    // --- visibility sync (requires compass/clock either in inv or ender chest) ---
+    @Inject(method = "render", at = @At("HEAD"))
+    private void oldways$syncVisibility(DrawContext ctx, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (!(((Object) this) instanceof InventoryScreen inv)) return;
 
         OverlayButtonsBridge holder = (OverlayButtonsBridge) inv;
         ButtonWidget coords = holder.hallowed$getCoordsBtn();
         ButtonWidget time   = holder.hallowed$getTimeBtn();
+        if (coords == null || time == null) return;
 
-        if (coords != null) {
+        var player = MinecraftClient.getInstance().player;
+        boolean hasCompass = player != null
+                && (player.getInventory().contains(Items.COMPASS.getDefaultStack()) || EnderCheckClient.enderHasCompass());
+        boolean hasClock   = player != null
+                && (player.getInventory().contains(Items.CLOCK.getDefaultStack())   || EnderCheckClient.enderHasClock());
+
+        coords.visible = hasCompass;
+        time.visible   = hasClock;
+    }
+
+    // --- draw our sprites after vanilla buttons have positioned themselves ---
+    @Inject(method = "render", at = @At("TAIL"))
+    private void oldways$renderButtons(DrawContext ctx, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        if (!(((Object) this) instanceof InventoryScreen inv)) return;
+
+        OverlayButtonsBridge holder = (OverlayButtonsBridge) inv;
+        ButtonWidget coords = holder.hallowed$getCoordsBtn();
+        ButtonWidget time   = holder.hallowed$getTimeBtn();
+        if (coords == null || time == null) return;
+
+        if (coords.visible) {
+            boolean shown   = ClientConfigManager.coordsVisible();
             boolean hovered = coords.isMouseOver(mouseX, mouseY);
-            boolean visible = ClientConfigManager.coordsVisible();
-
-            hallowed$drawSkinnedButton(ctx, coords, hovered, visible);
-            int cx = coords.getX() + (coords.getWidth() - 16) / 2;
-            int cy = coords.getY() + (coords.getHeight() - 16) / 2;
-            ctx.drawItem(new ItemStack(Items.COMPASS), cx, cy);
-
-            if (hovered) {
-                ctx.drawTooltip(this.textRenderer,
-                        Text.literal("Coords: LMB toggle\nRMB position\nShift+LMB color"),
-                        mouseX, mouseY);
-            }
+            oldways$drawIconWithOutline(ctx,
+                    coords.getX(), coords.getY(), coords.getWidth(), coords.getHeight(),
+                    shown ? GuiSprites.COMPASS_SHOWN : GuiSprites.COMPASS_HIDDEN,
+                    GuiSprites.COMPASS_OUTLINE,
+                    ClientConfigManager.coordsColorARGB(), shown, hovered);
         }
 
-        if (time != null) {
+        if (time.visible) {
+            boolean shown   = ClientConfigManager.timeVisible();
             boolean hovered = time.isMouseOver(mouseX, mouseY);
-            boolean visible = ClientConfigManager.timeVisible();
-
-            hallowed$drawSkinnedButton(ctx, time, hovered, visible);
-            int tx = time.getX() + (time.getWidth() - 16) / 2;
-            int ty = time.getY() + (time.getHeight() - 16) / 2;
-            ctx.drawItem(new ItemStack(Items.CLOCK), tx, ty);
-
-            if (hovered) {
-                ctx.drawTooltip(this.textRenderer,
-                        Text.literal("Time: LMB toggle\nRMB position\nShift+LMB color"),
-                        mouseX, mouseY);
-            }
+            oldways$drawIconWithOutline(ctx,
+                    time.getX(), time.getY(), time.getWidth(), time.getHeight(),
+                    shown ? GuiSprites.CLOCK_SHOWN : GuiSprites.CLOCK_HIDDEN,
+                    GuiSprites.CLOCK_OUTLINE,
+                    ClientConfigManager.timeColorARGB(), shown, hovered);
         }
     }
 
-    // Shift + LMB = color cycle (consume so the default button press doesn't toggle)
-    // RMB = position cycle (unchanged)
+    // RMB cycles position, Shift+LMB cycles color
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void hallowed$handleClicks(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+    private void oldways$handleClicks(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         if (!(((Object) this) instanceof InventoryScreen inv)) return;
 
         OverlayButtonsBridge holder = (OverlayButtonsBridge) inv;
@@ -77,64 +92,39 @@ public abstract class HandledScreenButtonsSupportMixin extends Screen {
 
         boolean shift = Screen.hasShiftDown();
 
-        // Shift + Left click -> color
-        if (button == 0 && shift) {
-            if (hallowed$isWithin(mouseX, mouseY, coords)) {
-                ClientConfigManager.cycleCoordsColor();
-                cir.setReturnValue(true);
-                return;
-            }
-            if (hallowed$isWithin(mouseX, mouseY, time)) {
-                ClientConfigManager.cycleTimeColor();
-                cir.setReturnValue(true);
-                return;
-            }
+        if (button == 0 && shift) { // Shift + LMB => color
+            if (coords.visible && coords.isMouseOver(mouseX, mouseY)) { ClientConfigManager.cycleCoordsColor();   cir.setReturnValue(true); return; }
+            if (time.visible   && time.isMouseOver(mouseX, mouseY))   { ClientConfigManager.cycleTimeColor();     cir.setReturnValue(true); return; }
         }
 
-        // Right click -> position
-        if (button == 1) {
-            if (hallowed$isWithin(mouseX, mouseY, coords)) {
-                ClientConfigManager.cyclePosition(); // (or your per-line version if you added it)
-                cir.setReturnValue(true);
-                return;
-            }
-            if (hallowed$isWithin(mouseX, mouseY, time)) {
-                ClientConfigManager.cyclePosition(); // (or per-line)
-                cir.setReturnValue(true);
+        if (button == 1) { // RMB => position
+            if (coords.visible && coords.isMouseOver(mouseX, mouseY)) { ClientConfigManager.cycleCoordsPosition(); cir.setReturnValue(true); return; }
+            if (time.visible   && time.isMouseOver(mouseX, mouseY))   { ClientConfigManager.cycleTimePosition();   cir.setReturnValue(true);
             }
         }
     }
 
-    // === helpers ===
-
-    /** Replace vanilla widget visuals with simple skinned rectangles. */
+    /** Center a 16x16 icon in the button rect and draw optional tinted outline. */
     @Unique
-    private static void hallowed$drawSkinnedButton(DrawContext ctx, ButtonWidget b, boolean hovered, boolean visible) {
-        int x = b.getX(), y = b.getY(), w = b.getWidth(), h = b.getHeight();
+    private static void oldways$drawIconWithOutline(
+            DrawContext ctx, int x, int y, int w, int h,
+            Identifier faceSprite, Identifier outlineSprite,
+            int argbColor, boolean lineShown, boolean hovered
+    ) {
+        int ix = x + (w - 16) / 2;
+        int iy = y + (h - 16) / 2;
 
-        // Choose background based on state:
-        //  - hidden   => muted red
-        //  - hovered  => bright gray
-        //  - default  => dark gray
-        int bg = !visible ? 0xAA8B0000 : (hovered ? 0xAAE0E0E0 : 0xAA2B2B2B);
-        int border = hovered ? 0xFFFFFFFF : 0xFF000000;
+        // face (no tint)
+        ctx.drawGuiTexture(RenderPipelines.GUI_TEXTURED, faceSprite, ix, iy, 16, 16);
 
-        // Fill + 1px border
-        ctx.fill(x, y, x + w, y + h, bg);
-        ctx.fill(x, y, x + w, y + 1, border);
-        ctx.fill(x, y + h - 1, x + w, y + h, border);
-        ctx.fill(x, y, x + 1, y + h, border);
-        ctx.fill(x + w - 1, y, x + w, y + h, border);
-
-        // Optional: dim the icon when hidden
-        if (!visible) {
-            ctx.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0x44000000);
+        // outline (tinted) — only when that overlay line is enabled
+        if (lineShown) {
+            int color = argbColor;
+            if (hovered) {
+                // strengthen alpha on hover
+                color = (0xCC << 24) | (argbColor & 0x00FFFFFF);
+            }
+            ctx.drawGuiTexture(RenderPipelines.GUI_TEXTURED, outlineSprite, ix, iy, 16, 16, color);
         }
-    }
-
-    @Unique
-    private static boolean hallowed$isWithin(double mx, double my, ButtonWidget b) {
-        return mx >= b.getX() && mx < b.getX() + b.getWidth()
-                && my >= b.getY() && my < b.getY() + b.getHeight();
     }
 }
