@@ -4,13 +4,15 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "DebugHudMixin",
-    "HandledScreenAccessor",
+    "accessor.HandledScreenAccessor",
     "HandledScreenButtonsSupportMixin",
     "InventoryScreenButtonsInitMixin",
     "ItemEntityRendererMixin",
     "ItemEntityRenderStateExt",
+    "OnlineOptionsScreenMixin",
     "RainbowBedRendererMixin",
     "RecipeBookCloseMixin",
+    "TitleScreenMixin",
     "accessor.RecipeBookAccessor",
     "accessor.RecipeBookScreenAccessor"
   ],

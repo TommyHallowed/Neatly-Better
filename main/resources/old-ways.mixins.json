@@ -11,6 +11,7 @@
     "FireworkRocketItemMixin",
     "JebSheepDeathMixin",
     "PlayerEntityMixin",
+    "ProtectionNerf",
     "SheepInteractMixin",
     "TotemCooldownMixin"
   ],

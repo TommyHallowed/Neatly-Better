@@ -1,7 +1,7 @@
 package net.hallowed.oldways.mixin;
 
 import net.hallowed.oldways.config.CommonConfigManager;
-import net.hallowed.oldways.mending.MendingNerf;
+import net.hallowed.oldways.enchantment.MendingNerf;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.EnchantmentEffectContext;

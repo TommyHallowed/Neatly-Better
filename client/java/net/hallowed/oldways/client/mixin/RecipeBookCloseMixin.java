@@ -1,5 +1,6 @@
 package net.hallowed.oldways.client.mixin;
 
+import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.hallowed.oldways.client.mixin.accessor.RecipeBookAccessor;
 import net.hallowed.oldways.client.mixin.accessor.RecipeBookScreenAccessor;
 import net.hallowed.oldways.client.util.RecipeBookUtil;
@@ -22,9 +23,11 @@ public abstract class RecipeBookCloseMixin {
     @Shadow @Final private ClientRecipeBook recipeBook;
     @Shadow @Final public ClientPlayNetworkHandler networkHandler;
 
-    // In 1.21.8 this method is still ClientPlayerEntity#closeScreen()
     @Inject(method = "closeScreen", at = @At("HEAD"))
     private void oldways$closeRecipeBookIfOpen(CallbackInfo ci) {
+        // Config gate (CLIENT)
+        if (!ClientConfigManager.autoCloseRecipeBookEnabled()) return;
+
         var client = MinecraftClient.getInstance();
         if (client == null || client.currentScreen == null) return;
 

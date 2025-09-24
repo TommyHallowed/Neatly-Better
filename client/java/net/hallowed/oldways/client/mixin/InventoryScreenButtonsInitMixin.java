@@ -1,5 +1,6 @@
 package net.hallowed.oldways.client.mixin;
 
+import net.hallowed.oldways.client.mixin.accessor.HandledScreenAccessor;
 import net.hallowed.oldways.client.util.OverlayButtonsBridge;
 import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.minecraft.client.gui.screen.Screen;
