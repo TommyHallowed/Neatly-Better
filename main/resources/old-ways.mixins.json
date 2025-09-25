@@ -3,17 +3,22 @@
   "package": "net.hallowed.oldways.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "AbstractMinecartSpeedMixin",
     "AnvilScreenHandlerMixin",
     "BedBlockMixin",
-    "BlockEntityTypeBlocksAccessor",
-    "ExperienceOrbEntityMixin",
     "FireworkRocketItemMixin",
-    "JebSheepDeathMixin",
-    "PlayerEntityMixin",
     "ProtectionNerf",
-    "SheepInteractMixin",
-    "TotemCooldownMixin"
+    "TotemCooldownMixin",
+    "accessor.BlockEntityTypeBlocksAccessor",
+    "entity.AbstractMinecartSpeedMixin",
+    "entity.ExperienceOrbEntityMixin",
+    "entity.JebSheepDeathMixin",
+    "entity.NoAnimalTemptDelayMixin",
+    "entity.PlayerEntityMixin",
+    "entity.SheepInteractMixin",
+    "entity.VillagerGlobalCuringMixin",
+    "entity.ZombifiedPiglinEntityMixin",
+    "shield.ExplosionsDisableShields",
+    "shield.NoShieldDelay"
   ],
   "injectors": {
     "defaultRequire": 1

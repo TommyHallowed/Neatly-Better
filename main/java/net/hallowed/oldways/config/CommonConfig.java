@@ -22,6 +22,10 @@ public final class CommonConfig {
     @SerializedName("Protection Damage Reduction")
     public ProtectionDamageAbsorption protection = new ProtectionDamageAbsorption();
 
+    // NEW: Villager category
+    @SerializedName("Villager")
+    public Villager villager = new Villager();
+
     // --- Sections ---
 
     public static final class MendingNerf {
@@ -62,5 +66,19 @@ public final class CommonConfig {
         @SerializedName("Max Fire Reduction")       public float fireMax       = 0.20f;
         @SerializedName("Max Blast Reduction")      public float blastMax      = 0.20f;
         @SerializedName("Max Projectile Reduction") public float projectileMax = 0.20f;
+    }
+
+    /** New Villager options. Vanilla-faithful, first slot only. */
+    public static final class Villager {
+        @SerializedName("_comment")
+        public String comment = "Villager trade tweaks: GlobalCuringPrices persists the lowest first-slot cost on the villager so all players see the same price; InfiniteCuringDiscounts keeps lowering that stored floor when curing achieves a new lower price (pre-1.21 feel).";
+
+        /** Persist & apply lowest first-slot price globally for everyone. */
+        @SerializedName("Global Curing Prices")
+        public boolean globalCuringPrices = true;
+
+        /** Keep lowering stored floor when curing lowers price again (if false, first low price is locked). */
+        @SerializedName("Infinite Curing Discounts")
+        public boolean infiniteCuringDiscounts = true;
     }
 }

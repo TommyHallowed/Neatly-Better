@@ -6,7 +6,7 @@ import net.hallowed.oldways.content.ModBlocks;
 import net.hallowed.oldways.content.ModItems;
 import net.hallowed.oldways.config.CommonConfigManager;
 import net.hallowed.oldways.enchantment.MendingNerf;
-import net.hallowed.oldways.mixin.BlockEntityTypeBlocksAccessor;   // <-- our accessor
+import net.hallowed.oldways.mixin.accessor.BlockEntityTypeBlocksAccessor;   // <-- our accessor
 import net.hallowed.oldways.network.NetworkInit;
 import net.hallowed.oldways.network.ServerHandlers;
 import net.minecraft.block.Block;

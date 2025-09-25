@@ -115,6 +115,9 @@ public final class ClientConfigManager {
     public static boolean autoCloseRecipeBookEnabled() {
         return CONFIG.recipeBook != null && CONFIG.recipeBook.autoClose;
     }
+    public static boolean recipeBookHideButtonEnabled() {
+        return CONFIG.recipeBook != null && CONFIG.recipeBook.hideButton;
+    }
 
     /* ================= Scale ================= */
     public static float overlayTextScale() {

@@ -53,6 +53,10 @@ public final class CommonConfigManager {
     public static boolean infinityFixEnabled()    { return CONFIG.infinityFix.enabled; }
     public static boolean bedNerfEnabled()        { return CONFIG.bedNerf.enabled; }
 
+    // villager
+    public static boolean villagerGlobalCuringPrices()    { return CONFIG.villager.globalCuringPrices; }
+    public static boolean villagerInfiniteCuringDiscounts(){ return CONFIG.villager.infiniteCuringDiscounts; }
+
     // totem
     public static int  totemCooldownSeconds() { return Math.max(0, CONFIG.totemCooldown.seconds); }
     public static int  totemCooldownTicks()   { return totemCooldownSeconds() * 20; }

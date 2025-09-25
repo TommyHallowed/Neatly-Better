@@ -39,10 +39,14 @@ public abstract class BedBlockMixin {
         if (!CommonConfigManager.bedNerfEnabled()) return;
         if (world.isClient || !(player instanceof ServerPlayerEntity serverPlayer)) return;
 
+        // 🔒 Only in Overworld
+        if (world.getRegistryKey() != World.OVERWORLD) return;
+
         MinecraftServer server = serverPlayer.getServer();
         if (server == null) return;
 
-        AdvancementEntry entry = server.getAdvancementLoader().get(Identifier.of("minecraft", "end/kill_dragon"));
+        AdvancementEntry entry = server.getAdvancementLoader()
+                .get(Identifier.of("minecraft", "end/kill_dragon"));
         if (entry == null) return;
 
         PlayerAdvancementTracker tracker = serverPlayer.getAdvancementTracker();
