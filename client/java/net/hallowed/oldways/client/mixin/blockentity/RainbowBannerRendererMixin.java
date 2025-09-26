@@ -1,6 +1,6 @@
 package net.hallowed.oldways.client.mixin.blockentity;
 
-import net.hallowed.oldways.client.rainbow.RainbowTicker;   // <— shared clock & color math
+import net.hallowed.oldways.client.util.RainbowTicker;   // <— shared clock & color math
 import net.hallowed.oldways.content.ModBlocks;
 import net.minecraft.block.entity.BannerBlockEntity;
 import net.minecraft.client.model.ModelPart;

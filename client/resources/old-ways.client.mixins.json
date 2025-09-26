@@ -9,20 +9,22 @@
     "accessor.RecipeBookScreenAccessor",
     "blockentity.RainbowBannerRendererMixin",
     "blockentity.RainbowBedRendererMixin",
-    "entity.EntityRenderDispatcherMixin_StuckProjectileTap",
+    "item.PotionItemGlintMixin",
+    "entity.AddStuckProjectile",
+    "entity.EntityRenderDispatcherOnStuckProjectile",
     "entity.ItemEntityRendererMixin",
     "entity.ItemEntityRenderStateExt",
-    "entity.LivingEntityRendererMixin_AddStuckProjectile",
-    "item.RainbowBannerItemTintMixin",
+    "feature.ContinueBreaking",
     "ui.DebugHudMixin",
     "ui.HandledScreenButtonsSupportMixin",
     "ui.InventoryScreenButtonsInitMixin",
     "ui.OnlineOptionsScreenMixin",
     "ui.RecipeBookCloseMixin",
     "ui.RecipeBookScreenMixin_HideButton",
+    "ui.ResourcePackCompatibility",
     "ui.TitleScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-	}
+  }
 }

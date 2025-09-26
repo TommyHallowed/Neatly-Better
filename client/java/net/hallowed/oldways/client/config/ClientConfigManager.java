@@ -191,4 +191,9 @@ public final class ClientConfigManager {
             default -> null;
         };
     }
+
+    /* ================= Potions (visuals) ================= */
+    public static boolean potionGlintEnabled() {
+        return CONFIG.potions == null || CONFIG.potions.potionGlint;
+    }
 }

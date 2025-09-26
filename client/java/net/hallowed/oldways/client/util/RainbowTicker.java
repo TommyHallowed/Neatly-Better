@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.rainbow;
+package net.hallowed.oldways.client.util;
 
 import net.minecraft.util.math.MathHelper;
 

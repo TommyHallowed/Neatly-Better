@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** Copies the live counts from the entity so our feature can render them for any mob. */
 @Mixin(EntityRenderDispatcher.class)
-public class EntityRenderDispatcherMixin_StuckProjectileTap {
+public class EntityRenderDispatcherOnStuckProjectile {
     // 1.21.8: render(Entity, DDD, F, MatrixStack, VertexConsumerProvider, int)
     @Inject(
             method = "render(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",

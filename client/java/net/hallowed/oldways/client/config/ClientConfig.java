@@ -17,6 +17,9 @@ public final class ClientConfig {
     @SerializedName("Stuck Projectiles")
     public StuckProjectiles stuckProjectiles = new StuckProjectiles();
 
+    @SerializedName("Potions")
+    public Potions potions = new Potions();
+
     /* ========================= Old (2D-like) item rendering ========================= */
     public static final class OldItemRendering {
         @SerializedName("_comment")
@@ -70,5 +73,13 @@ public final class ClientConfig {
         @SerializedName("_comment")
         public String comment = "Show stuck arrows/bee stingers on all mobs";
         public boolean enabled = true; // default ON
+    }
+
+    /* ========================= Potions (client visuals) ========================= */
+    public static final class Potions {
+        @SerializedName("_comment")
+        public String comment = "Potion items show glint when they have effects";
+        /** If true, potions with effects will render with the enchantment glint. */
+        public boolean potionGlint = true;
     }
 }

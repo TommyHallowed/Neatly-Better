@@ -3,8 +3,6 @@ package net.hallowed.oldways.config;
 import com.google.gson.annotations.SerializedName;
 
 public final class CommonConfig {
-    @SerializedName("Mending Nerf")
-    public MendingNerf mendingNerf = new MendingNerf();
 
     @SerializedName("Elytra Boosting")
     public ElytraBoosting elytraBoosting = new ElytraBoosting();
@@ -14,6 +12,9 @@ public final class CommonConfig {
 
     @SerializedName("Bed Nerf")
     public BedNerf bedNerf = new BedNerf();
+
+    @SerializedName("Player Velocity Fix")
+    public VelocityFix velocityFix = new VelocityFix();
 
     @SerializedName("Totem Cooldown")
     public TotemCooldown totemCooldown = new TotemCooldown();
@@ -27,12 +28,6 @@ public final class CommonConfig {
     public Villager villager = new Villager();
 
     // --- Sections ---
-
-    public static final class MendingNerf {
-        @SerializedName("_comment")
-        public String comment = "changes mending enchantment to reset anvil repair cost";
-        public boolean enabled = true;
-    }
 
     public static final class ElytraBoosting {
         @SerializedName("_comment")
@@ -52,6 +47,12 @@ public final class CommonConfig {
         public boolean enabled = true;
     }
 
+    public static final class VelocityFix {
+        @SerializedName("_comment")
+        public String comment = "Increases player speed limits / Fixes rubber-banding";
+        public boolean enabled = false;
+    }
+
     public static final class TotemCooldown {
         @SerializedName("_comment")
         public String comment = "Adds cooldown to the totem of undying";
@@ -62,7 +63,7 @@ public final class CommonConfig {
     public static final class ProtectionDamageAbsorption {
         @SerializedName("_comment")
         public String comment = "Changes protection enchantment damage reduction [0.1 - 10%]";
-        @SerializedName("Max Reduction")            public float genericMax    = 0.10f;
+        @SerializedName("Max Protection Reduction")            public float genericMax    = 0.10f;
         @SerializedName("Max Fire Reduction")       public float fireMax       = 0.20f;
         @SerializedName("Max Blast Reduction")      public float blastMax      = 0.20f;
         @SerializedName("Max Projectile Reduction") public float projectileMax = 0.20f;
@@ -71,7 +72,7 @@ public final class CommonConfig {
     /** New Villager options. Vanilla-faithful, first slot only. */
     public static final class Villager {
         @SerializedName("_comment")
-        public String comment = "Villager trade tweaks: GlobalCuringPrices persists the lowest first-slot cost on the villager so all players see the same price; InfiniteCuringDiscounts keeps lowering that stored floor when curing achieves a new lower price (pre-1.21 feel).";
+        public String comment = "Changes the villager prices to be global and not per player that cures the villager.\nChanges curing mechanics to older versions (infinite stacking).";
 
         /** Persist & apply lowest first-slot price globally for everyone. */
         @SerializedName("Global Curing Prices")

@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** Attaches the stuck-projectile features to ALL living renderers, when enabled. */
 @Mixin(LivingEntityRenderer.class)
-public abstract class LivingEntityRendererMixin_AddStuckProjectile<S extends LivingEntityRenderState, M extends EntityModel<? super S>> {
+public abstract class AddStuckProjectile<S extends LivingEntityRenderState, M extends EntityModel<? super S>> {
 
     @Shadow protected abstract boolean addFeature(FeatureRenderer<S, M> feature);
 
