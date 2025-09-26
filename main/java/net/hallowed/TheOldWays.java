@@ -4,6 +4,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.hallowed.oldways.content.*;
 import net.hallowed.oldways.config.CommonConfigManager;
+import net.hallowed.oldways.enchantment.MendingNerf;
 import net.hallowed.oldways.mixin.accessor.BlockEntityTypeBlocksAccessor;   // <-- our accessor
 import net.hallowed.oldways.network.NetworkInit;
 import net.hallowed.oldways.network.ServerHandlers;
@@ -29,6 +30,8 @@ public class TheOldWays implements ModInitializer {
         ModItems.register();
         ModPotions.registerAll();
         ModBrewing.register();
+        MendingNerf.init();
+        ModDataComponents.init();
         addSupported(ModBlocks.RAINBOW_BED);
         CommonConfigManager.load();
         NetworkInit.register();

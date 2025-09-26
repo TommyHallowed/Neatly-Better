@@ -5,10 +5,10 @@
   "mixins": [
     "BedBlockMixin",
     "FireworkRocketItemMixin",
-    "NoFeatherCropTrample",
-    "ProtectionNerf",
     "TotemCooldownMixin",
     "accessor.BlockEntityTypeBlocksAccessor",
+    "enchantment.NoFeatherCropTrample",
+    "enchantment.ProtectionNerf",
     "entity.AbstractMinecartSpeedMixin",
     "entity.JebSheepDeathMixin",
     "entity.NoAnimalTemptDelayMixin",
@@ -18,8 +18,10 @@
     "entity.VillagerGlobalCuringMixin",
     "entity.ZombifiedPiglinEntityMixin",
     "network.ServerPlayNetworkHandlerVelocity",
+    "screen.AnvilScreenHandler",
     "shield.ExplosionsDisableShields",
-    "shield.NoShieldDelay"
+    "shield.NoShieldDelay",
+    "ui.SmithingScreenHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

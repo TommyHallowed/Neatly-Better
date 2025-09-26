@@ -15,5 +15,7 @@
   "item.minecraft.lingering_potion.effect.strong_haste": "Lingering Potion of Haste",
   "item.minecraft.tipped_arrow.effect.haste": "Arrow of Haste",
   "item.minecraft.tipped_arrow.effect.long_haste": "Arrow of Haste",
-  "item.minecraft.tipped_arrow.effect.strong_haste": "Arrow of Haste"
+  "item.minecraft.tipped_arrow.effect.strong_haste": "Arrow of Haste",
+
+  "enchantment.old-ways.step_up": "Step up"
  }
