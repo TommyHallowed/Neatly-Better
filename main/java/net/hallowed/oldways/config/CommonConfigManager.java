@@ -51,6 +51,7 @@ public final class CommonConfigManager {
     public static boolean elytraBoostingEnabled() { return CONFIG.elytraBoosting.enabled; }
     public static boolean infinityFixEnabled()    { return CONFIG.infinityFix.enabled; }
     public static boolean bedNerfEnabled()        { return CONFIG.bedNerf.enabled; }
+    public static boolean mendingNerfEnabled()        { return CONFIG.mendingNerf.enabled; }
     public static boolean velocityFix()        { return CONFIG.velocityFix.enabled; }
 
     // villager

@@ -13,6 +13,9 @@ public final class CommonConfig {
     @SerializedName("Bed Nerf")
     public BedNerf bedNerf = new BedNerf();
 
+    @SerializedName("Mending Nerf")
+    public MendingNerf mendingNerf = new MendingNerf();
+
     @SerializedName("Player Velocity Fix")
     public VelocityFix velocityFix = new VelocityFix();
 
@@ -44,6 +47,12 @@ public final class CommonConfig {
     public static final class BedNerf {
         @SerializedName("_comment")
         public String comment = "Allows players to sleep only after they kill Ender Dragon";
+        public boolean enabled = true;
+    }
+
+    public static final class MendingNerf {
+        @SerializedName("_comment")
+        public String comment = "Changes mending book behaviour to lower repair cost";
         public boolean enabled = true;
     }
 
