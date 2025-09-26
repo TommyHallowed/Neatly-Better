@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin;
+package net.hallowed.oldways.mixin.enchantment;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.block.BlockState;

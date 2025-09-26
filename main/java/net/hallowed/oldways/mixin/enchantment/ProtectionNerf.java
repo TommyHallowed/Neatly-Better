@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin;
+package net.hallowed.oldways.mixin.enchantment;
 
 import net.hallowed.oldways.config.CommonConfigManager;
 import net.minecraft.enchantment.Enchantment;
