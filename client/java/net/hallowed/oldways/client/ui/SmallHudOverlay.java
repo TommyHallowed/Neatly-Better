@@ -9,7 +9,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.BundleContentsComponent;
+import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 
 @Environment(EnvType.CLIENT)
@@ -27,10 +32,12 @@ public final class SmallHudOverlay implements HudRenderCallback {
         PlayerEntity p = mc.player;
         ClientWorld w = mc.world;
 
-        boolean showCoords = ClientConfigManager.coordsVisible()
-                && (p.getInventory().contains(Items.COMPASS.getDefaultStack()) || EnderCheckClient.enderHasCompass());
-        boolean showTime   = ClientConfigManager.timeVisible()
-                && (p.getInventory().contains(Items.CLOCK.getDefaultStack())   || EnderCheckClient.enderHasClock());
+        // Deep-scan main + offhand (bundles, shulkers/containers), OR ender-chest state from server
+        boolean hasCompass = hasInPlayerDeep(p, Items.COMPASS) || EnderCheckClient.enderHasCompass();
+        boolean hasClock   = hasInPlayerDeep(p, Items.CLOCK)   || EnderCheckClient.enderHasClock();
+
+        boolean showCoords = ClientConfigManager.coordsVisible() && hasCompass;
+        boolean showTime   = ClientConfigManager.timeVisible()   && hasClock;
         if (!showCoords && !showTime) return;
 
         var tr = mc.textRenderer;
@@ -84,5 +91,43 @@ public final class SmallHudOverlay implements HudRenderCallback {
             case "bottom_right" -> new int[]{screenW - w - pad, screenH - h - pad};
             default             -> new int[]{pad, pad}; // top_left
         };
+    }
+
+    /* ---------------- deep scan helpers ---------------- */
+
+    /** Deep-scan player's main inventory + offhand for an item, recursing bundles & container items. */
+    private static boolean hasInPlayerDeep(PlayerEntity p, Item target) {
+        if (p == null) return false;
+        // main inventory
+        var main = p.getInventory().getMainStacks();
+        for (ItemStack itemStack : main) {
+            if (matchesDeep(itemStack, target)) return true;
+        }
+        // offhand
+        return matchesDeep(p.getOffHandStack(), target);
+    }
+
+    /** Returns true if stack is the target item or contains it in a nested bundle/container. */
+    private static boolean matchesDeep(ItemStack stack, Item target) {
+        if (stack == null || stack.isEmpty()) return false;
+        if (stack.isOf(target)) return true;
+
+        // Bundle contents
+        BundleContentsComponent bundle = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
+        if (bundle != null) {
+            for (ItemStack child : bundle.iterate()) {
+                if (!child.isEmpty() && matchesDeep(child, target)) return true;
+            }
+        }
+
+        // Shulker boxes & any container-bearing item
+        ContainerComponent container = stack.get(DataComponentTypes.CONTAINER);
+        if (container != null) {
+            for (ItemStack child : container.iterateNonEmpty()) {
+                if (matchesDeep(child, target)) return true;
+            }
+        }
+
+        return false;
     }
 }

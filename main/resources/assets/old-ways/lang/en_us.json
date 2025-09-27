@@ -17,5 +17,7 @@
   "item.minecraft.tipped_arrow.effect.long_haste": "Arrow of Haste",
   "item.minecraft.tipped_arrow.effect.strong_haste": "Arrow of Haste",
 
-  "enchantment.old-ways.step_up": "Step up"
+  "enchantment.old-ways.step_up": "Step up",
+
+  "key.old-ways.toggle_locator_bar": "Toggle Locator Bar"
  }

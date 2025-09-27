@@ -6,8 +6,7 @@ import net.hallowed.oldways.content.*;
 import net.hallowed.oldways.config.CommonConfigManager;
 import net.hallowed.oldways.enchantment.MendingNerf;
 import net.hallowed.oldways.mixin.accessor.BlockEntityTypeBlocksAccessor;   // <-- our accessor
-import net.hallowed.oldways.network.NetworkInit;
-import net.hallowed.oldways.network.ServerHandlers;
+import net.hallowed.oldways.network.OldWaysNetwork;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemGroups;
@@ -34,8 +33,7 @@ public class TheOldWays implements ModInitializer {
         ModDataComponents.init();
         addSupported(ModBlocks.RAINBOW_BED);
         CommonConfigManager.load();
-        NetworkInit.register();
-        ServerHandlers.register();
+        OldWaysNetwork.registerCommon();
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.COLORED_BLOCKS).register(entries -> {
             entries.addAfter(Items.PINK_WOOL, ModItems.RAINBOW_WOOL);

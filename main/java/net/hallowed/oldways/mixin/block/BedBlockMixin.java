@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin;
+package net.hallowed.oldways.mixin.block;
 
 import net.hallowed.oldways.config.CommonConfigManager;
 import net.minecraft.advancement.AdvancementEntry;

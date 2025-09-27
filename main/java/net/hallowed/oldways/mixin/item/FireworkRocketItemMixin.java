@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin;
+package net.hallowed.oldways.mixin.item;
 
 import net.hallowed.oldways.config.CommonConfigManager;
 import net.minecraft.entity.player.PlayerEntity;

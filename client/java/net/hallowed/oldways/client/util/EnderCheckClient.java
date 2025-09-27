@@ -2,34 +2,25 @@ package net.hallowed.oldways.client.util;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.hallowed.oldways.network.EnderCheckPackets;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.hallowed.oldways.client.network.OldWaysNetworkClient;
+import net.hallowed.oldways.network.OldWaysNetwork;
 
 @Environment(EnvType.CLIENT)
 public final class EnderCheckClient {
-    private static boolean hasCompassEnder = false;
-    private static boolean hasClockEnder   = false;
-    private static long lastRequestMs = 0;
+    private static volatile boolean hasCompassEnder = false;
+    private static volatile boolean hasClockEnder   = false;
 
     public static void register() {
-        // receive updates
-        ClientPlayNetworking.registerGlobalReceiver(
-                EnderCheckPackets.EnderCheckResponse.ID,
-                (payload, context) -> {
-                    hasCompassEnder = payload.hasCompass();
-                    hasClockEnder   = payload.hasClock();
-                });
-
-        // ping server ~every second while in-game
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player == null || client.getNetworkHandler() == null) return;
-            long now = System.currentTimeMillis();
-            if (now - lastRequestMs >= 1000) {
-                lastRequestMs = now;
-                ClientPlayNetworking.send(new EnderCheckPackets.EnderCheckRequest());
-            }
+        // Receive S2C
+        OldWaysNetworkClient.registerClient((OldWaysNetwork.EnderCheckResponse resp) -> {
+            hasCompassEnder = resp.hasCompass();
+            hasClockEnder   = resp.hasClock();
         });
+
+        // Fallback: ask once on join (in case the JOIN push is delayed on some stacks)
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) ->
+                client.execute(OldWaysNetworkClient::sendEnderCheck));
     }
 
     public static boolean enderHasCompass() { return hasCompassEnder; }

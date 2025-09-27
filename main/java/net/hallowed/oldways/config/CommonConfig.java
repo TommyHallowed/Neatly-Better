@@ -16,18 +16,18 @@ public final class CommonConfig {
     @SerializedName("Mending Nerf")
     public MendingNerf mendingNerf = new MendingNerf();
 
+    @SerializedName("Protection Nerf")
+    public ProtectionNerf protectionNerf = new ProtectionNerf();
+
     @SerializedName("Player Velocity Fix")
     public VelocityFix velocityFix = new VelocityFix();
 
-    @SerializedName("Totem Cooldown")
+    @SerializedName("Totem of Undying")
     public TotemCooldown totemCooldown = new TotemCooldown();
 
-    // Keep the object name as-is to preserve your file layout
-    @SerializedName("Protection Damage Reduction")
-    public ProtectionDamageAbsorption protection = new ProtectionDamageAbsorption();
 
     // NEW: Villager category
-    @SerializedName("Villager")
+    @SerializedName("Villager Tweaks")
     public Villager villager = new Villager();
 
     // --- Sections ---
@@ -56,33 +56,27 @@ public final class CommonConfig {
         public boolean enabled = true;
     }
 
+    public static final class ProtectionNerf {
+        @SerializedName("_comment")
+        public String comment = "Reduces protection damage absorptions and burning time.";
+        public boolean enabled = true;
+    }
+
     public static final class VelocityFix {
         @SerializedName("_comment")
-        public String comment = "Increases player speed limits / Fixes rubber-banding";
+        public String comment = "Increases player speed limits / fixes rubber-banding.";
         public boolean enabled = false;
     }
 
     public static final class TotemCooldown {
         @SerializedName("_comment")
-        public String comment = "Adds cooldown to the totem of undying";
+        public String comment = "In seconds.";
+        @SerializedName("cooldown")
         public int seconds = 60;
-    }
-
-    /** Fractions (0.10 = 10%). Scales linearly with total Protection levels up to 16 (Prot IV on 4 pieces). */
-    public static final class ProtectionDamageAbsorption {
-        @SerializedName("_comment")
-        public String comment = "Changes protection enchantment damage reduction [0.1 - 10%]";
-        @SerializedName("Max Protection Reduction")            public float genericMax    = 0.10f;
-        @SerializedName("Max Fire Reduction")       public float fireMax       = 0.20f;
-        @SerializedName("Max Blast Reduction")      public float blastMax      = 0.20f;
-        @SerializedName("Max Projectile Reduction") public float projectileMax = 0.20f;
     }
 
     /** New Villager options. Vanilla-faithful, first slot only. */
     public static final class Villager {
-        @SerializedName("_comment")
-        public String comment = "Changes the villager prices to be global and not per player that cures the villager.\nChanges curing mechanics to older versions (infinite stacking).";
-
         /** Persist & apply lowest first-slot price globally for everyone. */
         @SerializedName("Global Curing Prices")
         public boolean globalCuringPrices = true;

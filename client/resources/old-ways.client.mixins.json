@@ -17,13 +17,16 @@
     "feature.EmissiveTrims",
     "item.PotionItemGlintMixin",
     "ui.DebugHudMixin",
+    "ui.GenericContainerScreenMixin",
     "ui.HandledScreenButtonsSupportMixin",
     "ui.InventoryScreenButtonsInitMixin",
     "ui.OnlineOptionsScreenMixin",
     "ui.RecipeBookCloseMixin",
     "ui.RecipeBookScreenMixin_HideButton",
     "ui.ResourcePackCompatibility",
-    "ui.TitleScreenMixin"
+    "ui.TitleScreenMixin",
+    "ui.locatorbar.InGameHudMixin",
+    "ui.locatorbar.LocatorBarMixin"
   ],
   "injectors": {
     "defaultRequire": 1

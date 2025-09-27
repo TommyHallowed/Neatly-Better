@@ -52,6 +52,7 @@ public final class CommonConfigManager {
     public static boolean infinityFixEnabled()    { return CONFIG.infinityFix.enabled; }
     public static boolean bedNerfEnabled()        { return CONFIG.bedNerf.enabled; }
     public static boolean mendingNerfEnabled()        { return CONFIG.mendingNerf.enabled; }
+    public static boolean protectionNerfEnabled()        { return CONFIG.protectionNerf.enabled; }
     public static boolean velocityFix()        { return CONFIG.velocityFix.enabled; }
 
     // villager
@@ -62,10 +63,4 @@ public final class CommonConfigManager {
     public static int  totemCooldownSeconds() { return Math.max(0, CONFIG.totemCooldown.seconds); }
     public static int  totemCooldownTicks()   { return totemCooldownSeconds() * 20; }
 
-    // protection caps (clamped to sane range)
-    private static float clampCap(float v) { return Math.max(0f, Math.min(0.80f, v)); }
-    public static float genericProtCap()    { return clampCap(CONFIG.protection.genericMax); }
-    public static float fireProtCap()       { return clampCap(CONFIG.protection.fireMax); }
-    public static float blastProtCap()      { return clampCap(CONFIG.protection.blastMax); }
-    public static float projectileProtCap() { return clampCap(CONFIG.protection.projectileMax); }
 }

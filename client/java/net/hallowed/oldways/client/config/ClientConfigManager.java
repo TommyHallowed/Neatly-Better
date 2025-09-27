@@ -60,9 +60,14 @@ public final class ClientConfigManager {
     }
     public static void toggleStuckProjectiles() { setStuckProjectilesEnabled(!stuckProjectilesEnabled()); }
 
-    /* ================= Old Item Rendering (ground items) ================= */
+    /* ================= Old Features ================= */
+    // Moved here: old item rendering + potion glint
     public static boolean oldItemRenderingEnabled() {
-        return CONFIG.oldItemRendering != null && CONFIG.oldItemRendering.enabled;
+        return CONFIG.oldFeatures != null && CONFIG.oldFeatures.oldItemRendering;
+    }
+    public static boolean potionGlintEnabled() {
+        // default-on behavior if category/field is missing
+        return CONFIG.oldFeatures == null || CONFIG.oldFeatures.potionGlint;
     }
 
     /* ================= Overlay flags ================= */
@@ -192,8 +197,54 @@ public final class ClientConfigManager {
         };
     }
 
-    /* ================= Potions (visuals) ================= */
-    public static boolean potionGlintEnabled() {
-        return CONFIG.potions == null || CONFIG.potions.potionGlint;
+    // ================= Locator Bar =================
+    public static boolean locatorBarEnabled() {
+        return CONFIG.locatorBar != null && CONFIG.locatorBar.enabled;
+    }
+    public static boolean locatorBarShowInSpectator() {
+        return CONFIG.locatorBar != null && CONFIG.locatorBar.showInSpectator;
+    }
+    public static boolean tabForcesLocatorBar() {
+        return CONFIG.locatorBar == null || CONFIG.locatorBar.tabForcesLocatorBar;
+    }
+    public static boolean tabShowsNames() {
+        return CONFIG.locatorBar == null || CONFIG.locatorBar.tabShowsNames;
+    }
+    public static int locatorHideDelayMs() {
+        return (CONFIG.locatorBar != null) ? Math.max(0, CONFIG.locatorBar.hideDelayMs) : 800;
+    }
+
+    public static boolean showRecovery() { return CONFIG.locatorBar == null || CONFIG.locatorBar.showRecovery; }
+    public static int recoveryColor()    { return CONFIG.locatorBar != null ? CONFIG.locatorBar.recoveryColor : 0xFFFF5555; }
+
+    public static boolean showLodestone() { return CONFIG.locatorBar == null || CONFIG.locatorBar.showLodestone; }
+    public static int lodestoneColor()    { return CONFIG.locatorBar != null ? CONFIG.locatorBar.lodestoneColor : 0xFF55AAFF; }
+
+    public static boolean scanInventories() { return CONFIG.locatorBar == null || CONFIG.locatorBar.ScanInventories; }
+    public static boolean allowNameColorCodes() { return CONFIG.locatorBar == null || CONFIG.locatorBar.allowNameColorCodes; }
+
+    public static boolean renderPlayerHeads() {
+        return CONFIG.locatorBar == null || CONFIG.locatorBar.renderPlayerHeads;
+    }
+    public static boolean coloredHeadOutline() {
+        return CONFIG.locatorBar == null || CONFIG.locatorBar.coloredHeadOutline;
+    }
+    public static float headSizeMultiplier() {
+        float f = (CONFIG.locatorBar != null) ? CONFIG.locatorBar.headSizeMultiplier : 1.0f;
+        if (Float.isNaN(f) || f <= 0.25f) f = 1.0f;
+        return Math.min(f, 4.0f);
+    }
+
+    // ----- tiny helpers for keybind -----
+    public static void setLocatorBarEnabled(boolean enabled) {
+        if (CONFIG.locatorBar == null) CONFIG.locatorBar = new ClientConfig.LocatorBar();
+        CONFIG.locatorBar.enabled = enabled;
+        save();
+    }
+    public static void toggleLocatorBar() {
+        setLocatorBarEnabled(!locatorBarEnabled());
+    }
+    public static void saveClient() {
+        save();
     }
 }
