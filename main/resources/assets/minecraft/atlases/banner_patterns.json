@@ -1,6 +1,0 @@
-{
-  "replace": false,
-  "sources": [
-    { "type": "single", "resource": "old-ways:entity/banner/rainbow" }
-  ]
-}
