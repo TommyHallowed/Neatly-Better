@@ -1,0 +1,36 @@
+{
+  "required": true,
+  "package": "net.hallowed.oldways.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "accessor.HandledScreenAccessor",
+    "accessor.ModelPartAccessor",
+    "accessor.RecipeBookAccessor",
+    "accessor.RecipeBookScreenAccessor",
+    "blockentity.BannerBlockEntityRendererMixin",
+    "blockentity.BedBlockEntityRendererMixin",
+    "entity.LivingEntityRendererMixin",
+    "entity.EntityRenderDispatcherMixin",
+    "entity.ItemEntityRendererMixin",
+    "entity.ItemEntityRenderStateMixin",
+    "feature.ClientPlayerInteractionManagerMixin",
+    "feature.EquipmentRendererMixin",
+    "item.PotionItemMixin",
+    "ui.DebugHudMixin",
+    "ui.EnchantmentScreenMixin",
+    "ui.GenericContainerScreenMixin",
+    "ui.HandledScreenMixin",
+    "ui.InventoryScreenMixin",
+    "ui.OnlineOptionsScreenMixin",
+    "ui.ClientPlayerEntityMixin",
+    "ui.RecipeBookScreenMixin",
+    "ui.ResourcePackCompatibilityMixin",
+    "ui.TitleScreenMixin",
+    "ui.locatorbar.InGameHudMixin",
+    "ui.locatorbar.LocatorBarMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": []
+}

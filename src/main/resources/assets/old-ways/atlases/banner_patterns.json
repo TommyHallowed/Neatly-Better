@@ -1,0 +1,14 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "old-ways:entity/banner/rainbow_base",
+      "sprite": "entity/banner/rainbow_base"
+    },
+    {
+      "type": "directory",
+      "source": "entity/banner",
+      "prefix": "entity/banner/"
+    }
+  ]
+}
