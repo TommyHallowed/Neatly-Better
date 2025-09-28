@@ -23,7 +23,6 @@ public abstract class BannerPatternsComponentMixin {
         return 16;
     }
 
-
     @Redirect(
             method = { "appendTooltip" },
             at = @At(value = "INVOKE", target = "Ljava/lang/Math;min(II)I"),
