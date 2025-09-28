@@ -16,6 +16,9 @@
     "feature.ClientPlayerInteractionManagerMixin",
     "feature.EquipmentRendererMixin",
     "item.PotionItemMixin",
+    "screenshot.MainMixin",
+    "ui.ChatHudMixin",
+    "ui.BannerPatternsComponentMixin",
     "ui.ClientPlayerEntityMixin",
     "ui.DebugHudMixin",
     "ui.EnchantmentScreenMixin",
@@ -33,7 +36,5 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "mixins": [
-    "ui.BannerPatternsComponentMixin"
-  ]
+  "mixins": []
 }
