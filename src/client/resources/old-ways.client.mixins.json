@@ -9,20 +9,21 @@
     "accessor.RecipeBookScreenAccessor",
     "blockentity.BannerBlockEntityRendererMixin",
     "blockentity.BedBlockEntityRendererMixin",
-    "entity.LivingEntityRendererMixin",
     "entity.EntityRenderDispatcherMixin",
     "entity.ItemEntityRendererMixin",
     "entity.ItemEntityRenderStateMixin",
+    "entity.LivingEntityRendererMixin",
     "feature.ClientPlayerInteractionManagerMixin",
     "feature.EquipmentRendererMixin",
     "item.PotionItemMixin",
+    "ui.ClientPlayerEntityMixin",
     "ui.DebugHudMixin",
     "ui.EnchantmentScreenMixin",
     "ui.GenericContainerScreenMixin",
     "ui.HandledScreenMixin",
     "ui.InventoryScreenMixin",
+    "ui.LoomScreenMixin",
     "ui.OnlineOptionsScreenMixin",
-    "ui.ClientPlayerEntityMixin",
     "ui.RecipeBookScreenMixin",
     "ui.ResourcePackCompatibilityMixin",
     "ui.TitleScreenMixin",
@@ -32,5 +33,7 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "mixins": []
+  "mixins": [
+    "ui.BannerPatternsComponentMixin"
+  ]
 }
