@@ -4,73 +4,88 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.hallowed.oldways.client.locator.WaypointTracking;
+import net.hallowed.oldways.client.ui.SmallHudOverlay;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.world.ClientWaypointHandler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(InGameHud.class)
-public abstract class InGameHudMixin {
+public abstract class InGameHudMixin { // (ModifiedClass)Mixin
     @Shadow @Final private MinecraftClient client;
 
-    @Unique private static long oldways$lastWaypointMs = 0L;
+    @Unique private static long oldways$lastWaypointNs = 0L;
 
-    /** Make vanilla think there is *no* locator content when the feature is disabled. */
+    @Inject(method = "render", at = @At("TAIL"))
+    private void oldways$renderSmallHud(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+        if (!ClientConfigManager.overlayEnabled()) return;
+        SmallHudOverlay.render(context);
+    }
+
     @WrapOperation(
             method = "getCurrentBarType",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWaypointHandler;hasWaypoint()Z")
     )
     private boolean oldways$injectClientWaypoints(ClientWaypointHandler instance, Operation<Boolean> original) {
-        // Completely disable the locator bar path.
-        if (!ClientConfigManager.locatorBarEnabled()) {
-            return false;
+        if (!ClientConfigManager.locatorBarEnabled()) return false;
+
+        final boolean showInSpectator = ClientConfigManager.locatorBarShowInSpectator();
+        final boolean tabForceEnabled = ClientConfigManager.tabForcesLocatorBar();
+        final boolean tabDown = tabForceEnabled && client.options != null && client.options.playerListKey.isPressed();
+        if (tabDown) return true;
+
+        final long nowNs = System.nanoTime();
+        final long delayNs = Math.max(0L, ClientConfigManager.locatorHideDelayMs()) * 1_000_000L;
+        if ((nowNs - oldways$lastWaypointNs) <= delayNs) return true;
+
+        final boolean vanillaHas = original.call(instance);
+        if (client.player == null) return vanillaHas;
+        if (!showInSpectator && client.player.isSpectator()) return vanillaHas;
+
+        boolean anyClientWp = !WaypointTracking.update(client.player).isEmpty();
+
+        // Use unified helper (regular OR recovery compass)
+        if (!anyClientWp
+                && net.hallowed.oldways.client.util.InventoryDeepScan.hasAnyCompass(client.player)
+                && !WaypointTracking.WAYPOINTS.isEmpty()) {
+            anyClientWp = true;
         }
 
-        if (client.player == null) {
-            return original.call(instance);
-        }
-
-        // Our client-side waypoints + small hide-delay window.
-        boolean anyClientWp = !WaypointTracking.update(client.player).isEmpty()
-                && (ClientConfigManager.locatorBarShowInSpectator() || !client.player.isSpectator());
-        boolean tabForce = ClientConfigManager.tabForcesLocatorBar() && client.options.playerListKey.isPressed();
-
-        if (anyClientWp) oldways$lastWaypointMs = System.currentTimeMillis();
-        boolean withinDelay = (System.currentTimeMillis() - oldways$lastWaypointMs) <= ClientConfigManager.locatorHideDelayMs();
-
-        // True if vanilla has one, or ours, or forced, or within delay.
-        return original.call(instance) || anyClientWp || tabForce || withinDelay;
+        if (anyClientWp) oldways$lastWaypointNs = nowNs;
+        return vanillaHas || anyClientWp;
     }
 
-    /** Do not suppress jump bar unless the feature is enabled & being forced. */
     @WrapOperation(
             method = "getCurrentBarType",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;shouldShowJumpBar()Z")
     )
     private boolean oldways$suppressJumpWhenForced(InGameHud self, Operation<Boolean> original) {
-        if (ClientConfigManager.locatorBarEnabled()
-                && ClientConfigManager.tabForcesLocatorBar()
-                && client.options.playerListKey.isPressed()) {
-            return false;
-        }
-        return original.call(self);
+        final boolean forced =
+                ClientConfigManager.locatorBarEnabled()
+                        && ClientConfigManager.tabForcesLocatorBar()
+                        && client.options != null
+                        && client.options.playerListKey.isPressed();
+        return !forced && original.call(self);
     }
 
-    /** Do not suppress XP bar unless the feature is enabled & being forced. */
     @WrapOperation(
             method = "getCurrentBarType",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;shouldShowExperienceBar()Z")
     )
     private boolean oldways$suppressXpWhenForced(InGameHud self, Operation<Boolean> original) {
-        if (ClientConfigManager.locatorBarEnabled()
-                && ClientConfigManager.tabForcesLocatorBar()
-                && client.options.playerListKey.isPressed()) {
-            return false;
-        }
-        return original.call(self);
+        final boolean forced =
+                ClientConfigManager.locatorBarEnabled()
+                        && ClientConfigManager.tabForcesLocatorBar()
+                        && client.options != null
+                        && client.options.playerListKey.isPressed();
+        return !forced && original.call(self);
     }
 }

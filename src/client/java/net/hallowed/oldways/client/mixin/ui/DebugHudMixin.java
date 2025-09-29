@@ -1,12 +1,14 @@
+// src/client/java/net/hallowed/oldways/client/mixin/ui/DebugHudMixin.java
 package net.hallowed.oldways.client.mixin.ui;
 
-import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.hallowed.oldways.client.config.ClientConfigManager;
+import net.hallowed.oldways.client.ui.HudFormatting;
+import net.hallowed.oldways.client.util.InventoryDeepScan;
+import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Items;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,7 +21,7 @@ import java.util.List;
 public abstract class DebugHudMixin {
 
     @Inject(method = "getLeftText()Ljava/util/List;", at = @At("RETURN"), cancellable = true)
-    private void hallowed$coordsFirst_timeUnder(CallbackInfoReturnable<List<String>> cir) {
+    private void oldways$coordsFirst_timeUnder(CallbackInfoReturnable<List<String>> cir) {
         if (!ClientConfigManager.overlayEnabled()) return;
 
         List<String> lines = cir.getReturnValue();
@@ -28,22 +30,19 @@ public abstract class DebugHudMixin {
         ClientWorld w = mc.world;
         if (p == null || w == null) return;
 
-        // Inventory OR server-synced ender-chest flags
-        boolean hasCompass = invHas(p, Items.COMPASS) || EnderCheckClient.enderHasCompass();
-        boolean hasClock   = invHas(p, Items.CLOCK)   || EnderCheckClient.enderHasClock();
+        // Deep inventory (TTL-cached) OR ender flags
+        boolean hasCompass = InventoryDeepScan.hasCompass(p) || EnderCheckClient.enderHasCompass();
+        boolean hasClock   = InventoryDeepScan.hasClock(p)   || EnderCheckClient.enderHasClock();
 
-        // Plain strings for F3 (colors ignored on the debug list)
         String coordsLine = hasCompass
-                ? ClientConfigManager.buildCoords(p.getX(), p.getY(), p.getZ()).text()
+                ? HudFormatting.coordsLine(p).text()
                 : "you need compass to display coordinates";
 
         String timeLine = hasClock
-                ? ClientConfigManager.buildTimeDay(
-                ClientConfigManager.ticksToHHMM(w.getTimeOfDay()),
-                (int) (w.getTime() / 24000L)).text()
+                ? HudFormatting.timeLine(w).text()
                 : "you need clock to display time";
 
-        // Replace XYZ with our coords
+        // Replace XYZ with our coords (or insert near the top)
         int xyzIdx = firstIndexStartingWith(lines, "XYZ:");
         if (xyzIdx != -1) {
             lines.set(xyzIdx, coordsLine);
@@ -52,7 +51,7 @@ public abstract class DebugHudMixin {
             lines.add(xyzIdx, coordsLine);
         }
 
-        // Remove vanilla "Day:" line to avoid duplicate / "Day 0"
+        // Remove vanilla "Day:" to avoid duplicate / "Day 0"
         int dayIdx = firstIndexStartingWith(lines, "Day:");
         if (dayIdx != -1) {
             lines.remove(dayIdx);
@@ -79,13 +78,5 @@ public abstract class DebugHudMixin {
     private static int firstIndexStartingWith(List<String> lines, String prefix) {
         for (int i = 0; i < lines.size(); i++) if (lines.get(i).startsWith(prefix)) return i;
         return -1;
-    }
-
-    // Only checks visible inventory; ender chest presence comes from EnderCheckClient flags
-    @Unique
-    private static boolean invHas(PlayerEntity player, net.minecraft.item.Item item) {
-        var inv = player.getInventory();
-        for (int i = 0; i < inv.size(); i++) if (inv.getStack(i).isOf(item)) return true;
-        return false;
     }
 }

@@ -5,11 +5,11 @@ import net.hallowed.oldways.client.util.OverlayButtonsBridge;
 import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.hallowed.oldways.client.ui.TextureButtonWidget;
 import net.hallowed.oldways.client.util.EnderCheckClient;
+import net.hallowed.oldways.client.util.InventoryDeepScan;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -54,12 +54,9 @@ public abstract class InventoryScreenMixin extends Screen implements OverlayButt
                 b -> ClientConfigManager.toggleTimeVisible()
         );
 
-        // initial visibility from inventory / ender chest
         var player = MinecraftClient.getInstance().player;
-        boolean hasCompass = player != null &&
-                (player.getInventory().contains(Items.COMPASS.getDefaultStack()) || EnderCheckClient.enderHasCompass());
-        boolean hasClock   = player != null &&
-                (player.getInventory().contains(Items.CLOCK.getDefaultStack())   || EnderCheckClient.enderHasClock());
+        boolean hasCompass = player != null && (InventoryDeepScan.hasCompass(player) || EnderCheckClient.enderHasCompass());
+        boolean hasClock   = player != null && (InventoryDeepScan.hasClock(player)   || EnderCheckClient.enderHasClock());
 
         coordsBtn.visible = hasCompass;
         timeBtn.visible   = hasClock;

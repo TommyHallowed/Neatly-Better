@@ -21,74 +21,112 @@ import net.minecraft.world.waypoint.WaypointStyles;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Optimized renderer:
+ *  - One tight loop builds a visible list with precomputed yaw + distSq.
+ *  - Sorting by distSq DESC (farthest first) reuses those values.
+ *  - The "Tab name" is picked from the SAME visible entries and uses the SAME x,
+ *    so it always stays above the icon (no opposite-direction sliding).
+ *  - If no waypoint is visible, the name is not drawn.
+ */
 public final class WaypointRendering {
     private WaypointRendering() {}
 
     private static final Identifier ARROW_UP   = Identifier.ofVanilla("hud/locator_bar_arrow_up");
     private static final Identifier ARROW_DOWN = Identifier.ofVanilla("hud/locator_bar_arrow_down");
 
-    // ---- tiny 2s name -> uuid cache (client-only) ----
     private static final Map<String, CacheEntry> NAME_CACHE = new ConcurrentHashMap<>();
     private static final long NAME_TTL_MS = 2000L;
     private record CacheEntry(UUID uuid, long expiresAt) {}
 
+    private static final ArrayList<Entry> VISIBLE = new ArrayList<>(64);
+    private static final ArrayDeque<Entry> POOL   = new ArrayDeque<>(64);
+    private static final Comparator<Entry> BY_DIST_DESC = (a, b) -> Double.compare(b.distSq, a.distSq);
+
+    private static final class Entry {
+        ClientWaypoint wp;
+        double yaw;     // degrees (relative to center)
+        double distSq;  // from camera
+        int x;          // pixel x for this yaw (precomputed for consistency)
+        Entry set(ClientWaypoint w, double y, double d2, int px) { this.wp = w; this.yaw = y; this.distSq = d2; this.x = px; return this; }
+    }
+
     public static void renderWaypoints(MinecraftClient client, DrawContext ctx, int centerY) {
         if (!ClientConfigManager.locatorBarEnabled() || client.player == null || client.cameraEntity == null) return;
 
-        // Only for distance sort & distance grade — arrows still use the live camera providers.
-        final Vec3d camPos = client.cameraEntity.getPos();
+        var cam     = client.gameRenderer.getCamera();
+        Vec3d camPos = client.cameraEntity.getPos();
 
-        WaypointTracking.WAYPOINTS.stream()
-                .sorted(Comparator.comparingDouble(w -> -w.pos().squaredDistanceTo(camPos)))
-                .forEachOrdered(w -> drawWaypoint(client, ctx, centerY, w, camPos));
+        VISIBLE.clear();
 
-        if (ClientConfigManager.tabShowsNames() && client.options.playerListKey.isPressed()) {
-            drawClosestName(client, ctx, centerY);
+        // Track the visible entry closest to center (for Tab name)
+        Entry best = null;
+        double bestAbsYaw = 61.0;
+
+        // Build visible list once, computing everything we need
+        for (ClientWaypoint wp : WaypointTracking.WAYPOINTS) {
+            double yaw = relativeYaw(wp.pos(), cam);
+            if (yaw <= -61.0 || yaw > 60.0) continue; // off the bar, skip entirely
+
+            double d2 = wp.pos().squaredDistanceTo(camPos);
+            int x = xFromYaw(ctx, yaw);
+
+            Entry e = POOL.pollFirst();
+            if (e == null) e = new Entry();
+            e.set(wp, yaw, d2, x);
+            VISIBLE.add(e);
+
+            double ay = Math.abs(yaw);
+            if (ay < bestAbsYaw) { bestAbsYaw = ay; best = e; }
         }
+
+        // Sort once (farthest first), then draw
+        if (VISIBLE.size() > 1) VISIBLE.sort(BY_DIST_DESC);
+
+        for (Entry e : VISIBLE) {
+            drawWaypoint(client, ctx, centerY, e);
+        }
+
+        // Draw the name only if the best is actually visible (ties to same x as icon)
+        if (best != null && ClientConfigManager.tabShowsNames() && client.options.playerListKey.isPressed()) {
+            drawNamePopup(client, ctx, centerY, best.x, best.wp.text().orElse(null));
+        }
+
+        // Return to pool
+        for (Entry entry : VISIBLE) POOL.offerFirst(entry);
+        VISIBLE.clear();
     }
 
-    private static void drawClosestName(MinecraftClient client, DrawContext ctx, int centerY) {
-        Optional<Text> best = Optional.empty();
-        double bestYaw = 61;
-        for (ClientWaypoint wp : WaypointTracking.WAYPOINTS) {
-            double yaw = relativeYaw(wp.pos(), client.gameRenderer.getCamera());
-            if (Math.abs(yaw) < Math.abs(bestYaw)) { bestYaw = yaw; best = wp.text(); }
-        }
-        if (best.isEmpty()) return;
+    /* ---------------- draws ---------------- */
 
-        Text txt = best.get();
+    private static void drawNamePopup(MinecraftClient client, DrawContext ctx, int centerY, int iconX, Text txt) {
+        if (txt == null) return;
         TextRenderer tr = client.textRenderer;
-        int x = xFromYaw(ctx, bestYaw) - tr.getWidth(txt) / 2;
         int w = tr.getWidth(txt);
+        int x = iconX - (w / 2);
 
         ctx.fill(x + 1, centerY - 12, x + w + 5, centerY - 1, ColorHelper.withAlpha(0.5F, Colors.BLACK));
         ctx.drawTextWithShadow(tr, txt, x + 3, centerY - 10, Colors.WHITE);
     }
 
-    private static void drawWaypoint(MinecraftClient client, DrawContext ctx, int centerY, ClientWaypoint wp, Vec3d camPos) {
-        var cam = client.gameRenderer.getCamera();
-        double yaw = relativeYaw(wp.pos(), cam);
-        if (yaw <= -61.0 || yaw > 60.0) return;
-
+    private static void drawWaypoint(MinecraftClient client, DrawContext ctx, int centerY, Entry e) {
         WaypointStyleAsset asset = client.getWaypointStyleAssetManager()
-                .get(RegistryKey.of(WaypointStyles.REGISTRY, wp.style()));
+                .get(RegistryKey.of(WaypointStyles.REGISTRY, e.wp.style()));
         if (asset == null) return;
 
-        double distSq = wp.pos().squaredDistanceTo(camPos);
-        Identifier sprite = asset.getSpriteForDistance((float) Math.sqrt(distSq));
+        Identifier sprite = asset.getSpriteForDistance((float) Math.sqrt(e.distSq));
         if (sprite == null) return;
 
-        int x = xFromYaw(ctx, yaw);
-        int color = ColorHelper.withAlpha(255, wp.getColor());
-        ctx.drawGuiTexture(RenderPipelines.GUI_TEXTURED, sprite, x, centerY - 2, 9, 9, color);
+        int color = ColorHelper.withAlpha(255, e.wp.getColor());
+        ctx.drawGuiTexture(RenderPipelines.GUI_TEXTURED, sprite, e.x, centerY - 2, 9, 9, color);
 
-        if (ClientConfigManager.renderPlayerHeads()) drawHeadIfNameMatches(client, ctx, x, centerY, wp);
+        if (ClientConfigManager.renderPlayerHeads()) drawHeadIfNameMatches(client, ctx, e.x, centerY, e.wp);
 
-        TrackedWaypoint.Pitch pitch = pitch(wp.pos(), client.gameRenderer);
+        TrackedWaypoint.Pitch pitch = pitch(e.wp.pos(), client.gameRenderer);
         if (pitch != TrackedWaypoint.Pitch.NONE) {
             int off = (pitch == TrackedWaypoint.Pitch.DOWN) ? 6 : -6;
             Identifier tex = (pitch == TrackedWaypoint.Pitch.DOWN) ? ARROW_DOWN : ARROW_UP;
-            ctx.drawGuiTexture(RenderPipelines.GUI_TEXTURED, tex, x + 1, centerY + off, 7, 5);
+            ctx.drawGuiTexture(RenderPipelines.GUI_TEXTURED, tex, e.x + 1, centerY + off, 7, 5);
         }
     }
 
@@ -111,10 +149,8 @@ public final class WaypointRendering {
         }
         if (entry.uuid() == null) return;
 
-        // getPlayerByUuid returns PlayerEntity on this mapping; guard-cast to client type
-        net.minecraft.entity.player.PlayerEntity pe = mc.world.getPlayerByUuid(entry.uuid());
-        if (!(pe instanceof net.minecraft.client.network.AbstractClientPlayerEntity player)) return;
-
+        var pe = mc.world.getPlayerByUuid(entry.uuid());
+        if (!(pe instanceof AbstractClientPlayerEntity player)) return;
 
         SkinTextures skins = player.getSkinTextures();
         Identifier skin = skins.texture();
@@ -137,7 +173,7 @@ public final class WaypointRendering {
         ctx.drawTexture(RenderPipelines.GUI_TEXTURED, skin, left, top, 40f, 8f, size, size, 8, 8, 64, 64);
     }
 
-    /* -------- math helpers (vanilla-adapted) -------- */
+    /* ---------------- math helpers (vanilla-adapted) ---------------- */
     private static int xFromYaw(DrawContext ctx, double yaw) {
         return MathHelper.ceil((ctx.getScaledWindowWidth() - 9) / 2.0F) + (int)(yaw * 173.0 / 2.0 / 60.0);
     }
