@@ -19,16 +19,39 @@ repositories {
 }
 
 loom {
-	splitEnvironmentSourceSets()
+    splitEnvironmentSourceSets()
 
-	mods {
-		"old-ways" {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
-	}
+    mods {
+        "old-ways" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
 
+    runs {
+        client {
+            client() // mark this as a client run config
+            // Optional: name "Minecraft Client"
+            vmArgs(
+                    "--enable-native-access=ALL-UNNAMED",
+                    "--add-opens=java.base/java.lang=ALL-UNNAMED",
+                    "--add-opens=java.base/java.nio=ALL-UNNAMED",
+                    "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
+            )
+        }
+        server {
+            server() // mark this as a server run config
+            // Optional: name "Minecraft Server"
+            vmArgs(
+                    "--enable-native-access=ALL-UNNAMED",
+                    "--add-opens=java.base/java.lang=ALL-UNNAMED",
+                    "--add-opens=java.base/java.nio=ALL-UNNAMED",
+                    "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
+            )
+        }
+    }
 }
+
 
 dependencies {
 	// To change the versions see the gradle.properties file
