@@ -49,18 +49,13 @@ public abstract class PlayerEntityMixin {
 
     /* ------------------ (2) Old Enchant: pay the full displayed level cost ------------------ */
     @Inject(method = "applyEnchantmentCosts(Lnet/minecraft/item/ItemStack;I)V", at = @At("HEAD"))
-    private void oldways$addExtraEnchantCost(ItemStack stack, int vanillaLevels, CallbackInfo ci) {
+    private void oldways$topUp(ItemStack stack, int vanillaLevels, CallbackInfo ci) {
         if (!CommonConfigManager.oldEnchant()) return;
-
-        Integer full = OldEnchantCostContext.peek();
-        if (full == null) return; // not from the table (safety)
-
+        Integer full = OldEnchantCostContext.peekRequired();
+        if (full == null) return;
         PlayerEntity self = (PlayerEntity)(Object)this;
-        if (self.getAbilities().creativeMode) return; // creative pays nothing
-
-        int extra = full - Math.max(1, vanillaLevels); // vanillaLevels = 1/2/3
-        if (extra > 0) {
-            self.addExperienceLevels(-extra); // bring total paid to "full"
-        }
+        if (self.getAbilities().creativeMode) return;
+        int extra = full - Math.max(1, vanillaLevels);
+        if (extra > 0) self.addExperienceLevels(-extra);
     }
 }
