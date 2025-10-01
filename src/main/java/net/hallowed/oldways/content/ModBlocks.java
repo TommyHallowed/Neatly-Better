@@ -57,5 +57,6 @@ public final class ModBlocks {
 
         // Allow vanilla BannerBlockEntity to back our two banner blocks (using helper)
         OWBlockEntityTypeSupport.addSupported(BlockEntityType.BANNER, RAINBOW_BANNER, RAINBOW_WALL_BANNER);
+        OWBlockEntityTypeSupport.addSupported(BlockEntityType.BED, ModBlocks.RAINBOW_BED);
     }
 }
