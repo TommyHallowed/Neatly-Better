@@ -1,5 +1,6 @@
 package net.hallowed.oldways.client.clipboard;
 
+import net.hallowed.oldways.client.config.ClientConfigManager;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
@@ -14,6 +15,7 @@ public final class CopyScreenshotHelper {
 
     /** Copy given file (PNG) to system clipboard (AWT). */
     public static void copyFromFile(File file) {
+        if (!ClientConfigManager.copyScreenshotsToClipboard()) return;
         try {
             BufferedImage img = ImageIO.read(file);
             if (img == null) return;
