@@ -1,4 +1,3 @@
-// src/client/java/net/hallowed/oldways/client/mixin/ui/DebugHudMixin.java
 package net.hallowed.oldways.client.mixin.ui;
 
 import net.hallowed.oldways.client.config.ClientConfigManager;
@@ -22,48 +21,49 @@ public abstract class DebugHudMixin {
 
     @Inject(method = "getLeftText()Ljava/util/List;", at = @At("RETURN"), cancellable = true)
     private void oldways$coordsFirst_timeUnder(CallbackInfoReturnable<List<String>> cir) {
-        if (!ClientConfigManager.overlayEnabled()) return;
+        if (!ClientConfigManager.f3NeedsCompass() && !ClientConfigManager.f3NeedsClock()) return;
 
         List<String> lines = cir.getReturnValue();
         MinecraftClient mc = MinecraftClient.getInstance();
         PlayerEntity p = mc.player;
         ClientWorld w = mc.world;
-        if (p == null || w == null) return;
+        if (p == null) return;
 
-        // Deep inventory (TTL-cached) OR ender flags
-        boolean hasCompass = InventoryDeepScan.hasCompass(p) || EnderCheckClient.enderHasCompass();
-        boolean hasClock   = InventoryDeepScan.hasClock(p)   || EnderCheckClient.enderHasClock();
+        int xyzIdx = -1;
 
-        String coordsLine = hasCompass
-                ? HudFormatting.coordsLine(p).text()
-                : "you need compass to display coordinates";
-
-        String timeLine = hasClock
-                ? HudFormatting.timeLine(w).text()
-                : "you need clock to display time";
-
-        // Replace XYZ with our coords (or insert near the top)
-        int xyzIdx = firstIndexStartingWith(lines, "XYZ:");
-        if (xyzIdx != -1) {
-            lines.set(xyzIdx, coordsLine);
-        } else {
-            xyzIdx = Math.min(1, lines.size());
-            lines.add(xyzIdx, coordsLine);
+        if (ClientConfigManager.f3NeedsCompass()) {
+            boolean hasCompass = InventoryDeepScan.hasCompass(p) || EnderCheckClient.enderHasCompass();
+            String coordsLine = hasCompass ? HudFormatting.coordsLine(p).text() : "you need compass to display coordinates";
+            int idx = firstIndexStartingWith(lines, "XYZ:");
+            if (idx != -1) {
+                lines.set(idx, coordsLine);
+                xyzIdx = idx;
+            } else {
+                int insert = Math.min(1, lines.size());
+                lines.add(insert, coordsLine);
+                xyzIdx = insert;
+            }
         }
 
-        // Remove vanilla "Day:" to avoid duplicate / "Day 0"
-        int dayIdx = firstIndexStartingWith(lines, "Day:");
-        if (dayIdx != -1) {
-            lines.remove(dayIdx);
-            if (dayIdx < xyzIdx) xyzIdx--;
+        if (ClientConfigManager.f3NeedsClock()) {
+            if (w == null) {
+                cir.setReturnValue(lines);
+                return;
+            }
+            boolean hasClock = InventoryDeepScan.hasClock(p) || EnderCheckClient.enderHasClock();
+            String timeLine = hasClock ? HudFormatting.timeLine(w).text() : "you need clock to display time";
+
+            int dayIdx = firstIndexStartingWith(lines, "Day:");
+            if (dayIdx != -1) {
+                lines.remove(dayIdx);
+                if (dayIdx < xyzIdx) xyzIdx--;
+            }
+
+            int insertAt = (xyzIdx != -1) ? Math.min(xyzIdx + 1, lines.size()) : Math.min(1, lines.size());
+            lines.add(insertAt, timeLine);
+            lines.add(insertAt + 1, "");
         }
 
-        // Insert time directly under coords + spacer
-        int insertAt = Math.min(xyzIdx + 1, lines.size());
-        lines.add(insertAt, timeLine);
-        lines.add(insertAt + 1, "");
-
-        // Strip "(Day N)" from Local Difficulty line
         int diffIdx = firstIndexStartingWith(lines, "Local Difficulty:");
         if (diffIdx != -1) {
             String s = lines.get(diffIdx);
