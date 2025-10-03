@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.mixin.ui;
+package net.hallowed.oldways.client.mixin.screen;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;

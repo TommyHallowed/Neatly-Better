@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.mixin.ui;
+package net.hallowed.oldways.client.mixin.screen;
 
 import net.hallowed.oldways.client.mixin.accessor.HandledScreenAccessor;
 import net.hallowed.oldways.client.util.OverlayButtonsBridge;

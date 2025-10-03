@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.mixin.ui;
+package net.hallowed.oldways.client.mixin.screen;
 
 import net.minecraft.client.gui.screen.ingame.LoomScreen;
 import org.spongepowered.asm.mixin.Mixin;

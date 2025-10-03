@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.mixin.ui;
+package net.hallowed.oldways.client.mixin.component;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

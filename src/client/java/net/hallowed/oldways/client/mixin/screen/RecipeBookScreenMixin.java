@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.mixin.ui;
+package net.hallowed.oldways.client.mixin.screen;
 
 import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.minecraft.client.gui.screen.ingame.RecipeBookScreen;

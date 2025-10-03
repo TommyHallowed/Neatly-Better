@@ -1,5 +1,5 @@
 // src/client/java/net/hallowed/oldways/client/mixin/HandledScreenButtonsSupportMixin.java
-package net.hallowed.oldways.client.mixin.ui;
+package net.hallowed.oldways.client.mixin.screen;
 
 import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.hallowed.oldways.client.mixin.accessor.HandledScreenAccessor;
