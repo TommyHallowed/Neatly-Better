@@ -12,10 +12,14 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.screen.*;
+import net.minecraft.screen.AnvilScreenHandler;
+import net.minecraft.screen.ForgingScreenHandler;
+import net.minecraft.screen.Property;
+import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.ForgingSlotsManager;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,6 +27,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AnvilScreenHandler.class)
 public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
@@ -30,48 +35,56 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
     @Shadow private int repairItemUsage;
 
     @Unique private boolean oldways$consumeRightOnTake = false;
+    @Unique private int oldways$cachedLevelCost = 0;
 
-    protected AnvilScreenHandlerMixin(@Nullable ScreenHandlerType<?> type, int syncId,
+    protected AnvilScreenHandlerMixin(ScreenHandlerType<?> type, int syncId,
                                       PlayerInventory inv, ScreenHandlerContext ctx, ForgingSlotsManager slots) {
         super(type, syncId, inv, ctx, slots);
     }
 
-    /**
-     * Run AFTER vanilla builds the result so all normal checks (applicability, conflicts, etc.)
-     * already happened. We only override behavior for a *pure Mending book*.
-     */
+    /* mending behaviour + 0 rename cost (merged TAIL) */
     @Inject(method = "updateResult", at = @At("TAIL"))
-    private void oldways$applyMendingNerfAtTail(CallbackInfo ci) {
+    private void oldways$mendingAndRename(CallbackInfo ci) {
         oldways$consumeRightOnTake = false;
 
-        if (!CommonConfigManager.mendingNerfEnabled()) return;
-
+        boolean mendingEnabled = CommonConfigManager.mendingNerfEnabled();
         ItemStack left  = this.getSlot(0).getStack();
         ItemStack right = this.getSlot(1).getStack();
 
-        if (!isPureMendingBook(right)) return;  // NOT our case → leave vanilla exactly as-is
-
-        // Ask your nerf logic what to do
-        AnvilUpdateEvent event = new AnvilUpdateEvent(left, right, 0);
-        ActionResult res = AnvilUpdateEvent.EVENT.invoker().update(event);
-
-        if (res == ActionResult.FAIL) {
-            // Hard-block this combine
+        if (mendingEnabled && isPureMendingBook(left)) {
             this.output.setStack(0, ItemStack.EMPTY);
             this.levelCost.set(0);
             this.repairItemUsage = 0;
+            oldways$cachedLevelCost = 0;
             return;
         }
 
-        if (res == ActionResult.CONSUME) {
-            // Replace with your custom output/cost; consume the book on-take
-            this.output.setStack(0, event.getOutput());
-            this.levelCost.set(event.getCost());
-            this.repairItemUsage = 0;
-            oldways$consumeRightOnTake = true;
+        if (mendingEnabled && isPureMendingBook(right)) {
+            AnvilUpdateEvent event = new AnvilUpdateEvent(left, right, 0);
+            ActionResult res = AnvilUpdateEvent.EVENT.invoker().update(event);
+
+            if (res == ActionResult.FAIL) {
+                this.output.setStack(0, ItemStack.EMPTY);
+                this.levelCost.set(0);
+                this.repairItemUsage = 0;
+                oldways$cachedLevelCost = 0;
+                return;
+            }
+
+            if (res == ActionResult.CONSUME) {
+                this.output.setStack(0, event.getOutput());
+                this.levelCost.set(event.getCost());
+                this.repairItemUsage = 0;
+                oldways$consumeRightOnTake = true;
+            }
         }
 
-        // PASS → keep vanilla’s result exactly (do nothing)
+        if (oldways$isPureRename()) {
+            this.levelCost.set(0);
+            oldways$cachedLevelCost = 0;
+        } else {
+            oldways$cachedLevelCost = this.levelCost.get();
+        }
     }
 
     @Inject(method = "onTakeOutput(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/item/ItemStack;)V",
@@ -86,7 +99,39 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
         oldways$consumeRightOnTake = false;
     }
 
-    /* ---------- helpers ---------- */
+    @Inject(method = "getLevelCost", at = @At("HEAD"), cancellable = true)
+    private void oldways$getLevelCostMirror(CallbackInfoReturnable<Integer> cir) {
+        if (oldways$isPureRename()) {
+            cir.setReturnValue(oldways$cachedLevelCost);
+        }
+    }
+
+    @Inject(method = "canTakeOutput", at = @At("HEAD"), cancellable = true)
+    private void oldways$allowTakeWhenZeroCost(PlayerEntity player, boolean present, CallbackInfoReturnable<Boolean> cir) {
+        if (oldways$isPureRename()) {
+            cir.setReturnValue(present);
+        }
+    }
+
+    /* helpers */
+    @Unique
+    private boolean oldways$outputIsRenamed() {
+        ItemStack input = this.getSlot(0).getStack();
+        ItemStack output = this.getSlot(2).getStack();
+        if (output.isEmpty()) return false;
+        Text inName  = input.get(DataComponentTypes.CUSTOM_NAME);
+        Text outName = output.get(DataComponentTypes.CUSTOM_NAME);
+        if (inName == null && outName == null) return false;
+        if (inName == null) return true;
+        if (outName == null) return true;
+        return !inName.equals(outName);
+    }
+
+    @Unique
+    private boolean oldways$isPureRename() {
+        ItemStack right = this.getSlot(1).getStack();
+        return right.isEmpty() && oldways$outputIsRenamed();
+    }
 
     @Unique
     private static boolean isPureMendingBook(ItemStack stack) {
@@ -99,7 +144,7 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
         for (Object2IntMap.Entry<RegistryEntry<Enchantment>> e : stored.getEnchantmentEntries()) {
             count++;
             if (e.getKey().matchesKey(Enchantments.MENDING)) mending = true;
-            else return false; // contains some other enchant → not pure Mending
+            else return false;
         }
         return mending && count == 1;
     }
