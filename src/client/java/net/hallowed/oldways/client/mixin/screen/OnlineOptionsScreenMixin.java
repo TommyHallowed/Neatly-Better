@@ -1,6 +1,7 @@
-package net.hallowed.oldways.client.mixin.ui;
+package net.hallowed.oldways.client.mixin.screen;
 
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
+import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.OnlineOptionsScreen;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -18,11 +19,12 @@ public abstract class OnlineOptionsScreenMixin {
 
     @Inject(method = "init", at = @At("RETURN"))
     private void oldways$hideRealmsNotifications(CallbackInfo ci) {
+        if (!ClientConfigManager.allowRealmsButtons()) return;
         Screen self = (Screen)(Object)this;
         List<ClickableWidget> buttons = Screens.getButtons(self);
 
         final Text REALMS_NOTIF = Text.translatable("options.realmsNotifications");
-        final Text REALMS_NOTIF_TITLE = Text.translatable("options.realmsNotifications.title");
+        final Text REALMS_NOTIF_TITLE = Text.translatable("options.realmsNotifications");
 
         // Some mappings use the title key for the same toggle; remove either
         buttons.removeIf(b ->

@@ -24,73 +24,56 @@ public final class ClientConfigManager {
 
     private ClientConfigManager() {}
 
-    /* ================= load/save (+ deep-merge upgrade) ================= */
-    /** Loads JSON, deep-merges it over fresh defaults (user values win), and saves if structure changed. */
     public static void load() {
         try {
             Files.createDirectories(FILE.getParent());
-
             String beforeJson = null;
             ClientConfig loaded = null;
-
             if (Files.exists(FILE)) {
                 try (Reader r = Files.newBufferedReader(FILE, StandardCharsets.UTF_8)) {
                     loaded = GSON.fromJson(r, ClientConfig.class);
-                } catch (Exception ignored) {
-                    // If the file is malformed, we’ll regenerate from defaults below.
-                }
+                } catch (Exception ignored) {}
                 if (Files.exists(FILE)) {
                     beforeJson = Files.readString(FILE, StandardCharsets.UTF_8);
                 }
             }
-
-            // Deep-merge: user's json over defaults → new keys from defaults appear, user values preserved.
             ClientConfig defaults = new ClientConfig();
             ClientConfig merged = mergeWithDefaults(defaults, loaded);
             CONFIG = merged;
-
             String afterJson = GSON.toJson(merged);
             if (!Files.exists(FILE) || !Objects.equals(normalize(beforeJson), normalize(afterJson))) {
-                save(); // round-trip to add any newly introduced entries
+                save();
             }
         } catch (IOException ignored) {
-            CONFIG = new ClientConfig(); // fail-safe: keep defaults in memory
+            CONFIG = new ClientConfig();
         }
     }
 
-    /** Deep-merge: user's values override defaults; missing keys keep defaults. */
     private static ClientConfig mergeWithDefaults(ClientConfig defaults, ClientConfig incoming) {
         if (incoming == null) return defaults;
-
         JsonObject defObj = GSON.toJsonTree(defaults).getAsJsonObject();
         JsonObject inObj  = GSON.toJsonTree(incoming).getAsJsonObject();
-
-        deepMergeObjects(inObj, defObj); // copy user values into defaults (recursively)
+        deepMergeObjects(inObj, defObj);
         return GSON.fromJson(defObj, ClientConfig.class);
     }
 
-    /** Recursively copy keys from src into dst; objects merge, other types overwrite. */
     private static void deepMergeObjects(JsonObject src, JsonObject dst) {
         for (var entry : src.entrySet()) {
             String key = entry.getKey();
             JsonElement srcVal = entry.getValue();
-
             if (!dst.has(key)) {
                 dst.add(key, srcVal);
                 continue;
             }
-
             JsonElement dstVal = dst.get(key);
             if (srcVal != null && srcVal.isJsonObject() && dstVal != null && dstVal.isJsonObject()) {
                 deepMergeObjects(srcVal.getAsJsonObject(), dstVal.getAsJsonObject());
             } else {
-                // primitives/arrays/null → user's value wins
                 dst.add(key, srcVal);
             }
         }
     }
 
-    /** Normalize for change detection (null-safe, EOL-insensitive). */
     private static String normalize(String json) {
         return json == null ? null : json.replace("\r\n", "\n").trim();
     }
@@ -104,10 +87,8 @@ public final class ClientConfigManager {
         } catch (IOException ignored) {}
     }
 
-    /** Hot-reload at runtime (e.g., a keybind/command). */
     public static void reload() { load(); }
 
-    /* ================= Stuck projectiles ================= */
     public static boolean stuckProjectilesEnabled() {
         return CONFIG.stuckProjectiles == null || CONFIG.stuckProjectiles.enabled;
     }
@@ -118,22 +99,17 @@ public final class ClientConfigManager {
     }
     public static void toggleStuckProjectiles() { setStuckProjectilesEnabled(!stuckProjectilesEnabled()); }
 
-    /* ================= Old Features ================= */
-    // Moved here: old item rendering + potion glint
     public static boolean oldItemRenderingEnabled() {
         return CONFIG.oldFeatures != null && CONFIG.oldFeatures.oldItemRendering;
     }
     public static boolean potionGlintEnabled() {
-        // default-on behavior if category/field is missing
         return CONFIG.oldFeatures == null || CONFIG.oldFeatures.potionGlint;
     }
 
-    /* ================= Overlay flags ================= */
     public static boolean overlayEnabled() { return CONFIG.overlay != null && CONFIG.overlay.enabled; }
     public static boolean coordsVisible()  { return CONFIG.overlay == null || CONFIG.overlay.coordsVisible; }
     public static boolean timeVisible()    { return CONFIG.overlay == null || CONFIG.overlay.timeVisible; }
 
-    /** Called by the inventory buttons (LMB) */
     public static void toggleCoordsVisible() {
         if (CONFIG.overlay == null) CONFIG.overlay = new ClientConfig.Overlay();
         CONFIG.overlay.coordsVisible = !CONFIG.overlay.coordsVisible;
@@ -145,7 +121,6 @@ public final class ClientConfigManager {
         save();
     }
 
-    /* ================= Per-line positions (RMB) ================= */
     private static String fallbackPos() {
         return (CONFIG.overlay != null && CONFIG.overlay.position != null) ? CONFIG.overlay.position : "top_left";
     }
@@ -174,7 +149,6 @@ public final class ClientConfigManager {
         };
     }
 
-    /* ================= Recipe Book (client UX) ================= */
     public static boolean autoCloseRecipeBookEnabled() {
         return CONFIG.recipeBook != null && CONFIG.recipeBook.autoClose;
     }
@@ -182,14 +156,12 @@ public final class ClientConfigManager {
         return CONFIG.recipeBook != null && CONFIG.recipeBook.hideButton;
     }
 
-    /* ================= Scale ================= */
     public static float overlayTextScale() {
         float s = (CONFIG.overlay != null) ? CONFIG.overlay.textScale : 1.0f;
         if (Float.isNaN(s) || s <= 0.05f) s = 1.0f;
         return Math.min(s, 10.0f);
     }
 
-    /* ================= Colors & strings ================= */
     public static Line buildCoords(double x, double y, double z) {
         String fmt = (CONFIG.overlay != null && CONFIG.overlay.coordsFormat != null) ? CONFIG.overlay.coordsFormat : "x: {x} | y: {y} | z: {z}";
         Parsed p = parseLeadingColor(fmt);
@@ -204,7 +176,6 @@ public final class ClientConfigManager {
         return new Line(text, p.argb);
     }
 
-    /** For button-outline color */
     public static int coordsColorARGB() { return parseLeadingColor((CONFIG.overlay != null) ? CONFIG.overlay.coordsFormat : null).argb; }
     public static int timeColorARGB()   { return parseLeadingColor((CONFIG.overlay != null) ? CONFIG.overlay.timeDayFormat : null).argb; }
 
@@ -219,7 +190,6 @@ public final class ClientConfigManager {
         save();
     }
 
-    /* ================= Utility ================= */
     public static String ticksToHHMM(long dayTime) {
         long ticks = ((dayTime % 24000L) + 24000L) % 24000L;
         long adj = (ticks + 6000L) % 24000L;
@@ -255,7 +225,6 @@ public final class ClientConfigManager {
         };
     }
 
-    // ================= Locator Bar =================
     public static boolean locatorBarEnabled() {
         return CONFIG.locatorBar != null && CONFIG.locatorBar.enabled;
     }
@@ -271,38 +240,46 @@ public final class ClientConfigManager {
     public static int locatorHideDelayMs() {
         return (CONFIG.locatorBar != null) ? Math.max(0, CONFIG.locatorBar.hideDelayMs) : 800;
     }
-
     public static boolean showRecovery() { return CONFIG.locatorBar == null || CONFIG.locatorBar.showRecovery; }
     public static int recoveryColor()    { return CONFIG.locatorBar != null ? CONFIG.locatorBar.recoveryColor : 0xFFFF5555; }
-
     public static boolean showLodestone() { return CONFIG.locatorBar == null || CONFIG.locatorBar.showLodestone; }
     public static int lodestoneColor()    { return CONFIG.locatorBar != null ? CONFIG.locatorBar.lodestoneColor : 0xFF55AAFF; }
-
     public static boolean scanInventories() { return CONFIG.locatorBar == null || CONFIG.locatorBar.ScanInventories; }
     public static boolean allowNameColorCodes() { return CONFIG.locatorBar == null || CONFIG.locatorBar.allowNameColorCodes; }
-
-    public static boolean renderPlayerHeads() {
-        return CONFIG.locatorBar == null || CONFIG.locatorBar.renderPlayerHeads;
-    }
-    public static boolean coloredHeadOutline() {
-        return CONFIG.locatorBar == null || CONFIG.locatorBar.coloredHeadOutline;
-    }
+    public static boolean renderPlayerHeads() { return CONFIG.locatorBar == null || CONFIG.locatorBar.renderPlayerHeads; }
+    public static boolean coloredHeadOutline() { return CONFIG.locatorBar == null || CONFIG.locatorBar.coloredHeadOutline; }
     public static float headSizeMultiplier() {
         float f = (CONFIG.locatorBar != null) ? CONFIG.locatorBar.headSizeMultiplier : 1.0f;
         if (Float.isNaN(f) || f <= 0.25f) f = 1.0f;
         return Math.min(f, 4.0f);
     }
 
-    // ----- tiny helpers for keybind -----
     public static void setLocatorBarEnabled(boolean enabled) {
         if (CONFIG.locatorBar == null) CONFIG.locatorBar = new ClientConfig.LocatorBar();
         CONFIG.locatorBar.enabled = enabled;
         save();
     }
-    public static void toggleLocatorBar() {
-        setLocatorBarEnabled(!locatorBarEnabled());
+    public static void toggleLocatorBar() { setLocatorBarEnabled(!locatorBarEnabled()); }
+
+    public static boolean f3NeedsCompass() {
+        return CONFIG.f3 == null || CONFIG.f3.f3needscompass;
     }
-    public static void saveClient() {
-        save();
+    public static boolean f3NeedsClock() {
+        return CONFIG.f3 == null || CONFIG.f3.f3needsclock;
     }
+
+    public static boolean allowRealmsButtons() {
+        return CONFIG.menu == null || CONFIG.menu.allowRealmsButtons;
+    }
+
+    public static boolean allowAccessibilityButton() {
+        return CONFIG.menu == null || CONFIG.menu.allowAccessibilityButton;
+    }
+
+    public static boolean copyScreenshotsToClipboard() {
+        return CONFIG.menu == null || CONFIG.menu.copyScreenshotsToClipboard;
+    }
+
+
+    public static void saveClient() { save(); }
 }

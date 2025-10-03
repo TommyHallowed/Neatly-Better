@@ -1,6 +1,7 @@
-package net.hallowed.oldways.client.mixin.ui;
+package net.hallowed.oldways.client.mixin.screen;
 
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
+import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -27,8 +28,11 @@ public abstract class TitleScreenMixin {
         Screen self = (Screen)(Object)this;
         List<ClickableWidget> buttons = Screens.getButtons(self);
 
+        final boolean disableRealms = !ClientConfigManager.allowRealmsButtons();
+        final boolean disableAccess = !ClientConfigManager.allowAccessibilityButton();
+
         final Text REALMS = Text.translatable("menu.online");
-        final Text ACCESS = Text.translatable("menu.accessibility");
+        final Text ACCESS = Text.translatable("accessibility.onboarding.accessibility.button");
 
         Iterator<ClickableWidget> it = buttons.iterator();
         while (it.hasNext()) {
@@ -39,16 +43,17 @@ public abstract class TitleScreenMixin {
             boolean isRealms = msg.equals(REALMS) || s.contains("realms");
             boolean isAccess = msg.equals(ACCESS) || s.contains("access");
 
-            if (isRealms || isAccess) {
+            if ((disableRealms && isRealms) || (disableAccess && isAccess)) {
                 it.remove();
-                if (w instanceof TextIconButtonWidget tw) { // make doubly sure it never renders
+                if (w instanceof TextIconButtonWidget tw) {
                     tw.visible = false;
                     tw.active = false;
                 }
             }
         }
 
-        // also disable the Realms notifications overlay
-        this.realmsNotificationGui = null;
+        if (disableRealms) {
+            this.realmsNotificationGui = null;
+        }
     }
 }
