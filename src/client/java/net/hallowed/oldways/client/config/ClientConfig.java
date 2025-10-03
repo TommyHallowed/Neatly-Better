@@ -2,7 +2,6 @@ package net.hallowed.oldways.client.config;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.awt.*;
 
 public final class ClientConfig {
 
