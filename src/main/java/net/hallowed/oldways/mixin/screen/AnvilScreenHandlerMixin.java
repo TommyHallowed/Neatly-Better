@@ -148,4 +148,31 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
         }
         return mending && count == 1;
     }
+
+    @Unique
+    private static int oldways$getKnockbackLevelFromBook(ItemStack stack) {
+        if (!stack.isOf(Items.ENCHANTED_BOOK)) return 0;
+        ItemEnchantmentsComponent stored =
+                stack.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
+        for (Object2IntMap.Entry<RegistryEntry<Enchantment>> e : stored.getEnchantmentEntries()) {
+            if (e.getKey().matchesKey(Enchantments.KNOCKBACK)) {
+                int lvl = e.getIntValue();
+                return Math.min(Math.max(lvl, 1), 2);
+            }
+        }
+        return 0;
+    }
+
+    @Unique
+    private static int oldways$getKnockbackLevelFromItem(ItemStack stack) {
+        ItemEnchantmentsComponent ench =
+                stack.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
+        for (Object2IntMap.Entry<RegistryEntry<Enchantment>> e : ench.getEnchantmentEntries()) {
+            if (e.getKey().matchesKey(Enchantments.KNOCKBACK)) {
+                int lvl = e.getIntValue();
+                return Math.min(Math.max(lvl, 0), 2);
+            }
+        }
+        return 0;
+    }
 }
