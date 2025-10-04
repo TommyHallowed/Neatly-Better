@@ -42,7 +42,55 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
         super(type, syncId, inv, ctx, slots);
     }
 
-    /* mending behaviour + 0 rename cost (merged TAIL) */
+    @Inject(method = "updateResult", at = @At("HEAD"), cancellable = true)
+    private void oldways$featherBypass(CallbackInfo ci) {
+        ItemStack left = this.getSlot(0).getStack();
+        if (!left.isOf(Items.FEATHER)) return;
+
+        ItemStack right = this.getSlot(1).getStack();
+        ItemStack out = left.copy();
+        ItemEnchantmentsComponent existing =
+                out.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
+
+        if (right.isOf(Items.ENCHANTED_BOOK)) {
+            int lvl = oldways$getKnockbackLevelFromBook(right);
+            if (lvl <= 0) return;
+            int target = Math.min(2, lvl);
+            this.context.run((world, pos) -> {
+                RegistryEntry<Enchantment> kb = world.getRegistryManager().getOptionalEntry(Enchantments.KNOCKBACK).orElseThrow();
+                ItemEnchantmentsComponent.Builder b = new ItemEnchantmentsComponent.Builder(existing);
+                b.set(kb, target);
+                out.set(DataComponentTypes.ENCHANTMENTS, b.build());
+            });
+            this.output.setStack(0, out);
+            int count = Math.max(1, left.getCount());
+            this.levelCost.set(target * count);
+            this.repairItemUsage = 0;
+            oldways$consumeRightOnTake = true;
+            ci.cancel();
+            return;
+        }
+
+        if (right.isOf(Items.FEATHER)) {
+            int l = oldways$getKnockbackLevelFromItem(left);
+            int r = oldways$getKnockbackLevelFromItem(right);
+            if (l == 0 && r == 0) return;
+            int target = (l == r && l > 0) ? Math.min(2, l + 1) : Math.max(l, r);
+            this.context.run((world, pos) -> {
+                RegistryEntry<Enchantment> kb = world.getRegistryManager().getOptionalEntry(Enchantments.KNOCKBACK).orElseThrow();
+                ItemEnchantmentsComponent.Builder b = new ItemEnchantmentsComponent.Builder(existing);
+                b.set(kb, target);
+                out.set(DataComponentTypes.ENCHANTMENTS, b.build());
+            });
+            this.output.setStack(0, out);
+            int count = Math.max(1, left.getCount());
+            this.levelCost.set(target * count);
+            this.repairItemUsage = 1;
+            oldways$consumeRightOnTake = false;
+            ci.cancel();
+        }
+    }
+
     @Inject(method = "updateResult", at = @At("TAIL"))
     private void oldways$mendingAndRename(CallbackInfo ci) {
         oldways$consumeRightOnTake = false;
