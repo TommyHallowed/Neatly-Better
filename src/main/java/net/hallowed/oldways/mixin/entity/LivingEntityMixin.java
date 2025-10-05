@@ -170,4 +170,46 @@ public abstract class LivingEntityMixin {
 
         sheep.dropStack(world, new ItemStack(rainbow, totalWool));
     }
+
+    /* ===================== 7) Hostile mobs XP boost ===================== */
+
+    @Unique private static final float HOSTILE_XP_MULTIPLIER = 1.5f;
+
+    @Unique
+    private static boolean oldways$shouldBoost(LivingEntity self) {
+        EntityType<?> t = self.getType();
+        if (t == EntityType.ENDER_DRAGON || t == EntityType.WITHER || t == EntityType.WARDEN) return false;
+        if (!(self instanceof HostileEntity)) return false;
+        return self.getType().getSpawnGroup() == SpawnGroup.MONSTER;
+    }
+
+    @Inject(
+            method = "getExperienceToDrop(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/Entity;)I",
+            at = @At("RETURN"),
+            cancellable = true
+    )
+    private void oldways$boostHostileXp(ServerWorld world, Entity attacker, CallbackInfoReturnable<Integer> cir) {
+        int base = cir.getReturnValue();
+        if (base <= 0) return;
+        LivingEntity self = (LivingEntity)(Object)this;
+        if (oldways$shouldBoost(self)) {
+            int boosted = Math.max(1, Math.round(base * HOSTILE_XP_MULTIPLIER));
+            cir.setReturnValue(boosted);
+        }
+    }
+
+    @Inject(
+            method = "getExperienceToDrop(Lnet/minecraft/server/world/ServerWorld;)I",
+            at = @At("RETURN"),
+            cancellable = true
+    )
+    private void oldways$boostHostileXpNoAttacker(ServerWorld world, CallbackInfoReturnable<Integer> cir) {
+        int base = cir.getReturnValue();
+        if (base <= 0) return;
+        LivingEntity self = (LivingEntity)(Object)this;
+        if (oldways$shouldBoost(self)) {
+            int boosted = Math.max(1, Math.round(base * HOSTILE_XP_MULTIPLIER));
+            cir.setReturnValue(boosted);
+        }
+    }
 }
