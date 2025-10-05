@@ -82,7 +82,19 @@ public abstract class LivingEntityMixin {
         ProtectionContext.clear();
     }
 
-    /* ===================== 3) Explosions disable shields (RETURN) ===================== */
+    /* ===================== 3) Resistance effect absorption nerf ===================== */
+
+    @ModifyConstant(method = "modifyAppliedDamage", constant = @Constant(intValue = 25))
+    private int oldways$resistanceDenominatorInt(int original) {
+        return 50;
+    }
+
+    @ModifyConstant(method = "modifyAppliedDamage", constant = @Constant(floatValue = 25.0F))
+    private float oldways$resistanceDenominatorFloat(float original) {
+        return 50.0F;
+    }
+
+    /* ===================== 4) Explosions disable shields ===================== */
 
     @Inject(
             method = "getDamageBlockedAmount(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/damage/DamageSource;F)F",
