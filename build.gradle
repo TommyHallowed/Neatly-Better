@@ -63,9 +63,6 @@ dependencies {
     // BetterF3
     modImplementation "maven.modrinth:betterf3:${project.betterf3_version}"
 
-    // TrimmableTools
-    modImplementation "maven.modrinth:trimmable-tools:${project.trimtools_version}"
-	
 }
 
 processResources {
