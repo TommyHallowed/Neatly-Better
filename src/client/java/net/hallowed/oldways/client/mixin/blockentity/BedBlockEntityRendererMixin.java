@@ -1,6 +1,6 @@
 package net.hallowed.oldways.client.mixin.blockentity;
 
-import net.hallowed.oldways.content.ModBlocks;
+import net.hallowed.oldways.init.ModBlocks;
 import net.minecraft.block.entity.BedBlockEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;

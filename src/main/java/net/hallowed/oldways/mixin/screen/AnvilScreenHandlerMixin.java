@@ -25,7 +25,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -36,6 +39,8 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 
     @Unique private boolean oldways$consumeRightOnTake = false;
     @Unique private int oldways$cachedLevelCost = 0;
+    @Unique private int oldways$costAtTake = 0;
+    @Unique private int oldways$deltaSeen = 0;
 
     protected AnvilScreenHandlerMixin(ScreenHandlerType<?> type, int syncId,
                                       PlayerInventory inv, ScreenHandlerContext ctx, ForgingSlotsManager slots) {
@@ -137,7 +142,9 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 
     @Inject(method = "onTakeOutput(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/item/ItemStack;)V",
             at = @At("HEAD"))
-    private void oldways$consumeRightBook(PlayerEntity player, ItemStack taken, CallbackInfo ci) {
+    private void oldways$preTake(PlayerEntity player, ItemStack taken, CallbackInfo ci) {
+        oldways$costAtTake = this.levelCost.get();
+        oldways$deltaSeen = 0;
         if (!oldways$consumeRightOnTake) return;
         ItemStack right = this.getSlot(1).getStack();
         if (right.isOf(Items.ENCHANTED_BOOK)) {
@@ -145,6 +152,28 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
             this.getSlot(1).setStack(right.isEmpty() ? ItemStack.EMPTY : right);
         }
         oldways$consumeRightOnTake = false;
+    }
+
+    @ModifyArg(
+            method = "onTakeOutput(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/item/ItemStack;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;addExperienceLevels(I)V"),
+            index = 0
+    )
+    private int oldways$captureDelta(int delta) {
+        oldways$deltaSeen = delta;
+        return delta;
+    }
+
+    @Inject(
+            method = "onTakeOutput(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/item/ItemStack;)V",
+            at = @At("TAIL")
+    )
+    private void oldways$chargeIfSkipped(PlayerEntity player, ItemStack taken, CallbackInfo ci) {
+        if (!player.getAbilities().creativeMode && oldways$deltaSeen == 0 && oldways$costAtTake > 0 && player.experienceLevel >= oldways$costAtTake) {
+            player.addExperienceLevels(-oldways$costAtTake);
+        }
+        oldways$costAtTake = 0;
+        oldways$deltaSeen = 0;
     }
 
     @Inject(method = "getLevelCost", at = @At("HEAD"), cancellable = true)
@@ -161,7 +190,11 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
         }
     }
 
-    /* helpers */
+    @ModifyConstant(method = "updateResult", constant = @Constant(intValue = 40, ordinal = 2))
+    private int oldways$removeTooExpensiveGate(int original) {
+        return Integer.MAX_VALUE;
+    }
+
     @Unique
     private boolean oldways$outputIsRenamed() {
         ItemStack input = this.getSlot(0).getStack();
@@ -186,7 +219,6 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
         if (!stack.isOf(Items.ENCHANTED_BOOK)) return false;
         ItemEnchantmentsComponent stored =
                 stack.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
-
         boolean mending = false;
         int count = 0;
         for (Object2IntMap.Entry<RegistryEntry<Enchantment>> e : stored.getEnchantmentEntries()) {

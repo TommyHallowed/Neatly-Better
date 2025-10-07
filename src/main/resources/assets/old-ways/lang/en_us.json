@@ -3,6 +3,8 @@
   "item.old-ways.rainbow_carpet": "Rainbow Carpet",
   "item.old-ways.rainbow_bed": "Rainbow Bed",
   "item.old-ways.rainbow_banner": "Rainbow Banner",
+  "item.old-ways.warped_boat": "Warped Boat",
+  "item.old-ways.crimson_boat": "Crimson Boat",
 
   "item.minecraft.potion.effect.haste": "Potion of Haste",
   "item.minecraft.potion.effect.long_haste": "Potion of Haste",
@@ -18,6 +20,9 @@
   "item.minecraft.tipped_arrow.effect.strong_haste": "Arrow of Haste",
 
   "enchantment.old-ways.step_up": "Step up",
+
+  "entity.old-ways.warped_boat": "Warped Boat",
+  "entity.old-ways.crimson_boat": "Crimson Boat",
 
   "key.old-ways.toggle_locator_bar": "Toggle Locator Bar"
  }

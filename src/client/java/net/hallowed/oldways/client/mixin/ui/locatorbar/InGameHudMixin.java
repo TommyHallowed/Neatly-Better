@@ -19,7 +19,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(InGameHud.class)
-public abstract class InGameHudMixin { // (ModifiedClass)Mixin
+public abstract class InGameHudMixin {
+    /* ===================== 1) Coords/Time Hud ===================== */
     @Shadow @Final private MinecraftClient client;
 
     @Unique private static long oldways$lastWaypointNs = 0L;
@@ -29,7 +30,7 @@ public abstract class InGameHudMixin { // (ModifiedClass)Mixin
         if (!ClientConfigManager.overlayEnabled()) return;
         SmallHudOverlay.render(context);
     }
-
+    /* ===================== 2) Locator Bar ===================== */
     @WrapOperation(
             method = "getCurrentBarType",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWaypointHandler;hasWaypoint()Z")
@@ -52,7 +53,6 @@ public abstract class InGameHudMixin { // (ModifiedClass)Mixin
 
         boolean anyClientWp = !WaypointTracking.update(client.player).isEmpty();
 
-        // Use unified helper (regular OR recovery compass)
         if (!anyClientWp
                 && net.hallowed.oldways.client.util.InventoryDeepScan.hasAnyCompass(client.player)
                 && !WaypointTracking.WAYPOINTS.isEmpty()) {

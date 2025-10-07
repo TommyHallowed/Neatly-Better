@@ -3,14 +3,17 @@ package net.hallowed;
 import net.fabricmc.api.ModInitializer;
 import net.hallowed.oldways.api.OWRegistry;
 import net.hallowed.oldways.config.CommonConfigManager;
-import net.hallowed.oldways.content.*;
 import net.hallowed.oldways.content.feature.BoneMealExpansion;
 import net.hallowed.oldways.enchantment.MendingNerf;
+import net.hallowed.oldways.init.*;
 import net.hallowed.oldways.network.OldWaysNetwork;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.Items;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static net.hallowed.oldways.init.ModItems.CRIMSON_BOAT;
+import static net.hallowed.oldways.init.ModItems.WARPED_BOAT;
 
 public class TheOldWays implements ModInitializer {
     public static final String MOD_ID = "old-ways";
@@ -23,6 +26,7 @@ public class TheOldWays implements ModInitializer {
 
         // 1) Register content
         ModBlocks.register();
+        ModEntities.register();
         ModItems.register();
         ModPotions.registerAll();
         ModBrewing.register();
@@ -37,6 +41,12 @@ public class TheOldWays implements ModInitializer {
             entries.addAfter(Items.PINK_BED,    ModItems.RAINBOW_BED);
             entries.addAfter(Items.PINK_BANNER, ModItems.RAINBOW_BANNER);
         });
+        OWRegistry.addToGroup(ItemGroups.TOOLS, entries -> {
+            entries.addAfter(Items.PALE_OAK_CHEST_BOAT, WARPED_BOAT);
+            entries.addAfter(WARPED_BOAT, CRIMSON_BOAT);
+
+        });
+
         OWRegistry.flushItemGroups();
 
         // 4) Networking

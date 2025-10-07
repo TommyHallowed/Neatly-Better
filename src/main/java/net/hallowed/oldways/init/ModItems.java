@@ -1,17 +1,17 @@
-package net.hallowed.oldways.content;
+package net.hallowed.oldways.init;
 
 import net.hallowed.oldways.api.OWRegistry;
 import net.minecraft.item.BannerItem;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.BoatItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 
-/** Registers item forms for your rainbow blocks. */
 public final class ModItems {
     private ModItems() {}
 
-    public static Item RAINBOW_WOOL, RAINBOW_CARPET, RAINBOW_BED, RAINBOW_BANNER;
+    public static Item RAINBOW_WOOL, RAINBOW_CARPET, RAINBOW_BED, RAINBOW_BANNER, WARPED_BOAT, CRIMSON_BOAT;
 
     private static RegistryKey<Item> key(String path) {
         return RegistryKey.of(RegistryKeys.ITEM, OWRegistry.id(path));
@@ -53,6 +53,22 @@ public final class ModItems {
                         ModBlocks.RAINBOW_WALL_BANNER,
                         new Item.Settings().maxCount(16).registryKey(key("rainbow_banner"))
                 )
+        );
+
+        // warped_boat boat item
+        WARPED_BOAT = OWRegistry.registerItem(
+                "warped_boat",
+                new BoatItem(
+                        ModEntities.WARPED_BOAT,
+                        new Item.Settings().maxCount(1).fireproof().registryKey(key("warped_boat")))
+        );
+
+        // crimson_boat boat item
+        CRIMSON_BOAT = OWRegistry.registerItem(
+                "crimson_boat",
+                new BoatItem(
+                        ModEntities.CRIMSON_BOAT,
+                        new Item.Settings().maxCount(1).fireproof().registryKey(key("crimson_boat")))
         );
     }
 }

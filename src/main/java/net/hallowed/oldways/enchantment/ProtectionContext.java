@@ -3,7 +3,6 @@ package net.hallowed.oldways.enchantment;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 
-/** Holds (entity, source) across the vanilla call into DamageUtil#getInflictedDamage. */
 public final class ProtectionContext {
     private static final ThreadLocal<DamageSource> SRC = new ThreadLocal<>();
     private static final ThreadLocal<LivingEntity> ENT = new ThreadLocal<>();

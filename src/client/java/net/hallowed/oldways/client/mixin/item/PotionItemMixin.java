@@ -8,10 +8,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.PotionItem;
 import org.spongepowered.asm.mixin.Mixin;
 
-/**
- * Make potions glint when they actually have effects (configurable).
- * Client-only: include this class in your *client* mixin JSON.
- */
 @Mixin(PotionItem.class)
 public abstract class PotionItemMixin extends Item {
     public PotionItemMixin(Settings settings) { super(settings); }

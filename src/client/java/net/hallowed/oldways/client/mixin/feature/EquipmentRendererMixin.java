@@ -2,7 +2,7 @@ package net.hallowed.oldways.client.mixin.feature;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.hallowed.oldways.content.ModDataComponents;
+import net.hallowed.oldways.init.ModDataComponents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.OverlayTexture;

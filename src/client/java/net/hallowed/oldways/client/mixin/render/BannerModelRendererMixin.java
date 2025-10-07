@@ -2,7 +2,7 @@
 package net.hallowed.oldways.client.mixin.render;
 
 import net.hallowed.oldways.client.util.BannerSwapState;
-import net.hallowed.oldways.content.ModBlocks;
+import net.hallowed.oldways.init.ModBlocks;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.model.special.BannerModelRenderer;
 import net.minecraft.client.util.math.MatrixStack;

@@ -3,11 +3,19 @@ package net.hallowed.oldways.mixin.entity;
 import net.hallowed.oldways.config.CommonConfigManager;
 import net.hallowed.oldways.enchantment.ProtectionContext;
 
+import net.hallowed.oldways.util.EntityInsideFireHandler;
+import net.hallowed.oldways.util.FireSourceHolder;
+import net.minecraft.block.Blocks;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.BlocksAttacksComponent;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
+import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -20,24 +28,18 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Combined LivingEntity mixin (replaces 5 separate mixins):
- *  - Totem cooldown gate + apply cooldown
- *  - Protection context set/clear around modifyAppliedDamage
- *  - Explosions disable shields (apply cooldown & stop blocking)
- *  - No shield raise delay (report active shield as blocking immediately)
- *  - jeb_ sheep: replace dropped wool with rainbow wool item
- * Behavior and call sites are unchanged from the originals.
- */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
 
-    /* ===================== 1) Totem cooldown (HEAD / RETURN) ===================== */
+    /* ===================== 1) Totem cooldown ===================== */
 
     @Inject(
             method = "tryUseDeathProtector(Lnet/minecraft/entity/damage/DamageSource;)Z",
@@ -46,7 +48,6 @@ public abstract class LivingEntityMixin {
     )
     private void oldways$blockIfTotemCooling(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
         if ((Object)this instanceof PlayerEntity player) {
-            // Cooldown manager uses the item identity; construct a totem stack for the key
             ItemStack totem = new ItemStack(Items.TOTEM_OF_UNDYING);
             if (player.getItemCooldownManager().isCoolingDown(totem)) {
                 cir.setReturnValue(false);
@@ -68,7 +69,7 @@ public abstract class LivingEntityMixin {
         }
     }
 
-    /* ===================== 2) Protection context (HEAD / RETURN) ===================== */
+    /* ===================== 2) Protection context ===================== */
 
     @Inject(method = "modifyAppliedDamage", at = @At("HEAD"))
     private void oldways$setProtContext(DamageSource source, float amount,
@@ -116,12 +117,11 @@ public abstract class LivingEntityMixin {
         BlocksAttacksComponent blocks = blocking.get(DataComponentTypes.BLOCKS_ATTACKS);
         if (blocks == null) return;
 
-        // Apply the same disable flow as axe/vindicator hits (5s here)
         blocks.applyShieldCooldown(world, player, 5.0F, blocking);
         self.stopUsingItem();
     }
 
-    /* ===================== 4) No shield raise delay (HEAD, cancellable) ===================== */
+    /* ===================== 5) No shield raise delay ===================== */
 
     @Inject(method = "getBlockingItem()Lnet/minecraft/item/ItemStack;", at = @At("HEAD"), cancellable = true)
     private void oldways$blockInstantly(CallbackInfoReturnable<ItemStack> cir) {
@@ -130,12 +130,10 @@ public abstract class LivingEntityMixin {
         if (!self.isUsingItem()) return;
         ItemStack active = self.getActiveItem();
         if (active.isEmpty() || !active.isOf(Items.SHIELD)) return;
-
-        // Immediately report the active shield as the blocking item
         cir.setReturnValue(active);
     }
 
-    /* ===================== 5) jeb_ sheep rainbow wool replacement (TAIL) ===================== */
+    /* ===================== 6) jeb_ sheep rainbow wool drops replacement ===================== */
 
     @Inject(
             method = "drop(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/damage/DamageSource;)V",
@@ -149,7 +147,6 @@ public abstract class LivingEntityMixin {
         String name = sheep.getCustomName() == null ? "" : sheep.getCustomName().getString();
         if (!"jeb_".equals(name)) return;
 
-        // Collect freshly-dropped vanilla wool items around the sheep
         Box area = sheep.getBoundingBox().expand(2.0);
         var nearby = world.getEntitiesByClass(ItemEntity.class, area, ie ->
                 !ie.isRemoved()
@@ -210,6 +207,25 @@ public abstract class LivingEntityMixin {
         if (oldways$shouldBoost(self)) {
             int boosted = Math.max(1, Math.round(base * HOSTILE_XP_MULTIPLIER));
             cir.setReturnValue(boosted);
+        }
+    }
+
+    /* ===================== 8) Deal double damage if on soul fire ===================== */
+
+    @Inject(method = "modifyAppliedDamage", at = @At("RETURN"), cancellable = true)
+    private void oldways$boostOnFireFromSoulFire(DamageSource source, float amount,
+                                                 CallbackInfoReturnable<Float> cir) {
+        if (!source.isOf(DamageTypes.ON_FIRE)) return;
+
+        final Entity self = (Entity)(Object)this;
+        if (!(self instanceof FireSourceHolder holder)) return;
+
+        if (holder.oldways$getLastFireSource() != Blocks.SOUL_FIRE) return;
+        if (EntityInsideFireHandler.isInsideSoulFire(self)) return;
+
+        float out = cir.getReturnValueF();
+        if (out > 0.0F) {
+            cir.setReturnValue(out * 2.0F);
         }
     }
 }

@@ -1,4 +1,4 @@
-package net.hallowed.oldways.content;
+package net.hallowed.oldways.init;
 
 import com.mojang.serialization.Codec;
 import net.hallowed.oldways.api.OWRegistry;

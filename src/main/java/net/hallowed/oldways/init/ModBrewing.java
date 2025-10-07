@@ -1,4 +1,4 @@
-package net.hallowed.oldways.content;
+package net.hallowed.oldways.init;
 
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
 import net.minecraft.item.Items;

@@ -20,8 +20,12 @@
     "entity.LivingEntityRendererMixin",
     "feature.ClientPlayerInteractionManagerMixin",
     "feature.EquipmentRendererMixin",
+    "item.MapStateClientMixin",
     "item.PotionItemMixin",
+    "options.GameOptionsMixin",
     "render.BannerModelRendererMixin",
+    "render.InGameOverlayRendererMixin",
+    "screen.AnvilScreenMixin",
     "screen.EnchantmentScreenMixin",
     "screen.GenericContainerScreenMixin",
     "screen.HandledScreenMixin",
@@ -42,5 +46,6 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "mixins": []
+  "mixins": [
+  ]
 }

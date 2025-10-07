@@ -1,4 +1,4 @@
-package net.hallowed.oldways.content;
+package net.hallowed.oldways.init;
 
 import net.hallowed.oldways.api.OWRegistry;
 import net.minecraft.entity.effect.StatusEffectInstance;

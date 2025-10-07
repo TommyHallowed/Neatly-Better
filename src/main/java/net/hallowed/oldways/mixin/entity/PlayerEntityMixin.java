@@ -19,12 +19,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Combined player mixin:
- * 1) Infinity fix (virtual arrow) — guarded by CommonConfigManager.infinityFixEnabled()
- * 2) OldEnchant extra level cost — guarded by CommonConfigManager.oldEnchant()
- * Behavior is unchanged from your original two mixins.
- */
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin {
 
@@ -32,7 +26,6 @@ public abstract class PlayerEntityMixin {
     @Inject(method = "getProjectileType", at = @At("RETURN"), cancellable = true)
     private void oldways$virtualArrowForInfinity(ItemStack weapon, CallbackInfoReturnable<ItemStack> cir) {
         if (!CommonConfigManager.infinityFixEnabled()) return;
-        // vanilla already found a projectile?
         if (!cir.getReturnValue().isEmpty()) return;
 
         if (!(weapon.getItem() instanceof BowItem)) return;
@@ -45,7 +38,6 @@ public abstract class PlayerEntityMixin {
 
         if (EnchantmentHelper.getLevel(infinity, weapon) <= 0) return;
 
-        // Pretend we have a normal arrow so shooting is allowed
         cir.setReturnValue(new ItemStack(Items.ARROW));
     }
 

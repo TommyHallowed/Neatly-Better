@@ -1,6 +1,7 @@
 package net.hallowed.oldways.client.mixin.ui;
 
 import net.hallowed.oldways.client.clipboard.CopyScreenshotHelper;
+import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.text.Text;
@@ -24,23 +25,20 @@ public abstract class ChatHudMixin {
 
     @Shadow @Final private MinecraftClient client;
 
-    // tiny background worker so PNG decode never hitches the render thread
     @Unique private static final Executor OLDWAYS_SHOT_EXEC = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "OldWays-ScreenshotCopy");
         t.setDaemon(true);
         return t;
     });
 
-    // avoid re-decoding the same file if the message fires twice
     @Unique private static volatile String OLDWAYS_LAST_FILE = null;
 
     @Inject(method = "addMessage(Lnet/minecraft/text/Text;)V", at = @At("TAIL"))
     private void oldways$copyScreenshotIfVanillaSaved(Text message, CallbackInfo ci) {
-
+        if (!ClientConfigManager.copyScreenshotsToClipboard()) return;
         if (!(message.getContent() instanceof TranslatableTextContent tc)) return;
         if (!"screenshot.success".equals(tc.getKey())) return;
 
-        // vanilla message is already posted; just copy the newest PNG in background
         final Path shotsDir = this.client.runDirectory.toPath().resolve("screenshots");
 
         OLDWAYS_SHOT_EXEC.execute(() -> {
@@ -57,7 +55,7 @@ public abstract class ChatHudMixin {
             }
 
             String path = newest.getAbsolutePath();
-            if (path.equals(OLDWAYS_LAST_FILE)) return; // already handled
+            if (path.equals(OLDWAYS_LAST_FILE)) return;
             OLDWAYS_LAST_FILE = path;
 
             CopyScreenshotHelper.copyFromFile(newest);

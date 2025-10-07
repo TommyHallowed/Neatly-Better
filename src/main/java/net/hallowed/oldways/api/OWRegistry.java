@@ -20,7 +20,6 @@ import java.util.Map;
 public final class OWRegistry {
     private OWRegistry() {}
 
-    // Avoids any dependency on your entrypoint class.
 
     /* ----------------- IDs ----------------- */
     public static Identifier id(String path) {
@@ -36,7 +35,6 @@ public final class OWRegistry {
         return Registry.register(Registries.BLOCK, id(name), block);
     }
 
-    /** Registers the block, then a matching BlockItem. */
     public static Block registerBlockWithItem(String name, Block block, Item.Settings itemSettings) {
         Block b = registerBlock(name, block);
         Registry.register(Registries.ITEM, id(name), new BlockItem(b, itemSettings));
@@ -47,15 +45,13 @@ public final class OWRegistry {
         return Registry.register(Registries.ITEM, id(name), item);
     }
 
-    /* ----------------- ItemGroup batching -----------------
-       Collapse multiple “modify entries” hooks into a single listener per group. */
+    /* ----------------- ItemGroup batching -----------------*/
     private static final Map<RegistryKey<ItemGroup>, List<ItemGroupEvents.ModifyEntries>> PENDING = new HashMap<>();
 
     public static void addToGroup(RegistryKey<ItemGroup> group, ItemGroupEvents.ModifyEntries handler) {
         PENDING.computeIfAbsent(group, g -> new ArrayList<>()).add(handler);
     }
 
-    /** Call once after all items/blocks are registered. */
     public static void flushItemGroups() {
         if (PENDING.isEmpty()) return;
 
@@ -64,7 +60,7 @@ public final class OWRegistry {
                     .modifyEntriesEvent(group)
                     .register(entries -> {
                         for (ItemGroupEvents.ModifyEntries h : handlers) {
-                            h.modifyEntries(entries); // correct method name in 1.21
+                            h.modifyEntries(entries);
                         }
                     });
         });

@@ -1,7 +1,7 @@
 package net.hallowed.oldways.client.mixin.blockentity;
 
 import net.hallowed.oldways.client.util.BannerSwapState;
-import net.hallowed.oldways.content.ModBlocks;
+import net.hallowed.oldways.init.ModBlocks;
 import net.minecraft.block.entity.BannerBlockEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.TexturedRenderLayers;
