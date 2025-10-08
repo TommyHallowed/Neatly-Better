@@ -2,7 +2,6 @@ package net.hallowed;
 
 import net.fabricmc.api.ModInitializer;
 import net.hallowed.oldways.api.OWRegistry;
-import net.hallowed.oldways.config.CommonConfigManager;
 import net.hallowed.oldways.content.feature.BoneMealExpansion;
 import net.hallowed.oldways.util.MendingNerf;
 import net.hallowed.oldways.init.*;
@@ -21,8 +20,6 @@ public class TheOldWays implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        // 0) Common Config
-        CommonConfigManager.load();
 
         // 1) Register content
         ModBlocks.register();
@@ -34,9 +31,10 @@ public class TheOldWays implements ModInitializer {
         ModDataComponents.init();
         MendingNerf.init();
         BoneMealExpansion.init();
+        ModGameRules.register();
 
 
-        // 3) Creative tab entries
+        // 2) Creative tab entries
         OWRegistry.addToGroup(ItemGroups.COLORED_BLOCKS, entries -> {
             entries.addAfter(Items.PINK_WOOL,   ModItems.RAINBOW_WOOL);
             entries.addAfter(Items.PINK_CARPET, ModItems.RAINBOW_CARPET);
@@ -51,7 +49,7 @@ public class TheOldWays implements ModInitializer {
 
         OWRegistry.flushItemGroups();
 
-        // 4) Networking
+        // 3) Networking
         OldWaysNetwork.registerCommon();
 
         LOGGER.info("The Old Ways Mod Loaded!");
