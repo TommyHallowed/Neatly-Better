@@ -1,7 +1,7 @@
 package net.hallowed.oldways.mixin.screen;
 
 import net.hallowed.oldways.config.CommonConfigManager;
-import net.hallowed.oldways.enchant.OldEnchantCostContext;
+import net.hallowed.oldways.util.OldEnchantCostContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.screen.EnchantmentScreenHandler;
 import org.spongepowered.asm.mixin.Final;

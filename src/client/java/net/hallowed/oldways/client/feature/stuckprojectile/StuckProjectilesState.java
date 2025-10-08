@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.stuckprojectile;
+package net.hallowed.oldways.client.feature.stuckprojectile;
 
 public final class StuckProjectilesState {
     private StuckProjectilesState() {}

@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.ui;
+package net.hallowed.oldways.client.feature.ui;
 
 import java.util.function.BooleanSupplier;
 

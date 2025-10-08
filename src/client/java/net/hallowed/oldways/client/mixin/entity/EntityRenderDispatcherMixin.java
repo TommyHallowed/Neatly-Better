@@ -1,7 +1,7 @@
 package net.hallowed.oldways.client.mixin.entity;
 
 import net.hallowed.oldways.client.config.ClientConfigManager;
-import net.hallowed.oldways.client.stuckprojectile.StuckProjectilesState;
+import net.hallowed.oldways.client.feature.stuckprojectile.StuckProjectilesState;
 import net.hallowed.oldways.client.util.FlameOverlayState;
 import net.hallowed.oldways.util.FireSourceHolder;
 import net.minecraft.client.render.VertexConsumerProvider;

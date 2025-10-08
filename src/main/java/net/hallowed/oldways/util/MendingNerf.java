@@ -1,4 +1,4 @@
-package net.hallowed.oldways.enchantment;
+package net.hallowed.oldways.util;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import net.hallowed.oldways.api.events.AnvilUpdateEvent;

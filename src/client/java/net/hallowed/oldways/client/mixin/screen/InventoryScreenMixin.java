@@ -3,7 +3,7 @@ package net.hallowed.oldways.client.mixin.screen;
 import net.hallowed.oldways.client.mixin.accessor.HandledScreenAccessor;
 import net.hallowed.oldways.client.util.OverlayButtonsBridge;
 import net.hallowed.oldways.client.config.ClientConfigManager;
-import net.hallowed.oldways.client.ui.TextureButtonWidget;
+import net.hallowed.oldways.client.feature.ui.TextureButtonWidget;
 import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.hallowed.oldways.client.util.InventoryDeepScan;
 import net.minecraft.client.MinecraftClient;

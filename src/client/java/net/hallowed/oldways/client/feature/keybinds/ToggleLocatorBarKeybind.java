@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.keybinds;
+package net.hallowed.oldways.client.feature.keybinds;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

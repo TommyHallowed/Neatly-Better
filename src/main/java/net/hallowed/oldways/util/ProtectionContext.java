@@ -1,4 +1,4 @@
-package net.hallowed.oldways.enchantment;
+package net.hallowed.oldways.util;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;

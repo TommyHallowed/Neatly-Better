@@ -1,4 +1,4 @@
-package net.hallowed.oldways.enchant;
+package net.hallowed.oldways.util;
 
 public final class OldEnchantCostContext {
     private static final ThreadLocal<Integer> REQUIRED = new ThreadLocal<>();

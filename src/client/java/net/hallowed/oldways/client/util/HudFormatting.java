@@ -1,9 +1,7 @@
 // src/client/java/net/hallowed/oldways/client/ui/HudFormatting.java
-package net.hallowed.oldways.client.ui;
+package net.hallowed.oldways.client.util;
 
 import net.hallowed.oldways.client.config.ClientConfigManager;
-import net.hallowed.oldways.client.util.EnderCheckClient;
-import net.hallowed.oldways.client.util.InventoryDeepScan;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;

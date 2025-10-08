@@ -1,6 +1,6 @@
 package net.hallowed.oldways.client.mixin.ui;
 
-import net.hallowed.oldways.client.clipboard.CopyScreenshotHelper;
+import net.hallowed.oldways.client.util.CopyScreenshotHelper;
 import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;

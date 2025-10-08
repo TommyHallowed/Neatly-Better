@@ -1,7 +1,7 @@
 package net.hallowed.oldways.mixin.enchantment;
 
 import net.hallowed.oldways.config.CommonConfigManager;
-import net.hallowed.oldways.enchantment.ProtectionContext;
+import net.hallowed.oldways.util.ProtectionContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;

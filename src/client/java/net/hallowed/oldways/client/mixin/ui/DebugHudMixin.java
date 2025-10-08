@@ -1,7 +1,7 @@
 package net.hallowed.oldways.client.mixin.ui;
 
 import net.hallowed.oldways.client.config.ClientConfigManager;
-import net.hallowed.oldways.client.ui.HudFormatting;
+import net.hallowed.oldways.client.util.HudFormatting;
 import net.hallowed.oldways.client.util.InventoryDeepScan;
 import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.minecraft.client.MinecraftClient;

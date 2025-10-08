@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.stuckprojectile;
+package net.hallowed.oldways.client.feature.stuckprojectile;
 
 import com.mojang.datafixers.util.Pair;
 import java.util.ArrayList;

@@ -1,7 +1,7 @@
 package net.hallowed.oldways.mixin.entity.general;
 
 import net.hallowed.oldways.config.CommonConfigManager;
-import net.hallowed.oldways.enchantment.ProtectionContext;
+import net.hallowed.oldways.util.ProtectionContext;
 
 import net.hallowed.oldways.util.EntityInsideFireHandler;
 import net.hallowed.oldways.util.FireSourceHolder;

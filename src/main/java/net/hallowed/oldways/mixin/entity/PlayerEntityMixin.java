@@ -1,7 +1,7 @@
 package net.hallowed.oldways.mixin.entity;
 
 import net.hallowed.oldways.config.CommonConfigManager;
-import net.hallowed.oldways.enchant.OldEnchantCostContext;
+import net.hallowed.oldways.util.OldEnchantCostContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;

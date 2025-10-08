@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.locator;
+package net.hallowed.oldways.client.feature.locator;
 
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;

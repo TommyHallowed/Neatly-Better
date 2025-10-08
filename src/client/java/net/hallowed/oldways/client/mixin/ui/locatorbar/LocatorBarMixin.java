@@ -1,7 +1,7 @@
 package net.hallowed.oldways.client.mixin.ui.locatorbar;
 
 import net.hallowed.oldways.client.config.ClientConfigManager;
-import net.hallowed.oldways.client.locator.WaypointRendering;
+import net.hallowed.oldways.client.feature.locator.WaypointRendering;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.bar.Bar;

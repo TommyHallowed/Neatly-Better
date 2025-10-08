@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.locator;
+package net.hallowed.oldways.client.feature.locator;
 
 import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.minecraft.client.MinecraftClient;

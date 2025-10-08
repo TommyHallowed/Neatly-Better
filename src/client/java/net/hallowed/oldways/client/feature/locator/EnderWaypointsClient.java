@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.locator;
+package net.hallowed.oldways.client.feature.locator;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

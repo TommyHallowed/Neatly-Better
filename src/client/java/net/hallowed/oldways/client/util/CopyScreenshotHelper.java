@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.clipboard;
+package net.hallowed.oldways.client.util;
 
 import net.hallowed.oldways.client.config.ClientConfigManager;
 import org.jetbrains.annotations.NotNull;

@@ -4,7 +4,7 @@ import net.fabricmc.api.ModInitializer;
 import net.hallowed.oldways.api.OWRegistry;
 import net.hallowed.oldways.config.CommonConfigManager;
 import net.hallowed.oldways.content.feature.BoneMealExpansion;
-import net.hallowed.oldways.enchantment.MendingNerf;
+import net.hallowed.oldways.util.MendingNerf;
 import net.hallowed.oldways.init.*;
 import net.hallowed.oldways.network.OldWaysNetwork;
 import net.minecraft.item.ItemGroups;

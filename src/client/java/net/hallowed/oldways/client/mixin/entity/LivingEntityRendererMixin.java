@@ -1,7 +1,7 @@
 package net.hallowed.oldways.client.mixin.entity;
 
 import net.hallowed.oldways.client.config.ClientConfigManager;
-import net.hallowed.oldways.client.stuckprojectile.StuckProjectileFeature;
+import net.hallowed.oldways.client.feature.stuckprojectile.StuckProjectileFeature;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;

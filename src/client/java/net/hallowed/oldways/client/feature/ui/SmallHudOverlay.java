@@ -1,9 +1,10 @@
 // src/client/java/net/hallowed/oldways/client/ui/SmallHudOverlay.java
-package net.hallowed.oldways.client.ui;
+package net.hallowed.oldways.client.feature.ui;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hallowed.oldways.client.config.ClientConfigManager;
+import net.hallowed.oldways.client.util.HudFormatting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.world.ClientWorld;
