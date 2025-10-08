@@ -1,6 +1,6 @@
 package net.hallowed.oldways.mixin.block;
 
-import net.hallowed.oldways.config.CommonConfigManager;
+import net.hallowed.oldways.init.ModGameRules;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.advancement.AdvancementProgress;
 import net.minecraft.advancement.PlayerAdvancementTracker;
@@ -9,6 +9,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -36,12 +37,13 @@ public abstract class BedBlockMixin {
                                               BlockHitResult hit,
                                               CallbackInfoReturnable<ActionResult> cir) {
 
-        if (!CommonConfigManager.bedNerfEnabled()) return;
+        if (!(world instanceof ServerWorld sw)) return;
+        if (!sw.getGameRules().getBoolean(ModGameRules.ALLOW_SLEEP_AFTER_ENDER_DRAGON_KILL)) return;
         if (world.isClient || !(player instanceof ServerPlayerEntity serverPlayer)) return;
 
-        // 🔒 Only in Overworld
         if (world.getRegistryKey() != World.OVERWORLD) return;
-
+        if (world.isDay()) return;
+        if (!sw.isSleepingEnabled()) return;
         MinecraftServer server = serverPlayer.getServer();
         if (server == null) return;
 
@@ -53,11 +55,9 @@ public abstract class BedBlockMixin {
         AdvancementProgress progress = tracker.getProgress(entry);
 
         if (!progress.isDone()) {
-            // Feedback
             serverPlayer.swingHand(Hand.MAIN_HAND, true);
             serverPlayer.sendMessage(Text.literal("You cannot rest until the Ender Dragon is defeated"), true);
 
-            // Set spawn point without allowing sleep
             ServerPlayerEntity.Respawn respawn = new ServerPlayerEntity.Respawn(
                     world.getRegistryKey(),
                     pos,
@@ -66,7 +66,6 @@ public abstract class BedBlockMixin {
             );
             serverPlayer.setSpawnPoint(respawn, true);
 
-            // Block the actual sleep UI
             cir.setReturnValue(ActionResult.SUCCESS);
         }
     }
