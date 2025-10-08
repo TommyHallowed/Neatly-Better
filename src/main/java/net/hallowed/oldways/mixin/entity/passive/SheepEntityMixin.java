@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin.entity;
+package net.hallowed.oldways.mixin.entity.passive;
 
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.passive.SheepEntity;
@@ -20,7 +20,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SheepEntity.class)
 public class SheepEntityMixin {
-
     @Unique
     private static final Identifier RAINBOW_WOOL_ID = Identifier.of("old-ways", "rainbow_wool");
 
@@ -45,7 +44,6 @@ public class SheepEntityMixin {
         world.playSoundFromEntity(null, self, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
         self.setSheared(true);
 
-        // Look up the item by id at use-time (avoids initializing your ModItems class early)
         var rainbowWool = Registries.ITEM.get(RAINBOW_WOOL_ID);
 
         int count = 1 + world.getRandom().nextInt(3);
