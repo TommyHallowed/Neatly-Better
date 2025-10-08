@@ -1,6 +1,5 @@
 package net.hallowed.oldways.mixin.entity.general;
-
-import net.hallowed.oldways.config.CommonConfigManager;
+import net.hallowed.oldways.init.ModGameRules;
 import net.hallowed.oldways.util.ProtectionContext;
 
 import net.hallowed.oldways.util.EntityInsideFireHandler;
@@ -27,6 +26,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -62,10 +62,7 @@ public abstract class LivingEntityMixin {
     )
     private void oldways$applyTotemCooldown(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
         if (cir.getReturnValue() && (Object)this instanceof PlayerEntity player) {
-            int ticks = CommonConfigManager.totemCooldownTicks();
-            if (ticks > 0) {
-                player.getItemCooldownManager().set(new ItemStack(Items.TOTEM_OF_UNDYING), ticks);
-            }
+                player.getItemCooldownManager().set(new ItemStack(Items.TOTEM_OF_UNDYING), 1200);
         }
     }
 
@@ -124,13 +121,25 @@ public abstract class LivingEntityMixin {
     /* ===================== 5) No shield raise delay ===================== */
 
     @Inject(method = "getBlockingItem()Lnet/minecraft/item/ItemStack;", at = @At("HEAD"), cancellable = true)
-    private void oldways$blockInstantly(CallbackInfoReturnable<ItemStack> cir) {
+    private void oldways$customShieldRaiseDelay(CallbackInfoReturnable<ItemStack> cir) {
         LivingEntity self = (LivingEntity)(Object)this;
 
         if (!self.isUsingItem()) return;
         ItemStack active = self.getActiveItem();
         if (active.isEmpty() || !active.isOf(Items.SHIELD)) return;
-        cir.setReturnValue(active);
+
+        int delay = 0;
+        World w = self.getWorld();
+        if (w instanceof ServerWorld sw) {
+            delay = Math.max(0, sw.getGameRules().getInt(ModGameRules.SHIELD_RAISE_DELAY_TICKS));
+        }
+
+        if (delay <= 0 || self.getItemUseTime() >= delay) {
+            cir.setReturnValue(active);
+        } else {
+            cir.setReturnValue(ItemStack.EMPTY);
+        }
+        cir.cancel();
     }
 
     /* ===================== 6) jeb_ sheep rainbow wool drops replacement ===================== */

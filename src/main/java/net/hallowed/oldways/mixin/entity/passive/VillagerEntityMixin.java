@@ -1,16 +1,18 @@
 package net.hallowed.oldways.mixin.entity.passive;
 
-import net.hallowed.oldways.config.CommonConfigManager;
+import net.hallowed.oldways.init.ModGameRules;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityInteraction;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
 import net.minecraft.village.VillagerData;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,14 +25,33 @@ import java.util.Arrays;
 public abstract class VillagerEntityMixin {
 
     @Unique private boolean oldways$cureActivated = false;
-
     @Unique private int[] oldways$firstSlotFloors;
+
+    /* -------------------- small helpers -------------------- */
+
+    @Unique
+    private static boolean grGlobalCuring(World w) {
+        if (w instanceof ServerWorld sw) {
+            return sw.getGameRules().getBoolean(ModGameRules.VILLAGER_GLOBAL_CURING_PRICES);
+        }
+        return false;
+    }
+
+    @Unique
+    private static boolean grInfiniteCuring(World w) {
+        if (w instanceof ServerWorld sw) {
+            return sw.getGameRules().getBoolean(ModGameRules.VILLAGER_INFINITE_CURING_DISCOUNTS);
+        }
+        return false;
+    }
 
     /* -------------------- Persist state (WriteView / ReadView) -------------------- */
 
     @Inject(method = "writeCustomData", at = @At("TAIL"))
     private void oldways$save(WriteView view, CallbackInfo ci) {
-        if (!CommonConfigManager.villagerGlobalCuringPrices()) return;
+        VillagerEntity self = (VillagerEntity)(Object)this;
+        if (grGlobalCuring(self.getWorld())) return;
+
         view.putBoolean("OldWaysCureActivated", this.oldways$cureActivated);
         if (oldways$firstSlotFloors != null && oldways$firstSlotFloors.length > 0) {
             StringBuilder sb = new StringBuilder();
@@ -44,11 +65,13 @@ public abstract class VillagerEntityMixin {
 
     @Inject(method = "readCustomData", at = @At("TAIL"))
     private void oldways$load(ReadView view, CallbackInfo ci) {
-        if (!CommonConfigManager.villagerGlobalCuringPrices()) {
+        VillagerEntity self = (VillagerEntity)(Object)this;
+        if (grGlobalCuring(self.getWorld())) {
             this.oldways$cureActivated = false;
             this.oldways$firstSlotFloors = null;
             return;
         }
+
         this.oldways$cureActivated = view.getBoolean("OldWaysCureActivated", false);
         String csv = view.getString("OldWaysFirstSlotFloorsCsv", "");
         if (csv.isEmpty()) {
@@ -71,7 +94,9 @@ public abstract class VillagerEntityMixin {
 
     @Inject(method = "onInteractionWith", at = @At("TAIL"))
     private void oldways$onInteraction(EntityInteraction interaction, Entity actor, CallbackInfo ci) {
-        if (!CommonConfigManager.villagerGlobalCuringPrices()) return;
+        VillagerEntity self = (VillagerEntity)(Object)this;
+        if (grGlobalCuring(self.getWorld())) return;
+
         if (interaction == EntityInteraction.ZOMBIE_VILLAGER_CURED) {
             this.oldways$cureActivated = true;
             this.oldways$firstSlotFloors = null;
@@ -82,9 +107,11 @@ public abstract class VillagerEntityMixin {
 
     @Inject(method = "prepareOffersFor", at = @At("RETURN"))
     private void oldways$globalizeAndPersist(PlayerEntity viewer, CallbackInfo ci) {
-        if (!CommonConfigManager.villagerGlobalCuringPrices() || !this.oldways$cureActivated) return;
-
         final VillagerEntity self = (VillagerEntity)(Object)this;
+        final World world = self.getWorld();
+
+        if (grGlobalCuring(world) || !this.oldways$cureActivated) return;
+
         final TradeOfferList offers = self.getOffers();
         if (offers == null || offers.isEmpty()) return;
 
@@ -93,7 +120,7 @@ public abstract class VillagerEntityMixin {
             Arrays.fill(oldways$firstSlotFloors, Integer.MAX_VALUE);
         }
 
-        final boolean allowFurtherLowering = CommonConfigManager.villagerInfiniteCuringDiscounts();
+        final boolean allowFurtherLowering = grInfiniteCuring(world);
         final boolean viewerHasHoTV = viewer.hasStatusEffect(StatusEffects.HERO_OF_THE_VILLAGE);
 
         for (int i = 0; i < offers.size(); i++) {

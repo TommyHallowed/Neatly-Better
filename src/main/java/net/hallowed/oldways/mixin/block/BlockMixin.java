@@ -1,6 +1,7 @@
 package net.hallowed.oldways.mixin.block;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.hallowed.oldways.init.ModGameRules;
 import net.hallowed.oldways.util.PlacedBlockTracker;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -53,6 +54,7 @@ public abstract class BlockMixin {
     @Inject(method = "onPlaced", at = @At("TAIL"))
     private void oldways$markPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack, CallbackInfo ci) {
         if (!(world instanceof ServerWorld sw)) return;
+        if (!sw.getGameRules().getBoolean(ModGameRules.XP_FROM_PLACING_BLOCKS)) return;
         PlacedBlockTracker.markPlaced(sw, pos);
         if (placer instanceof PlayerEntity p && !p.getAbilities().creativeMode) {
             float h = state.getHardness(sw, pos);
@@ -63,6 +65,7 @@ public abstract class BlockMixin {
     @Inject(method = "afterBreak", at = @At("TAIL"))
     private void oldways$xpOnBreak(World world, PlayerEntity player, BlockPos pos, BlockState state, @Nullable BlockEntity be, ItemStack tool, CallbackInfo ci) {
         if (!(world instanceof ServerWorld sw)) return;
+
 
         boolean wasPlaced = PlacedBlockTracker.wasPlaced(sw, pos);
         PlacedBlockTracker.unmark(sw, pos);
@@ -91,6 +94,7 @@ public abstract class BlockMixin {
         }
 
         boolean anyOre = isAnyOre(state) || state.isOf(Blocks.NETHER_QUARTZ_ORE);
+        if (!sw.getGameRules().getBoolean(ModGameRules.XP_FROM_MINING_NON_ORE)) return;
         if (!anyOre && !wasPlaced) {
             float h = state.getHardness(sw, pos);
             if (h > 0f) {

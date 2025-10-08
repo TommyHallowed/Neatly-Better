@@ -1,6 +1,5 @@
 package net.hallowed.oldways.mixin.enchantment;
 
-import net.hallowed.oldways.config.CommonConfigManager;
 import net.hallowed.oldways.util.ProtectionContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -49,8 +48,6 @@ public abstract class DamageUtilMixin {
     @Inject(method = "getInflictedDamage(FF)F", at = @At("RETURN"), cancellable = true)
     private static void oldways$capProtectionPoints(float damageDealt, float protectionPoints,
                                                     CallbackInfoReturnable<Float> cir) {
-        // Global toggle: do nothing if disabled
-        if (!CommonConfigManager.protectionNerfEnabled()) return;
 
         final DamageSource src = ProtectionContext.src();
         final LivingEntity ent = ProtectionContext.ent();
@@ -101,7 +98,6 @@ public abstract class DamageUtilMixin {
     @Unique
     private static float clamp01(float v) {
         if (Float.isNaN(v)) return 0f;
-        return v < 0f ? 0f : (v > 1f ? 1f : v);
-        // (micro-optimized vs MathHelper.clamp)
+        return v < 0f ? 0f : (Math.min(v, 1f));
     }
 }

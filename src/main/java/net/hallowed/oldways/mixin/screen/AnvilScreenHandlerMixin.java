@@ -2,7 +2,6 @@ package net.hallowed.oldways.mixin.screen;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.hallowed.oldways.api.events.AnvilUpdateEvent;
-import net.hallowed.oldways.config.CommonConfigManager;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantment;
@@ -100,11 +99,10 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
     private void oldways$mendingAndRename(CallbackInfo ci) {
         oldways$consumeRightOnTake = false;
 
-        boolean mendingEnabled = CommonConfigManager.mendingNerfEnabled();
         ItemStack left  = this.getSlot(0).getStack();
         ItemStack right = this.getSlot(1).getStack();
 
-        if (mendingEnabled && isPureMendingBook(left)) {
+        if (isPureMendingBook(left)) {
             this.output.setStack(0, ItemStack.EMPTY);
             this.levelCost.set(0);
             this.repairItemUsage = 0;
@@ -112,7 +110,7 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
             return;
         }
 
-        if (mendingEnabled && isPureMendingBook(right)) {
+        if (isPureMendingBook(right)) {
             AnvilUpdateEvent event = new AnvilUpdateEvent(left, right, 0);
             ActionResult res = AnvilUpdateEvent.EVENT.invoker().update(event);
 

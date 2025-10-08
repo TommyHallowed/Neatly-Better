@@ -1,6 +1,6 @@
 package net.hallowed.oldways.mixin.entity;
 
-import net.hallowed.oldways.config.CommonConfigManager;
+import net.hallowed.oldways.init.ModGameRules;
 import net.hallowed.oldways.util.OldEnchantCostContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -13,6 +13,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,7 +27,6 @@ public abstract class PlayerEntityMixin {
     /* ------------------ (1) Infinity fix: virtual arrow when bow has Infinity ------------------ */
     @Inject(method = "getProjectileType", at = @At("RETURN"), cancellable = true)
     private void oldways$virtualArrowForInfinity(ItemStack weapon, CallbackInfoReturnable<ItemStack> cir) {
-        if (!CommonConfigManager.infinityFixEnabled()) return;
         if (!cir.getReturnValue().isEmpty()) return;
 
         if (!(weapon.getItem() instanceof BowItem)) return;
@@ -44,13 +45,23 @@ public abstract class PlayerEntityMixin {
     /* ------------------ (2) Old Enchant: pay the full displayed level cost ------------------ */
     @Inject(method = "applyEnchantmentCosts(Lnet/minecraft/item/ItemStack;I)V", at = @At("HEAD"))
     private void oldways$topUp(ItemStack stack, int vanillaLevels, CallbackInfo ci) {
-        if (!CommonConfigManager.oldEnchant()) return;
+        PlayerEntity self = (PlayerEntity)(Object)this;
+
+        boolean enabled = false;
+        World w = self.getWorld();
+        if (w instanceof ServerWorld sw) {
+            enabled = sw.getGameRules().getBoolean(ModGameRules.FULL_ENCHANTING_COST);
+        }
+        if (!enabled) return;
+
         Integer full = OldEnchantCostContext.peekRequired();
         if (full == null) return;
-        PlayerEntity self = (PlayerEntity)(Object)this;
         if (self.getAbilities().creativeMode) return;
+
         int extra = full - Math.max(1, vanillaLevels);
-        if (extra > 0) self.addExperienceLevels(-extra);
+        if (extra > 0) {
+            self.addExperienceLevels(-extra);
+        }
     }
 
     /* ------------------ (3) Feather not dealing damage ------------------ */

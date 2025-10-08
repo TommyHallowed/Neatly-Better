@@ -1,10 +1,13 @@
+// src/main/java/net/hallowed/oldways/mixin/blockentity/BeaconBlockEntityMixin.java
 package net.hallowed.oldways.mixin.blockentity;
 
+import net.hallowed.oldways.init.ModGameRules;
 import net.minecraft.block.entity.BeaconBlockEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
@@ -14,32 +17,48 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(BeaconBlockEntity.class)
 abstract class BeaconBlockEntityMixin {
+
     @Redirect(
             method = "applyPlayerEffects",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Box;expand(D)Lnet/minecraft/util/math/Box;")
     )
-    private static Box oldways$scaleByLevel(Box box, double value, World world, BlockPos pos, int beaconLevel,
-                                            RegistryEntry<StatusEffect> primary, RegistryEntry<StatusEffect> secondary) {
-        double scale = beaconLevel >= 3 ? 1.5D : (beaconLevel == 2 ? 1.25D : 1.0D);
-        return box.expand(value * scale);
+    private static Box oldways$useGameruleRadius(
+            Box box, double vanillaRadius,
+            World world, BlockPos pos, int beaconLevel,
+            RegistryEntry<StatusEffect> primary, RegistryEntry<StatusEffect> secondary
+    ) {
+        if (world instanceof ServerWorld sw) {
+            int rule = sw.getGameRules().getInt(ModGameRules.MAX_BEACON_RANGE);
+            double radius = rule > 0 ? (double) rule : vanillaRadius;
+            return box.expand(radius);
+        }
+        return box.expand(vanillaRadius);
     }
 
     @Redirect(
             method = "applyPlayerEffects",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;addStatusEffect(Lnet/minecraft/entity/effect/StatusEffectInstance;)Z")
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/entity/player/PlayerEntity;addStatusEffect(Lnet/minecraft/entity/effect/StatusEffectInstance;)Z")
     )
-    private static boolean oldways$stackAndSpeed(PlayerEntity player, StatusEffectInstance instance,
-                                                 World world, BlockPos pos, int beaconLevel,
-                                                 RegistryEntry<StatusEffect> primary, RegistryEntry<StatusEffect> secondary) {
+    private static boolean oldways$soakOrVanilla(
+            PlayerEntity player, StatusEffectInstance instance,
+            World world, BlockPos pos, int beaconLevel,
+            RegistryEntry<StatusEffect> primary, RegistryEntry<StatusEffect> secondary
+    ) {
+        boolean soak = false;
+        if (world instanceof ServerWorld sw) {
+            soak = sw.getGameRules().getBoolean(ModGameRules.BEACON_SOAK_EFFECTS);
+        }
+        if (!soak) return player.addStatusEffect(instance);
+
         int cap = Math.max(1, beaconLevel) * 60 * 20;
-        double speed = beaconLevel >= 3 ? 1.5D : (beaconLevel == 2 ? 1.25D : 1.0D);
         int current = 0;
         StatusEffectInstance existing = player.getStatusEffect(instance.getEffectType());
         if (existing != null) current = existing.getDuration();
-        int added = (int)Math.round(instance.getDuration() * speed);
-        int total = current + added;
-        if (total > cap) total = cap;
-        StatusEffectInstance applied = new StatusEffectInstance(instance.getEffectType(), total, instance.getAmplifier(), true, true);
+
+        int total = Math.min(cap, current + instance.getDuration());
+        StatusEffectInstance applied =
+                new StatusEffectInstance(instance.getEffectType(), total, instance.getAmplifier(), true, true);
         return player.addStatusEffect(applied);
     }
 }
