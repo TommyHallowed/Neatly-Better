@@ -1,10 +1,7 @@
 package net.hallowed.oldways.init;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
-import net.hallowed.oldways.content.entity.ai.goal.FollowEmeraldBlockGoal;
-import net.hallowed.oldways.content.entity.ai.goal.OpenFenceGateGoal;
-import net.hallowed.oldways.content.entity.ai.goal.ParkourGoal;
-import net.hallowed.oldways.content.entity.ai.goal.RunWhileChargingCrossbowGoal;
+import net.hallowed.oldways.content.entity.ai.goal.*;
 import net.hallowed.oldways.mixin.accessor.MobEntityAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
