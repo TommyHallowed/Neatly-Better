@@ -1,9 +1,10 @@
 package net.hallowed.oldways.mixin.screen;
 
-import net.hallowed.oldways.config.CommonConfigManager;
+import net.hallowed.oldways.init.ModGameRules;
 import net.hallowed.oldways.util.OldEnchantCostContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.screen.EnchantmentScreenHandler;
+import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,7 +19,8 @@ public abstract class EnchantmentScreenHandlerMixin {
 
     @Inject(method = "onButtonClick", at = @At("HEAD"))
     private void oldways$capture(PlayerEntity player, int id, CallbackInfoReturnable<Boolean> cir) {
-        if (!CommonConfigManager.oldEnchant()) return;
+        if (!(player.getWorld() instanceof ServerWorld sw)) return;
+        if (!sw.getGameRules().getBoolean(ModGameRules.FULL_ENCHANTING_COST)) return;
         if (id >= 0 && id < this.enchantmentPower.length) {
             int required = Math.max(1, this.enchantmentPower[id]);
             OldEnchantCostContext.push(required, player.experienceLevel);
@@ -28,13 +30,17 @@ public abstract class EnchantmentScreenHandlerMixin {
     @Inject(method = "onButtonClick", at = @At("RETURN"))
     private void oldways$apply(PlayerEntity player, int id, CallbackInfoReturnable<Boolean> cir) {
         try {
-            if (!CommonConfigManager.oldEnchant()) return;
+            if (!(player.getWorld() instanceof ServerWorld sw)) return;
+            if (!sw.getGameRules().getBoolean(ModGameRules.FULL_ENCHANTING_COST)) return;
+
             if (!Boolean.TRUE.equals(cir.getReturnValue())) return;
+
             Integer required = OldEnchantCostContext.peekRequired();
-            Integer startLvl = OldEnchantCostContext.peekStartLevel();
+            Integer startLvl  = OldEnchantCostContext.peekStartLevel();
             if (required == null || startLvl == null) return;
+
             int target = Math.max(0, startLvl - required);
-            int delta = target - player.experienceLevel;
+            int delta  = target - player.experienceLevel;
             if (delta != 0) player.addExperienceLevels(delta);
         } finally {
             OldEnchantCostContext.clear();
