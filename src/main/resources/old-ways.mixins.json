@@ -4,7 +4,10 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "accessor.BlockEntityTypeBlocksAccessor",
+    "accessor.BooleanRuleAccessor",
+    "accessor.GameRulesAccessor",
     "accessor.GenericContainerScreenHandlerAccessor",
+    "accessor.IntRuleAccessor",
     "accessor.MobEntityAccessor",
     "accessor.TridentEntityAccessor",
     "accessor.VillagerTaskListProviderAccessor",
