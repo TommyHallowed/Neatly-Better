@@ -28,11 +28,10 @@ public class TheOldWays implements ModInitializer {
         ModItems.register();
         ModPotions.registerAll();
         ModBrewing.register();
+        ModGameRules.register();
         ModDataComponents.init();
         MendingNerf.init();
         BoneMealExpansion.init();
-        ModGameRules.register();
-
 
         // 2) Creative tab entries
         OWRegistry.addToGroup(ItemGroups.COLORED_BLOCKS, entries -> {
