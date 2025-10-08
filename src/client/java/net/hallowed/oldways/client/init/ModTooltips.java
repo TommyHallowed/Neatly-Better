@@ -3,7 +3,6 @@ package net.hallowed.oldways.client.init;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
-import net.hallowed.oldways.config.CommonConfigManager;
 import net.hallowed.oldways.init.ModDataComponents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
@@ -40,8 +39,7 @@ public final class ModTooltips {
             addBasicUnderName(lines, GLOW_SAC_HINT);
         }
         if (stack.isOf(Items.TOTEM_OF_UNDYING)) {
-            int secs = CommonConfigManager.totemCooldownSeconds();
-            addBasicUnderName(lines, Text.literal("Cooldown on use: " + secs + "s").formatted(Formatting.GRAY));
+            addBasicUnderName(lines, Text.literal("Cooldown on use: 60s").formatted(Formatting.GRAY));
         }
 
         appendEmissiveTrimLine(stack, lines);
