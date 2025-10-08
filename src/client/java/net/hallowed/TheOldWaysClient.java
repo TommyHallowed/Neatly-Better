@@ -7,7 +7,7 @@ import net.hallowed.oldways.api.OWRegistry;
 import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.hallowed.oldways.client.keybinds.ToggleLocatorBarKeybind;
 import net.hallowed.oldways.client.locator.EnderWaypointsClient;
-import net.hallowed.oldways.client.ui.ModTooltips;
+import net.hallowed.oldways.client.init.ModTooltips;
 import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.hallowed.oldways.init.ModEntities;
 import net.minecraft.client.render.entity.BoatEntityRenderer;
