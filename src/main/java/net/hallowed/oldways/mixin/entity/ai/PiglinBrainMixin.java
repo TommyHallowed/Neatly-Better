@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin.ai;
+package net.hallowed.oldways.mixin.entity.ai;
 
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
@@ -24,17 +24,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(PiglinBrain.class)
 public abstract class PiglinBrainMixin {
 
-    // Use the full method descriptor to be mapping-proof:
-    // static boolean isWearingPiglinSafeArmor(LivingEntity) in 1.21.x
     @Inject(
             method = "isWearingPiglinSafeArmor(Lnet/minecraft/entity/LivingEntity;)Z",
             at = @At("RETURN"),
             cancellable = true
     )
     private static void oldways$goldTrimPacifies(LivingEntity entity, CallbackInfoReturnable<Boolean> cir) {
-        if (cir.getReturnValue()) return; // already considered piglin-safe by vanilla
+        if (cir.getReturnValue()) return;
 
-        // Check all armor slots
         for (EquipmentSlot slot : AttributeModifierSlot.ARMOR) {
             ArmorTrim trimComp = entity.getEquippedStack(slot)
                     .getComponents().get(DataComponentTypes.TRIM);
