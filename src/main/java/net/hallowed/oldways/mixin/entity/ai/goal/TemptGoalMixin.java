@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin.ai;
+package net.hallowed.oldways.mixin.entity.ai.goal;
 
 import net.minecraft.entity.ai.goal.TemptGoal;
 import org.spongepowered.asm.mixin.Mixin;

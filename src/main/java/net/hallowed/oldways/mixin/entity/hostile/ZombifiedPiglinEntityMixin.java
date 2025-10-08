@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin.entity;
+package net.hallowed.oldways.mixin.entity.hostile;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.Angerable;

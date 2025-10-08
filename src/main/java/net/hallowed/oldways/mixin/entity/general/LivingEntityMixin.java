@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin.entity;
+package net.hallowed.oldways.mixin.entity.general;
 
 import net.hallowed.oldways.config.CommonConfigManager;
 import net.hallowed.oldways.enchantment.ProtectionContext;

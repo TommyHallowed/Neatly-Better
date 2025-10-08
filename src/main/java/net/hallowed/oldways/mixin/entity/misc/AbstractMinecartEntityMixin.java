@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin.entity;
+package net.hallowed.oldways.mixin.entity.misc;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -23,7 +23,7 @@ public abstract class AbstractMinecartEntityMixin {
     @Unique private static final double MAX_BPS = 48.0;       // blocks per second
     @Unique private static final double ACCEL_PER_TICK = 0.2; // +0.6 b/s each tick (~12 b/s/s)
     @Unique private static final double START_THRESHOLD_BPS = 0.10; // require tiny motion
-    @Unique private static final double BLEND = 0.25;         // smoothing factor toward target
+    @Unique private static final double BLEND = 0.5;         // smoothing factor toward target
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void hallowed$gradualAccel(CallbackInfo ci) {

@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin.entity;
+package net.hallowed.oldways.mixin.entity.misc;
 
 import net.hallowed.oldways.mixin.accessor.TridentEntityAccessor;
 import net.minecraft.entity.Entity;
