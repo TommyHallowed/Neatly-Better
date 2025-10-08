@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.ui;
+package net.hallowed.oldways.client.init;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
