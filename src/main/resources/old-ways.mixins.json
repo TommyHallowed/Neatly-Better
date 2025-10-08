@@ -43,7 +43,6 @@
     "item.MapStateMixin",
     "item.PotionItemMixin",
     "item.SplashPotionItemMixin",
-    "network.ServerPlayNetworkHandlerMixin",
     "screen.AnvilScreenHandlerMixin",
     "screen.EnchantmentScreenHandlerMixin",
     "screen.LoomScreenHandlerMixin",
