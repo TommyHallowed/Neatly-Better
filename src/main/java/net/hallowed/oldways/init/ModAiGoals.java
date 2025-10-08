@@ -61,6 +61,12 @@ public final class ModAiGoals {
             }
         }
 
+        // 5) Sheep flee from wolves
+        if (type == EntityType.SHEEP) {
+            if (mob instanceof PathAwareEntity path && !hasGoal(goals, SheepFleeFromWolvesGoal.class)) {
+                goals.add(2, new SheepFleeFromWolvesGoal(path));
+            }
+        }
     }
 
     private static boolean hasGoal(GoalSelector goals, Class<? extends Goal> goalClass) {
