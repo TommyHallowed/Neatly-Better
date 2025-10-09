@@ -30,10 +30,10 @@ public class TheOldWaysClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.WARPED_BOAT, ctx -> new BoatEntityRenderer(ctx, WARPED_BOAT_LAYER));
         EntityModelLayerRegistry.registerModelLayer(CRIMSON_BOAT_LAYER, BoatEntityModel::getTexturedModelData);
         EntityRendererRegistry.register(ModEntities.CRIMSON_BOAT, ctx -> new BoatEntityRenderer(ctx, CRIMSON_BOAT_LAYER));
-        ModTooltips.init();
         EnderCheckClient.register();
         EnderWaypointsClient.register();
         ToggleLocatorBarKeybind.register();
+        ModTooltips.init();
 
     }
 }
