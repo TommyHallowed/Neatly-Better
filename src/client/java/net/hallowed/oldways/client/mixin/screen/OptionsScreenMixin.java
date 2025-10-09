@@ -25,7 +25,7 @@ public abstract class OptionsScreenMixin {
     )
     private ButtonWidget oldways$replaceTelemetryWithGameplay(OptionsScreen self, Text message, Supplier<Screen> supplier) {
         return ButtonWidget.builder(
-                Text.translatable("oldways.options.gameplay.button"),
+                Text.translatable("options.gameplay.button"),
                 btn -> MinecraftClient.getInstance().setScreen(new GameplaySettingsScreen(self))
         ).build();
     }
