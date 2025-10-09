@@ -30,7 +30,6 @@
 		"fabric-api": "*"
 	},
 	"suggests": {
-      "trimmable_tools": "*",
       "betterf3": "*"
 	}
 }
