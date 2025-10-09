@@ -22,7 +22,6 @@ public final class EnderWaypointsClient {
     public static void register() {
         ClientPlayNetworking.registerGlobalReceiver(OldWaysNetwork.EnderLodestones.ID,
                 (payload, context) -> {
-                    // Replace cache on the client thread
                     context.client().execute(() -> {
                         CACHE.clear();
                         for (OldWaysNetwork.LodestoneEntry e : payload.entries()) {
@@ -36,7 +35,6 @@ public final class EnderWaypointsClient {
                 });
     }
 
-    /** Append cached ender-chest lodestones for this dimension as client waypoints. */
     public static void appendForDimension(RegistryKey<World> dim, List<ClientWaypoint> out) {
         if (CACHE.isEmpty()) return;
         for (Entry e : CACHE) {
