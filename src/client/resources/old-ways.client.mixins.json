@@ -33,6 +33,7 @@
     "screen.InventoryScreenMixin",
     "screen.LoomScreenMixin",
     "screen.OnlineOptionsScreenMixin",
+    "screen.OptionsScreenMixin",
     "screen.RecipeBookScreenMixin",
     "screen.TitleScreenMixin",
     "screenshot.MainMixin",
