@@ -27,7 +27,7 @@ public abstract class DebugHudMixin {
         ClientWorld w = mc.world;
         if (p == null) return;
 
-        int xyzIdx = -1;
+        int xyzIdx;
 
             boolean hasCompass = InventoryDeepScan.hasCompass(p) || EnderCheckClient.enderHasCompass();
             String coordsLine = hasCompass ? HudFormatting.coordsLine(p).text() : "you need compass to display coordinates";
