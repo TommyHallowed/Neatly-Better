@@ -24,5 +24,32 @@
   "entity.old-ways.warped_boat": "Warped Boat",
   "entity.old-ways.crimson_boat": "Crimson Boat",
 
+  "oldways.options.gameplay.button": "Gameplay Settings...",
+  "oldways.options.gameplay.title": "Gameplay Settings",
+  "oldways.options.gameplay.overlay": "Overlay Settings...",
+  "oldways.options.gameplay.locator_bar": "Locator Bar Settings...",
+  "oldways.options.gameplay.recipe_book": "Recipe Book",
+  "oldways.recipe_book.mode.autohide": "AutoHide",
+  "oldways.recipe_book.mode.hidden": "Hidden",
+  "oldways.recipe_book.mode.shown": "Shown",
+  "oldways.options.gameplay.render_2d_items": "Render 2D Items",
+  "oldways.options.gameplay.show_stuck_projectiles": "Show Stuck Projectiles",
+  "oldways.options.gameplay.show_potion_glint": "Show Potion Glint",
+  "oldways.options.gameplay.realms_buttons": "Realms Buttons",
+  "oldways.options.gameplay.accessibility_button": "Accessibility Button",
+  "oldways.options.gameplay.telemetry": "Telemetry",
+  "oldways.options.gameplay.copy_screenshots": "Copy Screenshots",
+
+  "oldways.tooltip.overlay": "Configure Time & Coordinates Overlay.",
+  "oldways.tooltip.locator_bar": "Configure Locator Bar features.",
+  "oldways.tooltip.recipe_book": "Cycle behavior of the Recipe Book display.",
+  "oldways.tooltip.render_2d_items": "If ON, force items to render as 2D icons.",
+  "oldways.tooltip.show_stuck_projectiles": "If ON, keep embedded arrows/tridents visible.",
+  "oldways.tooltip.show_potion_glint": "If ON, show the potion shimmering effect.",
+  "oldways.tooltip.realms_buttons": "Toggle visibility of Realms buttons in menus.",
+  "oldways.tooltip.accessibility_button": "Show an extra Accessibility button on the title screen.",
+  "oldways.tooltip.telemetry": "Toggle the mod’s internal telemetry flag.",
+  "oldways.tooltip.copy_screenshots": "Automatically copy screenshots to clipboard.",
+
   "key.old-ways.toggle_locator_bar": "Toggle Locator Bar"
  }
