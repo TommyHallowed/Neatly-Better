@@ -11,9 +11,7 @@ public final class RecipeBookUtil {
     public static void closeRecipeBook(ClientRecipeBook book,
                                        ClientPlayNetworkHandler net,
                                        RecipeBookType category) {
-        // close on client
         book.setGuiOpen(category, false);
-        // inform server so it stays closed next open
         net.sendPacket(new RecipeCategoryOptionsC2SPacket(category, false, false));
     }
 }

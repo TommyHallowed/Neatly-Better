@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** When the Ender Chest UI opens, send one C2S check. */
 @Mixin(GenericContainerScreen.class)
 public abstract class GenericContainerScreenMixin extends HandledScreen<GenericContainerScreenHandler> {
 
@@ -30,7 +29,7 @@ public abstract class GenericContainerScreenMixin extends HandledScreen<GenericC
                         && "container.enderchest".equals(tc.getKey());
 
         if (isEnderChest) {
-            OldWaysNetworkClient.sendEnderCheck(); // one tiny packet per open
+            OldWaysNetworkClient.sendEnderCheck();
         }
     }
 }

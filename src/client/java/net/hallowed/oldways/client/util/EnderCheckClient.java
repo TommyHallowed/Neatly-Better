@@ -12,17 +12,14 @@ public final class EnderCheckClient {
     private static volatile boolean hasClockEnder   = false;
 
     public static void register() {
-        // Receive S2C
         OldWaysNetworkClient.registerClient((OldWaysNetwork.EnderCheckResponse resp) -> {
             hasCompassEnder = resp.hasCompass();
             hasClockEnder   = resp.hasClock();
         });
 
-        // Ask once on join (in case JOIN push is delayed on some stacks)
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) ->
                 client.execute(OldWaysNetworkClient::sendEnderCheck));
 
-        // Reset on disconnect so stale values don't bleed into SP/new servers
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             hasCompassEnder = false;
             hasClockEnder   = false;

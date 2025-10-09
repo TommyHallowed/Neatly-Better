@@ -11,13 +11,11 @@ import java.util.function.Consumer;
 public final class OldWaysNetworkClient {
     private OldWaysNetworkClient() {}
 
-    /** Register the S2C receiver. Call from your client init. */
     public static void registerClient(Consumer<OldWaysNetwork.EnderCheckResponse> onResponse) {
         ClientPlayNetworking.registerGlobalReceiver(OldWaysNetwork.EnderCheckResponse.ID,
                 (payload, ctx) -> ctx.client().execute(() -> onResponse.accept(payload)));
     }
 
-    /** Send a C2S ender-check request (use on a client tick). */
     public static void sendEnderCheck() {
         ClientPlayNetworking.send(new OldWaysNetwork.EnderCheckRequest());
     }

@@ -1,6 +1,5 @@
 package net.hallowed.oldways.client.mixin.ui;
 
-import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.hallowed.oldways.client.util.HudFormatting;
 import net.hallowed.oldways.client.util.InventoryDeepScan;
 import net.hallowed.oldways.client.util.EnderCheckClient;
@@ -21,7 +20,6 @@ public abstract class DebugHudMixin {
 
     @Inject(method = "getLeftText()Ljava/util/List;", at = @At("RETURN"), cancellable = true)
     private void oldways$coordsFirst_timeUnder(CallbackInfoReturnable<List<String>> cir) {
-        if (!ClientConfigManager.f3NeedsCompass() && !ClientConfigManager.f3NeedsClock()) return;
 
         List<String> lines = cir.getReturnValue();
         MinecraftClient mc = MinecraftClient.getInstance();
@@ -31,7 +29,6 @@ public abstract class DebugHudMixin {
 
         int xyzIdx = -1;
 
-        if (ClientConfigManager.f3NeedsCompass()) {
             boolean hasCompass = InventoryDeepScan.hasCompass(p) || EnderCheckClient.enderHasCompass();
             String coordsLine = hasCompass ? HudFormatting.coordsLine(p).text() : "you need compass to display coordinates";
             int idx = firstIndexStartingWith(lines, "XYZ:");
@@ -43,9 +40,7 @@ public abstract class DebugHudMixin {
                 lines.add(insert, coordsLine);
                 xyzIdx = insert;
             }
-        }
 
-        if (ClientConfigManager.f3NeedsClock()) {
             if (w == null) {
                 cir.setReturnValue(lines);
                 return;
@@ -62,7 +57,6 @@ public abstract class DebugHudMixin {
             int insertAt = (xyzIdx != -1) ? Math.min(xyzIdx + 1, lines.size()) : Math.min(1, lines.size());
             lines.add(insertAt, timeLine);
             lines.add(insertAt + 1, "");
-        }
 
         int diffIdx = firstIndexStartingWith(lines, "Local Difficulty:");
         if (diffIdx != -1) {
