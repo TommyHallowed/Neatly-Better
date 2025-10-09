@@ -20,7 +20,6 @@ public abstract class EnchantmentScreenMixin {
     private static boolean oldways$isFullCostEnabled() {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc == null) return false;
-
         if (mc.getServer() != null) {
             return mc.getServer().getGameRules().getBoolean(ModGameRules.FULL_ENCHANTING_COST);
         }
