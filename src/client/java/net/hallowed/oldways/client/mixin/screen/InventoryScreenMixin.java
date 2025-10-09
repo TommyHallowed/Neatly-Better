@@ -1,11 +1,11 @@
 package net.hallowed.oldways.client.mixin.screen;
 
 import net.hallowed.oldways.client.mixin.accessor.HandledScreenAccessor;
-import net.hallowed.oldways.client.util.OverlayButtonsBridge;
-import net.hallowed.oldways.client.config.ClientConfigManager;
+import net.hallowed.oldways.client.util.SettingsPrefs;
 import net.hallowed.oldways.client.feature.ui.TextureButtonWidget;
 import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.hallowed.oldways.client.util.InventoryDeepScan;
+import net.hallowed.oldways.client.util.OverlayButtonsBridge;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
@@ -18,7 +18,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Adds two texture-only buttons to the Survival Inventory header area. */
 @Mixin(InventoryScreen.class)
 public abstract class InventoryScreenMixin extends Screen implements OverlayButtonsBridge {
     protected InventoryScreenMixin(Text title) { super(title); }
@@ -29,7 +28,7 @@ public abstract class InventoryScreenMixin extends Screen implements OverlayButt
 
     @Inject(method = "init", at = @At("TAIL"))
     private void hallowed$addOverlayButtons(CallbackInfo ci) {
-        var a = (HandledScreenAccessor) this;
+        var a  = (HandledScreenAccessor) this;
         int x  = a.getX();
         int y  = a.getY();
         int bw = a.getBackgroundWidth();
@@ -42,16 +41,16 @@ public abstract class InventoryScreenMixin extends Screen implements OverlayButt
                 coordsX, rowY, BTN, BTN,
                 Identifier.of("old-ways", "textures/gui/overlay/compass_icon_shown.png"),
                 Identifier.of("old-ways", "textures/gui/overlay/compass_icon_hidden.png"),
-                ClientConfigManager::coordsVisible,
-                b -> ClientConfigManager.toggleCoordsVisible()
+                () -> SettingsPrefs.get().showCoords,
+                b -> { var p = SettingsPrefs.get(); p.showCoords = !p.showCoords; SettingsPrefs.save(); }
         );
 
         timeBtn = new TextureButtonWidget(
                 timeX, rowY, BTN, BTN,
                 Identifier.of("old-ways", "textures/gui/overlay/clock_icon_shown.png"),
                 Identifier.of("old-ways", "textures/gui/overlay/clock_icon_hidden.png"),
-                ClientConfigManager::timeVisible,
-                b -> ClientConfigManager.toggleTimeVisible()
+                () -> SettingsPrefs.get().showTime,
+                b -> { var p = SettingsPrefs.get(); p.showTime = !p.showTime; SettingsPrefs.save(); }
         );
 
         var player = MinecraftClient.getInstance().player;

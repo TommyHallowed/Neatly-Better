@@ -1,7 +1,7 @@
 package net.hallowed.oldways.client.mixin.ui;
 
 import net.hallowed.oldways.client.util.CopyScreenshotHelper;
-import net.hallowed.oldways.client.config.ClientConfigManager;
+import net.hallowed.oldways.client.util.SettingsPrefs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.text.Text;
@@ -30,12 +30,14 @@ public abstract class ChatHudMixin {
         t.setDaemon(true);
         return t;
     });
+    @Unique
+    private static final SettingsPrefs OW$prefs = SettingsPrefs.get();
 
     @Unique private static volatile String OLDWAYS_LAST_FILE = null;
 
     @Inject(method = "addMessage(Lnet/minecraft/text/Text;)V", at = @At("TAIL"))
     private void oldways$copyScreenshotIfVanillaSaved(Text message, CallbackInfo ci) {
-        if (!ClientConfigManager.copyScreenshotsToClipboard()) return;
+        if (!OW$prefs.copyScreenshots) return;
         if (!(message.getContent() instanceof TranslatableTextContent tc)) return;
         if (!"screenshot.success".equals(tc.getKey())) return;
 

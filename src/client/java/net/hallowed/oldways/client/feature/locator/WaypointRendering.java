@@ -1,6 +1,6 @@
 package net.hallowed.oldways.client.feature.locator;
 
-import net.hallowed.oldways.client.config.ClientConfigManager;
+import net.hallowed.oldways.client.util.SettingsPrefs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
@@ -21,14 +21,6 @@ import net.minecraft.world.waypoint.WaypointStyles;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Optimized renderer:
- *  - One tight loop builds a visible list with precomputed yaw + distSq.
- *  - Sorting by distSq DESC (farthest first) reuses those values.
- *  - The "Tab name" is picked from the SAME visible entries and uses the SAME x,
- *    so it always stays above the icon (no opposite-direction sliding).
- *  - If no waypoint is visible, the name is not drawn.
- */
 public final class WaypointRendering {
     private WaypointRendering() {}
 
@@ -43,30 +35,30 @@ public final class WaypointRendering {
     private static final ArrayDeque<Entry> POOL   = new ArrayDeque<>(64);
     private static final Comparator<Entry> BY_DIST_DESC = (a, b) -> Double.compare(b.distSq, a.distSq);
 
+    private static final SettingsPrefs P = SettingsPrefs.get();
+
     private static final class Entry {
         ClientWaypoint wp;
-        double yaw;     // degrees (relative to center)
-        double distSq;  // from camera
-        int x;          // pixel x for this yaw (precomputed for consistency)
+        double yaw;
+        double distSq;
+        int x;
         Entry set(ClientWaypoint w, double y, double d2, int px) { this.wp = w; this.yaw = y; this.distSq = d2; this.x = px; return this; }
     }
 
     public static void renderWaypoints(MinecraftClient client, DrawContext ctx, int centerY) {
-        if (!ClientConfigManager.locatorBarEnabled() || client.player == null || client.cameraEntity == null) return;
+        if (client.player == null || client.cameraEntity == null) return;
 
         var cam     = client.gameRenderer.getCamera();
         Vec3d camPos = client.cameraEntity.getPos();
 
         VISIBLE.clear();
 
-        // Track the visible entry closest to center (for Tab name)
         Entry best = null;
         double bestAbsYaw = 61.0;
 
-        // Build visible list once, computing everything we need
         for (ClientWaypoint wp : WaypointTracking.WAYPOINTS) {
             double yaw = relativeYaw(wp.pos(), cam);
-            if (yaw <= -61.0 || yaw > 60.0) continue; // off the bar, skip entirely
+            if (yaw <= -61.0 || yaw > 60.0) continue;
 
             double d2 = wp.pos().squaredDistanceTo(camPos);
             int x = xFromYaw(ctx, yaw);
@@ -80,15 +72,13 @@ public final class WaypointRendering {
             if (ay < bestAbsYaw) { bestAbsYaw = ay; best = e; }
         }
 
-        // Sort once (farthest first), then draw
         if (VISIBLE.size() > 1) VISIBLE.sort(BY_DIST_DESC);
 
         for (Entry e : VISIBLE) {
             drawWaypoint(client, ctx, centerY, e);
         }
 
-        // Draw the name only if the best is actually visible (ties to same x as icon)
-        if (best != null && ClientConfigManager.tabShowsNames() && client.options.playerListKey.isPressed()) {
+        if (best != null && P.tabShowsNames && client.options.playerListKey.isPressed()) {
             drawNamePopup(client, ctx, centerY, best.x, best.wp.text().orElse(null));
         }
 
@@ -120,7 +110,7 @@ public final class WaypointRendering {
         int color = ColorHelper.withAlpha(255, e.wp.getColor());
         ctx.drawGuiTexture(RenderPipelines.GUI_TEXTURED, sprite, e.x, centerY - 2, 9, 9, color);
 
-        if (ClientConfigManager.renderPlayerHeads()) drawHeadIfNameMatches(client, ctx, e.x, centerY, e.wp);
+        if (P.renderPlayerHeads) drawHeadIfNameMatches(client, ctx, e.x, centerY, e.wp);
 
         TrackedWaypoint.Pitch pitch = pitch(e.wp.pos(), client.gameRenderer);
         if (pitch != TrackedWaypoint.Pitch.NONE) {
@@ -130,7 +120,6 @@ public final class WaypointRendering {
         }
     }
 
-    /** Best-effort head overlay using a tiny name->uuid cache to avoid scanning every frame. */
     private static void drawHeadIfNameMatches(MinecraftClient mc, DrawContext ctx, int x, int centerY, ClientWaypoint wp) {
         if (wp.text().isEmpty() || mc.world == null) return;
         String name = wp.text().get().getString().trim();
@@ -156,11 +145,11 @@ public final class WaypointRendering {
         Identifier skin = skins.texture();
         if (skin == null) return;
 
-        int size = (int) (9 * ClientConfigManager.headSizeMultiplier());
+        int size = (int) (9 * P.headSizeMultiplier);
         int left = x + (9 - size) / 2;
         int top  = (centerY - 2) + (9 - size) / 2;
 
-        if (ClientConfigManager.coloredHeadOutline()) {
+        if (P.coloredHeadOutline) {
             int argb = 0xFF000000 | wp.getColor();
             ctx.fill(left - 1, top - 1, left + size + 1, top, argb);
             ctx.fill(left - 1, top + size, left + size + 1, top + size + 1, argb);
@@ -168,7 +157,6 @@ public final class WaypointRendering {
             ctx.fill(left + size, top, left + size + 1, top + size, argb);
         }
 
-        // face (8,8)-(16,16) then hat (40,8)-(48,16) on 64×64 skins
         ctx.drawTexture(RenderPipelines.GUI_TEXTURED, skin, left, top, 8f, 8f,  size, size, 8, 8, 64, 64);
         ctx.drawTexture(RenderPipelines.GUI_TEXTURED, skin, left, top, 40f, 8f, size, size, 8, 8, 64, 64);
     }

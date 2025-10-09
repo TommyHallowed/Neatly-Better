@@ -4,8 +4,6 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.hallowed.oldways.api.OWRegistry;
-import net.hallowed.oldways.client.config.ClientConfigManager;
-import net.hallowed.oldways.client.feature.keybinds.ToggleLocatorBarKeybind;
 import net.hallowed.oldways.client.feature.locator.EnderWaypointsClient;
 import net.hallowed.oldways.client.init.ModTooltips;
 import net.hallowed.oldways.client.util.EnderCheckClient;
@@ -25,14 +23,12 @@ public class TheOldWaysClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        ClientConfigManager.load();
         EntityModelLayerRegistry.registerModelLayer(WARPED_BOAT_LAYER, BoatEntityModel::getTexturedModelData);
         EntityRendererRegistry.register(ModEntities.WARPED_BOAT, ctx -> new BoatEntityRenderer(ctx, WARPED_BOAT_LAYER));
         EntityModelLayerRegistry.registerModelLayer(CRIMSON_BOAT_LAYER, BoatEntityModel::getTexturedModelData);
         EntityRendererRegistry.register(ModEntities.CRIMSON_BOAT, ctx -> new BoatEntityRenderer(ctx, CRIMSON_BOAT_LAYER));
         EnderCheckClient.register();
         EnderWaypointsClient.register();
-        ToggleLocatorBarKeybind.register();
         ModTooltips.init();
 
     }

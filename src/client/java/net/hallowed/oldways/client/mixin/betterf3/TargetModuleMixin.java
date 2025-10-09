@@ -3,7 +3,6 @@ package net.hallowed.oldways.client.mixin.betterf3;
 import me.cominixo.betterf3.modules.BaseModule;
 import me.cominixo.betterf3.modules.TargetModule;
 import me.cominixo.betterf3.utils.DebugLine;
-import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.hallowed.oldways.client.util.InventoryDeepScan;
 import net.minecraft.client.MinecraftClient;
@@ -18,7 +17,6 @@ public abstract class TargetModuleMixin {
 
     @Inject(method = "update", at = @At("TAIL"))
     private void oldways$gateTargeting(MinecraftClient client, CallbackInfo ci) {
-        if (!ClientConfigManager.f3NeedsCompass()) return;
 
         PlayerEntity p = client.player;
         if (p == null) return;

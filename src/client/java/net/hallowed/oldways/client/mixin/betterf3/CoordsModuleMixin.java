@@ -4,7 +4,6 @@ import me.cominixo.betterf3.modules.BaseModule;
 import me.cominixo.betterf3.modules.CoordsModule;
 import me.cominixo.betterf3.utils.DebugLine;
 import me.cominixo.betterf3.utils.Utils;
-import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.hallowed.oldways.client.util.InventoryDeepScan;
 import net.minecraft.client.MinecraftClient;
@@ -30,7 +29,6 @@ public abstract class CoordsModuleMixin {
 
     @Inject(method = "update", at = @At("TAIL"))
     private void oldways$gateCoords(MinecraftClient client, CallbackInfo ci) {
-        if (!ClientConfigManager.f3NeedsCompass()) return;
 
         PlayerEntity p = client.player;
         if (p == null) return;

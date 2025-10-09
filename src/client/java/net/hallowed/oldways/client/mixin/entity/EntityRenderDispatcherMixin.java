@@ -1,8 +1,8 @@
 package net.hallowed.oldways.client.mixin.entity;
 
-import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.hallowed.oldways.client.feature.stuckprojectile.StuckProjectilesState;
 import net.hallowed.oldways.client.util.FlameOverlayState;
+import net.hallowed.oldways.client.util.SettingsPrefs;
 import net.hallowed.oldways.util.FireSourceHolder;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
@@ -25,6 +25,8 @@ public class EntityRenderDispatcherMixin {
     /* ===================== 1) Stuck Arrows/Stingers ===================== */
 
     @Unique
+    private static final SettingsPrefs OW$prefs = SettingsPrefs.get();
+    @Unique
     private static final ThreadLocal<Entity> OLDWAYS$current = new ThreadLocal<>();
 
     @Inject(
@@ -38,7 +40,7 @@ public class EntityRenderDispatcherMixin {
     ) {
         OLDWAYS$current.set(e);
 
-        if (!ClientConfigManager.stuckProjectilesEnabled()) {
+        if (!OW$prefs.showStuckProjectiles) {
             StuckProjectilesState.ENTITY_ID = 0;
             StuckProjectilesState.ARROW_COUNT = 0;
             StuckProjectilesState.STINGER_COUNT = 0;

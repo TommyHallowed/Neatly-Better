@@ -1,6 +1,5 @@
 package net.hallowed.oldways.client.mixin.ui.locatorbar;
 
-import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.hallowed.oldways.client.feature.locator.WaypointRendering;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -18,26 +17,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class LocatorBarMixin implements Bar {
     @Shadow @Final private MinecraftClient client;
 
-    /** Kill the background bar entirely when disabled. */
-    @Inject(method = "renderBar", at = @At("HEAD"), cancellable = true)
-    private void oldways$cancelBarIfDisabled(DrawContext ctx, RenderTickCounter ticks, CallbackInfo ci) {
-        if (!ClientConfigManager.locatorBarEnabled()) {
-            ci.cancel();
-        }
-    }
-
-    /** Kill vanilla waypoint dots/arrows when disabled. */
-    @Inject(method = "renderAddons", at = @At("HEAD"), cancellable = true)
-    private void oldways$cancelAddonsIfDisabled_HEAD(DrawContext ctx, RenderTickCounter ticks, CallbackInfo ci) {
-        if (!ClientConfigManager.locatorBarEnabled()) {
-            ci.cancel();
-        }
-    }
-
-    /** When enabled, draw our extra client-side waypoints after vanilla. */
     @Inject(method = "renderAddons", at = @At("RETURN"))
     private void oldways$renderClientWaypoints_RETURN(DrawContext ctx, RenderTickCounter ticks, CallbackInfo ci) {
-        if (!ClientConfigManager.locatorBarEnabled()) return;
         WaypointRendering.renderWaypoints(this.client, ctx, this.getCenterY(this.client.getWindow()));
     }
 }

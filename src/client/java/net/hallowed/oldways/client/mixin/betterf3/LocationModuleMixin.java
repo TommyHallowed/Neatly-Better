@@ -3,7 +3,6 @@ package net.hallowed.oldways.client.mixin.betterf3;
 import me.cominixo.betterf3.modules.BaseModule;
 import me.cominixo.betterf3.modules.LocationModule;
 import me.cominixo.betterf3.utils.DebugLine;
-import net.hallowed.oldways.client.config.ClientConfigManager;
 import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.hallowed.oldways.client.util.InventoryDeepScan;
 import net.minecraft.client.MinecraftClient;
@@ -26,7 +25,6 @@ public abstract class LocationModuleMixin {
         BaseModule self = (BaseModule)(Object)this;
         List<DebugLine> lines = self.lines();
 
-        if (ClientConfigManager.f3NeedsCompass()) {
             boolean hasCompass = InventoryDeepScan.hasCompass(p) || EnderCheckClient.enderHasCompass();
             if (!hasCompass) {
                 String[] compassIds = { "facing", "rotation" };
@@ -36,9 +34,7 @@ public abstract class LocationModuleMixin {
                     if (line != null) line.value(compassMsg);
                 }
             }
-        }
 
-        if (ClientConfigManager.f3NeedsClock()) {
             boolean hasClock = InventoryDeepScan.hasClock(p) || EnderCheckClient.enderHasClock();
             if (!hasClock) {
                 String[] clockIds = { "day_ticks", "days_played" };
@@ -48,7 +44,6 @@ public abstract class LocationModuleMixin {
                     if (line != null) line.value(clockMsg);
                 }
             }
-        }
     }
 
     @Unique
