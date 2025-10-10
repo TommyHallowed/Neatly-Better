@@ -22,15 +22,20 @@ abstract class BeaconBlockEntityMixin {
             method = "applyPlayerEffects",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Box;expand(D)Lnet/minecraft/util/math/Box;")
     )
-    private static Box oldways$useGameruleRadius(
+    private static Box oldways$useScaledGamerule(
             Box box, double vanillaRadius,
             World world, BlockPos pos, int beaconLevel,
             RegistryEntry<StatusEffect> primary, RegistryEntry<StatusEffect> secondary
     ) {
         if (world instanceof ServerWorld sw) {
             int rule = sw.getGameRules().getInt(ModGameRules.MAX_BEACON_RANGE);
-            double radius = rule > 0 ? (double) rule : vanillaRadius;
-            return box.expand(radius);
+            if (rule > 0) {
+                final int MAX_LEVEL = 4;
+                final double VANILLA_MAX_RADIUS = MAX_LEVEL * 10.0 + 10.0;
+
+                double scaledRadius = (beaconLevel * 10.0 + 10.0) * (rule / VANILLA_MAX_RADIUS);
+                return box.expand(scaledRadius);
+            }
         }
         return box.expand(vanillaRadius);
     }
