@@ -12,7 +12,7 @@ public final class ModGameRules {
     private ModGameRules() {}
 
     public static GameRules.Key<GameRules.BooleanRule> ELYTRA_FIREWORK_BOOSTING;
-    public static GameRules.Key<GameRules.BooleanRule> ALLOW_SLEEP_AFTER_ENDER_DRAGON_KILL;
+    public static GameRules.Key<GameRules.BooleanRule> ALLOW_SLEEP;
     public static GameRules.Key<GameRules.BooleanRule> FULL_ENCHANTING_COST;
     public static GameRules.Key<GameRules.BooleanRule> BEACON_SOAK_EFFECTS;
     public static GameRules.Key<GameRules.BooleanRule> XP_FROM_MINING_NON_ORE;
@@ -29,7 +29,7 @@ public final class ModGameRules {
 
     public static void register() {
         ELYTRA_FIREWORK_BOOSTING           = bool("elytraFireworkBoosting",            GameRules.Category.PLAYER, false);
-        ALLOW_SLEEP_AFTER_ENDER_DRAGON_KILL= bool("allowSleepAfterEnderDragonKill",    GameRules.Category.PLAYER, false);
+        ALLOW_SLEEP                        = bool("allowSleep",                        GameRules.Category.PLAYER, false);
         FULL_ENCHANTING_COST               = bool("fullEnchantingCost",                GameRules.Category.PLAYER,   true);
         BEACON_SOAK_EFFECTS                = bool("beaconSoakEffects",                 GameRules.Category.MISC,   true);
         XP_FROM_MINING_NON_ORE             = bool("xpFromMiningNonOre",                GameRules.Category.DROPS, true);
@@ -67,6 +67,7 @@ public final class ModGameRules {
         return GameRulesAccessor.oldways$register(id, cat, IntRuleAccessor.oldways$create(def));
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static GameRules.Key<?> findKeyByName(String name) {
         Map<GameRules.Key<?>, GameRules.Type<?>> map = GameRulesAccessor.oldways$getRuleTypes();
         for (GameRules.Key<?> key : map.keySet()) {
