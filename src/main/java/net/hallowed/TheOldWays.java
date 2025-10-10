@@ -3,6 +3,7 @@ package net.hallowed;
 import net.fabricmc.api.ModInitializer;
 import net.hallowed.oldways.api.OWRegistry;
 import net.hallowed.oldways.content.feature.BoneMealExpansion;
+import net.hallowed.oldways.content.feature.NoSleeping;
 import net.hallowed.oldways.util.MendingNerf;
 import net.hallowed.oldways.init.*;
 import net.hallowed.oldways.network.OldWaysNetwork;
@@ -28,6 +29,7 @@ public class TheOldWays implements ModInitializer {
         ModItems.register();
         ModPotions.registerAll();
         ModBrewing.register();
+        NoSleeping.register();
         ModGameRules.register();
         ModDataComponents.init();
         MendingNerf.init();
