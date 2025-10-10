@@ -32,6 +32,7 @@ public abstract class InventoryScreenMixin extends Screen implements OverlayButt
 
     @Unique private int baseCoordsX;
     @Unique private int baseTimeX;
+    @Unique private int rowY;
 
     @Inject(method = "init", at = @At("TAIL"))
     private void hallowed$addOverlayButtons(CallbackInfo ci) {
@@ -48,7 +49,7 @@ public abstract class InventoryScreenMixin extends Screen implements OverlayButt
 
         int timeXNow   = x + bw - BTN - 4;
         int coordsXNow = timeXNow - BTN - 2;
-        int rowY       = y - BTN - 2;
+        rowY           = y - BTN - 2;
 
         baseCoordsX = bookOpen ? (coordsXNow - SHIFT) : coordsXNow;
         baseTimeX   = bookOpen ? (timeXNow   - SHIFT) : timeXNow;
@@ -89,8 +90,24 @@ public abstract class InventoryScreenMixin extends Screen implements OverlayButt
             if (book != null && book.isOpen()) shift = SHIFT;
         } catch (Throwable ignored) { }
 
-        coordsBtn.setX(baseCoordsX + shift);
-        timeBtn.setX(baseTimeX + shift);
+        var mc = MinecraftClient.getInstance();
+        var player = mc.player;
+        boolean hasCompass = player != null && (InventoryDeepScan.hasCompass(player) || EnderCheckClient.enderHasCompass());
+        boolean hasClock   = player != null && (InventoryDeepScan.hasClock(player)   || EnderCheckClient.enderHasClock());
+        coordsBtn.visible = hasCompass;
+        timeBtn.visible   = hasClock;
+
+        int coordsX = baseCoordsX + shift;
+        int timeX   = baseTimeX   + shift;
+
+        if (coordsBtn.visible && !timeBtn.visible) {
+            coordsX = timeX;
+        }
+
+        coordsBtn.setX(coordsX);
+        coordsBtn.setY(rowY);
+        timeBtn.setX(timeX);
+        timeBtn.setY(rowY);
     }
 
     @Override public ButtonWidget hallowed$getCoordsBtn() { return coordsBtn; }
