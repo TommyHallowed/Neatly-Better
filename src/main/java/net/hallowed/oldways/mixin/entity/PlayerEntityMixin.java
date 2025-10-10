@@ -29,7 +29,7 @@ public abstract class PlayerEntityMixin {
     private void oldways$virtualArrowForInfinity(ItemStack weapon, CallbackInfoReturnable<ItemStack> cir) {
         if (!cir.getReturnValue().isEmpty()) return;
 
-        if (!(weapon.getItem() instanceof BowItem)) return;
+        if (!(weapon.getItem() instanceof RangedWeaponItem)) return;
 
         PlayerEntity self = (PlayerEntity)(Object)this;
         if (self.getAbilities().creativeMode) return;
