@@ -76,11 +76,11 @@ public class GameplaySettingsScreen extends Screen {
             SettingsPrefs.save();
         }).tooltip(Tooltip.of(Text.translatable("options.show_potion_glint.tooltip"))).build());
 
-        adder.add(ButtonWidget.builder(composeOnOff("options.gameplay.realms_buttons", P.realmsButtons), b -> {
+        adder.add(ButtonWidget.builder(composeOnOff("options.gameplay.realms_button", P.realmsButtons), b -> {
             P.realmsButtons = !P.realmsButtons;
-            b.setMessage(composeOnOff("options.gameplay.realms_buttons", P.realmsButtons));
+            b.setMessage(composeOnOff("options.gameplay.realms_button", P.realmsButtons));
             SettingsPrefs.save();
-        }).tooltip(Tooltip.of(Text.translatable("options.realms_buttons.tooltip"))).build());
+        }).tooltip(Tooltip.of(Text.translatable("options.realms_button.tooltip"))).build());
 
         adder.add(ButtonWidget.builder(composeOnOff("options.gameplay.accessibility_button", P.accessibilityButton), b -> {
             P.accessibilityButton = !P.accessibilityButton;
