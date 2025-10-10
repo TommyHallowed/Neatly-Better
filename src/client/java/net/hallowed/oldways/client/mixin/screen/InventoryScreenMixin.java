@@ -1,14 +1,17 @@
 package net.hallowed.oldways.client.mixin.screen;
 
 import net.hallowed.oldways.client.mixin.accessor.HandledScreenAccessor;
+import net.hallowed.oldways.client.mixin.accessor.RecipeBookScreenAccessor;
 import net.hallowed.oldways.client.util.SettingsPrefs;
 import net.hallowed.oldways.client.feature.ui.TextureButtonWidget;
 import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.hallowed.oldways.client.util.InventoryDeepScan;
 import net.hallowed.oldways.client.util.OverlayButtonsBridge;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -25,6 +28,10 @@ public abstract class InventoryScreenMixin extends Screen implements OverlayButt
     @Unique private ButtonWidget coordsBtn;
     @Unique private ButtonWidget timeBtn;
     @Unique private static final int BTN = 12;
+    @Unique private static final int SHIFT = 77;
+
+    @Unique private int baseCoordsX;
+    @Unique private int baseTimeX;
 
     @Inject(method = "init", at = @At("TAIL"))
     private void hallowed$addOverlayButtons(CallbackInfo ci) {
@@ -33,12 +40,21 @@ public abstract class InventoryScreenMixin extends Screen implements OverlayButt
         int y  = a.getY();
         int bw = a.getBackgroundWidth();
 
-        int timeX   = x + bw - BTN - 4;
-        int coordsX = timeX - BTN - 2;
-        int rowY    = y - BTN - 4;
+        boolean bookOpen = false;
+        try {
+            RecipeBookWidget<?> rb = ((RecipeBookScreenAccessor) this).getRecipeBook();
+            bookOpen = rb != null && rb.isOpen();
+        } catch (Throwable ignored) { }
+
+        int timeXNow   = x + bw - BTN - 4;
+        int coordsXNow = timeXNow - BTN - 2;
+        int rowY       = y - BTN - 2;
+
+        baseCoordsX = bookOpen ? (coordsXNow - SHIFT) : coordsXNow;
+        baseTimeX   = bookOpen ? (timeXNow   - SHIFT) : timeXNow;
 
         coordsBtn = new TextureButtonWidget(
-                coordsX, rowY, BTN, BTN,
+                baseCoordsX, rowY, BTN, BTN,
                 Identifier.of("old-ways", "textures/gui/overlay/compass_icon_shown.png"),
                 Identifier.of("old-ways", "textures/gui/overlay/compass_icon_hidden.png"),
                 () -> SettingsPrefs.get().showCoords,
@@ -46,7 +62,7 @@ public abstract class InventoryScreenMixin extends Screen implements OverlayButt
         );
 
         timeBtn = new TextureButtonWidget(
-                timeX, rowY, BTN, BTN,
+                baseTimeX, rowY, BTN, BTN,
                 Identifier.of("old-ways", "textures/gui/overlay/clock_icon_shown.png"),
                 Identifier.of("old-ways", "textures/gui/overlay/clock_icon_hidden.png"),
                 () -> SettingsPrefs.get().showTime,
@@ -56,12 +72,25 @@ public abstract class InventoryScreenMixin extends Screen implements OverlayButt
         var player = MinecraftClient.getInstance().player;
         boolean hasCompass = player != null && (InventoryDeepScan.hasCompass(player) || EnderCheckClient.enderHasCompass());
         boolean hasClock   = player != null && (InventoryDeepScan.hasClock(player)   || EnderCheckClient.enderHasClock());
-
         coordsBtn.visible = hasCompass;
         timeBtn.visible   = hasClock;
 
         this.addDrawableChild(coordsBtn);
         this.addDrawableChild(timeBtn);
+    }
+
+    @Inject(method = "render", at = @At("HEAD"))
+    private void hallowed$shiftButtonsWithRecipeBook(DrawContext ctx, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        if (coordsBtn == null || timeBtn == null) return;
+
+        int shift = 0;
+        try {
+            RecipeBookWidget<?> book = ((RecipeBookScreenAccessor) this).getRecipeBook();
+            if (book != null && book.isOpen()) shift = SHIFT;
+        } catch (Throwable ignored) { }
+
+        coordsBtn.setX(baseCoordsX + shift);
+        timeBtn.setX(baseTimeX + shift);
     }
 
     @Override public ButtonWidget hallowed$getCoordsBtn() { return coordsBtn; }
