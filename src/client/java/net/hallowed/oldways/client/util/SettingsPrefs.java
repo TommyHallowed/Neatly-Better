@@ -30,8 +30,8 @@ public final class SettingsPrefs {
     public boolean showTime = true;
     public Corner coordsPos = Corner.TOP_LEFT;
     public Corner timePos = Corner.TOP_LEFT;
-    public String coordsFormat  = "XYZ: {x} / {y} / {z}";
-    public String timeDayFormat = "Day: {day} / {time}";
+    public String coordsFormat  = "XYZ: {x} | {y} | {z}";
+    public String timeDayFormat = "Day: {day} | {time}";
 
     /** ===== Locator Bar Screen ===== */
     public boolean showInSpectator = true;
