@@ -28,8 +28,8 @@
     "entity.ai.goal.TemptGoalMixin",
     "entity.ai.task.VillagerTaskListProviderMixin",
     "entity.boat.AbstractBoatEntityMixin",
-    "entity.general.EntityMixin",
-    "entity.general.LivingEntityMixin",
+    "entity.generic.EntityMixin",
+    "entity.generic.LivingEntityMixin",
     "entity.hostile.VexEntityMixin",
     "entity.hostile.ZombifiedPiglinEntityMixin",
     "entity.misc.AbstractMinecartEntityMixin",
@@ -43,11 +43,13 @@
     "item.MapStateMixin",
     "item.PotionItemMixin",
     "item.SplashPotionItemMixin",
+    "other.HungerManagerMixin",
     "screen.AnvilScreenHandlerMixin",
     "screen.EnchantmentScreenHandlerMixin",
     "screen.LoomScreenHandlerMixin",
     "screen.ScreenHandlerMixin",
-    "screen.SmithingScreenHandlerMixin"
+    "screen.SmithingScreenHandlerMixin",
+    "worldgen.DesertTempleGeneratorMixin"
   ],
   "injectors": {
     "defaultRequire": 1
