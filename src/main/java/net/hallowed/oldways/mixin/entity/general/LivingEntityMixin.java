@@ -178,10 +178,8 @@ public abstract class LivingEntityMixin {
     }
 
     /* ===================== 7) Hostile mobs XP boost ===================== */
-
     @Unique private static final float HOSTILE_XP_MULTIPLIER = 2.0f;
-
-    @Unique private static final int HOSTILE_XP_CAP = 200;
+    @Unique private static final int HOSTILE_BONUS_XP_CAP = 200;
 
     @Unique
     private static boolean oldways$shouldBoost(LivingEntity self) {
@@ -193,8 +191,12 @@ public abstract class LivingEntityMixin {
 
     @Unique
     private static int oldways$boostWithCap(int base) {
-        int boosted = Math.max(1, Math.round(base * HOSTILE_XP_MULTIPLIER));
-        return Math.min(HOSTILE_XP_CAP, boosted);
+        if (HOSTILE_XP_MULTIPLIER <= 1.0f) return base;
+
+        int bonus = Math.round(base * (HOSTILE_XP_MULTIPLIER - 1.0f));
+        if (bonus < 0) bonus = 0;
+        if (bonus > HOSTILE_BONUS_XP_CAP) bonus = HOSTILE_BONUS_XP_CAP;
+        return base + bonus;
     }
 
     @Inject(
@@ -224,7 +226,6 @@ public abstract class LivingEntityMixin {
             cir.setReturnValue(oldways$boostWithCap(base));
         }
     }
-
 
     /* ===================== 8) Deal double damage if on soul fire ===================== */
 
