@@ -179,14 +179,22 @@ public abstract class LivingEntityMixin {
 
     /* ===================== 7) Hostile mobs XP boost ===================== */
 
-    @Unique private static final float HOSTILE_XP_MULTIPLIER = 1.5f;
+    @Unique private static final float HOSTILE_XP_MULTIPLIER = 2.0f;
+
+    @Unique private static final int HOSTILE_XP_CAP = 200;
 
     @Unique
     private static boolean oldways$shouldBoost(LivingEntity self) {
         EntityType<?> t = self.getType();
-        if (t == EntityType.ENDER_DRAGON || t == EntityType.WITHER || t == EntityType.WARDEN) return false;
+        if (t == EntityType.ENDER_DRAGON) return false;
         if (!(self instanceof HostileEntity)) return false;
         return self.getType().getSpawnGroup() == SpawnGroup.MONSTER;
+    }
+
+    @Unique
+    private static int oldways$boostWithCap(int base) {
+        int boosted = Math.max(1, Math.round(base * HOSTILE_XP_MULTIPLIER));
+        return Math.min(HOSTILE_XP_CAP, boosted);
     }
 
     @Inject(
@@ -199,8 +207,7 @@ public abstract class LivingEntityMixin {
         if (base <= 0) return;
         LivingEntity self = (LivingEntity)(Object)this;
         if (oldways$shouldBoost(self)) {
-            int boosted = Math.max(1, Math.round(base * HOSTILE_XP_MULTIPLIER));
-            cir.setReturnValue(boosted);
+            cir.setReturnValue(oldways$boostWithCap(base));
         }
     }
 
@@ -214,10 +221,10 @@ public abstract class LivingEntityMixin {
         if (base <= 0) return;
         LivingEntity self = (LivingEntity)(Object)this;
         if (oldways$shouldBoost(self)) {
-            int boosted = Math.max(1, Math.round(base * HOSTILE_XP_MULTIPLIER));
-            cir.setReturnValue(boosted);
+            cir.setReturnValue(oldways$boostWithCap(base));
         }
     }
+
 
     /* ===================== 8) Deal double damage if on soul fire ===================== */
 
