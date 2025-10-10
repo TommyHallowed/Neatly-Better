@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin.entity.general;
+package net.hallowed.oldways.mixin.entity.generic;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.hallowed.oldways.content.entity.vehicle.LavaBoatEntity;

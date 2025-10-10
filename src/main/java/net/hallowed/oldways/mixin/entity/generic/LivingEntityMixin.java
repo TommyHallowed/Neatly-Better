@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin.entity.general;
+package net.hallowed.oldways.mixin.entity.generic;
 import net.hallowed.oldways.init.ModGameRules;
 import net.hallowed.oldways.util.ProtectionContext;
 
