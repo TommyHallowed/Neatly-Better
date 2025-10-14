@@ -16,7 +16,7 @@ repositories {
 
 loom {
     splitEnvironmentSourceSets()
-
+    accessWidenerPath = file("src/main/resources/old-ways.accesswidener")
     mods {
         "old-ways" {
             sourceSet sourceSets.main
