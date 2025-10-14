@@ -61,9 +61,6 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-renderer-api-v1:${fabric_api_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-model-loading-api-v1:${fabric_api_version}"
 
-    // BetterF3
-    modImplementation "maven.modrinth:betterf3:${project.betterf3_version}"
-
 }
 
 processResources {
