@@ -43,6 +43,9 @@ public class TheOldWays implements ModInitializer {
         OWRegistry.addToGroup(ItemGroups.FUNCTIONAL, entries ->
                 entries.addAfter(Items.COPPER_TORCH, GLOW_TORCH));
 
+        OWRegistry.addToGroup(ItemGroups.COMBAT, entries ->
+                entries.addAfter(Items.DIAMOND_HORSE_ARMOR, NETHERITE_HORSE_ARMOR));
+
         OWRegistry.flushItemGroups();
 
         // 3) Networking
