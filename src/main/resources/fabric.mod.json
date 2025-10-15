@@ -2,6 +2,7 @@
 	"schemaVersion": 1,
 	"id": "old-ways",
 	"version": "${version}",
+    "accessWidener": "old-ways.accesswidener",
 	"name": "The Old Ways",
 	"description": "A minecraft mod that brings balance and enjoynment of the old versions of the game.",
 	"authors": [
