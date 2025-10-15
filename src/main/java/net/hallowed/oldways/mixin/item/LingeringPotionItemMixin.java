@@ -15,7 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 abstract class LingeringPotionItemMixin {
     @Inject(method = "use", at = @At("HEAD"))
     private void oldways$cooldown(World world, PlayerEntity user, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
-        ItemStack stack = user.getStackInHand(hand);
-        user.getItemCooldownManager().set(stack, 20);
+        if (!user.getAbilities().creativeMode) {
+            ItemStack stack = user.getStackInHand(hand);
+            user.getItemCooldownManager().set(stack, 20);
+        }
     }
 }
