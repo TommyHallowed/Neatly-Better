@@ -10,6 +10,7 @@
     "accessor.MobEntityAccessor",
     "accessor.TridentEntityAccessor",
     "accessor.VillagerTaskListProviderAccessor",
+    "block.AbstractBlockStateMixin",
     "block.BlockMixin",
     "block.ComposterBlockMixin",
     "block.FarmlandBlockMixin",
