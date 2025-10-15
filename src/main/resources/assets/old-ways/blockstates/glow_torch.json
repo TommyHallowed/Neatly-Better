@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "old-ways:block/glow_torch"
+    }
+  }
+}

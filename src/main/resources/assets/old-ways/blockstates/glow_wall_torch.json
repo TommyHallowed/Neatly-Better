@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "old-ways:block/glow_wall_torch"
+    },
+    "facing=north": {
+      "model": "old-ways:block/glow_wall_torch",
+      "y": 270
+    },
+    "facing=south": {
+      "model": "old-ways:block/glow_wall_torch",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "old-ways:block/glow_wall_torch",
+      "y": 180
+    }
+  }
+}
