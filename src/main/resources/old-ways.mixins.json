@@ -3,12 +3,8 @@
   "package": "net.hallowed.oldways.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "accessor.BooleanRuleAccessor",
-    "accessor.GameRulesAccessor",
     "accessor.GenericContainerScreenHandlerAccessor",
-    "accessor.IntRuleAccessor",
     "accessor.MobEntityAccessor",
-    "accessor.TridentEntityAccessor",
     "accessor.VillagerTaskListProviderAccessor",
     "block.AbstractBlockStateMixin",
     "block.BlockMixin",

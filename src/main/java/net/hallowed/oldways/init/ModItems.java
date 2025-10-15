@@ -90,6 +90,7 @@ public final class ModItems {
                                                 .shearingSound(SoundEvents.ITEM_HORSE_ARMOR_UNEQUIP)
                                                 .build()
                                 )
+                                .fireproof()
                                 .maxCount(1)
                                 .registryKey(key("netherite_horse_armor"))
                 )

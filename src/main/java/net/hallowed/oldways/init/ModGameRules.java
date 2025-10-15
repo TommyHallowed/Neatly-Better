@@ -1,8 +1,5 @@
 package net.hallowed.oldways.init;
 
-import net.hallowed.oldways.mixin.accessor.BooleanRuleAccessor;
-import net.hallowed.oldways.mixin.accessor.GameRulesAccessor;
-import net.hallowed.oldways.mixin.accessor.IntRuleAccessor;
 import net.minecraft.world.GameRules;
 
 public final class ModGameRules {
@@ -42,10 +39,10 @@ public final class ModGameRules {
     }
 
     private static GameRules.Key<GameRules.BooleanRule> bool(String id, GameRules.Category cat, boolean def) {
-        return GameRulesAccessor.oldways$register(id, cat, BooleanRuleAccessor.oldways$create(def));
+        return GameRules.register(id, cat, GameRules.BooleanRule.create(def));
     }
 
     private static GameRules.Key<GameRules.IntRule> integer(String id, GameRules.Category cat, int def) {
-        return GameRulesAccessor.oldways$register(id, cat, IntRuleAccessor.oldways$create(def));
+        return GameRules.register(id, cat, GameRules.IntRule.create(def));
     }
 }

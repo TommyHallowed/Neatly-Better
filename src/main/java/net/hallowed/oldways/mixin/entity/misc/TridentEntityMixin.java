@@ -1,6 +1,5 @@
 package net.hallowed.oldways.mixin.entity.misc;
 
-import net.hallowed.oldways.mixin.accessor.TridentEntityAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.player.PlayerEntity;
@@ -18,7 +17,7 @@ abstract class TridentEntityMixin {
         TridentEntity self = (TridentEntity) (Object) this;
         DataTracker tracker = self.getDataTracker();
 
-        byte loyalty = tracker.get(TridentEntityAccessor.oldways$getLoyaltyTrackedData());
+        byte loyalty = tracker.get(TridentEntity.LOYALTY);
         if (loyalty <= 0) return;
 
         Entity owner = self.getOwner();
