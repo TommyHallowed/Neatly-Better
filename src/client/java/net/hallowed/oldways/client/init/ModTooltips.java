@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.hallowed.oldways.init.ModDataComponents;
+import net.hallowed.oldways.init.ModItems;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -40,6 +41,9 @@ public final class ModTooltips {
         }
         if (stack.isOf(Items.TOTEM_OF_UNDYING)) {
             addBasicUnderName(lines, Text.literal("Cooldown on use: 60s").formatted(Formatting.GRAY));
+        }
+        if (stack.isOf(ModItems.DRAGON_BURST_ROCKET)) {
+            addBasicUnderName(lines, Text.literal("Flight Duration: 2").formatted(Formatting.GRAY));
         }
 
         appendEmissiveTrimLine(stack, lines);
