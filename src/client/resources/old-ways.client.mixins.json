@@ -2,19 +2,13 @@
   "required": true,
   "package": "net.hallowed.oldways.client.mixin",
   "compatibilityLevel": "JAVA_21",
-  "plugin": "net.hallowed.oldways.mixin.plugin.OWMixinPlugin",
   "client": [
     "accessor.HandledScreenAccessor",
     "accessor.ModelPartAccessor",
     "accessor.RecipeBookAccessor",
     "accessor.RecipeBookScreenAccessor",
-    "betterf3.CoordsModuleMixin",
-    "betterf3.LocationModuleMixin",
-    "betterf3.TargetModuleMixin",
-    "blockentity.BannerBlockEntityRendererMixin",
-    "blockentity.BedBlockEntityRendererMixin",
     "component.BannerPatternsComponentMixin",
-    "entity.EntityRenderDispatcherMixin",
+    "entity.EntityRenderManagerMixin",
     "entity.ItemEntityRendererMixin",
     "entity.ItemEntityRenderStateMixin",
     "entity.LivingEntityRendererMixin",
@@ -22,14 +16,13 @@
     "feature.EquipmentRendererMixin",
     "item.MapStateClientMixin",
     "item.PotionItemMixin",
+    "item.FireworkRocketEntityMixin_SupressParticles",
     "options.GameOptionsMixin",
-    "render.BannerModelRendererMixin",
     "render.GameRendererMixin",
     "render.InGameOverlayRendererMixin",
     "screen.AnvilScreenMixin",
     "screen.EnchantmentScreenMixin",
     "screen.GenericContainerScreenMixin",
-    "screen.HandledScreenMixin",
     "screen.InactivityFpsLimiterMixin",
     "screen.InventoryScreenMixin",
     "screen.LoomScreenMixin",
@@ -48,6 +41,5 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "mixins": [
-  ]
+  "mixins": []
 }
