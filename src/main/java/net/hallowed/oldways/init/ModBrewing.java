@@ -4,7 +4,6 @@ import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potions;
 
-/** Registers brewing recipes for custom potions. */
 public final class ModBrewing {
     private ModBrewing() {}
 
@@ -22,13 +21,6 @@ public final class ModBrewing {
                     ModPotions.HASTE,
                     Items.REDSTONE,
                     ModPotions.LONG_HASTE
-            );
-
-            // Haste + Glowstone -> Strong Haste
-            builder.registerPotionRecipe(
-                    ModPotions.HASTE,
-                    Items.GLOWSTONE_DUST,
-                    ModPotions.STRONG_HASTE
             );
         });
     }
