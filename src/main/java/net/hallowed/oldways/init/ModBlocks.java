@@ -1,24 +1,19 @@
 package net.hallowed.oldways.init;
 
-import net.hallowed.oldways.api.OWBlockEntityTypeSupport;
 import net.hallowed.oldways.api.OWRegistry;
-import net.hallowed.oldways.content.block.RainbowBannerBlock;
-import net.hallowed.oldways.content.block.RainbowWallBannerBlock;
-
+import net.hallowed.oldways.content.block.GlowTorchBlock;
+import net.hallowed.oldways.content.block.GlowWallTorchBlock;
 import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BedBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.CarpetBlock;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.DyeColor;
 
 public final class ModBlocks {
     private ModBlocks() {}
 
-    public static Block RAINBOW_WOOL, RAINBOW_CARPET, RAINBOW_BED, RAINBOW_BANNER, RAINBOW_WALL_BANNER;
+    public static Block RAINBOW_WOOL, RAINBOW_CARPET, GLOW_TORCH, GLOW_WALL_TORCH;
 
     private static RegistryKey<Block> key(String path) {
         return RegistryKey.of(RegistryKeys.BLOCK, OWRegistry.id(path));
@@ -37,26 +32,20 @@ public final class ModBlocks {
                 new CarpetBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CARPET).registryKey(key("rainbow_carpet")))
         );
 
-        // rainbow bed
-        RAINBOW_BED = OWRegistry.registerBlock(
-                "rainbow_bed",
-                new BedBlock(DyeColor.WHITE, AbstractBlock.Settings.copy(Blocks.WHITE_BED).registryKey(key("rainbow_bed")))
+        GLOW_TORCH = OWRegistry.registerBlock(
+                "glow_torch",
+                new GlowTorchBlock(AbstractBlock.Settings
+                        .copy(Blocks.TORCH)
+                        .luminance(s -> 15)
+                        .registryKey(key("glow_torch")))
         );
 
-        // rainbow standing banner
-        RAINBOW_BANNER = OWRegistry.registerBlock(
-                "rainbow_banner",
-                new RainbowBannerBlock(AbstractBlock.Settings.copy(Blocks.WHITE_BANNER).registryKey(key("rainbow_banner")))
+        GLOW_WALL_TORCH = OWRegistry.registerBlock(
+                "glow_wall_torch",
+                new GlowWallTorchBlock(AbstractBlock.Settings
+                        .copy(Blocks.WALL_TORCH)
+                        .luminance(s -> 15)
+                        .registryKey(key("glow_wall_torch")))
         );
-
-        // rainbow wall banner
-        RAINBOW_WALL_BANNER = OWRegistry.registerBlock(
-                "rainbow_wall_banner",
-                new RainbowWallBannerBlock(AbstractBlock.Settings.copy(Blocks.WHITE_WALL_BANNER).registryKey(key("rainbow_wall_banner")))
-        );
-
-        // Allow vanilla BannerBlockEntity to back our two banner blocks (using helper)
-        OWBlockEntityTypeSupport.addSupported(BlockEntityType.BANNER, RAINBOW_BANNER, RAINBOW_WALL_BANNER);
-        OWBlockEntityTypeSupport.addSupported(BlockEntityType.BED, ModBlocks.RAINBOW_BED);
     }
 }

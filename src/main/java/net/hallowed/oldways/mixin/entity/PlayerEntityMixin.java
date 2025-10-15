@@ -1,6 +1,7 @@
 package net.hallowed.oldways.mixin.entity;
 
 import net.hallowed.oldways.init.ModGameRules;
+import net.hallowed.oldways.init.ModItems;
 import net.hallowed.oldways.util.OldEnchantCostContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -14,8 +15,10 @@ import net.minecraft.item.RangedWeaponItem;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -96,6 +99,33 @@ public abstract class PlayerEntityMixin {
             }
 
             ci.cancel();
+        }
+    }
+
+    /* ------------------ (4) Reset Dragon Burst Rocket Cooldown ------------------ */
+    @Unique
+    private boolean oldways$wasGliding;
+
+    @Inject(method = "tickMovement", at = @At("HEAD"))
+    private void oldways$captureGlideStateHEAD(CallbackInfo ci) {
+        PlayerEntity self = (PlayerEntity)(Object)this;
+        this.oldways$wasGliding = self.isGliding();
+    }
+
+    @Inject(method = "tickMovement", at = @At("TAIL"))
+    private void oldways$clearDragonBurstCooldownOnLanding(CallbackInfo ci) {
+        PlayerEntity self = (PlayerEntity)(Object)this;
+        if (self.getEntityWorld().isClient()) return;
+
+        boolean nowGliding = self.isGliding();
+        boolean justStoppedGliding = this.oldways$wasGliding && !nowGliding;
+
+        boolean landed = self.isOnGround() || self.isInLava();
+
+        if (justStoppedGliding && landed) {
+            ItemStack rocket = new ItemStack(ModItems.DRAGON_BURST_ROCKET);
+            Identifier groupId = self.getItemCooldownManager().getGroup(rocket);
+            self.getItemCooldownManager().remove(groupId);
         }
     }
 }

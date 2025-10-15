@@ -1,7 +1,8 @@
 package net.hallowed.oldways.init;
 
 import net.hallowed.oldways.api.OWRegistry;
-import net.minecraft.item.BannerItem;
+import net.hallowed.oldways.content.item.DragonBurstRocketItem;
+import net.hallowed.oldways.content.item.GlowTorchItem;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BoatItem;
 import net.minecraft.item.Item;
@@ -11,7 +12,7 @@ import net.minecraft.registry.RegistryKeys;
 public final class ModItems {
     private ModItems() {}
 
-    public static Item RAINBOW_WOOL, RAINBOW_CARPET, RAINBOW_BED, RAINBOW_BANNER, WARPED_BOAT, CRIMSON_BOAT;
+    public static Item RAINBOW_WOOL, RAINBOW_CARPET, WARPED_BOAT, CRIMSON_BOAT, DRAGON_BURST_ROCKET, GLOW_TORCH;
 
     private static RegistryKey<Item> key(String path) {
         return RegistryKey.of(RegistryKeys.ITEM, OWRegistry.id(path));
@@ -36,31 +37,12 @@ public final class ModItems {
                 )
         );
 
-        // rainbow_bed item
-        RAINBOW_BED = OWRegistry.registerItem(
-                "rainbow_bed",
-                new BlockItem(
-                        ModBlocks.RAINBOW_BED,
-                        new Item.Settings().maxCount(1).registryKey(key("rainbow_bed"))
-                )
-        );
-
-        // rainbow_banner item (standing + wall variants)
-        RAINBOW_BANNER = OWRegistry.registerItem(
-                "rainbow_banner",
-                new BannerItem(
-                        ModBlocks.RAINBOW_BANNER,
-                        ModBlocks.RAINBOW_WALL_BANNER,
-                        new Item.Settings().maxCount(16).registryKey(key("rainbow_banner"))
-                )
-        );
-
         // warped_boat boat item
         WARPED_BOAT = OWRegistry.registerItem(
                 "warped_boat",
                 new BoatItem(
                         ModEntities.WARPED_BOAT,
-                        new Item.Settings().maxCount(1).fireproof().registryKey(key("warped_boat")))
+                        new Item.Settings().maxCount(1).fireproof().registryKey(key("warped_boat")) )
         );
 
         // crimson_boat boat item
@@ -68,7 +50,22 @@ public final class ModItems {
                 "crimson_boat",
                 new BoatItem(
                         ModEntities.CRIMSON_BOAT,
-                        new Item.Settings().maxCount(1).fireproof().registryKey(key("crimson_boat")))
+                        new Item.Settings().maxCount(1).fireproof().registryKey(key("crimson_boat")) )
+        );
+
+        // dragon_burst_rocket item
+        DRAGON_BURST_ROCKET = OWRegistry.registerItem(
+                "dragon_burst_rocket",
+                new DragonBurstRocketItem(new Item.Settings().maxCount(64).registryKey(key("dragon_burst_rocket")))
+        );
+
+        GLOW_TORCH = OWRegistry.registerItem(
+                "glow_torch",
+                new GlowTorchItem(
+                        ModBlocks.GLOW_TORCH,
+                        ModBlocks.GLOW_WALL_TORCH,
+                        new Item.Settings().registryKey(key("glow_torch"))
+                )
         );
     }
 }
