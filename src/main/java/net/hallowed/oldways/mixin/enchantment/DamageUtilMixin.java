@@ -19,10 +19,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Clamp protection *points* before vanilla applies (p/25).
- * Mechanics remain vanilla; we only cap the incoming points when enabled.
- */
 @Mixin(DamageUtil.class)
 public abstract class DamageUtilMixin {
 
@@ -38,7 +34,7 @@ public abstract class DamageUtilMixin {
     @Unique
     private static final float BLAST_CAP_FRACTION       = 0.625f; // only when IS_EXPLOSION
     @Unique
-    private static final float PROJECTILE_CAP_FRACTION  = 0.625f; // only when IS_PROJECTILE
+    private static final float PROJECTILE_CAP_FRACTION  = 0.75f; // only when IS_PROJECTILE
 
     @Unique
     private static final float MAX_LEVELS  = 16.0f; // 4 pieces × level 4
