@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SheepEntity.class)
@@ -45,7 +46,6 @@ public class SheepEntityMixin {
         self.setSheared(true);
 
         var rainbowWool = Registries.ITEM.get(RAINBOW_WOOL_ID);
-
         int count = 1 + world.getRandom().nextInt(3);
         for (int i = 0; i < count; i++) {
             self.dropStack(world, new ItemStack(rainbowWool));
@@ -54,6 +54,31 @@ public class SheepEntityMixin {
         EquipmentSlot slot = (hand == Hand.MAIN_HAND) ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
         shears.damage(1, player, slot);
 
-        cir.setReturnValue(world.isClient ? ActionResult.SUCCESS : ActionResult.CONSUME);
+        cir.setReturnValue(ActionResult.SUCCESS_SERVER);
+    }
+
+    @Inject(
+            method = "sheared(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/sound/SoundCategory;Lnet/minecraft/item/ItemStack;)V",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private void oldways$dispenserRainbowShear(ServerWorld world, SoundCategory category, ItemStack shears, CallbackInfo ci) {
+        SheepEntity self = (SheepEntity)(Object)this;
+
+        if (!self.isAlive() || self.isBaby() || self.isSheared()) return;
+        if (!self.hasCustomName()) return;
+        String name = self.getCustomName() == null ? "" : self.getCustomName().getString();
+        if (!"jeb_".equals(name)) return;
+
+        world.playSound(null, self.getBlockPos(), SoundEvents.ENTITY_SHEEP_SHEAR, category, 1.0F, 1.0F);
+        self.setSheared(true);
+
+        var rainbowWool = Registries.ITEM.get(RAINBOW_WOOL_ID);
+        int count = 1 + world.getRandom().nextInt(3);
+        for (int i = 0; i < count; i++) {
+            self.dropStack(world, new ItemStack(rainbowWool));
+        }
+
+        ci.cancel();
     }
 }
