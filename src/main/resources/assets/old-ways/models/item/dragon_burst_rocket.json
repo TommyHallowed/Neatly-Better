@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "old-ways:item/dragon_burst_rocket"
+  }
+}
