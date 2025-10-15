@@ -43,7 +43,7 @@ public final class BoneMealExpansion {
             block = state.getBlock();
         }
 
-        if (world.isClient) {
+        if (world.isClient()) {
             if (isTarget(block, state, world, pos)) return ActionResult.SUCCESS;
             return ActionResult.PASS;
         }
@@ -77,7 +77,7 @@ public final class BoneMealExpansion {
         }
 
         if (grew) {
-            if (!player.isCreative()) stack.decrement(1);
+            player.getStackInHand(hand).decrementUnlessCreative(1, player);
             BlockPos fx = particlePos != null ? particlePos : pos;
             spawnBonemealParticles(world, fx);
             playBonemealSound(world, fx);

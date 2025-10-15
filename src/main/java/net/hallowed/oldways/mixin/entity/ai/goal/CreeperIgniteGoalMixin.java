@@ -42,11 +42,11 @@ public abstract class CreeperIgniteGoalMixin {
 
         PlayerEntity player = this.target instanceof PlayerEntity p
                 ? p
-                : this.creeper.getWorld().getClosestPlayer(this.creeper, 12.0);
+                : this.creeper.getEntityWorld().getClosestPlayer(this.creeper, 12.0);
         if (player == null) return;
         if (!this.creeper.getVisibilityCache().canSee(player)) return;
 
-        final Difficulty diff = this.creeper.getWorld().getDifficulty();
+        final Difficulty diff = this.creeper.getEntityWorld().getDifficulty();
 
         if (diff == Difficulty.NORMAL) {
             if (this.creeper.age >= this.oldways$nextRepathTick) {

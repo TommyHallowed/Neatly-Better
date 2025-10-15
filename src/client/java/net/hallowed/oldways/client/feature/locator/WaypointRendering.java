@@ -6,8 +6,10 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.resource.waypoint.WaypointStyleAsset;
-import net.minecraft.client.util.SkinTextures;
+import net.minecraft.client.gui.PlayerSkinDrawer;
+import net.minecraft.entity.player.SkinTextures;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
@@ -46,10 +48,10 @@ public final class WaypointRendering {
     }
 
     public static void renderWaypoints(MinecraftClient client, DrawContext ctx, int centerY) {
-        if (client.player == null || client.cameraEntity == null) return;
+        if (client.player == null) return;
 
         var cam     = client.gameRenderer.getCamera();
-        Vec3d camPos = client.cameraEntity.getPos();
+        Vec3d camPos = cam.getCameraPos();
 
         VISIBLE.clear();
 
@@ -141,9 +143,12 @@ public final class WaypointRendering {
         var pe = mc.world.getPlayerByUuid(entry.uuid());
         if (!(pe instanceof AbstractClientPlayerEntity player)) return;
 
-        SkinTextures skins = player.getSkinTextures();
-        Identifier skin = skins.texture();
-        if (skin == null) return;
+        var net = mc.getNetworkHandler();
+        if (net == null) return;
+        PlayerListEntry ple = net.getPlayerListEntry(player.getUuid());
+        if (ple == null) return;
+
+        SkinTextures skins = ple.getSkinTextures();
 
         int size = (int) (9 * P.headSizeMultiplier);
         int left = x + (9 - size) / 2;
@@ -157,8 +162,7 @@ public final class WaypointRendering {
             ctx.fill(left + size, top, left + size + 1, top + size, argb);
         }
 
-        ctx.drawTexture(RenderPipelines.GUI_TEXTURED, skin, left, top, 8f, 8f,  size, size, 8, 8, 64, 64);
-        ctx.drawTexture(RenderPipelines.GUI_TEXTURED, skin, left, top, 40f, 8f, size, size, 8, 8, 64, 64);
+        PlayerSkinDrawer.draw(ctx, skins, left, top, size);
     }
 
     /* ---------------- math helpers (vanilla-adapted) ---------------- */

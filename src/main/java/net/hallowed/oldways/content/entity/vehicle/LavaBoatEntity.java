@@ -33,9 +33,9 @@ public class LavaBoatEntity extends BoatEntity {
             double vz = v.z * slow;
 
             BlockPos pos = this.getBlockPos();
-            FluidState lava = this.getWorld().getFluidState(pos);
+            FluidState lava = this.getEntityWorld().getFluidState(pos);
 
-            double surfaceY = pos.getY() + lava.getHeight(this.getWorld(), pos);
+            double surfaceY = pos.getY() + lava.getHeight(this.getEntityWorld(), pos);
 
             final double targetSubmersion = 0.16;
 

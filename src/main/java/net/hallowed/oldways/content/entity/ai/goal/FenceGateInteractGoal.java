@@ -41,7 +41,7 @@ public abstract class FenceGateInteractGoal extends Goal {
         if (path == null) return false;
 
         int limit = Math.min(path.getCurrentNodeIndex() + 2, path.getLength());
-        World w = mob.getWorld();
+        World w = mob.getEntityWorld();
 
         for (int i = 0; i < limit; i++) {
             PathNode node = path.getNode(i);
@@ -101,7 +101,7 @@ public abstract class FenceGateInteractGoal extends Goal {
     protected void setOpen(boolean open) {
         if (!this.hasGate) return;
 
-        World w = mob.getWorld();
+        World w = mob.getEntityWorld();
         BlockState s = w.getBlockState(this.gatePos);
         if (!(s.getBlock() instanceof FenceGateBlock)) return;
 

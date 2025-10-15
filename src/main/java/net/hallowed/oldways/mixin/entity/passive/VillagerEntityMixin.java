@@ -50,7 +50,7 @@ public abstract class VillagerEntityMixin {
     @Inject(method = "writeCustomData", at = @At("TAIL"))
     private void oldways$save(WriteView view, CallbackInfo ci) {
         VillagerEntity self = (VillagerEntity)(Object)this;
-        if (grGlobalCuring(self.getWorld())) return;
+        if (grGlobalCuring(self.getEntityWorld())) return;
 
         view.putBoolean("OldWaysCureActivated", this.oldways$cureActivated);
         if (oldways$firstSlotFloors != null && oldways$firstSlotFloors.length > 0) {
@@ -66,7 +66,7 @@ public abstract class VillagerEntityMixin {
     @Inject(method = "readCustomData", at = @At("TAIL"))
     private void oldways$load(ReadView view, CallbackInfo ci) {
         VillagerEntity self = (VillagerEntity)(Object)this;
-        if (grGlobalCuring(self.getWorld())) {
+        if (grGlobalCuring(self.getEntityWorld())) {
             this.oldways$cureActivated = false;
             this.oldways$firstSlotFloors = null;
             return;
@@ -95,7 +95,7 @@ public abstract class VillagerEntityMixin {
     @Inject(method = "onInteractionWith", at = @At("TAIL"))
     private void oldways$onInteraction(EntityInteraction interaction, Entity actor, CallbackInfo ci) {
         VillagerEntity self = (VillagerEntity)(Object)this;
-        if (grGlobalCuring(self.getWorld())) return;
+        if (grGlobalCuring(self.getEntityWorld())) return;
 
         if (interaction == EntityInteraction.ZOMBIE_VILLAGER_CURED) {
             this.oldways$cureActivated = true;
@@ -108,7 +108,7 @@ public abstract class VillagerEntityMixin {
     @Inject(method = "prepareOffersFor", at = @At("RETURN"))
     private void oldways$globalizeAndPersist(PlayerEntity viewer, CallbackInfo ci) {
         final VillagerEntity self = (VillagerEntity)(Object)this;
-        final World world = self.getWorld();
+        final World world = self.getEntityWorld();
 
         if (grGlobalCuring(world) || !this.oldways$cureActivated) return;
 
@@ -139,7 +139,7 @@ public abstract class VillagerEntityMixin {
             }
             oldways$firstSlotFloors[i] = newFloor;
 
-            if (newFloor != Integer.MAX_VALUE && currentDisplayedFirst > newFloor) {
+            if (currentDisplayedFirst > newFloor) {
                 offer.increaseSpecialPrice(-(currentDisplayedFirst - newFloor));
             }
         }

@@ -33,7 +33,7 @@ public final class WaypointTracking {
         WAYPOINTS.clear();
         if (player == null) return WAYPOINTS;
 
-        final RegistryKey<World> dim = player.getWorld().getRegistryKey();
+        final RegistryKey<World> dim = player.getEntityWorld().getRegistryKey();
 
         List<ItemStack> roots = new ArrayList<>();
         DefaultedList<ItemStack> main = player.getInventory().getMainStacks();

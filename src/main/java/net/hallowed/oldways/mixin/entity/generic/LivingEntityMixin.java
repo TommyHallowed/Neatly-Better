@@ -129,7 +129,7 @@ public abstract class LivingEntityMixin {
         if (active.isEmpty() || !active.isOf(Items.SHIELD)) return;
 
         int delay = 0;
-        World w = self.getWorld();
+        World w = self.getEntityWorld();
         if (w instanceof ServerWorld sw) {
             delay = Math.max(0, sw.getGameRules().getInt(ModGameRules.SHIELD_RAISE_DELAY_TICKS));
         }

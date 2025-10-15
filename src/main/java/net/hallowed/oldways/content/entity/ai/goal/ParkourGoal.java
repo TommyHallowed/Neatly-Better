@@ -42,7 +42,7 @@ public class ParkourGoal extends Goal {
 
     @Override
     public boolean canStart() {
-        if (mob.getWorld().getDifficulty() != Difficulty.HARD) return false;
+        if (mob.getEntityWorld().getDifficulty() != Difficulty.HARD) return false;
         if (!mob.isOnGround() || !mob.isAlive()) return false;
         if (mob.isTouchingWater()) return false;
 
@@ -54,7 +54,7 @@ public class ParkourGoal extends Goal {
             else                              { stepX = 0;       stepZ = fz >= 0 ? 1 : -1; }
         }
 
-        World w = mob.getWorld();
+        World w = mob.getEntityWorld();
         BlockPos feet = mob.getBlockPos();
         BlockPos belowFeet = feet.down();
 
@@ -219,7 +219,7 @@ public class ParkourGoal extends Goal {
         if (t != null && t.isAlive()) return t.getEyePos();
         if (landingBlock != null)    return Vec3d.ofCenter(landingBlock);
         if (takeoffPoint  != null)   return takeoffPoint;
-        return mob.getPos();
+        return mob.getEntityPos();
     }
 
     private void clearPlan() {
@@ -238,6 +238,7 @@ public class ParkourGoal extends Goal {
         return !state.getCollisionShape(w, posBelow).isEmpty();
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean hasHeadroom(World w, BlockPos feet) {
         return noCollision(w, feet)
                 && noCollision(w, feet.up())

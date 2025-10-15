@@ -18,7 +18,7 @@ public final class GameRendererPickHelper {
     private GameRendererPickHelper() {}
 
     public static HitResult pickIgnoringOutlineOnly(Entity camera, double blockRange, double entityRange, float tickProgress) {
-        World world = camera.getWorld();
+        World world = camera.getEntityWorld();
         if (world == null) return null;
 
         double d = Math.max(blockRange, entityRange);

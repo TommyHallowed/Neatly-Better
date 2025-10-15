@@ -48,7 +48,7 @@ public abstract class PlayerEntityMixin {
         PlayerEntity self = (PlayerEntity)(Object)this;
 
         boolean enabled = false;
-        World w = self.getWorld();
+        World w = self.getEntityWorld();
         if (w instanceof ServerWorld sw) {
             enabled = sw.getGameRules().getBoolean(ModGameRules.FULL_ENCHANTING_COST);
         }
@@ -70,11 +70,11 @@ public abstract class PlayerEntityMixin {
         PlayerEntity self = (PlayerEntity)(Object)this;
         if (self.getMainHandStack().isOf(Items.FEATHER)
                 && target instanceof LivingEntity living
-                && !self.getWorld().isClient) {
+                && !self.getEntityWorld().isClient()) {
 
             float base = 0.4F + (self.isSprinting() ? 0.5F : 0.0F);
             float strength = base;
-            if (self.getWorld() instanceof net.minecraft.server.world.ServerWorld sw) {
+            if (self.getEntityWorld() instanceof net.minecraft.server.world.ServerWorld sw) {
                 float modified = net.minecraft.enchantment.EnchantmentHelper.modifyKnockback(
                         sw,
                         self.getMainHandStack(),

@@ -72,14 +72,14 @@ public class FarmerReplantTask extends MultiTickTask<VillagerEntity> {
 
     @Override
     protected boolean shouldKeepRunning(ServerWorld world, VillagerEntity villager, long time) {
-        return target != null && target.isWithinDistance(villager.getPos(), 16.0D);
+        return target != null && target.isWithinDistance(villager.getEntityPos(), 16.0D);
     }
 
     @Override
     protected void keepRunning(ServerWorld world, VillagerEntity villager, long time) {
         if (target == null) return;
 
-        if (target.isWithinDistance(villager.getPos(), 1.5D)) {
+        if (target.isWithinDistance(villager.getEntityPos(), 1.5D)) {
 
             BlockState before = world.getBlockState(target);
             if (isTillingCandidate(before, world, target)) {

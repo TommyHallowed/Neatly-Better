@@ -24,7 +24,7 @@ abstract class TridentEntityMixin {
         Entity owner = self.getOwner();
         if (!(owner instanceof PlayerEntity player) || !player.isAlive()) return;
 
-        if (self.getY() < self.getWorld().getBottomY()) {
+        if (self.getY() < self.getEntityWorld().getBottomY()) {
             self.setNoClip(true);
             self.onPlayerCollision(player);
         }

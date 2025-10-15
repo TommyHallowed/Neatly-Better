@@ -19,7 +19,7 @@ public abstract class EnchantmentScreenHandlerMixin {
 
     @Inject(method = "onButtonClick", at = @At("HEAD"))
     private void oldways$capture(PlayerEntity player, int id, CallbackInfoReturnable<Boolean> cir) {
-        if (!(player.getWorld() instanceof ServerWorld sw)) return;
+        if (!(player.getEntityWorld() instanceof ServerWorld sw)) return;
         if (!sw.getGameRules().getBoolean(ModGameRules.FULL_ENCHANTING_COST)) return;
         if (id >= 0 && id < this.enchantmentPower.length) {
             int required = Math.max(1, this.enchantmentPower[id]);
@@ -30,7 +30,7 @@ public abstract class EnchantmentScreenHandlerMixin {
     @Inject(method = "onButtonClick", at = @At("RETURN"))
     private void oldways$apply(PlayerEntity player, int id, CallbackInfoReturnable<Boolean> cir) {
         try {
-            if (!(player.getWorld() instanceof ServerWorld sw)) return;
+            if (!(player.getEntityWorld() instanceof ServerWorld sw)) return;
             if (!sw.getGameRules().getBoolean(ModGameRules.FULL_ENCHANTING_COST)) return;
 
             if (!Boolean.TRUE.equals(cir.getReturnValue())) return;

@@ -90,7 +90,7 @@ public class FollowEmeraldBlockGoal extends Goal {
     private PlayerEntity findTemptingPlayer() {
         double best = followRadius * followRadius;
         PlayerEntity closest = null;
-        for (PlayerEntity p : mob.getWorld().getPlayers()) {
+        for (PlayerEntity p : mob.getEntityWorld().getPlayers()) {
             if (!p.isAlive() || p.isSpectator()) continue;
             if (!isTempting.test(p)) continue;
             double d2 = p.squaredDistanceTo(mob);

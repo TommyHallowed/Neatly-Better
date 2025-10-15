@@ -29,7 +29,7 @@ public abstract class CrossbowAttackGoalMixin {
             cancellable = true
     )
     private void oldways$dontShootShields(CallbackInfo ci) {
-        if (this.actor.getWorld().getDifficulty() != Difficulty.HARD) {
+        if (this.actor.getEntityWorld().getDifficulty() != Difficulty.HARD) {
             this.oldways$shieldHoldoff = 0;
             return;
         }

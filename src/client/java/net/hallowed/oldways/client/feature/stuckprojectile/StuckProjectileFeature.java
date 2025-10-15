@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.random.RandomGenerator;
+
 import net.hallowed.oldways.client.mixin.accessor.ModelPartAccessor;
+
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.ArrowEntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
@@ -28,13 +29,13 @@ import net.minecraft.util.math.RotationAxis;
 public abstract class StuckProjectileFeature<S extends LivingEntityRenderState, M extends EntityModel<? super S>>
         extends FeatureRenderer<S, M> {
 
-    private final Model model;
+    private final Model<? super S> model;
     private final Identifier texture;
     private final StuckObjectsFeatureRenderer.RenderPosition renderPosition;
 
     protected StuckProjectileFeature(
             FeatureRendererContext<S, M> parent,
-            Model model,
+            Model<? super S> model,
             Identifier texture,
             StuckObjectsFeatureRenderer.RenderPosition pos
     ) {
@@ -44,16 +45,14 @@ public abstract class StuckProjectileFeature<S extends LivingEntityRenderState, 
         this.renderPosition = pos;
     }
 
-    /** number of objects (arrows or stingers) to render for this entity */
     protected abstract int getCount();
 
     @Override
-    public void render(MatrixStack matrices, VertexConsumerProvider consumers, int light,
+    public void render(MatrixStack matrices, OrderedRenderCommandQueue queue, int light,
                        S state, float limbAngle, float limbDistance) {
         int count = getCount();
         if (count <= 0 || state.invisible) return;
 
-        // deterministic per-entity rng so placements don't shuffle each frame
         RandomGenerator rng = java.util.random.RandomGeneratorFactory
                 .of("L64X128MixRandom")
                 .create(StuckProjectilesState.ENTITY_ID);
@@ -65,12 +64,10 @@ public abstract class StuckProjectileFeature<S extends LivingEntityRenderState, 
                     pickRandomRenderablePartPath(getContextModel().getRootPart(), rng);
             if (partAndPath == null) { matrices.pop(); return; }
 
-            // apply transforms down to the chosen part
             for (ModelPart p : partAndPath.getSecond()) p.applyTransform(matrices);
 
             ModelPart part = partAndPath.getFirst();
 
-            // SAFELY get a cuboid (null if none instead of throwing)
             ModelPart.Cuboid cuboid = safeGetRandomCuboid(part, StuckProjectilesState.ENTITY_ID ^ i);
             if (cuboid == null) { matrices.pop(); continue; }
 
@@ -90,7 +87,6 @@ public abstract class StuckProjectileFeature<S extends LivingEntityRenderState, 
                     MathHelper.lerp(m, cuboid.minZ, cuboid.maxZ) / 16.0F
             );
 
-            // orient like Mojang's StuckObjectsFeatureRenderer
             float dirX = -(h * 2.0F - 1.0F);
             float dirY = -(l * 2.0F - 1.0F);
             float dirZ = -(m * 2.0F - 1.0F);
@@ -100,8 +96,8 @@ public abstract class StuckProjectileFeature<S extends LivingEntityRenderState, 
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw - 90.0F));
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(pitch));
 
-            this.model.render(matrices, consumers.getBuffer(this.model.getLayer(this.texture)),
-                    light, OverlayTexture.DEFAULT_UV);
+            FeatureRenderer.renderModel(this.model, this.texture, matrices, queue, light, state, 0xFFFFFFFF, 1);
+
             matrices.pop();
         }
     }
@@ -111,7 +107,6 @@ public abstract class StuckProjectileFeature<S extends LivingEntityRenderState, 
     private static float snapToFace(float f) { return f > 0.5F ? 1.0F : 0.5F; }
     private static float nextFloat(RandomGenerator rng) { return (rng.nextLong() >>> 11) * 0x1.0p-53f; }
 
-    /** Returns null if the part has no cuboids, instead of throwing IllegalArgumentException. */
     private static ModelPart.Cuboid safeGetRandomCuboid(ModelPart part, long seed) {
         try {
             return part.getRandomCuboid(net.minecraft.util.math.random.Random.create(seed));
@@ -120,7 +115,6 @@ public abstract class StuckProjectileFeature<S extends LivingEntityRenderState, 
         }
     }
 
-    /** Build a list of candidate parts **without** calling getRandomCuboid on empty parts. */
     private static Pair<ModelPart, List<ModelPart>> pickRandomRenderablePartPath(ModelPart root, RandomGenerator rng) {
         var out = new ArrayList<Pair<ModelPart, List<ModelPart>>>();
         collect(root, new ArrayList<>(), out);
@@ -133,7 +127,6 @@ public abstract class StuckProjectileFeature<S extends LivingEntityRenderState, 
         List<ModelPart> newPath = new ArrayList<>(path);
         newPath.add(cur);
 
-        // Only accept parts that actually have a cuboid (safe probe).
         if (safeGetRandomCuboid(cur, 1L) != null) {
             out.add(Pair.of(cur, newPath));
         }
@@ -148,20 +141,28 @@ public abstract class StuckProjectileFeature<S extends LivingEntityRenderState, 
 
     public static final class Arrows<S extends LivingEntityRenderState, M extends EntityModel<? super S>>
             extends StuckProjectileFeature<S, M> {
+        @SuppressWarnings("unchecked")
         public Arrows(FeatureRendererContext<S, M> parent, EntityRendererFactory.Context bake) {
-            super(parent, new ArrowEntityModel(bake.getPart(EntityModelLayers.ARROW)),
+            super(
+                    parent,
+                    (Model<? super S>)(Model<?>) new ArrowEntityModel(bake.getPart(EntityModelLayers.ARROW)),
                     ArrowEntityRenderer.TEXTURE,
-                    StuckObjectsFeatureRenderer.RenderPosition.IN_CUBE);
+                    StuckObjectsFeatureRenderer.RenderPosition.IN_CUBE
+            );
         }
         @Override protected int getCount() { return StuckProjectilesState.ARROW_COUNT; }
     }
 
     public static final class Stingers<S extends LivingEntityRenderState, M extends EntityModel<? super S>>
             extends StuckProjectileFeature<S, M> {
+        @SuppressWarnings("unchecked")
         public Stingers(FeatureRendererContext<S, M> parent, EntityRendererFactory.Context bake) {
-            super(parent, new StingerModel(bake.getPart(EntityModelLayers.BEE_STINGER)),
+            super(
+                    parent,
+                    (Model<? super S>)(Model<?>) new StingerModel(bake.getPart(EntityModelLayers.BEE_STINGER)),
                     Identifier.ofVanilla("textures/entity/bee/bee_stinger.png"),
-                    StuckObjectsFeatureRenderer.RenderPosition.ON_SURFACE);
+                    StuckObjectsFeatureRenderer.RenderPosition.ON_SURFACE
+            );
         }
         @Override protected int getCount() { return StuckProjectilesState.STINGER_COUNT; }
     }

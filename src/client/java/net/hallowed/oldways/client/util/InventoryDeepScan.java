@@ -1,4 +1,3 @@
-// src/client/java/net/hallowed/oldways/client/util/InventoryDeepScan.java
 package net.hallowed.oldways.client.util;
 
 import net.minecraft.client.MinecraftClient;

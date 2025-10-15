@@ -38,7 +38,7 @@ public final class EntityInsideFireHandler {
         int maxY = (int)Math.floor(bb.maxY - 1.0E-5);
         int maxZ = (int)Math.floor(bb.maxZ - 1.0E-5);
 
-        World w = entity.getWorld();
+        World w = entity.getEntityWorld();
         BlockPos.Mutable m = new BlockPos.Mutable();
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
@@ -55,8 +55,8 @@ public final class EntityInsideFireHandler {
     private static void checkInsideBlocks(Entity entity, Predicate<BlockState> test) {
         List<BlockPos> positions = new ArrayList<>();
         collectInsideBlocks(entity, positions::add);
-        positions.sort(Comparator.comparingDouble(p -> p.toCenterPos().squaredDistanceTo(entity.getPos())));
-        World w = entity.getWorld();
+        positions.sort(Comparator.comparingDouble(p -> p.toCenterPos().squaredDistanceTo(entity.getEntityPos())));
+        World w = entity.getEntityWorld();
         for (BlockPos pos : positions) {
             if (test.test(w.getBlockState(pos))) break;
         }

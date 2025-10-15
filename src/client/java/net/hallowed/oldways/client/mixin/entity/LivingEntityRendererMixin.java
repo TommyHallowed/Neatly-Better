@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Attaches the stuck-projectile features to ALL living renderers, when enabled. */
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingEntityRendererMixin<S extends LivingEntityRenderState, M extends EntityModel<? super S>> {
     @Unique

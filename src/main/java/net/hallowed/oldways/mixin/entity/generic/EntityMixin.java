@@ -26,7 +26,7 @@ public abstract class EntityMixin implements FireSourceHolder {
 
     /* ------------------------ lava-boat behavior ------------------------ */
 
-    @Shadow public abstract World getWorld();
+    @Shadow public abstract World getEntityWorld();
     @Shadow public abstract DataTracker getDataTracker();
 
     @Inject(method = "isInLava()Z", at = @At("HEAD"), cancellable = true)
@@ -84,7 +84,7 @@ public abstract class EntityMixin implements FireSourceHolder {
     @Inject(method = "tick", at = @At("TAIL"))
     private void oldways$refreshSoulFireFlag(CallbackInfo ci) {
         Entity self = (Entity)(Object)this;
-        if (self.getWorld().isClient()) return;
+        if (self.getEntityWorld().isClient()) return;
         if (self instanceof PlayerEntity) return;
 
         if (self.isOnFire()) {
@@ -101,7 +101,7 @@ public abstract class EntityMixin implements FireSourceHolder {
     @Override
     public Block oldways$getLastFireSource() {
         Entity self = (Entity)(Object)this;
-        World world = getWorld();
+        World world = getEntityWorld();
 
         if (self instanceof PlayerEntity) {
             return oldways$lastFireSource;
@@ -116,9 +116,6 @@ public abstract class EntityMixin implements FireSourceHolder {
     @Override
     public void oldways$setLastFireSource(Block block) {
         this.oldways$lastFireSource = FireSourceHolder.normalize(block);
-
-        if (!getWorld().isClient() && !((Entity)(Object)this instanceof PlayerEntity)) {
-            this.getDataTracker().set(OLDWAYS_SOULFIRE, this.oldways$lastFireSource == Blocks.SOUL_FIRE);
-        }
+        getEntityWorld();
     }
 }

@@ -39,9 +39,9 @@ public class SheepEntityMixin {
         String name = self.getCustomName() == null ? "" : self.getCustomName().getString();
         if (!"jeb_".equals(name)) return;
 
-        if (!(self.getWorld() instanceof ServerWorld world)) return;
+        if (!(self.getEntityWorld() instanceof ServerWorld world)) return;
 
-        world.playSoundFromEntity(null, self, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
+        world.playSound(null, self.getBlockPos(), SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
         self.setSheared(true);
 
         var rainbowWool = Registries.ITEM.get(RAINBOW_WOOL_ID);

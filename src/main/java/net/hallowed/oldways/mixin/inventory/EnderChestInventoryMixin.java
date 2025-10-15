@@ -1,7 +1,7 @@
 package net.hallowed.oldways.mixin.inventory;
 
 import net.hallowed.oldways.network.OldWaysNetwork;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.ContainerUser;
 import net.minecraft.inventory.EnderChestInventory;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,15 +14,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class EnderChestInventoryMixin {
 
     @Inject(method = "onOpen", at = @At("TAIL"))
-    private void oldways$pushOnOpen(PlayerEntity player, CallbackInfo ci) {
-        if (player instanceof ServerPlayerEntity sp) {
+    private void oldways$pushOnOpen(ContainerUser user, CallbackInfo ci) {
+        if (user instanceof ServerPlayerEntity sp) {
             OldWaysNetwork.pushEnderChestState(sp);
         }
     }
 
     @Inject(method = "onClose", at = @At("TAIL"))
-    private void oldways$pushOnClose(PlayerEntity player, CallbackInfo ci) {
-        if (player instanceof ServerPlayerEntity sp) {
+    private void oldways$pushOnClose(ContainerUser user, CallbackInfo ci) {
+        if (user instanceof ServerPlayerEntity sp) {
             OldWaysNetwork.pushEnderChestState(sp);
         }
     }

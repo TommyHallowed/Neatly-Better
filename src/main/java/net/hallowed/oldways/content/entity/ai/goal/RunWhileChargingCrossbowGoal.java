@@ -69,7 +69,7 @@ public class RunWhileChargingCrossbowGoal extends Goal {
         if (repathCooldown-- <= 0) {
             repathCooldown = 8;
 
-            Vec3d away = mob.getPos().subtract(target.getPos());
+            Vec3d away = mob.getEntityPos().subtract(target.getEntityPos());
             double len = Math.hypot(away.x, away.z);
             if (len < 1.0E-4) return;
             away = new Vec3d(away.x / len, 0.0, away.z / len);
@@ -77,7 +77,7 @@ public class RunWhileChargingCrossbowGoal extends Goal {
             double wobble = ((mob.age >> 3) & 1) == 0 ? 0.35 : -0.35;
             Vec3d tangent = new Vec3d(-away.z, 0.0, away.x).multiply(wobble);
 
-            Vec3d dest = mob.getPos().add(away.multiply(8.0)).add(tangent);
+            Vec3d dest = mob.getEntityPos().add(away.multiply(8.0)).add(tangent);
             mob.getNavigation().startMovingTo(dest.x, dest.y, dest.z, speed);
         }
     }

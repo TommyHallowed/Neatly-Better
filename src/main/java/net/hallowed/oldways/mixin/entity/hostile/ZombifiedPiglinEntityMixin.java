@@ -49,7 +49,7 @@ public abstract class ZombifiedPiglinEntityMixin {
     private void oldways$onTargetSet(@Nullable LivingEntity target, CallbackInfo ci) {
         final ZombifiedPiglinEntity self = (ZombifiedPiglinEntity)(Object)this;
 
-        if (!(self.getWorld() instanceof ServerWorld sw)) return;
+        if (!(self.getEntityWorld() instanceof ServerWorld sw)) return;
         if (!sw.getGameRules().getBoolean(ModGameRules.OLD_GOLD_XP_FARM)) return;
 
         if (target instanceof PlayerEntity player) {

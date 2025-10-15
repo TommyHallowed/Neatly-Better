@@ -2,10 +2,11 @@ package net.hallowed.oldways.client.util;
 
 import net.hallowed.oldways.util.FireSourceHolder;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.texture.MissingSprite;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 
@@ -23,10 +24,15 @@ public final class FlameOverlayState {
     public static Sprite sprite1(Entity e) { return sprite(e, SOUL_FIRE_1, FIRE_1); }
 
     public static Sprite sprite(Entity e, Identifier soul, Identifier normal) {
-        boolean soulFire = ((FireSourceHolder)e).oldways$getLastFireSource() == Blocks.SOUL_FIRE;
-        Identifier which = soulFire ? soul : normal;
-        var atlas = MinecraftClient.getInstance().getBakedModelManager().getAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
+        final boolean soulFire = ((FireSourceHolder) e).oldways$getLastFireSource() == Blocks.SOUL_FIRE;
+        final Identifier which = soulFire ? soul : normal;
+
+        // Get the block atlas from the TextureManager and fetch the sprite from it
+        TextureManager tm = MinecraftClient.getInstance().getTextureManager();
+        SpriteAtlasTexture atlas = (SpriteAtlasTexture) tm.getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
+
         Sprite s = atlas.getSprite(which);
-        return s != null ? s : atlas.getSprite(MissingSprite.getMissingSpriteId());
+        if (s == null) s = atlas.getSprite(MissingSprite.getMissingSpriteId());
+        return s;
     }
 }

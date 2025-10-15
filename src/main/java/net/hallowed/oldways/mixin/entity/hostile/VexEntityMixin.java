@@ -13,10 +13,11 @@ public abstract class VexEntityMixin {
     @Inject(method = "tick", at = @At("HEAD"))
     private void oldways$dieWhenEvokerOwnerDies(CallbackInfo ci) {
         VexEntity self = (VexEntity)(Object)this;
-        if (self.getWorld().isClient()) return;
+        if (self.getEntityWorld().isClient()) return;
 
         MobEntity owner = self.getOwner();
         if (owner instanceof EvokerEntity && !owner.isAlive()) {
+            //noinspection deprecation
             self.serverDamage(self.getDamageSources().magic(), Float.MAX_VALUE);
         }
     }
