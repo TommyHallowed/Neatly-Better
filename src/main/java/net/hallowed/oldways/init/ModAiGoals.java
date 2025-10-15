@@ -28,7 +28,7 @@ public final class ModAiGoals {
         // 1) Run while charging crossbow
         if (type == EntityType.PILLAGER || type == EntityType.PIGLIN) {
             if (mob instanceof PathAwareEntity path && !hasGoal(goals, RunWhileChargingCrossbowGoal.class)) {
-                goals.add(2, new RunWhileChargingCrossbowGoal(path, 0.9D)); // <-- double speed
+                goals.add(2, new RunWhileChargingCrossbowGoal(path, 0.9D));
             }
         }
 
