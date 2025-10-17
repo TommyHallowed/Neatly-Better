@@ -9,6 +9,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -20,10 +21,18 @@ import java.util.Map;
 public final class OWRegistry {
     private OWRegistry() {}
 
-
     /* ----------------- IDs ----------------- */
     public static Identifier id(String path) {
         return Identifier.of(TheOldWays.MOD_ID, path);
+    }
+
+    /* ----------------- Registry Keys ----------------- */
+    public static RegistryKey<Block> blockKey(String path) {
+        return RegistryKey.of(RegistryKeys.BLOCK, id(path));
+    }
+
+    public static RegistryKey<Item> itemKey(String path) {
+        return RegistryKey.of(RegistryKeys.ITEM, id(path));
     }
 
     /* ----------------- Register helpers ----------------- */
@@ -33,6 +42,13 @@ public final class OWRegistry {
 
     public static Block registerBlock(String name, Block block) {
         return Registry.register(Registries.BLOCK, id(name), block);
+    }
+
+    public static Block registerBlockWithItem(String name, Block block) {
+        Block b = registerBlock(name, block);
+        Registry.register(Registries.ITEM, id(name),
+                new BlockItem(b, new Item.Settings().registryKey(itemKey(name))));
+        return b;
     }
 
     public static Block registerBlockWithItem(String name, Block block, Item.Settings itemSettings) {
