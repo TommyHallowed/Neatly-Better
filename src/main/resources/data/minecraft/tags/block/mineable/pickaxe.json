@@ -1,0 +1,28 @@
+{
+  "replace": false,
+  "values": [
+    "old-ways:smooth_stone_stairs",
+    "old-ways:calcite_stairs",
+    "old-ways:quartz_brick_stairs",
+    "old-ways:end_stone_stairs",
+    "old-ways:smooth_basalt_stairs",
+    "old-ways:calcite_slab",
+    "old-ways:quartz_brick_slab",
+    "old-ways:end_stone_slab",
+    "old-ways:smooth_basalt_slab",
+    "old-ways:polished_granite_wall",
+    "old-ways:polished_andesite_wall",
+    "old-ways:polished_diorite_wall",
+    "old-ways:stone_wall",
+    "old-ways:smooth_stone_wall",
+    "old-ways:calcite_wall",
+    "old-ways:quartz_wall",
+    "old-ways:quartz_brick_wall",
+    "old-ways:smooth_quartz_wall",
+    "old-ways:end_stone_wall",
+    "old-ways:purpur_wall",
+    "old-ways:smooth_basalt_wall",
+    "old-ways:prismarine_brick_wall",
+    "old-ways:dark_prismarine_wall"
+  ]
+}

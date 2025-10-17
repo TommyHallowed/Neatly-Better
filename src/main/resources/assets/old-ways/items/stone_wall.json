@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "old-ways:block/stone_wall_inventory"
+  }
+}
