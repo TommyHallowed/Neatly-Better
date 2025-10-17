@@ -44,6 +44,7 @@
     "item.PotionItemMixin",
     "item.SplashPotionItemMixin",
     "other.HungerManagerMixin",
+    "other.NetherPortalMixin",
     "other.SpawnHelperMixin",
     "screen.AnvilScreenHandlerMixin",
     "screen.EnchantmentScreenHandlerMixin",

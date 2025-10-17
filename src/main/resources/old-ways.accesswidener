@@ -6,3 +6,4 @@ accessible method net/minecraft/world/GameRules$IntRule create (I)Lnet/minecraft
 accessible method net/minecraft/world/GameRules$BooleanRule create (Z)Lnet/minecraft/world/GameRules$Type;
 accessible method net/minecraft/world/GameRules register (Ljava/lang/String;Lnet/minecraft/world/GameRules$Category;Lnet/minecraft/world/GameRules$Type;)Lnet/minecraft/world/GameRules$Key;
 accessible field net/minecraft/world/GameRules RULE_TYPES Ljava/util/Map;
+accessible method net/minecraft/util/Identifier <init> (Ljava/lang/String;Ljava/lang/String;)V
