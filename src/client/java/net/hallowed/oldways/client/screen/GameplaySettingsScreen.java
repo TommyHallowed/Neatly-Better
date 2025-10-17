@@ -92,7 +92,7 @@ public class GameplaySettingsScreen extends Screen {
             P.telemetryOff = !P.telemetryOff;
             b.setMessage(composeOnOff("options.gameplay.telemetry", !P.telemetryOff));
             SettingsPrefs.save();
-        }).tooltip(Tooltip.of(Text.translatable("options.telemetry"))).build());
+        }).tooltip(Tooltip.of(Text.translatable("options.gameplay.telemetry.tooltip"))).build());
 
         adder.add(ButtonWidget.builder(composeOnOff("options.gameplay.copy_screenshots", P.copyScreenshots), b -> {
             P.copyScreenshots = !P.copyScreenshots;
