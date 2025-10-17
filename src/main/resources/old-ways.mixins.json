@@ -33,6 +33,7 @@
     "entity.misc.AbstractMinecartEntityMixin",
     "entity.misc.TridentEntityMixin",
     "entity.neutral.IronGolemEntityMixin",
+    "entity.passive.AbstractHorseEntityMixin",
     "entity.passive.SheepEntityMixin",
     "entity.passive.VillagerEntityMixin",
     "inventory.EnderChestInventoryMixin",
