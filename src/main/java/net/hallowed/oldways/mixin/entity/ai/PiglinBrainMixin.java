@@ -1,5 +1,6 @@
 package net.hallowed.oldways.mixin.entity.ai;
 
+import net.hallowed.oldways.api.OWCompat;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.entity.EquipmentSlot;
@@ -16,11 +17,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Piglins respect GOLD trims (any pattern) and the SNOUT pattern (any material).
- * If the vanilla check returns false, we flip it to true when boots/armor
- * are trimmed accordingly.
- */
 @Mixin(PiglinBrain.class)
 public abstract class PiglinBrainMixin {
 
@@ -30,6 +26,7 @@ public abstract class PiglinBrainMixin {
             cancellable = true
     )
     private static void oldways$goldTrimPacifies(LivingEntity entity, CallbackInfoReturnable<Boolean> cir) {
+        if (OWCompat.RESPECTMYTRIMS) return;
         if (cir.getReturnValue()) return;
 
         for (EquipmentSlot slot : AttributeModifierSlot.ARMOR) {
