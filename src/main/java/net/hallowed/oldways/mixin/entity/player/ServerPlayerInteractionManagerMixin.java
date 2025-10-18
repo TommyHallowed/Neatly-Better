@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin.entity;
+package net.hallowed.oldways.mixin.entity.player;
 
 import net.hallowed.oldways.content.feature.StructureProtection;
 import net.minecraft.block.Block;

@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin.entity;
+package net.hallowed.oldways.mixin.entity.player;
 
 import net.hallowed.oldways.init.ModGameRules;
 import net.hallowed.oldways.init.ModItems;
