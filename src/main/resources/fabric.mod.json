@@ -4,7 +4,7 @@
 	"version": "${version}",
     "accessWidener": "old-ways.accesswidener",
 	"name": "The Old Ways",
-	"description": "A minecraft mod that brings balance and enjoynment of the old versions of the game.",
+	"description": "A minecraft mod that brings balance and enjoynment of the old versions of the game while fixing & improving upon existing features.",
 	"authors": [
 		"Hallowed103"
 	],
@@ -26,11 +26,9 @@
     ],
 	"depends": {
 		"fabricloader": ">=0.17.2",
-		"minecraft": "~1.21.8",
+		"minecraft": "~1.21.10",
 		"java": ">=21",
 		"fabric-api": "*"
 	},
-	"suggests": {
-      "betterf3": "*"
-	}
+	"suggests": {}
 }
