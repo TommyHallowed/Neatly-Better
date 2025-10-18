@@ -15,7 +15,8 @@ public final class ModBlocks {
 
     public static Block POLISHED_GRANITE_WALL, POLISHED_ANDESITE_WALL, POLISHED_DIORITE_WALL, STONE_WALL,
             SMOOTH_STONE_WALL, CALCITE_WALL, QUARTZ_WALL, QUARTZ_BRICK_WALL, SMOOTH_QUARTZ_WALL,
-            END_STONE_WALL, PURPUR_WALL, SMOOTH_BASALT_WALL, PRISMARINE_BRICK_WALL, DARK_PRISMARINE_WALL;
+            END_STONE_WALL, PURPUR_WALL, SMOOTH_BASALT_WALL, PRISMARINE_BRICK_WALL, DARK_PRISMARINE_WALL,
+            SMOOTH_SANDSTONE_WALL, SMOOTH_RED_SANDSTONE_WALL;
 
     public static void register() {
         // Blocks
@@ -129,5 +130,11 @@ public final class ModBlocks {
 
         DARK_PRISMARINE_WALL = OWRegistry.registerBlockWithItem("dark_prismarine_wall",
                 new WallBlock(AbstractBlock.Settings.copy(Blocks.DARK_PRISMARINE).requiresTool().registryKey(OWRegistry.blockKey("dark_prismarine_wall"))));
+
+        SMOOTH_SANDSTONE_WALL = OWRegistry.registerBlockWithItem("smooth_sandstone_wall",
+                new WallBlock(AbstractBlock.Settings.copy(Blocks.SMOOTH_SANDSTONE).requiresTool().registryKey(OWRegistry.blockKey("smooth_sandstone_wall"))));
+
+        SMOOTH_RED_SANDSTONE_WALL = OWRegistry.registerBlockWithItem("smooth_red_sandstone_wall",
+                new WallBlock(AbstractBlock.Settings.copy(Blocks.SMOOTH_RED_SANDSTONE).requiresTool().registryKey(OWRegistry.blockKey("smooth_red_sandstone_wall"))));
     }
 }

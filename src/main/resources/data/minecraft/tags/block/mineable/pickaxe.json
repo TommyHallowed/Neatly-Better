@@ -23,6 +23,8 @@
     "old-ways:purpur_wall",
     "old-ways:smooth_basalt_wall",
     "old-ways:prismarine_brick_wall",
-    "old-ways:dark_prismarine_wall"
+    "old-ways:dark_prismarine_wall",
+    "old-ways:smooth_sandstone_wall",
+    "old-ways:smooth_red_sandstone_wall"
   ]
 }
