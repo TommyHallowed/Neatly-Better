@@ -19,7 +19,6 @@
     "render.GameRendererMixin",
     "render.InGameOverlayRendererMixin",
     "screen.AnvilScreenMixin",
-    "screen.EnchantmentScreenMixin",
     "screen.GenericContainerScreenMixin",
     "screen.InactivityFpsLimiterMixin",
     "screen.InventoryScreenMixin",

@@ -11,7 +11,8 @@ public final class OWCompat {
 
     private static final Set<String> PRECHECK_MODS = Set.of(
             "horseman",
-            "respectmytrims"
+            "respectmytrims",
+            "mr_dungeons_andtavernsjungletempleoverhaul"
     );
 
     private static final Map<String, Boolean> CACHE;
@@ -38,4 +39,5 @@ public final class OWCompat {
 
     public static final boolean HORSEMAN = isLoaded("horseman");
     public static final boolean RESPECTMYTRIMS = isLoaded("respectmytrims");
+    public static final boolean DNTTEMPLEOVERHAUL = isLoaded("mr_dungeons_andtavernsjungletempleoverhaul");
 }

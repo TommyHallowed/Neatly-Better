@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(AbstractMinecartEntity.class)
 public abstract class AbstractMinecartEntityMixin {
 
-    @Unique private static final double ACCEL_PER_TICK = 0.1;    // +0.2 b/s per tick (~4 b/s/s)
+    @Unique private static final double ACCEL_PER_TICK = 0.05;    // +0.2 b/s per tick (~4 b/s/s)
     @Unique private static final double START_THRESHOLD_BPS = 0.1;
     @Unique private static final double BLEND = 0.5;             // smoothing toward target
 

@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin.entity.boat;
+package net.hallowed.oldways.mixin.entity.misc;
 
 import net.hallowed.oldways.content.entity.vehicle.LavaBoatEntity;
 import net.minecraft.entity.vehicle.AbstractBoatEntity;

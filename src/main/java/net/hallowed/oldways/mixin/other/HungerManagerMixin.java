@@ -13,7 +13,7 @@ public abstract class HungerManagerMixin {
             constant = @Constant(intValue = 18),
             require = 0
     )
-    private int oldways$slowHealGateTo10(int original) {
+    private int slowHealStart(int original) {
         return 10;
     }
 
@@ -22,8 +22,8 @@ public abstract class HungerManagerMixin {
             constant = @Constant(intValue = 10),
             require = 0
     )
-    private int oldways$fastHealIntervalTo60(int original) {
-        return 60;
+    private int fastHealInterval(int original) {
+        return 40;
     }
 
     @ModifyConstant(
@@ -31,7 +31,7 @@ public abstract class HungerManagerMixin {
             constant = @Constant(floatValue = 6.0F),
             require = 0
     )
-    private float oldways$exhaustionPerHpTo3(float original) {
+    private float exhaustionPerHp(float original) {
         return 3.0F;
     }
 }

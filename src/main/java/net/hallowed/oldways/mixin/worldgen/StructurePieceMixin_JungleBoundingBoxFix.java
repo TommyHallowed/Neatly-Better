@@ -1,5 +1,6 @@
 package net.hallowed.oldways.mixin.worldgen;
 
+import net.hallowed.oldways.api.OWCompat;
 import net.minecraft.structure.JungleTempleGenerator;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.util.math.BlockBox;
@@ -19,6 +20,7 @@ public abstract class StructurePieceMixin_JungleBoundingBoxFix {
 
     @Inject(method = "getBoundingBox", at = @At("HEAD"), cancellable = true)
     private void oldways$returnExpandedForJungle(CallbackInfoReturnable<BlockBox> cir) {
+        if (OWCompat.DNTTEMPLEOVERHAUL) return;
         if (!(((Object) this) instanceof JungleTempleGenerator)) return;
         if (boundingBox == null) return;
 

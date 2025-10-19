@@ -14,7 +14,7 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"net.hallowed.TheOldWays"
+          "net.hallowed.TheOldWays"
 		],
 		"client": [
           "net.hallowed.TheOldWaysClient"

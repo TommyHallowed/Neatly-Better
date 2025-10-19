@@ -1,4 +1,4 @@
-package net.hallowed.oldways.mixin.entity.generic;
+package net.hallowed.oldways.mixin.entity.player;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
