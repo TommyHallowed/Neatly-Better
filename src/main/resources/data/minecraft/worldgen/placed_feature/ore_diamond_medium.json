@@ -1,5 +1,5 @@
 {
-  "feature": "minecraft:ore_diamond_small",
+  "feature": "minecraft:ore_diamond_medium",
   "placement": [
     {
       "type": "minecraft:count",
@@ -11,12 +11,12 @@
     {
       "type": "minecraft:height_range",
       "height": {
-        "type": "minecraft:trapezoid",
+        "type": "minecraft:uniform",
         "max_inclusive": {
-          "above_bottom": 80
+          "absolute": -4
         },
         "min_inclusive": {
-          "above_bottom": -80
+          "absolute": -64
         }
       }
     },

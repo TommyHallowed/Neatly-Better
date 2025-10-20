@@ -2,8 +2,6 @@ package net.hallowed.oldways.mixin.entity.generic;
 import net.hallowed.oldways.init.ModGameRules;
 import net.hallowed.oldways.util.ProtectionContext;
 
-import net.hallowed.oldways.util.EntityInsideFireHandler;
-import net.hallowed.oldways.util.FireSourceHolder;
 import net.minecraft.block.Blocks;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.BlocksAttacksComponent;
@@ -13,7 +11,6 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,6 +21,7 @@ import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 
 import net.minecraft.world.World;
@@ -227,22 +225,30 @@ public abstract class LivingEntityMixin {
         }
     }
 
-    /* ===================== 8) Deal double damage if on soul fire ===================== */
-
     @Inject(method = "modifyAppliedDamage", at = @At("RETURN"), cancellable = true)
-    private void oldways$boostOnFireFromSoulFire(DamageSource source, float amount,
-                                                 CallbackInfoReturnable<Float> cir) {
-        if (!source.isOf(DamageTypes.ON_FIRE)) return;
+    private void oldways$addSoulFireExtra(DamageSource source, float amount, CallbackInfoReturnable<Float> cir) {
+        try {
+            // Only on server side and for fire-damage types
+            if (!source.isIn(DamageTypeTags.IS_FIRE)) return;
+            LivingEntity self = (LivingEntity)(Object)this;
+            if (self == null || self.getEntityWorld() == null || self.getEntityWorld().isClient()) return;
 
-        final Entity self = (Entity)(Object)this;
-        if (!(self instanceof FireSourceHolder holder)) return;
+            try {
+                // read tracked flag (Byte: 0 = normal, 1 = soul)
+                Byte tracked = self.getDataTracker().get(net.hallowed.oldways.init.OldWaysTrackedData.OLDWAYS_SOUL_FIRE);
+                boolean isSoul = tracked != null && tracked.byteValue() != 0;
+                if (!isSoul) return;
+                // if the entity is currently standing inside a soul_fire block, do nothing (preserve vanilla behavior)
+                BlockPos pos = self.getBlockPos();
+                if (self.getEntityWorld().getBlockState(pos).isOf(Blocks.SOUL_FIRE)) return;
 
-        if (holder.oldways$getLastFireSource() != Blocks.SOUL_FIRE) return;
-        if (EntityInsideFireHandler.isInsideSoulFire(self)) return;
-
-        float out = cir.getReturnValueF();
-        if (out > 0.0F) {
-            cir.setReturnValue(out * 2.0F);
+                // increase returned damage by 1.0F
+                Float ret = cir.getReturnValue();
+                if (ret == null) return;
+                cir.setReturnValue(ret + 1.0F);
+            } catch (Throwable ignored) {
+            }
+        } catch (Throwable ignored) {
         }
     }
 }

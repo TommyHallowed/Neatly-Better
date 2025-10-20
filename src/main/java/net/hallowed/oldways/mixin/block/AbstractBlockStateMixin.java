@@ -17,14 +17,14 @@ public abstract class AbstractBlockStateMixin {
     @Shadow public abstract boolean isOf(Block block);
 
     @Inject(method = "getHardness", at = @At("HEAD"), cancellable = true)
-    private void setHardness(BlockView world, BlockPos pos, CallbackInfoReturnable<Float> cir) {
+    private void oldways$setHardness(BlockView world, BlockPos pos, CallbackInfoReturnable<Float> cir) {
         if (isOf(Blocks.NETHERRACK) || isOf(Blocks.CRIMSON_NYLIUM) || isOf(Blocks.WARPED_NYLIUM)) {
             cir.setReturnValue(1.4F);
         }
     }
 
     @Inject(method = "getLuminance", at = @At("HEAD"), cancellable = true)
-    private void setLuminance(CallbackInfoReturnable<Integer> cir) {
+    private void oldways$setLuminance(CallbackInfoReturnable<Integer> cir) {
         if (isOf(Blocks.TORCHFLOWER) || isOf(Blocks.POTTED_TORCHFLOWER)) {
             cir.setReturnValue(5);
         }
