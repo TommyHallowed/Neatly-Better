@@ -11,45 +11,14 @@
               "add": false,
               "count": {
                 "type": "minecraft:uniform",
-                "max": 5,
-                "min": 1
-              },
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "minecraft:gold_ingot",
-          "weight": 90
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": {
-                "type": "minecraft:uniform",
-                "max": 5,
+                "max": 3,
                 "min": 1
               },
               "function": "minecraft:set_count"
             }
           ],
           "name": "minecraft:copper_ingot",
-          "weight": 30
-        },
-        {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_ingot",
-          "weight": 8,
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": {
-                "type": "minecraft:uniform",
-                "min": 1,
-                "max": 3
-              }
-            }
-          ]
+          "weight": 10
         },
         {
           "type": "minecraft:item",
@@ -58,24 +27,109 @@
               "add": false,
               "count": {
                 "type": "minecraft:uniform",
-                "max": 5,
+                "max": 3,
                 "min": 1
               },
               "function": "minecraft:set_count"
             }
           ],
-          "name": "minecraft:emerald",
-          "weight": 40
+          "name": "minecraft:gold_ingot",
+          "weight": 5
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:experience_bottle",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 3,
+                "min": 1
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:bread",
+          "weight": 15
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 3,
+                "min": 1
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:apple",
+          "weight": 15
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:copper_sword",
           "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 7,
+                "min": 3
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:obsidian",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 7,
+                "min": 3
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:oak_sapling",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:saddle",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:copper_horse_armor"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:iron_horse_armor"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_horse_armor"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:diamond_horse_armor"
         }
       ],
       "rolls": {
         "type": "minecraft:uniform",
-        "max": 6,
+        "max": 8,
         "min": 3
       }
     },
@@ -87,77 +141,19 @@
           "functions": [
             {
               "add": false,
-              "count": {
-                "type": "minecraft:uniform",
-                "max": 10,
-                "min": 1
-              },
+              "count": 1,
               "function": "minecraft:set_count"
             }
           ],
-          "name": "minecraft:gold_nugget",
-          "weight": 50
+          "name": "minecraft:bundle"
         },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": {
-                "type": "minecraft:uniform",
-                "max": 10,
-                "min": 1
-              },
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "minecraft:iron_nugget",
-          "weight": 10
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": {
-                "type": "minecraft:uniform",
-                "max": 10,
-                "min": 1
-              },
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "minecraft:lapis_lazuli",
-          "weight": 20
-        }
-      ],
-      "rolls": {
-        "type": "minecraft:uniform",
-        "max": 5,
-        "min": 2
-      }
-    },
-    {
-      "bonus_rolls": 0,
-      "entries": [
         {
           "type": "minecraft:empty",
-          "weight": 5
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 2,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "minecraft:coast_armor_trim_smithing_template"
+          "weight": 2
         }
       ],
       "rolls": 1
     }
   ],
-  "random_sequence": "minecraft:chests/shipwreck_treasure"
+  "random_sequence": "minecraft:chests/village/village_weaponsmith"
 }

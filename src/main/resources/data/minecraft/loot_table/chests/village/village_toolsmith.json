@@ -11,14 +11,14 @@
               "add": false,
               "count": {
                 "type": "minecraft:uniform",
-                "max": 5,
+                "max": 3,
                 "min": 1
               },
               "function": "minecraft:set_count"
             }
           ],
-          "name": "minecraft:gold_ingot",
-          "weight": 90
+          "name": "minecraft:copper_ingot",
+          "weight": 5
         },
         {
           "type": "minecraft:item",
@@ -27,27 +27,38 @@
               "add": false,
               "count": {
                 "type": "minecraft:uniform",
-                "max": 5,
+                "max": 3,
                 "min": 1
               },
               "function": "minecraft:set_count"
             }
           ],
-          "name": "minecraft:copper_ingot",
-          "weight": 30
+          "name": "minecraft:gold_ingot"
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:iron_ingot",
-          "weight": 8,
           "functions": [
             {
-              "function": "minecraft:set_count",
+              "add": false,
               "count": {
                 "type": "minecraft:uniform",
-                "min": 1,
-                "max": 3
-              }
+                "max": 3,
+                "min": 1
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:bread",
+          "weight": 15
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:copper_pickaxe",
+          "weight": 4,
+          "functions": [
+            {
+              "function": "minecraft:limit_count",
+              "limit": 1
             }
           ]
         },
@@ -58,106 +69,53 @@
               "add": false,
               "count": {
                 "type": "minecraft:uniform",
-                "max": 5,
+                "max": 3,
                 "min": 1
               },
               "function": "minecraft:set_count"
             }
           ],
-          "name": "minecraft:emerald",
-          "weight": 40
+          "name": "minecraft:coal"
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:experience_bottle",
-          "weight": 5
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 3,
+                "min": 1
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:stick",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:copper_shovel",
+          "weight": 4,
+          "functions": [
+            {
+              "function": "minecraft:limit_count",
+              "limit": 1
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:copper_axe",
+          "weight": 4
         }
       ],
       "rolls": {
         "type": "minecraft:uniform",
-        "max": 6,
+        "max": 8,
         "min": 3
       }
-    },
-    {
-      "bonus_rolls": 0,
-      "entries": [
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": {
-                "type": "minecraft:uniform",
-                "max": 10,
-                "min": 1
-              },
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "minecraft:gold_nugget",
-          "weight": 50
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": {
-                "type": "minecraft:uniform",
-                "max": 10,
-                "min": 1
-              },
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "minecraft:iron_nugget",
-          "weight": 10
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": {
-                "type": "minecraft:uniform",
-                "max": 10,
-                "min": 1
-              },
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "minecraft:lapis_lazuli",
-          "weight": 20
-        }
-      ],
-      "rolls": {
-        "type": "minecraft:uniform",
-        "max": 5,
-        "min": 2
-      }
-    },
-    {
-      "bonus_rolls": 0,
-      "entries": [
-        {
-          "type": "minecraft:empty",
-          "weight": 5
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 2,
-              "function": "minecraft:set_count"
-            }
-          ],
-          "name": "minecraft:coast_armor_trim_smithing_template"
-        }
-      ],
-      "rolls": 1
     }
   ],
-  "random_sequence": "minecraft:chests/shipwreck_treasure"
+  "random_sequence": "minecraft:chests/village/village_toolsmith"
 }
