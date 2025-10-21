@@ -2,6 +2,7 @@ package net.hallowed.oldways.client.mixin.render;
 
 import net.hallowed.oldways.client.accessor.ClientPlayerEntityAccessor;
 import net.hallowed.oldways.client.render.SoulFireSprites;
+import net.hallowed.oldways.util.FireShapeUtils;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameOverlayRenderer;
@@ -36,20 +37,29 @@ public class InGameOverlayRendererMixin {
 
                      boolean atSoul = false;
                      boolean atFire = false;
-                     for (int xi = x0; xi <= x1 && !(atSoul && atFire); xi++) {
-                         for (int yi = y0; yi <= y1 && !(atSoul && atFire); yi++) {
-                             for (int zi = z0; zi <= z1 && !(atSoul && atFire); zi++) {
+                     boolean atLava = false;
+                     for (int xi = x0; xi <= x1 && !(atSoul && atFire && atLava); xi++) {
+                         for (int yi = y0; yi <= y1 && !(atSoul && atFire && atLava); yi++) {
+                             for (int zi = z0; zi <= z1 && !(atSoul && atFire && atLava); zi++) {
                                  BlockPos checkPos = new BlockPos(xi, yi, zi);
                                  try {
-                                     if (client.world.getBlockState(checkPos).isOf(Blocks.SOUL_FIRE)) {
+                                     var bs = client.world.getBlockState(checkPos);
+                                     if (bs.isOf(Blocks.SOUL_FIRE) && FireShapeUtils.outlineIntersectsEntity(bs, client.world, checkPos, bbox)) {
                                          atSoul = true;
-                                     } else if (client.world.getBlockState(checkPos).isOf(Blocks.FIRE)) {
+                                     } else if (bs.isOf(Blocks.FIRE) && FireShapeUtils.outlineIntersectsEntity(bs, client.world, checkPos, bbox)) {
                                          atFire = true;
+                                     } else if (bs.isOf(Blocks.LAVA) && FireShapeUtils.outlineIntersectsEntity(bs, client.world, checkPos, bbox)) {
+                                         atLava = true;
                                      }
                                  } catch (Throwable ignored) {
                                  }
                              }
                          }
+                     }
+
+                     // If lava is present, don't swap to soul/normal sprites and don't consult remembered flag
+                     if (atLava) {
+                         return holder.getSprite(id);
                      }
 
                      try {

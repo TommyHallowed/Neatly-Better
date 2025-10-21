@@ -6,6 +6,7 @@ import net.hallowed.oldways.client.mixin.accessor.RecipeBookScreenAccessor;
 import net.hallowed.oldways.client.util.RecipeBookUtil;
 import net.hallowed.oldways.client.util.SettingsPrefs;
 import net.hallowed.oldways.client.util.SettingsPrefs.RecipeBookMode;
+import net.hallowed.oldways.util.FireShapeUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.RecipeBookScreen;
 import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;
@@ -74,21 +75,28 @@ public abstract class ClientPlayerEntityMixin implements ClientPlayerEntityAcces
 
             boolean atSoul = false;
             boolean atFire = false;
-            for (int xi = x0; xi <= x1 && !(atSoul && atFire); xi++) {
-                for (int yi = y0; yi <= y1 && !(atSoul && atFire); yi++) {
-                    for (int zi = z0; zi <= z1 && !(atSoul && atFire); zi++) {
+            boolean atLava = false;
+            for (int xi = x0; xi <= x1 && !(atSoul && atFire && atLava); xi++) {
+                for (int yi = y0; yi <= y1 && !(atSoul && atFire && atLava); yi++) {
+                    for (int zi = z0; zi <= z1 && !(atSoul && atFire && atLava); zi++) {
                         BlockPos checkPos = new BlockPos(xi, yi, zi);
                         try {
-                            if (player.getEntityWorld().getBlockState(checkPos).isOf(Blocks.SOUL_FIRE)) {
+                            var bs = player.getEntityWorld().getBlockState(checkPos);
+                            if (bs.isOf(Blocks.SOUL_FIRE) && FireShapeUtils.outlineIntersectsEntity(bs, player.getEntityWorld(), checkPos, bbox)) {
                                 atSoul = true;
-                            } else if (player.getEntityWorld().getBlockState(checkPos).isOf(Blocks.FIRE)) {
+                            } else if (bs.isOf(Blocks.FIRE) && FireShapeUtils.outlineIntersectsEntity(bs, player.getEntityWorld(), checkPos, bbox)) {
                                 atFire = true;
+                            } else if (bs.isOf(Blocks.LAVA) && FireShapeUtils.outlineIntersectsEntity(bs, player.getEntityWorld(), checkPos, bbox)) {
+                                atLava = true;
                             }
                         } catch (Throwable ignored) {
                         }
                     }
                 }
             }
+
+            // If lava is present, do not change the remembered overlay flag
+            if (atLava) return;
 
             if (atSoul) this.oldways$setSoulFire(true);
             else if (atFire) this.oldways$setSoulFire(false);

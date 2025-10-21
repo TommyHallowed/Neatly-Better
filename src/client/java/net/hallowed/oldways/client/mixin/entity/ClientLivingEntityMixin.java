@@ -1,7 +1,9 @@
 package net.hallowed.oldways.client.mixin.entity;
 
 import net.hallowed.oldways.client.accessor.EntitySoulFireAccessor;
+import net.hallowed.oldways.client.accessor.ClientPlayerEntityAccessor;
 import net.hallowed.oldways.init.OldWaysTrackedData;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,7 +28,13 @@ public abstract class ClientLivingEntityMixin {
                 if (self instanceof EntitySoulFireAccessor acc) {
                     acc.oldways$setSoulFire(isSoul);
                 }
-                // removed spatial cache usage: sprite switching should consult the render state or player memory instead
+                // If this living entity is the local player, also update the client's remembered overlay flag
+                try {
+                    if (self instanceof ClientPlayerEntity player && player instanceof ClientPlayerEntityAccessor pacc) {
+                        pacc.oldways$setSoulFire(isSoul);
+                    }
+                } catch (Throwable ignored) {
+                }
             } catch (Throwable ignored) {
             }
         } catch (Throwable ignored) {

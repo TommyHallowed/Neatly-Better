@@ -2,12 +2,15 @@ package net.hallowed.oldways.client.mixin.entity;
 
 import net.hallowed.oldways.client.accessor.EntityRenderStateAccessor;
 import net.hallowed.oldways.client.accessor.ClientPlayerEntityAccessor;
+import net.hallowed.oldways.util.FireShapeUtils;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.command.BatchingRenderCommandQueue;
 import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,22 +44,33 @@ public class BatchingRenderCommandQueueMixin {
             int z0 = (int)Math.floor(minZ);
             int z1 = (int)Math.floor(maxZ);
 
+            Box entityBox = new Box(minX, minY, minZ, maxX, maxY, maxZ);
+
             boolean atSoul = false;
             boolean atFire = false;
-            for (int xi = x0; xi <= x1 && !(atSoul && atFire); xi++) {
-                for (int yi = y0; yi <= y1 && !(atSoul && atFire); yi++) {
-                    for (int zi = z0; zi <= z1 && !(atSoul && atFire); zi++) {
+            boolean atLava = false;
+            for (int xi = x0; xi <= x1 && !(atSoul && atFire && atLava); xi++) {
+                for (int yi = y0; yi <= y1 && !(atSoul && atFire && atLava); yi++) {
+                    for (int zi = z0; zi <= z1 && !(atSoul && atFire && atLava); zi++) {
                         BlockPos checkPos = new BlockPos(xi, yi, zi);
                         try {
-                            if (client.world.getBlockState(checkPos).isOf(Blocks.SOUL_FIRE)) {
+                            BlockState bs = client.world.getBlockState(checkPos);
+                            if (bs.isOf(Blocks.SOUL_FIRE) && FireShapeUtils.outlineIntersectsEntity(bs, client.world, checkPos, entityBox)) {
                                 atSoul = true;
-                            } else if (client.world.getBlockState(checkPos).isOf(Blocks.FIRE)) {
+                            } else if (bs.isOf(Blocks.FIRE) && FireShapeUtils.outlineIntersectsEntity(bs, client.world, checkPos, entityBox)) {
                                 atFire = true;
+                            } else if (bs.isOf(Blocks.LAVA) && FireShapeUtils.outlineIntersectsEntity(bs, client.world, checkPos, entityBox)) {
+                                atLava = true;
                             }
                         } catch (Throwable ignored) {
                         }
                     }
                 }
+            }
+
+            if (atLava) {
+                // If lava is present, it's lava-caused fire; do not force soul/normal fire flags on the render state.
+                return;
             }
 
             if (atSoul) {
