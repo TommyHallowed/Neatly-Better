@@ -6,7 +6,6 @@ public final class ModGameRules {
 
     private ModGameRules() {}
 
-    public static GameRules.Key<GameRules.BooleanRule> ALLOW_SLEEP;
     public static GameRules.Key<GameRules.BooleanRule> FULL_ENCHANTING_COST;
     public static GameRules.Key<GameRules.BooleanRule> BEACON_SOAK_EFFECTS;
     public static GameRules.Key<GameRules.BooleanRule> XP_FROM_MINING_NON_ORE;
@@ -22,7 +21,6 @@ public final class ModGameRules {
     public static GameRules.Key<GameRules.IntRule> MAX_MINECART_SPEED;
 
     public static void register() {
-        ALLOW_SLEEP                        = bool("allowSleep",                        GameRules.Category.PLAYER, false);
         FULL_ENCHANTING_COST               = bool("fullEnchantingCost",                GameRules.Category.PLAYER,   true);
         BEACON_SOAK_EFFECTS                = bool("beaconSoakEffects",                 GameRules.Category.MISC,   true);
         XP_FROM_MINING_NON_ORE             = bool("xpFromMiningNonOre",                GameRules.Category.DROPS, true);
