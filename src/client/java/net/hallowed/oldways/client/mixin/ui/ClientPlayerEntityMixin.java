@@ -23,23 +23,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayerEntity.class)
-public abstract class ClientPlayerEntityMixin implements ClientPlayerEntityAccessor {
+public abstract class ClientPlayerEntityMixin {
     @Shadow @Final private ClientRecipeBook recipeBook;
     @Shadow @Final public ClientPlayNetworkHandler networkHandler;
     @Unique
     private static final SettingsPrefs OW$prefs = SettingsPrefs.get();
-
-    // remember last-seen fire type for the overlay (true = soul fire)
-    @Unique
-    private boolean oldways$soulFire = false;
-
-    public boolean oldways$isSoulFire() {
-        return this.oldways$soulFire;
-    }
-
-    public void oldways$setSoulFire(boolean val) {
-        this.oldways$soulFire = val;
-    }
 
     @Inject(method = "closeScreen", at = @At("HEAD"))
     private void oldways$closeRecipeBookIfOpen(CallbackInfo ci) {
@@ -54,52 +42,6 @@ public abstract class ClientPlayerEntityMixin implements ClientPlayerEntityAcces
             RecipeBookWidget<?> widget = ((RecipeBookScreenAccessor) recipeScreen).getRecipeBook();
             RecipeBookType category = ((RecipeBookAccessor) widget).getCraftingHandler().getCategory();
             RecipeBookUtil.closeRecipeBook(this.recipeBook, this.networkHandler, category);
-        }
-    }
-
-    @Inject(method = "tick", at = @At("HEAD"))
-    private void oldways$clientTick(CallbackInfo ci) {
-        try {
-            ClientPlayerEntity player = (ClientPlayerEntity)(Object)this;
-            if (player == null || player.getEntityWorld() == null) return;
-
-            var bbox = player.getBoundingBox();
-            int x0 = (int)Math.floor(bbox.minX - 0.001D);
-            int x1 = (int)Math.floor(bbox.maxX + 0.001D);
-            int y0 = (int)Math.floor(bbox.minY - 0.001D);
-            int y1 = (int)Math.floor(bbox.maxY + 0.001D);
-            int z0 = (int)Math.floor(bbox.minZ - 0.001D);
-            int z1 = (int)Math.floor(bbox.maxZ + 0.001D);
-
-            boolean atSoul = false;
-            boolean atFire = false;
-            boolean atLava = false;
-            for (int xi = x0; xi <= x1 && !(atSoul && atFire && atLava); xi++) {
-                for (int yi = y0; yi <= y1 && !(atSoul && atFire && atLava); yi++) {
-                    for (int zi = z0; zi <= z1 && !(atSoul && atFire && atLava); zi++) {
-                        BlockPos checkPos = new BlockPos(xi, yi, zi);
-                        try {
-                            var bs = player.getEntityWorld().getBlockState(checkPos);
-                            if (bs.isOf(Blocks.SOUL_FIRE) && FireShapeUtils.outlineIntersectsEntity(bs, player.getEntityWorld(), checkPos, bbox)) {
-                                atSoul = true;
-                            } else if (bs.isOf(Blocks.FIRE) && FireShapeUtils.outlineIntersectsEntity(bs, player.getEntityWorld(), checkPos, bbox)) {
-                                atFire = true;
-                            } else if (bs.isOf(Blocks.LAVA) && FireShapeUtils.outlineIntersectsEntity(bs, player.getEntityWorld(), checkPos, bbox)) {
-                                atLava = true;
-                            }
-                        } catch (Throwable ignored) {
-                        }
-                    }
-                }
-            }
-
-            // If lava is present, do not change the remembered overlay flag
-            if (atLava) return;
-
-            if (atSoul) this.oldways$setSoulFire(true);
-            else if (atFire) this.oldways$setSoulFire(false);
-            // if neither, do not clear — remember last state
-        } catch (Throwable ignored) {
         }
     }
 }
