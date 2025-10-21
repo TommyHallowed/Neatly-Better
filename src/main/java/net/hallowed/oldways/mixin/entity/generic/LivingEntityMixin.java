@@ -176,7 +176,7 @@ public abstract class LivingEntityMixin {
     }
 
     /* ===================== 7) Hostile mobs XP boost ===================== */
-    @Unique private static final float HOSTILE_XP_MULTIPLIER = 2.0f;
+    @Unique private static final float HOSTILE_XP_MULTIPLIER = 1.5f;
     @Unique private static final int HOSTILE_BONUS_XP_CAP = 200;
 
     @Unique

@@ -19,7 +19,7 @@ public final class HostileAttributeTweaks {
 
     public static double SPIDER_SPEED_MULT = 0.2;
     public static double SPIDER_KB_RESIST_ADD = 0.2;
-    public static double SPIDER_EXTRA_REACH = 0.45;
+    public static double SPIDER_EXTRA_REACH = 0.65;
 
     public static double ZOMBIE_SPEED_MULT = 0.15;
     public static double ZOMBIE_KB_RESIST_ADD = 0.10;

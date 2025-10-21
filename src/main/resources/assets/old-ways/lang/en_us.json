@@ -92,7 +92,7 @@
   "options.show_potion_glint.tooltip": "Show enchantment glint on potion items.",
   "options.realms_button.tooltip": "Toggle visibility of Realms button in title screen.",
   "options.accessibility_button.tooltip": "Show an extra Accessibility button on the title screen.",
-  "options.gameplay.telemetry.tooltip": "§eWork In Progress",
+  "options.gameplay.telemetry.tooltip": "Allow sending of anonymous usage data to Mojang.",
   "options.copy_screenshots.tooltip": "Copy taken screenshots to clipboard",
   "options.gameplay.overlay.coords.tooltip": "Toggle coordinates overlay",
   "options.gameplay.overlay.time.tooltip": "Toggle time & Day count overlay",
