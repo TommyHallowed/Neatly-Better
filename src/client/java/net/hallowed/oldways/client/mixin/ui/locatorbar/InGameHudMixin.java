@@ -31,7 +31,7 @@ public abstract class InGameHudMixin {
 
     @Inject(method = "render", at = @At("TAIL"))
     private void oldways$renderSmallHud(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        if (!OW$prefs.showCoords && !OW$prefs.showTime) return;
+        if (!OW$prefs.showCoords && !OW$prefs.showTime || this.client.options.hudHidden) return;
         SmallHudOverlay.render(context);
     }
 

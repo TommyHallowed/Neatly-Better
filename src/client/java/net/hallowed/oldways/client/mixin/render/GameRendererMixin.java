@@ -3,6 +3,7 @@ package net.hallowed.oldways.client.mixin.render;
 import net.hallowed.oldways.client.util.GameRendererPickHelper;
 import net.hallowed.oldways.client.util.SwingThroughGrassClient;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.Entity;
@@ -50,7 +51,15 @@ public abstract class GameRendererMixin {
 
         final boolean pressing = client.options.attackKey.isPressed();
         if (pressing && !ow$attackHeld && vanillaFront instanceof BlockHitResult bhr) {
-            tryBreakIfOneHit(bhr);
+            try {
+                BlockPos frontPos = bhr.getBlockPos();
+                BlockState frontState = client.world.getBlockState(frontPos);
+                if (!frontState.isOf(Blocks.COBWEB)) {
+                    tryBreakIfOneHit(bhr);
+                }
+            } catch (Throwable ignored) {
+                tryBreakIfOneHit(bhr);
+            }
         }
         ow$attackHeld = pressing;
 

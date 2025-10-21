@@ -2,12 +2,15 @@ package net.hallowed.oldways.mixin.entity.generic;
 
 import net.hallowed.oldways.content.entity.vehicle.LavaBoatEntity;
 import net.hallowed.oldways.init.OldWaysTrackedData;
+import net.hallowed.oldways.util.FireShapeUtils;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -63,15 +66,19 @@ public abstract class EntityMixin {
 
         boolean atSoul = false;
         boolean atFire = false;
-        for (int xi = x0; xi <= x1 && !(atSoul && atFire); xi++) {
-            for (int yi = y0; yi <= y1 && !(atSoul && atFire); yi++) {
-                for (int zi = z0; zi <= z1 && !(atSoul && atFire); zi++) {
+        boolean atLava = false;
+        for (int xi = x0; xi <= x1 && !(atSoul && atFire && atLava); xi++) {
+            for (int yi = y0; yi <= y1 && !(atSoul && atFire && atLava); yi++) {
+                for (int zi = z0; zi <= z1 && !(atSoul && atFire && atLava); zi++) {
                     BlockPos checkPos = new BlockPos(xi, yi, zi);
                     try {
-                        if (e.getEntityWorld().getBlockState(checkPos).isOf(Blocks.SOUL_FIRE)) {
+                        BlockState bs = e.getEntityWorld().getBlockState(checkPos);
+                        if (bs.isOf(Blocks.SOUL_FIRE) && FireShapeUtils.outlineIntersectsEntity(bs, e.getEntityWorld(), checkPos, bbox)) {
                             atSoul = true;
-                        } else if (e.getEntityWorld().getBlockState(checkPos).isOf(Blocks.FIRE)) {
+                        } else if (bs.isOf(Blocks.FIRE) && FireShapeUtils.outlineIntersectsEntity(bs, e.getEntityWorld(), checkPos, bbox)) {
                             atFire = true;
+                        } else if (bs.isOf(Blocks.LAVA) && FireShapeUtils.outlineIntersectsEntity(bs, e.getEntityWorld(), checkPos, bbox)) {
+                            atLava = true;
                         }
                     } catch (Throwable ignored) {
                     }
@@ -79,10 +86,24 @@ public abstract class EntityMixin {
             }
         }
 
+        // If lava is present, do not set tracked soul-fire flags (lava-caused fire shouldn't count)
+        if (atLava) {
+            LivingEntity le = (LivingEntity)e;
+            DataTracker tracker = le.getDataTracker();
+            tracker.set(OldWaysTrackedData.OLDWAYS_SOUL_FIRE, (byte)0);
+            System.out.println("[OldWays] Entity " + e + " in lava detected when setOnFireFor -> clearing OLDWAYS_SOUL_FIRE");
+            return;
+        }
+
         LivingEntity le = (LivingEntity)e;
         DataTracker tracker = le.getDataTracker();
-        if (atSoul) tracker.set(OldWaysTrackedData.OLDWAYS_SOUL_FIRE, (byte)1);
-        else if (atFire) tracker.set(OldWaysTrackedData.OLDWAYS_SOUL_FIRE, (byte)0);
+        if (atSoul) {
+            tracker.set(OldWaysTrackedData.OLDWAYS_SOUL_FIRE, (byte)1);
+            System.out.println("[OldWays] Entity " + e + " touched SOUL_FIRE -> setting OLDWAYS_SOUL_FIRE = 1");
+        } else if (atFire) {
+            tracker.set(OldWaysTrackedData.OLDWAYS_SOUL_FIRE, (byte)0);
+            System.out.println("[OldWays] Entity " + e + " touched FIRE -> setting OLDWAYS_SOUL_FIRE = 0");
+        }
     }
 
     @Inject(method = "setOnFireForTicks(I)V", at = @At("HEAD"))
@@ -101,15 +122,19 @@ public abstract class EntityMixin {
 
         boolean atSoul = false;
         boolean atFire = false;
-        for (int xi = x0; xi <= x1 && !(atSoul && atFire); xi++) {
-            for (int yi = y0; yi <= y1 && !(atSoul && atFire); yi++) {
-                for (int zi = z0; zi <= z1 && !(atSoul && atFire); zi++) {
+        boolean atLava = false;
+        for (int xi = x0; xi <= x1 && !(atSoul && atFire && atLava); xi++) {
+            for (int yi = y0; yi <= y1 && !(atSoul && atFire && atLava); yi++) {
+                for (int zi = z0; zi <= z1 && !(atSoul && atFire && atLava); zi++) {
                     BlockPos checkPos = new BlockPos(xi, yi, zi);
                     try {
-                        if (e.getEntityWorld().getBlockState(checkPos).isOf(Blocks.SOUL_FIRE)) {
+                        BlockState bs = e.getEntityWorld().getBlockState(checkPos);
+                        if (bs.isOf(Blocks.SOUL_FIRE) && FireShapeUtils.outlineIntersectsEntity(bs, e.getEntityWorld(), checkPos, bbox)) {
                             atSoul = true;
-                        } else if (e.getEntityWorld().getBlockState(checkPos).isOf(Blocks.FIRE)) {
+                        } else if (bs.isOf(Blocks.FIRE) && FireShapeUtils.outlineIntersectsEntity(bs, e.getEntityWorld(), checkPos, bbox)) {
                             atFire = true;
+                        } else if (bs.isOf(Blocks.LAVA) && FireShapeUtils.outlineIntersectsEntity(bs, e.getEntityWorld(), checkPos, bbox)) {
+                            atLava = true;
                         }
                     } catch (Throwable ignored) {
                     }
@@ -117,9 +142,22 @@ public abstract class EntityMixin {
             }
         }
 
+        if (atLava) {
+            LivingEntity le = (LivingEntity)e;
+            DataTracker tracker = le.getDataTracker();
+            tracker.set(OldWaysTrackedData.OLDWAYS_SOUL_FIRE, (byte)0);
+            System.out.println("[OldWays] Entity " + e + " in lava detected when setOnFireForTicks -> clearing OLDWAYS_SOUL_FIRE");
+            return;
+        }
+
         LivingEntity le = (LivingEntity)e;
         DataTracker tracker = le.getDataTracker();
-        if (atSoul) tracker.set(OldWaysTrackedData.OLDWAYS_SOUL_FIRE, (byte)1);
-        else if (atFire) tracker.set(OldWaysTrackedData.OLDWAYS_SOUL_FIRE, (byte)0);
+        if (atSoul) {
+            tracker.set(OldWaysTrackedData.OLDWAYS_SOUL_FIRE, (byte)1);
+            System.out.println("[OldWays] Entity " + e + " touched SOUL_FIRE (ticks) -> setting OLDWAYS_SOUL_FIRE = 1");
+        } else if (atFire) {
+            tracker.set(OldWaysTrackedData.OLDWAYS_SOUL_FIRE, (byte)0);
+            System.out.println("[OldWays] Entity " + e + " touched FIRE (ticks) -> setting OLDWAYS_SOUL_FIRE = 0");
+        }
     }
 }

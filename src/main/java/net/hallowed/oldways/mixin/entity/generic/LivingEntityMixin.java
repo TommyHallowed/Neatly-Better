@@ -237,14 +237,34 @@ public abstract class LivingEntityMixin {
                 // read tracked flag (Byte: 0 = normal, 1 = soul)
                 Byte tracked = self.getDataTracker().get(net.hallowed.oldways.init.OldWaysTrackedData.OLDWAYS_SOUL_FIRE);
                 boolean isSoul = tracked != null && tracked.byteValue() != 0;
+                System.out.println("[OldWays] modifyAppliedDamage: entity=" + self + " tracked=" + tracked + " isSoul=" + isSoul + " source=" + source.getName());
                 if (!isSoul) return;
                 // if the entity is currently standing inside a soul_fire block, do nothing (preserve vanilla behavior)
                 BlockPos pos = self.getBlockPos();
-                if (self.getEntityWorld().getBlockState(pos).isOf(Blocks.SOUL_FIRE)) return;
+                if (self.getEntityWorld().getBlockState(pos).isOf(Blocks.SOUL_FIRE)) {
+                    System.out.println("[OldWays] entity=" + self + " is standing in SOUL_FIRE; skipping extra soul damage");
+                    return;
+                }
+
+                // If the entity is currently in lava, treat as lava-caused and don't apply soul-fire extra damage
+                try {
+                    // use isInLava first as it's a direct check
+                    if (self.isInLava()) {
+                        System.out.println("[OldWays] entity=" + self + " isInLava() == true; skipping extra soul damage");
+                        return;
+                    }
+                    // and also check the block at the entity position for lava
+                    if (self.getEntityWorld().getBlockState(pos).isOf(Blocks.LAVA)) {
+                        System.out.println("[OldWays] entity=" + self + " block at pos is LAVA; skipping extra soul damage");
+                        return;
+                    }
+                } catch (Throwable ignored) {
+                }
 
                 // increase returned damage by 1.0F
                 Float ret = cir.getReturnValue();
                 if (ret == null) return;
+                System.out.println("[OldWays] applying extra soul damage to entity=" + self + " original=" + ret + " new=" + (ret + 1.0F));
                 cir.setReturnValue(ret + 1.0F);
             } catch (Throwable ignored) {
             }

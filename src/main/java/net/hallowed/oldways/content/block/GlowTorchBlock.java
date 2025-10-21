@@ -10,6 +10,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
@@ -35,8 +36,21 @@ public class GlowTorchBlock extends TorchBlock implements Waterloggable {
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         BlockState base = super.getPlacementState(ctx);
         if (base == null) return null;
-        boolean water = ctx.getWorld().getFluidState(ctx.getBlockPos()).isIn(FluidTags.WATER);
-        return base.with(WATERLOGGED, water);
+
+        BlockPos pos = ctx.getBlockPos();
+        int sourceCount = 0;
+
+        for (Direction d : Direction.values()) {
+            BlockPos check = pos.offset(d);
+            FluidState fs = ctx.getWorld().getFluidState(check);
+            if (fs.isIn(FluidTags.WATER) && fs.isStill()) {
+                sourceCount++;
+                if (sourceCount >= 2) break;
+            }
+        }
+
+        boolean waterlogged = sourceCount == 2;
+        return base.with(WATERLOGGED, waterlogged);
     }
 
     @Override

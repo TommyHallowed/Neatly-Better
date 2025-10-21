@@ -15,6 +15,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
@@ -41,17 +42,42 @@ public class GlowWallTorchBlock extends WallTorchBlock implements Waterloggable 
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         BlockState base = super.getPlacementState(ctx);
         if (base == null) return null;
-        boolean water = ctx.getWorld().getFluidState(ctx.getBlockPos()).isIn(FluidTags.WATER);
-        return base.with(WATERLOGGED, water);
+
+        BlockPos pos = ctx.getBlockPos();
+        int sourceCount = 0;
+
+        for (Direction d : Direction.values()) {
+            BlockPos check = pos.offset(d);
+            FluidState fs = ctx.getWorld().getFluidState(check);
+            if (fs.isIn(FluidTags.WATER) && fs.isStill()) {
+                sourceCount++;
+                if (sourceCount >= 2) break;
+            }
+        }
+
+        boolean waterlogged = sourceCount == 2;
+        return base.with(WATERLOGGED, waterlogged);
     }
 
     @Override
     protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView ticks,
-                                                   BlockPos pos, net.minecraft.util.math.Direction dir,
+                                                   BlockPos pos, Direction dir,
                                                    BlockPos neighborPos, BlockState neighborState, Random random) {
         if (state.get(WATERLOGGED)) {
             ticks.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
         }
+
+        if (!state.canPlaceAt(world, pos)) {
+            if (world instanceof ServerWorld sw) {
+                if (sw.breakBlock(pos, false)) {
+                    if (sw.getGameRules().getBoolean(net.minecraft.world.GameRules.DO_TILE_DROPS)) {
+                        Block.dropStack(sw, pos, new ItemStack(ModItems.GLOW_TORCH));
+                    }
+                }
+            }
+            return Blocks.AIR.getDefaultState();
+        }
+
         return super.getStateForNeighborUpdate(state, world, ticks, pos, dir, neighborPos, neighborState, random);
     }
 
@@ -76,16 +102,16 @@ public class GlowWallTorchBlock extends WallTorchBlock implements Waterloggable 
     @Override
     public void afterBreak(World world, PlayerEntity player, BlockPos pos, BlockState state,
                            BlockEntity blockEntity, ItemStack tool) {
-        if (!world.isClient() && (player == null || !player.isCreative())) {
-            ServerWorld sw = (ServerWorld) world;
-            Block.dropStack(sw, pos, new ItemStack(ModItems.GLOW_TORCH));
+        if (world instanceof ServerWorld sw && (player == null || !player.isCreative())) {
+            if (sw.getGameRules().getBoolean(net.minecraft.world.GameRules.DO_TILE_DROPS)) {
+                Block.dropStack(sw, pos, new ItemStack(ModItems.GLOW_TORCH));
+            }
         }
     }
 
     @Override
     public void onDestroyedByExplosion(ServerWorld world, BlockPos pos, Explosion explosion) {
-        if (world.getGameRules().getBoolean(net.minecraft.world.GameRules.DO_TILE_DROPS)) {
-            Block.dropStack(world, pos, new ItemStack(ModItems.GLOW_TORCH));
-        }
+        if (!world.getGameRules().getBoolean(net.minecraft.world.GameRules.DO_TILE_DROPS)) return;
+        Block.dropStack(world, pos, new ItemStack(ModItems.GLOW_TORCH));
     }
 }
