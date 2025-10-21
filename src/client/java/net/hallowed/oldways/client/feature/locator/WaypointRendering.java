@@ -5,11 +5,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.resource.waypoint.WaypointStyleAsset;
-import net.minecraft.client.gui.PlayerSkinDrawer;
-import net.minecraft.entity.player.SkinTextures;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
@@ -21,17 +17,12 @@ import net.minecraft.world.waypoint.TrackedWaypoint;
 import net.minecraft.world.waypoint.WaypointStyles;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class WaypointRendering {
     private WaypointRendering() {}
 
     private static final Identifier ARROW_UP   = Identifier.ofVanilla("hud/locator_bar_arrow_up");
     private static final Identifier ARROW_DOWN = Identifier.ofVanilla("hud/locator_bar_arrow_down");
-
-    private static final Map<String, CacheEntry> NAME_CACHE = new ConcurrentHashMap<>();
-    private static final long NAME_TTL_MS = 2000L;
-    private record CacheEntry(UUID uuid, long expiresAt) {}
 
     private static final ArrayList<Entry> VISIBLE = new ArrayList<>(64);
     private static final ArrayDeque<Entry> POOL   = new ArrayDeque<>(64);
@@ -44,7 +35,8 @@ public final class WaypointRendering {
         double yaw;
         double distSq;
         int x;
-        Entry set(ClientWaypoint w, double y, double d2, int px) { this.wp = w; this.yaw = y; this.distSq = d2; this.x = px; return this; }
+        void set(ClientWaypoint w, double y, double d2, int px) { this.wp = w; this.yaw = y; this.distSq = d2; this.x = px;
+        }
     }
 
     public static void renderWaypoints(MinecraftClient client, DrawContext ctx, int centerY) {
@@ -112,57 +104,12 @@ public final class WaypointRendering {
         int color = ColorHelper.withAlpha(255, e.wp.getColor());
         ctx.drawGuiTexture(RenderPipelines.GUI_TEXTURED, sprite, e.x, centerY - 2, 9, 9, color);
 
-        if (P.renderPlayerHeads) drawHeadIfNameMatches(client, ctx, e.x, centerY, e.wp);
-
         TrackedWaypoint.Pitch pitch = pitch(e.wp.pos(), client.gameRenderer);
         if (pitch != TrackedWaypoint.Pitch.NONE) {
             int off = (pitch == TrackedWaypoint.Pitch.DOWN) ? 6 : -6;
             Identifier tex = (pitch == TrackedWaypoint.Pitch.DOWN) ? ARROW_DOWN : ARROW_UP;
             ctx.drawGuiTexture(RenderPipelines.GUI_TEXTURED, tex, e.x + 1, centerY + off, 7, 5);
         }
-    }
-
-    private static void drawHeadIfNameMatches(MinecraftClient mc, DrawContext ctx, int x, int centerY, ClientWaypoint wp) {
-        if (wp.text().isEmpty() || mc.world == null) return;
-        String name = wp.text().get().getString().trim();
-        if (name.isEmpty()) return;
-
-        long now = System.currentTimeMillis();
-        String key = name.toLowerCase(Locale.ROOT);
-        CacheEntry entry = NAME_CACHE.get(key);
-        if (entry == null || entry.expiresAt() < now) {
-            UUID found = null;
-            for (AbstractClientPlayerEntity p : mc.world.getPlayers()) {
-                if (p.getName().getString().equalsIgnoreCase(name)) { found = p.getUuid(); break; }
-            }
-            entry = new CacheEntry(found, now + NAME_TTL_MS);
-            NAME_CACHE.put(key, entry);
-        }
-        if (entry.uuid() == null) return;
-
-        var pe = mc.world.getPlayerByUuid(entry.uuid());
-        if (!(pe instanceof AbstractClientPlayerEntity player)) return;
-
-        var net = mc.getNetworkHandler();
-        if (net == null) return;
-        PlayerListEntry ple = net.getPlayerListEntry(player.getUuid());
-        if (ple == null) return;
-
-        SkinTextures skins = ple.getSkinTextures();
-
-        int size = (int) (9 * P.headSizeMultiplier);
-        int left = x + (9 - size) / 2;
-        int top  = (centerY - 2) + (9 - size) / 2;
-
-        if (P.coloredHeadOutline) {
-            int argb = 0xFF000000 | wp.getColor();
-            ctx.fill(left - 1, top - 1, left + size + 1, top, argb);
-            ctx.fill(left - 1, top + size, left + size + 1, top + size + 1, argb);
-            ctx.fill(left - 1, top, left, top + size, argb);
-            ctx.fill(left + size, top, left + size + 1, top + size, argb);
-        }
-
-        PlayerSkinDrawer.draw(ctx, skins, left, top, size);
     }
 
     /* ---------------- math helpers (vanilla-adapted) ---------------- */

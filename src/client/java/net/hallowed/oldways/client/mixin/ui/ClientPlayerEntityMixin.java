@@ -1,12 +1,10 @@
 package net.hallowed.oldways.client.mixin.ui;
 
-import net.hallowed.oldways.client.accessor.ClientPlayerEntityAccessor;
 import net.hallowed.oldways.client.mixin.accessor.RecipeBookAccessor;
 import net.hallowed.oldways.client.mixin.accessor.RecipeBookScreenAccessor;
 import net.hallowed.oldways.client.util.RecipeBookUtil;
 import net.hallowed.oldways.client.util.SettingsPrefs;
 import net.hallowed.oldways.client.util.SettingsPrefs.RecipeBookMode;
-import net.hallowed.oldways.util.FireShapeUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.RecipeBookScreen;
 import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;

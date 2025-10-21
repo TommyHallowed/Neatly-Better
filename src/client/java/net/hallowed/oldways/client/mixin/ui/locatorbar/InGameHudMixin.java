@@ -22,7 +22,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin {
     /* ===================== 1) Coords/Time Hud ===================== */
-    @Shadow @Final private MinecraftClient client;
+    @Shadow @Final
+    public MinecraftClient client;
 
     @Unique
     private static final SettingsPrefs OW$prefs = SettingsPrefs.get();

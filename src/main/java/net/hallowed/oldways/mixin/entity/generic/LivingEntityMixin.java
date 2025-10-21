@@ -2,7 +2,6 @@ package net.hallowed.oldways.mixin.entity.generic;
 import net.hallowed.oldways.init.ModGameRules;
 import net.hallowed.oldways.util.ProtectionContext;
 
-import net.minecraft.block.Blocks;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.BlocksAttacksComponent;
 import net.minecraft.entity.Entity;
@@ -21,7 +20,6 @@ import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 
 import net.minecraft.world.World;
@@ -189,8 +187,6 @@ public abstract class LivingEntityMixin {
 
     @Unique
     private static int oldways$boostWithCap(int base) {
-        if (HOSTILE_XP_MULTIPLIER <= 1.0f) return base;
-
         int bonus = Math.round(base * (HOSTILE_XP_MULTIPLIER - 1.0f));
         if (bonus < 0) bonus = 0;
         if (bonus > HOSTILE_BONUS_XP_CAP) bonus = HOSTILE_BONUS_XP_CAP;
@@ -222,53 +218,6 @@ public abstract class LivingEntityMixin {
         LivingEntity self = (LivingEntity)(Object)this;
         if (oldways$shouldBoost(self)) {
             cir.setReturnValue(oldways$boostWithCap(base));
-        }
-    }
-
-    @Inject(method = "modifyAppliedDamage", at = @At("RETURN"), cancellable = true)
-    private void oldways$addSoulFireExtra(DamageSource source, float amount, CallbackInfoReturnable<Float> cir) {
-        try {
-            // Only on server side and for fire-damage types
-            if (!source.isIn(DamageTypeTags.IS_FIRE)) return;
-            LivingEntity self = (LivingEntity)(Object)this;
-            if (self == null || self.getEntityWorld() == null || self.getEntityWorld().isClient()) return;
-
-            try {
-                // read tracked flag (Byte: 0 = normal, 1 = soul)
-                Byte tracked = self.getDataTracker().get(net.hallowed.oldways.init.OldWaysTrackedData.OLDWAYS_SOUL_FIRE);
-                boolean isSoul = tracked != null && tracked.byteValue() != 0;
-                System.out.println("[OldWays] modifyAppliedDamage: entity=" + self + " tracked=" + tracked + " isSoul=" + isSoul + " source=" + source.getName());
-                if (!isSoul) return;
-                // if the entity is currently standing inside a soul_fire block, do nothing (preserve vanilla behavior)
-                BlockPos pos = self.getBlockPos();
-                if (self.getEntityWorld().getBlockState(pos).isOf(Blocks.SOUL_FIRE)) {
-                    System.out.println("[OldWays] entity=" + self + " is standing in SOUL_FIRE; skipping extra soul damage");
-                    return;
-                }
-
-                // If the entity is currently in lava, treat as lava-caused and don't apply soul-fire extra damage
-                try {
-                    // use isInLava first as it's a direct check
-                    if (self.isInLava()) {
-                        System.out.println("[OldWays] entity=" + self + " isInLava() == true; skipping extra soul damage");
-                        return;
-                    }
-                    // and also check the block at the entity position for lava
-                    if (self.getEntityWorld().getBlockState(pos).isOf(Blocks.LAVA)) {
-                        System.out.println("[OldWays] entity=" + self + " block at pos is LAVA; skipping extra soul damage");
-                        return;
-                    }
-                } catch (Throwable ignored) {
-                }
-
-                // increase returned damage by 1.0F
-                Float ret = cir.getReturnValue();
-                if (ret == null) return;
-                System.out.println("[OldWays] applying extra soul damage to entity=" + self + " original=" + ret + " new=" + (ret + 1.0F));
-                cir.setReturnValue(ret + 1.0F);
-            } catch (Throwable ignored) {
-            }
-        } catch (Throwable ignored) {
         }
     }
 }

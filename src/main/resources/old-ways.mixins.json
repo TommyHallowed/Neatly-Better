@@ -3,7 +3,6 @@
   "package": "net.hallowed.oldways.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "entity.generic.LivingEntityDataMixin",
     "accessor.GenericContainerScreenHandlerAccessor",
     "accessor.MobEntityAccessor",
     "accessor.VillagerTaskListProviderAccessor",
