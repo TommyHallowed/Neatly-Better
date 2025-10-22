@@ -182,20 +182,18 @@ public abstract class ItemEntityRendererMixin {
 
     @Unique
     private static boolean isFlat(ItemEntityRenderState state, ItemStack stack) {
-        boolean flat = true;
-        if (stack != null) {
-            final Item item = stack.getItem();
-            final boolean isBlock = item instanceof BlockItem;
+        if (stack == null) return false;
 
-            boolean modelLooks2D = false;
-            try {
-                Box box = state.itemRenderState.getModelBoundingBox();
-                modelLooks2D = (float) box.getLengthZ() <= Z_2D_THRESHOLD + 1.0e-6F;
-            } catch (Throwable ignored) {}
+        final Item item = stack.getItem();
+        final boolean isBlock = item instanceof BlockItem;
 
-            flat = (!isBlock) || modelLooks2D;
-        }
-        return flat;
+        boolean modelLooks2D = false;
+        try {
+            Box box = state.itemRenderState.getModelBoundingBox();
+            modelLooks2D = (float) box.getLengthZ() <= Z_2D_THRESHOLD + 1.0e-6F;
+        } catch (Throwable ignored) {}
+
+        return (!isBlock) && modelLooks2D;
     }
 
     @Unique

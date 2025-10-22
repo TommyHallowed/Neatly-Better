@@ -32,7 +32,9 @@
     "ui.MinecraftClientMixin",
     "ui.ResourcePackCompatibilityMixin",
     "ui.TelemetryManagerMixin",
+    "ui.locatorbar.ExperienceBarMixin",
     "ui.locatorbar.InGameHudMixin",
+    "ui.locatorbar.JumpBarMixin",
     "ui.locatorbar.LocatorBarMixin"
   ],
   "injectors": {

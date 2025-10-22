@@ -9,7 +9,7 @@ public final class ModEvents {
         NoSleeping.register();
         ShoulderDropOnUse.register();
         AnvilRestoration.register();
-        EdibleGlisteringMelon.register();
+        AddedItemProperties.register();
         StructureProtection.register();
         MendingNerf.init();
         BoneMealExpansion.init();

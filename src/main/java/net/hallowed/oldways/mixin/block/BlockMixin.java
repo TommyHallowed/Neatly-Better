@@ -51,6 +51,10 @@ public abstract class BlockMixin {
     @Unique private static final int   ORE_COPPER_XP_MIN = 1;
     @Unique private static final int   ORE_COPPER_XP_MAX = 2;
 
+    @Unique private static final int   ORE_GOLD_XP_MIN   = 2;
+    @Unique private static final int   ORE_GOLD_XP_MAX   = 4;
+
+
     @Inject(method = "onPlaced", at = @At("TAIL"))
     private void oldways$markPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack, CallbackInfo ci) {
         if (!(world instanceof ServerWorld sw)) return;
@@ -66,7 +70,6 @@ public abstract class BlockMixin {
     private void oldways$xpOnBreak(World world, PlayerEntity player, BlockPos pos, BlockState state, @Nullable BlockEntity be, ItemStack tool, CallbackInfo ci) {
         if (!(world instanceof ServerWorld sw)) return;
 
-
         boolean wasPlaced = PlacedBlockTracker.wasPlaced(sw, pos);
         PlacedBlockTracker.unmark(sw, pos);
 
@@ -74,10 +77,21 @@ public abstract class BlockMixin {
 
         boolean iron = isIronOre(state);
         boolean copper = isCopperOre(state);
+        boolean gold = isGoldOre(state);
 
-        if ((iron || copper) && !hasSilkTouch(tool)) {
-            int min = iron ? ORE_IRON_XP_MIN : ORE_COPPER_XP_MIN;
-            int max = iron ? ORE_IRON_XP_MAX : ORE_COPPER_XP_MAX;
+        if ((iron || copper || gold) && !hasSilkTouch(tool)) {
+            int min;
+            int max;
+            if (iron) {
+                min = ORE_IRON_XP_MIN;
+                max = ORE_IRON_XP_MAX;
+            } else if (gold) {
+                min = ORE_GOLD_XP_MIN;
+                max = ORE_GOLD_XP_MAX;
+            } else {
+                min = ORE_COPPER_XP_MIN;
+                max = ORE_COPPER_XP_MAX;
+            }
             int range = Math.max(0, max - min);
             int xp = min + sw.getRandom().nextInt(range + 1);
             if (xp > 0) ExperienceOrbEntity.spawn(sw, pos.toCenterPos(), xp);
@@ -95,6 +109,7 @@ public abstract class BlockMixin {
 
         boolean anyOre = isAnyOre(state) || state.isOf(Blocks.NETHER_QUARTZ_ORE);
         if (!sw.getGameRules().getBoolean(ModGameRules.XP_FROM_MINING_NON_ORE)) return;
+
         if (!anyOre && !wasPlaced) {
             float h = state.getHardness(sw, pos);
             if (h > 0f) {
@@ -146,6 +161,13 @@ public abstract class BlockMixin {
     }
 
     @Unique
+    private static boolean isGoldOre(BlockState s) {
+        return s.isIn(BlockTags.GOLD_ORES)
+                || s.isOf(Blocks.GOLD_ORE)
+                || s.isOf(Blocks.DEEPSLATE_GOLD_ORE);
+    }
+
+    @Unique
     private static boolean hasSilkTouch(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return false;
         ItemEnchantmentsComponent ench = stack.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
@@ -154,4 +176,5 @@ public abstract class BlockMixin {
         }
         return false;
     }
+
 }
