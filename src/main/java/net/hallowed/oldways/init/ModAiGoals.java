@@ -2,7 +2,6 @@ package net.hallowed.oldways.init;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.hallowed.oldways.content.entity.ai.goal.*;
-import net.hallowed.oldways.mixin.accessor.MobEntityAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.Goal;
@@ -22,33 +21,31 @@ public final class ModAiGoals {
     private static void onEntityLoad(Entity entity, ServerWorld world) {
         if (!(entity instanceof MobEntity mob)) return;
 
-        final GoalSelector goals = ((MobEntityAccessor) mob).oldways$getGoalSelector();
+        final GoalSelector goals = mob.goalSelector;
         final EntityType<?> type = mob.getType();
 
         // 1) Run while charging crossbow
         if (type == EntityType.PILLAGER || type == EntityType.PIGLIN) {
             if (mob instanceof PathAwareEntity path && !hasGoal(goals, RunWhileChargingCrossbowGoal.class)) {
-                goals.add(2, new RunWhileChargingCrossbowGoal(path, 0.9D));
+                goals.add(2, new RunWhileChargingCrossbowGoal(path, 1.0D));
             }
         }
 
-        // 2) Parkour Goal
-        if (world.getDifficulty() == Difficulty.HARD
-                && (type == EntityType.VINDICATOR
-                || type == EntityType.PILLAGER
-                || type == EntityType.PIGLIN
-                || type == EntityType.PIGLIN_BRUTE
-                || type == EntityType.WITCH)) {
+        // 2) Parkour Goal (only on Hard difficulty)
+        if (world.getDifficulty() == Difficulty.HARD &&
+                (type == EntityType.VINDICATOR ||
+                        type == EntityType.PILLAGER ||
+                        type == EntityType.PIGLIN ||
+                        type == EntityType.PIGLIN_BRUTE ||
+                        type == EntityType.WITCH)) {
             if (!hasGoal(goals, ParkourGoal.class)) {
                 goals.add(1, new ParkourGoal(mob));
             }
         }
 
         // 3) Open Fence Gate Goal
-        if ((type == EntityType.VILLAGER)) {
-            if (!hasGoal(goals, OpenFenceGateGoal.class)) {
-                goals.add(2, new OpenFenceGateGoal(mob));
-            }
+        if (type == EntityType.VILLAGER && !hasGoal(goals, OpenFenceGateGoal.class)) {
+            goals.add(2, new OpenFenceGateGoal(mob));
         }
 
         // 4) Follow emerald block goal

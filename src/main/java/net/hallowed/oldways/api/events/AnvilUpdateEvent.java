@@ -4,13 +4,14 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
+import org.jetbrains.annotations.NotNull;
 
 public final class AnvilUpdateEvent {
     public interface AnvilUpdateCallback {
         ActionResult update(AnvilUpdateEvent event);
     }
 
-    public static final Event<AnvilUpdateCallback> EVENT =
+    public static final Event<@NotNull AnvilUpdateCallback> EVENT =
             EventFactory.createArrayBacked(AnvilUpdateCallback.class, listeners -> event -> {
                 for (AnvilUpdateCallback l : listeners) {
                     ActionResult r = l.update(event);

@@ -1,8 +1,6 @@
 package net.hallowed.oldways.mixin.entity.player;
 
 import net.hallowed.oldways.init.ModGameRules;
-import net.hallowed.oldways.init.ModItems;
-import net.hallowed.oldways.util.OldEnchantCostContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -15,10 +13,8 @@ import net.minecraft.item.RangedWeaponItem;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -45,29 +41,7 @@ public abstract class PlayerEntityMixin {
         cir.setReturnValue(new ItemStack(Items.ARROW));
     }
 
-    /* ------------------ (2) Old Enchant: pay the full displayed level cost ------------------ */
-    @Inject(method = "applyEnchantmentCosts(Lnet/minecraft/item/ItemStack;I)V", at = @At("HEAD"))
-    private void oldways$topUp(ItemStack stack, int vanillaLevels, CallbackInfo ci) {
-        PlayerEntity self = (PlayerEntity)(Object)this;
-
-        boolean enabled = false;
-        World w = self.getEntityWorld();
-        if (w instanceof ServerWorld sw) {
-            enabled = sw.getGameRules().getBoolean(ModGameRules.FULL_ENCHANTING_COST);
-        }
-        if (!enabled) return;
-
-        Integer full = OldEnchantCostContext.peekRequired();
-        if (full == null) return;
-        if (self.getAbilities().creativeMode) return;
-
-        int extra = full - Math.max(1, vanillaLevels);
-        if (extra > 0) {
-            self.addExperienceLevels(-extra);
-        }
-    }
-
-    /* ------------------ (3) Feather not dealing damage ------------------ */
+    /* ------------------ (2) Feather not dealing damage ------------------ */
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void oldways$featherPush(Entity target, CallbackInfo ci) {
         PlayerEntity self = (PlayerEntity)(Object)this;
@@ -99,33 +73,6 @@ public abstract class PlayerEntityMixin {
             }
 
             ci.cancel();
-        }
-    }
-
-    /* ------------------ (4) Reset Dragon Burst Rocket Cooldown ------------------ */
-    @Unique
-    private boolean oldways$wasGliding;
-
-    @Inject(method = "tickMovement", at = @At("HEAD"))
-    private void oldways$captureGlideStateHEAD(CallbackInfo ci) {
-        PlayerEntity self = (PlayerEntity)(Object)this;
-        this.oldways$wasGliding = self.isGliding();
-    }
-
-    @Inject(method = "tickMovement", at = @At("TAIL"))
-    private void oldways$clearDragonBurstCooldownOnLanding(CallbackInfo ci) {
-        PlayerEntity self = (PlayerEntity)(Object)this;
-        if (self.getEntityWorld().isClient()) return;
-
-        boolean nowGliding = self.isGliding();
-        boolean justStoppedGliding = this.oldways$wasGliding && !nowGliding;
-
-        boolean landed = self.isOnGround() || self.isInLava();
-
-        if (justStoppedGliding && landed) {
-            ItemStack rocket = new ItemStack(ModItems.DRAGON_BURST_ROCKET);
-            Identifier groupId = self.getItemCooldownManager().getGroup(rocket);
-            self.getItemCooldownManager().remove(groupId);
         }
     }
 }

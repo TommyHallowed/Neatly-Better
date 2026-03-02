@@ -19,4 +19,8 @@ public final class OldWaysNetworkClient {
     public static void sendEnderCheck() {
         ClientPlayNetworking.send(new OldWaysNetwork.EnderCheckRequest());
     }
+
+    public static void sendMapBuilderAction(int actionId) {
+        ClientPlayNetworking.send(new OldWaysNetwork.MapBuilderPayload(actionId));
+    }
 }

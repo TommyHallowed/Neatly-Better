@@ -4,32 +4,20 @@ import net.hallowed.oldways.util.ProtectionContext;
 
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.BlocksAttacksComponent;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Box;
 
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
@@ -57,7 +45,7 @@ public abstract class LivingEntityMixin {
             at = @At("RETURN")
     )
     private void oldways$applyTotemCooldown(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
-        if (cir.getReturnValue() && (Object)this instanceof PlayerEntity player) {
+        if ((Object)this instanceof PlayerEntity player) {
                 player.getItemCooldownManager().set(new ItemStack(Items.TOTEM_OF_UNDYING), 1200);
         }
     }
@@ -127,7 +115,7 @@ public abstract class LivingEntityMixin {
         int delay = 0;
         World w = self.getEntityWorld();
         if (w instanceof ServerWorld sw) {
-            delay = Math.max(0, sw.getGameRules().getInt(ModGameRules.SHIELD_RAISE_DELAY_TICKS));
+            delay = Math.max(0, sw.getGameRules().getValue(ModGameRules.SHIELD_RAISE_DELAY_TICKS));
         }
 
         if (delay <= 0 || self.getItemUseTime() >= delay) {
@@ -136,88 +124,5 @@ public abstract class LivingEntityMixin {
             cir.setReturnValue(ItemStack.EMPTY);
         }
         cir.cancel();
-    }
-
-    /* ===================== 6) jeb_ sheep rainbow wool drops replacement ===================== */
-
-    @Inject(
-            method = "drop(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/damage/DamageSource;)V",
-            at = @At("TAIL")
-    )
-    private void oldways$replaceWoolWithRainbow(ServerWorld world, DamageSource source, CallbackInfo ci) {
-        LivingEntity self = (LivingEntity)(Object)this;
-        if (!(self instanceof SheepEntity sheep)) return;
-
-        if (!sheep.hasCustomName()) return;
-        String name = sheep.getCustomName() == null ? "" : sheep.getCustomName().getString();
-        if (!"jeb_".equals(name)) return;
-
-        Box area = sheep.getBoundingBox().expand(2.0);
-        var nearby = world.getEntitiesByClass(ItemEntity.class, area, ie ->
-                !ie.isRemoved()
-                        && ie.getOwner() == null
-                        && ie.getStack().isIn(ItemTags.WOOL)
-                        && ie.age <= 5
-        );
-
-        int totalWool = 0;
-        for (ItemEntity ie : nearby) {
-            totalWool += ie.getStack().getCount();
-            ie.discard();
-        }
-        if (totalWool <= 0) return;
-
-        var rainbow = Registries.ITEM.get(Identifier.of("old-ways", "rainbow_wool"));
-        if (rainbow == null) return;
-
-        sheep.dropStack(world, new ItemStack(rainbow, totalWool));
-    }
-
-    /* ===================== 7) Hostile mobs XP boost ===================== */
-    @Unique private static final float HOSTILE_XP_MULTIPLIER = 1.5f;
-    @Unique private static final int HOSTILE_BONUS_XP_CAP = 200;
-
-    @Unique
-    private static boolean oldways$shouldBoost(LivingEntity self) {
-        EntityType<?> t = self.getType();
-        if (t == EntityType.ENDER_DRAGON) return false;
-        if (!(self instanceof HostileEntity)) return false;
-        return self.getType().getSpawnGroup() == SpawnGroup.MONSTER;
-    }
-
-    @Unique
-    private static int oldways$boostWithCap(int base) {
-        int bonus = Math.round(base * (HOSTILE_XP_MULTIPLIER - 1.0f));
-        if (bonus < 0) bonus = 0;
-        if (bonus > HOSTILE_BONUS_XP_CAP) bonus = HOSTILE_BONUS_XP_CAP;
-        return base + bonus;
-    }
-
-    @Inject(
-            method = "getExperienceToDrop(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/Entity;)I",
-            at = @At("RETURN"),
-            cancellable = true
-    )
-    private void oldways$boostHostileXp(ServerWorld world, Entity attacker, CallbackInfoReturnable<Integer> cir) {
-        int base = cir.getReturnValue();
-        if (base <= 0) return;
-        LivingEntity self = (LivingEntity)(Object)this;
-        if (oldways$shouldBoost(self)) {
-            cir.setReturnValue(oldways$boostWithCap(base));
-        }
-    }
-
-    @Inject(
-            method = "getExperienceToDrop(Lnet/minecraft/server/world/ServerWorld;)I",
-            at = @At("RETURN"),
-            cancellable = true
-    )
-    private void oldways$boostHostileXpNoAttacker(ServerWorld world, CallbackInfoReturnable<Integer> cir) {
-        int base = cir.getReturnValue();
-        if (base <= 0) return;
-        LivingEntity self = (LivingEntity)(Object)this;
-        if (oldways$shouldBoost(self)) {
-            cir.setReturnValue(oldways$boostWithCap(base));
-        }
     }
 }

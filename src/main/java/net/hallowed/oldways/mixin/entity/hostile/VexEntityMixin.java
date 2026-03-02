@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@SuppressWarnings("deprecation")
 @Mixin(VexEntity.class)
 public abstract class VexEntityMixin {
     @Inject(method = "tick", at = @At("HEAD"))
@@ -17,7 +18,6 @@ public abstract class VexEntityMixin {
 
         MobEntity owner = self.getOwner();
         if (owner instanceof EvokerEntity && !owner.isAlive()) {
-            //noinspection deprecation
             self.serverDamage(self.getDamageSources().magic(), Float.MAX_VALUE);
         }
     }

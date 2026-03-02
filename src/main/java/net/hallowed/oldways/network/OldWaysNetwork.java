@@ -3,20 +3,25 @@ package net.hallowed.oldways.network;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.hallowed.oldways.content.item.MapBuilderItem;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.BundleContentsComponent;
 import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.component.type.LodestoneTrackerComponent;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.GlobalPos;
 
 import java.util.ArrayList;
@@ -84,6 +89,14 @@ public final class OldWaysNetwork {
                 );
     }
 
+    /** C2S: Action payload for the Map Builder (0=Zoom, 1=Facing, 2=Reset) */
+    public record MapBuilderPayload(int action) implements CustomPayload {
+        public static final CustomPayload.Id<MapBuilderPayload> ID = new CustomPayload.Id<>(id("map_builder_action"));
+        public static final PacketCodec<RegistryByteBuf, MapBuilderPayload> CODEC =
+                PacketCodec.tuple(PacketCodecs.INTEGER, MapBuilderPayload::action, MapBuilderPayload::new);
+        @Override public Id<? extends CustomPayload> getId() { return ID; }
+    }
+
     /* ===================== Registration (common/server) ===================== */
 
     /** Call from your common init (TheOldWays#onInitialize). */
@@ -100,6 +113,38 @@ public final class OldWaysNetwork {
         // push once on join (fresh load)
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
                 pushEnderChestState(handler.player));
+
+        // Map Builder Registrations
+        PayloadTypeRegistry.playC2S().register(MapBuilderPayload.ID, MapBuilderPayload.CODEC);
+
+        ServerPlayNetworking.registerGlobalReceiver(MapBuilderPayload.ID, (payload, ctx) -> {
+            ctx.player().server.execute(() -> {
+                ItemStack stack = ctx.player().getMainHandStack();
+                if (!(stack.getItem() instanceof MapBuilderItem)) return;
+
+                NbtComponent data = stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT);
+                NbtCompound nbt = data.copyNbt();
+                int step = nbt.getInt(MapBuilderItem.NBT_STEP, 0);
+
+                // Action 1: Reset (Shift + Left Click Air)
+                if (payload.action() == 1) {
+                    nbt.putInt(MapBuilderItem.NBT_STEP, 0);
+                    nbt.putBoolean(MapBuilderItem.NBT_HAS_P1, false);
+                    nbt.putBoolean(MapBuilderItem.NBT_HAS_P2, false);
+                    ctx.player().sendMessage(Text.literal("Right Click a block to set corner 1\nLeft Click a block to set corner 2").formatted(Formatting.YELLOW), false);
+                }
+                // Action 0: Zoom (Shift + Z)
+                else if (step == 2 && payload.action() == 0) {
+                    int currentZoom = nbt.getInt(MapBuilderItem.NBT_ZOOM, 1);
+                    int zoom = (currentZoom + 1) % 5;
+                    nbt.putInt(MapBuilderItem.NBT_ZOOM, zoom);
+                    ctx.player().sendMessage(Text.literal("Map zoom in: " + zoom + "x").formatted(Formatting.AQUA), true);
+                }
+
+                stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt));
+            });
+        });
+
     }
 
     /** Computes ender-chest state and pushes both overlay booleans and lodestone targets. */

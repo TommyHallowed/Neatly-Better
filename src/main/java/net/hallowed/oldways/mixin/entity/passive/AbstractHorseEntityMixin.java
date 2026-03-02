@@ -1,9 +1,12 @@
 package net.hallowed.oldways.mixin.entity.passive;
 
-import net.fabricmc.loader.api.FabricLoader;
 import net.hallowed.oldways.api.OWCompat;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -11,6 +14,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractHorseEntity.class)
@@ -20,7 +24,7 @@ public abstract class AbstractHorseEntityMixin {
     @Unique private static final long SWIM_EXIT_COOLDOWN_TICKS = 8L;
 
     @Inject(method = "getControlledMovementInput", at = @At("RETURN"))
-    private void addSwimUpwardMotion(net.minecraft.entity.player.PlayerEntity controllingPlayer, Vec3d movementInput, CallbackInfoReturnable<Vec3d> cir) {
+    private void addSwimUpwardMotion(PlayerEntity controllingPlayer, Vec3d movementInput, CallbackInfoReturnable<Vec3d> cir) {
         if (OWCompat.HORSEMAN) return;
         AbstractHorseEntity horse = (AbstractHorseEntity) (Object) this;
         World world = horse.getEntityWorld();
@@ -55,4 +59,23 @@ public abstract class AbstractHorseEntityMixin {
         }
     }
 
+    @Redirect(
+            method = "createBaseHorseAttributes",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/attribute/DefaultAttributeContainer$Builder;add(Lnet/minecraft/registry/entry/RegistryEntry;D)Lnet/minecraft/entity/attribute/DefaultAttributeContainer$Builder;"
+            )
+    )
+    private static DefaultAttributeContainer.Builder oldways$raiseHorseStepHeight(
+            DefaultAttributeContainer.Builder builder,
+            RegistryEntry<EntityAttribute> attribute,
+            double value
+    ) {
+        if (attribute == EntityAttributes.STEP_HEIGHT) {
+            if (!OWCompat.HORSEMAN) {
+            return builder.add(attribute, 1.07D);
+            }
+        }
+        return builder.add(attribute, value);
+    }
 }

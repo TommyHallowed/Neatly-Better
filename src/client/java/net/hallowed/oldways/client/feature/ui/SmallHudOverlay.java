@@ -55,6 +55,7 @@ public final class SmallHudOverlay {
         ms.scale(scale, scale);
 
         if (coordsLine != null) {
+            assert coordsXY != null;
             ctx.drawTextWithShadow(tr, coordsLine.text(),
                     (int)(coordsXY[0] / scale), (int)(coordsXY[1] / scale),
                     coordsLine.argb());

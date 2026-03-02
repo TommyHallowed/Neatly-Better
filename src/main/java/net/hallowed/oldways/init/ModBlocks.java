@@ -1,13 +1,10 @@
 package net.hallowed.oldways.init;
 
 import net.hallowed.oldways.api.OWRegistry;
-import net.hallowed.oldways.content.block.*;
 import net.minecraft.block.*;
 
 public final class ModBlocks {
     private ModBlocks() {}
-
-    public static Block RAINBOW_WOOL, RAINBOW_CARPET, GLOW_TORCH, GLOW_WALL_TORCH;
 
     public static Block SMOOTH_STONE_STAIRS, CALCITE_STAIRS, QUARTZ_BRICK_STAIRS, END_STONE_STAIRS, SMOOTH_BASALT_STAIRS;
 
@@ -19,23 +16,6 @@ public final class ModBlocks {
             SMOOTH_SANDSTONE_WALL, SMOOTH_RED_SANDSTONE_WALL;
 
     public static void register() {
-        // Blocks
-        RAINBOW_WOOL = OWRegistry.registerBlockWithItem(
-                "rainbow_wool",
-                new Block(AbstractBlock.Settings.copy(Blocks.WHITE_WOOL).registryKey(OWRegistry.blockKey("rainbow_wool")))
-        );
-
-        RAINBOW_CARPET = OWRegistry.registerBlockWithItem(
-                "rainbow_carpet",
-                new CarpetBlock(AbstractBlock.Settings.copy(Blocks.WHITE_CARPET).registryKey(OWRegistry.blockKey("rainbow_carpet")))
-        );
-
-        GLOW_TORCH = OWRegistry.registerBlock("glow_torch",
-                new GlowTorchBlock(AbstractBlock.Settings.copy(Blocks.TORCH).luminance(s -> 15).registryKey(OWRegistry.blockKey("glow_torch"))));
-
-        GLOW_WALL_TORCH = OWRegistry.registerBlock("glow_wall_torch",
-                new GlowWallTorchBlock(AbstractBlock.Settings.copy(Blocks.WALL_TORCH).luminance(s -> 15).registryKey(OWRegistry.blockKey("glow_wall_torch"))));
-
         // Stairs
         SMOOTH_STONE_STAIRS = OWRegistry.registerBlockWithItem(
                 "smooth_stone_stairs",

@@ -1,4 +1,3 @@
-// src/main/java/net/hallowed/oldways/mixin/blockentity/BeaconBlockEntityMixin.java
 package net.hallowed.oldways.mixin.blockentity;
 
 import net.hallowed.oldways.init.ModGameRules;
@@ -28,7 +27,7 @@ abstract class BeaconBlockEntityMixin {
             RegistryEntry<StatusEffect> primary, RegistryEntry<StatusEffect> secondary
     ) {
         if (world instanceof ServerWorld sw) {
-            int rule = sw.getGameRules().getInt(ModGameRules.MAX_BEACON_RANGE);
+            int rule = sw.getGameRules().getValue(ModGameRules.MAX_BEACON_RANGE);
             if (rule > 0) {
                 final int MAX_LEVEL = 4;
                 final double VANILLA_MAX_RADIUS = MAX_LEVEL * 10.0 + 10.0;
@@ -52,7 +51,7 @@ abstract class BeaconBlockEntityMixin {
     ) {
         boolean soak = false;
         if (world instanceof ServerWorld sw) {
-            soak = sw.getGameRules().getBoolean(ModGameRules.BEACON_SOAK_EFFECTS);
+            soak = sw.getGameRules().getValue(ModGameRules.BEACON_SOAK_EFFECTS);
         }
         if (!soak) return player.addStatusEffect(instance);
 

@@ -1,4 +1,5 @@
 {
+  "item.old-ways.map_builder": "Map Builder",
   "item.old-ways.rainbow_wool": "Rainbow Wool",
   "item.old-ways.rainbow_carpet": "Rainbow Carpet",
   "item.old-ways.warped_boat": "Warped Boat",
@@ -47,13 +48,16 @@
 
   "enchantment.old-ways.step_up": "Step up",
 
+  "key.category.oldways.keys": "The Old Ways",
+  "key.oldways.map_zoom": "Cycle Map Zoom",
+
   "entity.old-ways.warped_boat": "Warped Boat",
   "entity.old-ways.crimson_boat": "Crimson Boat",
 
   "options.gameplay.button": "Gameplay options...",
   "options.gameplay.title": "Gameplay options",
   "options.gameplay.overlay": "Overlay options...",
-  "options.gameplay.locator_bar": "Locator Bar Options...",
+  "options.gameplay.locator_bar.tab_names": "Show Locator Names",
   "options.gameplay.recipe_book": "Recipe Book",
   "options.gameplay.recipe_book.autohide": "AutoHide",
   "options.gameplay.recipe_book.hidden": "Hidden",
@@ -76,16 +80,8 @@
   "options.gameplay.overlay.pos.bottom_left": "Bottom Left",
   "options.gameplay.overlay.coords_format": "Coordinates Format",
   "options.gameplay.overlay.time_format": "Time Format",
-  "options.gameplay.locator_bar.title": "Locator Bar options",
-  "options.gameplay.locator_bar.show_in_spec": "Show in spectator",
-  "options.gameplay.locator_bar.tab_forces": "Tab shows bar",
-  "options.gameplay.locator_bar.tab_names": "Tab shows names",
-  "options.gameplay.locator_bar.player_heads": "Player Heads",
-  "options.gameplay.locator_bar.head_outline": "Head outline",
-  "options.gameplay.locator_bar.head_size": "Head size",
 
   "options.overlay.tooltip": "Configure Time & Coordinates Overlay.",
-  "options.locator_bar.tooltip": "Configure Locator Bar features.",
   "options.recipe_book.tooltip": "Recipe book functionality.",
   "options.render_2d_items.tooltip": "Render items with flat textures as 2D.",
   "options.show_stuck_projectiles.tooltip": "§eWork In Progress",
@@ -100,12 +96,5 @@
   "options.gameplay.overlay.time_pos.tooltip": "Change position of time & Day count overlay",
   "options.gameplay.overlay.coords_format.tooltip": "Change format of coordinates overlay",
   "options.gameplay.overlay.time_format.tooltip": "Change format of time & Day count overlay",
-  "options.gameplay.locator_bar.show_in_spec.tooltip": "Show locator bar in spectator mode",
-  "options.gameplay.locator_bar.tab_forces.tooltip": "Force locator bar by pressing tab",
-  "options.gameplay.locator_bar.tab_names.tooltip": "Show waypoint/player names by pressing tab",
-  "options.gameplay.locator_bar.player_heads.tooltip": "Toggle player head rendering on bar",
-  "options.gameplay.locator_bar.head_outline.tooltip": "Show colored player head outline on bar",
-  "options.gameplay.locator_bar.head_size.tooltip": "Player head size multiplier",
-
-  "key.old-ways.toggle_locator_bar": "Toggle Locator Bar"
+  "options.gameplay.locator_bar.tab_names.tooltip": "Show locator bar waypoint/player names by pressing tab"
  }

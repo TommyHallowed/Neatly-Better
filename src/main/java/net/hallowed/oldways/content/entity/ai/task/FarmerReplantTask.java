@@ -12,7 +12,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.GameRules;
+import net.minecraft.world.rule.GameRules;
 import net.minecraft.world.event.GameEvent;
 
 
@@ -31,7 +31,7 @@ public class FarmerReplantTask extends MultiTickTask<VillagerEntity> {
 
     @Override
     protected boolean shouldRun(ServerWorld world, VillagerEntity villager) {
-        if (!world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) return false;
+        if (!world.getGameRules().getValue(GameRules.DO_MOB_GRIEFING)) return false;
 
         BlockPos origin = villager.getBlockPos();
         BlockPos.Mutable m = new BlockPos.Mutable();

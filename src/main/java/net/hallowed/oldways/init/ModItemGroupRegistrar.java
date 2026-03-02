@@ -5,28 +5,14 @@ import net.minecraft.item.ItemGroups;
 import net.minecraft.item.Items;
 
 import static net.hallowed.oldways.init.ModBlocks.*;
-import static net.hallowed.oldways.init.ModItems.*;
 
 public final class ModItemGroupRegistrar {
     private ModItemGroupRegistrar() {}
 
     public static void register() {
-        OWRegistry.addToGroup(ItemGroups.COLORED_BLOCKS, entries -> {
-            entries.addAfter(Items.PINK_WOOL,   ModBlocks.RAINBOW_WOOL);
-            entries.addAfter(Items.PINK_CARPET, ModBlocks.RAINBOW_CARPET);
-        });
 
-        OWRegistry.addToGroup(ItemGroups.TOOLS, entries -> {
-            entries.addAfter(Items.PALE_OAK_CHEST_BOAT, WARPED_BOAT);
-            entries.addAfter(WARPED_BOAT, CRIMSON_BOAT);
-            entries.addAfter(Items.FIREWORK_ROCKET, DRAGON_BURST_ROCKET);
-        });
-
-        OWRegistry.addToGroup(ItemGroups.FUNCTIONAL, entries ->
-                entries.addAfter(Items.COPPER_TORCH, ModItems.GLOW_TORCH));
-
-        OWRegistry.addToGroup(ItemGroups.COMBAT, entries ->
-                entries.addAfter(Items.DIAMOND_HORSE_ARMOR, NETHERITE_HORSE_ARMOR));
+        OWRegistry.addToGroup(ItemGroups.TOOLS, entries ->
+                entries.add(ModItems.MAP_BUILDER));
 
         OWRegistry.addToGroup(ItemGroups.BUILDING_BLOCKS, entries -> {
             entries.addAfter(Items.SMOOTH_STONE,   SMOOTH_STONE_STAIRS);

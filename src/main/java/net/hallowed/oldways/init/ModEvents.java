@@ -10,9 +10,11 @@ public final class ModEvents {
         ShoulderDropOnUse.register();
         AnvilRestoration.register();
         AddedItemProperties.register();
-        StructureProtection.register();
+        DirtToGrassWithSeeds.init();
+        MagmaSpawnsLava.init();
         MendingNerf.init();
         BoneMealExpansion.init();
         ElytraFlightLimiter.init();
+        CauldronCleansFilledMap.init();
     }
 }

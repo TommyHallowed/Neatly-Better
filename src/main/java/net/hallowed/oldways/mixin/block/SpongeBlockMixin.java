@@ -16,7 +16,7 @@ public abstract class SpongeBlockMixin {
     @Unique
     private static int oldways$getRadius(World world) {
         if (world instanceof ServerWorld sw) {
-            return Math.max(1, sw.getGameRules().getInt(ModGameRules.SPONGE_BLOCK_ABSORB_RADIUS));
+            return Math.max(1, sw.getGameRules().getValue(ModGameRules.SPONGE_BLOCK_ABSORB_RADIUS));
         }
         return 6;
     }

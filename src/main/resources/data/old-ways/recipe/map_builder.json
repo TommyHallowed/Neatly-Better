@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:map"
+    }
+  },
+  "result": {
+    "id": "old-ways:map_builder",
+    "count": 1
+  }
+}

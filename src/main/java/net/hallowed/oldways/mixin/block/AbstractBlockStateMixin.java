@@ -28,8 +28,5 @@ public abstract class AbstractBlockStateMixin {
         if (isOf(Blocks.TORCHFLOWER) || isOf(Blocks.POTTED_TORCHFLOWER)) {
             cir.setReturnValue(5);
         }
-        else if (isOf(Blocks.TORCH) || isOf(Blocks.WALL_TORCH) || isOf(Blocks.COPPER_TORCH) || isOf(Blocks.COPPER_WALL_TORCH)) {
-            cir.setReturnValue(12);
-        }
     }
 }
