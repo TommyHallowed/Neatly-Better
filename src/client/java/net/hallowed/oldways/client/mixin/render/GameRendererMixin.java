@@ -25,9 +25,6 @@ public abstract class GameRendererMixin {
 
     @Shadow @Final private MinecraftClient client;
 
-    @Shadow
-    private HitResult findCrosshairTarget(Entity camera, double blockRange, double entityRange, float tickProgress) { return null; }
-
     @Unique private boolean ow$attackHeld = false;
 
     @Inject(method = "updateCrosshairTarget", at = @At("HEAD"), cancellable = true)
@@ -41,7 +38,8 @@ public abstract class GameRendererMixin {
         final double blockRange  = client.player.getBlockInteractionRange();
         final double entityRange = client.player.getEntityInteractionRange();
 
-        final HitResult vanillaFront = this.findCrosshairTarget(camera, blockRange, entityRange, tickProgress);
+        // FIX: Replaced the old shadow method with the new 1.21 player method!
+        final HitResult vanillaFront = client.player.getCrosshairTarget(tickProgress, camera);
 
         final HitResult behindResult = GameRendererPickHelper.pickIgnoringOutlineOnly(camera, blockRange, entityRange, tickProgress);
 

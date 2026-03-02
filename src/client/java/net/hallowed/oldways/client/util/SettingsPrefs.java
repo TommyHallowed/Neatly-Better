@@ -16,6 +16,7 @@ public final class SettingsPrefs {
             .getGameDir().resolve("data/oldWaysSettings.dat");
 
     /** ===== Gameplay screen ===== */
+    public boolean tabShowsNames = true;
     public RecipeBookMode recipeBookMode = RecipeBookMode.AUTOHIDE;
     public boolean showStuckProjectiles = true;
     public boolean showPotionGlint = true;
@@ -32,14 +33,6 @@ public final class SettingsPrefs {
     public Corner timePos = Corner.TOP_LEFT;
     public String coordsFormat  = "XYZ: {x} | {y} | {z}";
     public String timeDayFormat = "Day: {day} | {time}";
-
-    /** ===== Locator Bar Screen ===== */
-    public boolean showInSpectator = true;
-    public boolean tabForcesLocatorBar = true;
-    public boolean tabShowsNames = true;
-    public boolean renderPlayerHeads = true;
-    public boolean coloredHeadOutline = true;
-    public double headSizeMultiplier = 1.0;
 
     public enum RecipeBookMode {
         AUTOHIDE("options.gameplay.recipe_book.autohide"),

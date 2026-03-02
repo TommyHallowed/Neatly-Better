@@ -48,9 +48,11 @@ public class GameplaySettingsScreen extends Screen {
                         MinecraftClient.getInstance().setScreen(new OverlaySettingsScreen(this)))
                 .tooltip(Tooltip.of(Text.translatable("options.overlay.tooltip"))).build());
 
-        adder.add(ButtonWidget.builder(Text.translatable("options.gameplay.locator_bar"), b ->
-                        MinecraftClient.getInstance().setScreen(new LocatorSettingsScreen(this)))
-                .tooltip(Tooltip.of(Text.translatable("options.locator_bar.tooltip"))).build());
+        adder.add(ButtonWidget.builder(composeOnOff("options.gameplay.locator_bar.tab_names", P.tabShowsNames), b -> {
+            P.tabShowsNames = !P.tabShowsNames;
+            b.setMessage(composeOnOff("options.gameplay.locator_bar.tab_names", P.tabShowsNames));
+            SettingsPrefs.save();
+        }).tooltip(Tooltip.of(Text.translatable("options.gameplay.locator_bar.tab_names.tooltip"))).build());
 
         adder.add(ButtonWidget.builder(recipeBookLabel(P.recipeBookMode), b -> {
             P.recipeBookMode = P.recipeBookMode.next();

@@ -110,8 +110,8 @@ public abstract class ItemEntityRendererMixin {
         var cam = MinecraftClient.getInstance().gameRenderer.getCamera();
         double ix = olditems$itemX.get();
         double iz = olditems$itemZ.get();
-        double dx = cam.getPos().x - ix;
-        double dz = cam.getPos().z - iz;
+        double dx = cam.getCameraPos().x - ix;
+        double dz = cam.getCameraPos().z - iz;
         float yawToCam = (float) Math.atan2(dz, dx);
         return (float) (Math.PI * 0.5 - yawToCam);
     }

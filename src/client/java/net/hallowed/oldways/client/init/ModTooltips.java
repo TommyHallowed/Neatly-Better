@@ -24,7 +24,7 @@ public final class ModTooltips {
     private static final MutableText GLOW_SAC_HINT =
             Text.literal("Can be used on trimmed armor").formatted(Formatting.GRAY);
     private static final MutableText EMISSIVE_GLOW_LINE =
-            Text.literal(" Glow Ink Sac").formatted(Formatting.AQUA);
+            Text.literal(" Glowing").formatted(Formatting.AQUA);
 
     public static void init() {
         ItemTooltipCallback.EVENT.register(ModTooltips::onTooltip);
@@ -43,7 +43,7 @@ public final class ModTooltips {
             addBasicUnderName(lines, Text.literal("Cooldown on use: 60s").formatted(Formatting.GRAY));
         }
         if (stack.isOf(ModItems.DRAGON_BURST_ROCKET)) {
-            addBasicUnderName(lines, Text.literal("Flight Duration: 2").formatted(Formatting.GRAY));
+            addBasicUnderName(lines, Text.literal("Elytra Flight Duration: 3").formatted(Formatting.GRAY));
         }
 
         appendEmissiveTrimLine(stack, lines);

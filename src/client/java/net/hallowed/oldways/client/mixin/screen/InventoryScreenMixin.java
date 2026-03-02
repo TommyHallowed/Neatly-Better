@@ -1,17 +1,16 @@
 package net.hallowed.oldways.client.mixin.screen;
 
-import net.hallowed.oldways.client.mixin.accessor.HandledScreenAccessor;
-import net.hallowed.oldways.client.mixin.accessor.RecipeBookScreenAccessor;
-import net.hallowed.oldways.client.util.SettingsPrefs;
 import net.hallowed.oldways.client.feature.ui.TextureButtonWidget;
 import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.hallowed.oldways.client.util.InventoryDeepScan;
-import net.hallowed.oldways.client.util.OverlayButtonsBridge;
+import net.hallowed.oldways.client.util.SettingsPrefs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;
+import net.minecraft.client.gui.screen.ingame.RecipeBookScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -21,8 +20,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@SuppressWarnings("DataFlowIssue")
 @Mixin(InventoryScreen.class)
-public abstract class InventoryScreenMixin extends Screen implements OverlayButtonsBridge {
+public abstract class InventoryScreenMixin extends Screen {
     protected InventoryScreenMixin(Text title) { super(title); }
 
     @Unique private ButtonWidget coordsBtn;
@@ -36,16 +36,17 @@ public abstract class InventoryScreenMixin extends Screen implements OverlayButt
 
     @Inject(method = "init", at = @At("TAIL"))
     private void hallowed$addOverlayButtons(CallbackInfo ci) {
-        var a  = (HandledScreenAccessor) this;
-        int x  = a.getX();
-        int y  = a.getY();
-        int bw = a.getBackgroundWidth();
+        HandledScreen<?> handled = (HandledScreen<?>) (Object) this;
+        int x  = handled.x;
+        int y  = handled.y;
+        int bw = handled.backgroundWidth;
 
         boolean bookOpen = false;
         try {
-            RecipeBookWidget<?> rb = ((RecipeBookScreenAccessor) this).getRecipeBook();
+            RecipeBookWidget<?> rb = ((RecipeBookScreen<?>) (Object) this).recipeBook;
             bookOpen = rb != null && rb.isOpen();
-        } catch (Throwable ignored) { }
+        } catch (Throwable ignored) {
+        }
 
         int timeXNow   = x + bw - BTN - 4;
         int coordsXNow = timeXNow - BTN - 2;
@@ -86,7 +87,7 @@ public abstract class InventoryScreenMixin extends Screen implements OverlayButt
 
         int shift = 0;
         try {
-            RecipeBookWidget<?> book = ((RecipeBookScreenAccessor) this).getRecipeBook();
+            RecipeBookWidget<?> book = ((RecipeBookScreen<?>) (Object) this).recipeBook;
             if (book != null && book.isOpen()) shift = SHIFT;
         } catch (Throwable ignored) { }
 
@@ -109,7 +110,4 @@ public abstract class InventoryScreenMixin extends Screen implements OverlayButt
         timeBtn.setX(timeX);
         timeBtn.setY(rowY);
     }
-
-    @Override public ButtonWidget hallowed$getCoordsBtn() { return coordsBtn; }
-    @Override public ButtonWidget hallowed$getTimeBtn()   { return timeBtn; }
 }

@@ -11,6 +11,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.world.ClientWaypointHandler;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Final;
@@ -70,8 +71,8 @@ public abstract class InGameHudMixin {
         PlayerEntity player = client.player;
         if (player == null) return;
 
-        LivingEntity mount = (LivingEntity) player.getVehicle();
-        if (mount != null && mount.isAlive()) {
+        Entity vehicle = player.getVehicle();
+        if (vehicle instanceof LivingEntity mount && mount.isAlive()) {
             int screenWidth = client.getWindow().getScaledWidth();
             int screenHeight = client.getWindow().getScaledHeight();
 
@@ -79,15 +80,23 @@ public abstract class InGameHudMixin {
         }
     }
 
+
     /* ===================== 5) Move Horse Health Bar up slightly ===================== */
     @Inject(method = "renderMountHealth", at = @At("HEAD"))
     private void oldways$moveHorseHeartsUp(DrawContext context, CallbackInfo ci) {
+        var client = net.minecraft.client.MinecraftClient.getInstance();
+        if (client.player == null || client.player.getAbilities().creativeMode) {
+            return;
+        }
+
         context.getMatrices().pushMatrix();
         context.getMatrices().translate(0, -10);
     }
 
     @Inject(method = "renderMountHealth", at = @At("RETURN"))
     private void oldways$restoreMatrix(DrawContext context, CallbackInfo ci) {
-        context.getMatrices().popMatrix();
+        if (client.player != null && !client.player.getAbilities().creativeMode) {
+            context.getMatrices().popMatrix();
+        }
     }
 }
