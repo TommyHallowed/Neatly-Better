@@ -13,6 +13,8 @@ public final class ModPotions {
 
     public static RegistryEntry<Potion> HASTE;
     public static RegistryEntry<Potion> LONG_HASTE;
+    public static RegistryEntry<Potion> STRONG_HASTE;
+    public static RegistryEntry<Potion> STRONG_LONG_HASTE;
 
     private static RegistryEntry<Potion> register(String name, Potion potion) {
         return Registry.registerReference(Registries.POTION, OWRegistry.id(name), potion);
@@ -26,5 +28,13 @@ public final class ModPotions {
         // 8:00 Haste I
         LONG_HASTE = register("long_haste",
                 new Potion("haste", new StatusEffectInstance(StatusEffects.HASTE, 20 * 480, 0)));
+
+        // 3:00 Haste II
+        STRONG_HASTE = register("strong_haste",
+                new Potion("haste", new StatusEffectInstance(StatusEffects.HASTE, 20 * 180, 1)));
+
+        // 8:00 Haste II
+        STRONG_LONG_HASTE = register("strong_long_haste",
+                new Potion("haste", new StatusEffectInstance(StatusEffects.HASTE, 20 * 480, 1)));
     }
 }

@@ -22,6 +22,27 @@ public final class ModBrewing {
                     Items.REDSTONE,
                     ModPotions.LONG_HASTE
             );
+
+            // Haste + Dragon Breath -> Strong Haste
+            builder.registerPotionRecipe(
+                    ModPotions.HASTE,
+                    Items.DRAGON_BREATH,
+                    ModPotions.STRONG_HASTE
+            );
+
+            // Haste II + Redstone -> Strong Long Haste
+            builder.registerPotionRecipe(
+                    ModPotions.STRONG_HASTE,
+                    Items.REDSTONE,
+                    ModPotions.STRONG_LONG_HASTE
+            );
+
+            // Long Haste + Dragon Breath -> Strong Long Haste
+            builder.registerPotionRecipe(
+                    ModPotions.LONG_HASTE,
+                    Items.DRAGON_BREATH,
+                    ModPotions.STRONG_LONG_HASTE
+            );
         });
     }
 }
