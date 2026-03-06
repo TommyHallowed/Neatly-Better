@@ -21,6 +21,16 @@ public final class ModDataComponents {
                     .build()
     );
 
+    /** Boolean flag to mark armor trims as pulsing (Echo Shard). */
+    public static final ComponentType<Boolean> PULSING_TRIM = Registry.register(
+            Registries.DATA_COMPONENT_TYPE,
+            OWRegistry.id("pulsing_trim"),
+            ComponentType.<Boolean>builder()
+                    .codec(Codec.BOOL)
+                    .packetCodec(PacketCodecs.BOOLEAN)
+                    .build()
+    );
+
     /** No-op hook if you prefer calling something in your entrypoint. */
     public static void init() { /* class-load ensures registration */ }
 }
