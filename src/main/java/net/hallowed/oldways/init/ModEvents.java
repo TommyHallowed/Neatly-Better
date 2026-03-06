@@ -17,5 +17,6 @@ public final class ModEvents {
         BoneMealExpansion.init();
         ElytraFlightLimiter.init();
         CauldronCleansFilledMap.init();
+        CauldronCleansTrims.init();
     }
 }
