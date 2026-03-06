@@ -1,6 +1,6 @@
 package net.hallowed.oldways.mixin.entity.player;
 
-import net.hallowed.oldways.init.ModGameRules;
+import net.hallowed.oldways.util.StonecutterMemory;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -12,16 +12,17 @@ import net.minecraft.item.Items;
 import net.minecraft.item.RangedWeaponItem;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.World;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerEntity.class)
-public abstract class PlayerEntityMixin {
+public abstract class PlayerEntityMixin implements StonecutterMemory {
 
     /* ------------------ (1) Infinity fix: virtual arrow when bow has Infinity ------------------ */
     @Inject(method = "getProjectileType", at = @At("RETURN"), cancellable = true)
@@ -74,5 +75,34 @@ public abstract class PlayerEntityMixin {
 
             ci.cancel();
         }
+    }
+
+    /* ------------------ (3) Stonecutter Memory ------------------ */
+
+    @Unique
+    private String oldways$lastCraftedStonecutterItem = "";
+
+    @Override
+    public void oldways$setLastCraftedItem(String id) {
+        this.oldways$lastCraftedStonecutterItem = id == null ? "" : id;
+    }
+
+    @Override
+    public String oldways$getLastCraftedItem() {
+        return this.oldways$lastCraftedStonecutterItem;
+    }
+
+    // FIX: Using the new modern WriteView system!
+    @Inject(method = "writeCustomData", at = @At("TAIL"))
+    private void oldways$writeStonecutterMemory(WriteView view, CallbackInfo ci) {
+        if (!this.oldways$lastCraftedStonecutterItem.isEmpty()) {
+            view.putString("oldways_last_stonecutter_item", this.oldways$lastCraftedStonecutterItem);
+        }
+    }
+
+    // FIX: Using the new modern ReadView system!
+    @Inject(method = "readCustomData", at = @At("TAIL"))
+    private void oldways$readStonecutterMemory(ReadView view, CallbackInfo ci) {
+        this.oldways$lastCraftedStonecutterItem = view.getString("oldways_last_stonecutter_item", "");
     }
 }

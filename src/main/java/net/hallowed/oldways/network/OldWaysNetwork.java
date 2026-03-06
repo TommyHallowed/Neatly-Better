@@ -9,6 +9,8 @@ import net.minecraft.component.type.BundleContentsComponent;
 import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.component.type.LodestoneTrackerComponent;
 import net.minecraft.component.type.NbtComponent;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -16,12 +18,15 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.recipe.StonecuttingRecipe;
+import net.minecraft.registry.Registries;
+import net.minecraft.screen.StonecutterScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.GlobalPos;
 
 import java.util.ArrayList;
@@ -79,7 +84,7 @@ public final class OldWaysNetwork {
         // color==-1 means "absent", label=="" means "absent"
         static final PacketCodec<RegistryByteBuf, LodestoneEntry> CODEC =
                 PacketCodec.tuple(
-                        Identifier.PACKET_CODEC, LodestoneEntry::dim, // ← correct identifier codec
+                        Identifier.PACKET_CODEC, LodestoneEntry::dim,
                         PacketCodecs.VAR_INT,    LodestoneEntry::x,
                         PacketCodecs.VAR_INT,    LodestoneEntry::y,
                         PacketCodecs.VAR_INT,    LodestoneEntry::z,
@@ -94,6 +99,16 @@ public final class OldWaysNetwork {
         public static final CustomPayload.Id<MapBuilderPayload> ID = new CustomPayload.Id<>(id("map_builder_action"));
         public static final PacketCodec<RegistryByteBuf, MapBuilderPayload> CODEC =
                 PacketCodec.tuple(PacketCodecs.INTEGER, MapBuilderPayload::action, MapBuilderPayload::new);
+        @Override public Id<? extends CustomPayload> getId() { return ID; }
+    }
+
+    public record StonecutterRecraftPayload(Identifier targetItem, boolean craftMax) implements CustomPayload {
+        public static final CustomPayload.Id<StonecutterRecraftPayload> ID = new CustomPayload.Id<>(id("stonecutter_recraft"));
+        public static final PacketCodec<RegistryByteBuf, StonecutterRecraftPayload> CODEC = PacketCodec.tuple(
+                Identifier.PACKET_CODEC, StonecutterRecraftPayload::targetItem,
+                PacketCodecs.BOOLEAN, StonecutterRecraftPayload::craftMax,
+                StonecutterRecraftPayload::new
+        );
         @Override public Id<? extends CustomPayload> getId() { return ID; }
     }
 
@@ -117,34 +132,81 @@ public final class OldWaysNetwork {
         // Map Builder Registrations
         PayloadTypeRegistry.playC2S().register(MapBuilderPayload.ID, MapBuilderPayload.CODEC);
 
-        ServerPlayNetworking.registerGlobalReceiver(MapBuilderPayload.ID, (payload, ctx) -> {
-            ctx.player().server.execute(() -> {
-                ItemStack stack = ctx.player().getMainHandStack();
-                if (!(stack.getItem() instanceof MapBuilderItem)) return;
+        ServerPlayNetworking.registerGlobalReceiver(MapBuilderPayload.ID, (payload, ctx) ->
+                ctx.player().server.execute(() -> {
+                    ItemStack stack = ctx.player().getMainHandStack();
+                    if (!(stack.getItem() instanceof MapBuilderItem)) return;
 
-                NbtComponent data = stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT);
-                NbtCompound nbt = data.copyNbt();
-                int step = nbt.getInt(MapBuilderItem.NBT_STEP, 0);
+                    NbtComponent data = stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT);
+                    NbtCompound nbt = data.copyNbt();
+                    int step = nbt.getInt(MapBuilderItem.NBT_STEP, 0);
 
-                // Action 1: Reset (Shift + Left Click Air)
-                if (payload.action() == 1) {
-                    nbt.putInt(MapBuilderItem.NBT_STEP, 0);
-                    nbt.putBoolean(MapBuilderItem.NBT_HAS_P1, false);
-                    nbt.putBoolean(MapBuilderItem.NBT_HAS_P2, false);
-                    ctx.player().sendMessage(Text.literal("Right Click a block to set corner 1\nLeft Click a block to set corner 2").formatted(Formatting.YELLOW), false);
+                    // Action 1: Reset (Shift + Left Click Air)
+                    if (payload.action() == 1) {
+                        nbt.putInt(MapBuilderItem.NBT_STEP, 0);
+                        nbt.putBoolean(MapBuilderItem.NBT_HAS_P1, false);
+                        nbt.putBoolean(MapBuilderItem.NBT_HAS_P2, false);
+                        ctx.player().sendMessage(Text.literal("Right Click a block to set corner 1\nLeft Click a block to set corner 2").formatted(Formatting.YELLOW), false);
+                    }
+                    // Action 0: Zoom (Shift + Z)
+                    else if (step == 2 && payload.action() == 0) {
+                        int currentZoom = nbt.getInt(MapBuilderItem.NBT_ZOOM, 1);
+                        int zoom = (currentZoom + 1) % 5;
+                        nbt.putInt(MapBuilderItem.NBT_ZOOM, zoom);
+                        ctx.player().sendMessage(Text.literal("Map zoom in: " + zoom + "x").formatted(Formatting.AQUA), true);
+                    }
+
+                    stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt));
+                })
+        );
+
+        // --- NEW: Stonecutter Recraft Registration ---
+        PayloadTypeRegistry.playC2S().register(StonecutterRecraftPayload.ID, StonecutterRecraftPayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(StonecutterRecraftPayload.ID, (payload, ctx) -> {
+            ServerPlayerEntity player = ctx.player();
+            player.server.execute(() -> {
+                if (!(player.currentScreenHandler instanceof StonecutterScreenHandler)) return;
+
+                Item targetItemType = Registries.ITEM.get(payload.targetItem());
+                if (targetItemType == Items.AIR) return;
+
+                int amountToCraft = payload.craftMax() ? 64 : 1;
+                for (int i = 0; i < amountToCraft; i++) {
+                    if (!tryCraftOne(player, targetItemType)) break;
                 }
-                // Action 0: Zoom (Shift + Z)
-                else if (step == 2 && payload.action() == 0) {
-                    int currentZoom = nbt.getInt(MapBuilderItem.NBT_ZOOM, 1);
-                    int zoom = (currentZoom + 1) % 5;
-                    nbt.putInt(MapBuilderItem.NBT_ZOOM, zoom);
-                    ctx.player().sendMessage(Text.literal("Map zoom in: " + zoom + "x").formatted(Formatting.AQUA), true);
-                }
-
-                stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt));
             });
         });
 
+    }
+
+    // --- Recraft Logic ---
+    private static boolean tryCraftOne(ServerPlayerEntity player, Item targetItemType) {
+        Inventory playerInv = player.getInventory();
+
+        // Use values() to safely get all active recipes from the manager in 1.21
+        for (RecipeEntry<?> recipeEntry : player.server.getRecipeManager().values()) {
+            if (recipeEntry.value() instanceof StonecuttingRecipe recipe) {
+                // Use the new 1.21 record getters: result() and ingredient()
+                ItemStack outputSample = recipe.result();
+
+                if (!outputSample.isOf(targetItemType)) continue;
+
+                for (int slot = 0; slot < playerInv.size(); slot++) {
+                    ItemStack stackInSlot = playerInv.getStack(slot);
+                    if (stackInSlot.isEmpty()) continue;
+
+                    if (recipe.ingredient().test(stackInSlot)) {
+                        stackInSlot.decrement(1);
+                        ItemStack result = outputSample.copy();
+                        if (!player.getInventory().insertStack(result)) {
+                            player.dropItem(result, false);
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /** Computes ender-chest state and pushes both overlay booleans and lodestone targets. */

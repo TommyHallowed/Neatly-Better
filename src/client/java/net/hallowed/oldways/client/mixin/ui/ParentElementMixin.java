@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.mixin.gui;
+package net.hallowed.oldways.client.mixin.ui;
 
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.Element;
