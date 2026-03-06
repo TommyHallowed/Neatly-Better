@@ -10,6 +10,7 @@ public final class ModEvents {
         ShoulderDropOnUse.register();
         AnvilRestoration.register();
         AddedItemProperties.register();
+        MinecartChainHandler.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         MendingNerf.init();
