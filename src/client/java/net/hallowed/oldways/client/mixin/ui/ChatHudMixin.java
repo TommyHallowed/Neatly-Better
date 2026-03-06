@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 @Mixin(ChatHud.class)
 public abstract class ChatHudMixin {
 
-    @Shadow @Final private MinecraftClient client;
+    @Shadow @Final MinecraftClient client;
 
     @Unique private static final Executor OLDWAYS_SHOT_EXEC = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "OldWays-ScreenshotCopy");

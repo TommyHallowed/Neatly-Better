@@ -10,7 +10,7 @@ import net.minecraft.util.ActionResult;
 public final class ModItems {
     private ModItems() {}
 
-    public static Item DRAGON_BURST_ROCKET, MAP_BUILDER;
+    public static Item MAP_BUILDER;
 
     public static void register() {
 
@@ -24,7 +24,7 @@ public final class ModItems {
             if (!world.isClient() && !player.isSpectator()) {
                 ItemStack stack = player.getStackInHand(hand);
                 if (stack.getItem() instanceof MapBuilderItem builder) {
-                    builder.onLeftClickBlock(player, pos, stack);
+                    builder.onLeftClickBlock(pos, stack);
                     return ActionResult.SUCCESS; // Cancel block breaking
                 }
             }

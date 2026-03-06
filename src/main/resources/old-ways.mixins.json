@@ -8,6 +8,7 @@
     "block.CocoaBlockMixin",
     "block.ComposterBlockMixin",
     "block.CropBlockMixin",
+    "block.DoorBlockMixin",
     "block.FarmlandBlockMixin",
     "block.SpongeBlockMixin",
     "block.SugarCaneBlockMixin",
@@ -25,6 +26,8 @@
     "entity.generic.LivingEntityMixin",
     "entity.generic.MobEntityMixin",
     "entity.hostile.VexEntityMixin",
+    "entity.misc.AbstractMinecartEntityMixin",
+    "entity.misc.EntityMixin",
     "entity.misc.TridentEntityMixin",
     "entity.neutral.IronGolemEntityMixin",
     "entity.passive.AbstractHorseEntityMixin",
@@ -43,7 +46,8 @@
     "screen.AnvilScreenHandlerMixin",
     "screen.LoomScreenHandlerMixin",
     "screen.ScreenHandlerMixin",
-    "screen.SmithingScreenHandlerMixin"
+    "screen.SmithingScreenHandlerMixin",
+    "screen.StonecutterScreenHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
