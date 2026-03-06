@@ -17,11 +17,13 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Iterator;
 import java.util.List;
 
+// Priority 400 ensures this runs LATE, overwriting ModMenu's changes
 @Mixin(value = TitleScreen.class, priority = 400)
 public abstract class TitleScreenMixin {
 
@@ -30,6 +32,19 @@ public abstract class TitleScreenMixin {
     @Unique private static final int V_SPACING = 4;
     @Unique private static final Identifier OW$PHASE = Identifier.of("old-ways", "title_buttons_late");
     @Unique private static boolean OW$afterInitHooked = false;
+
+
+    @ModifyArg(
+            method = "render",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V"
+            ),
+            index = 1
+    )
+    private String oldways$stripFabricModded(String original) {
+        return "Minecraft " + net.minecraft.SharedConstants.getGameVersion().name();
+    }
 
     @Inject(method = "init", at = @At("RETURN"))
     private void oldways$hookAfterInitAndKillNotifier(CallbackInfo ci) {
