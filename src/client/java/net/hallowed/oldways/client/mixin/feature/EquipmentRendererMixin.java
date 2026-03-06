@@ -16,6 +16,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.equipment.EquipmentAsset;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
+import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,121 +30,81 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class EquipmentRendererMixin {
 
     @Unique private static final int FULL_BRIGHT = 0xF000F0;
-    @Unique private static final ThreadLocal<Boolean> OW$emissiveTrimNow =
-            ThreadLocal.withInitial(() -> false);
 
-    /* Mark/clear on the simple overload … */
+    // 0 = Normal, 1 = Emissive, 2 = Pulsing
+    @Unique private static final ThreadLocal<Integer> OW$trimState = ThreadLocal.withInitial(() -> 0);
+
     @Inject(
-            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;" +
-                    "Lnet/minecraft/registry/RegistryKey;" +
-                    "Lnet/minecraft/client/model/Model;" +
-                    "Ljava/lang/Object;" +
-                    "Lnet/minecraft/item/ItemStack;" +
-                    "Lnet/minecraft/client/util/math/MatrixStack;" +
-                    "Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;" +
-                    "II)V",
+            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;II)V",
             at = @At("HEAD")
     )
-    private void ow$markSimple(EquipmentModel.LayerType layerType,
-                               RegistryKey<EquipmentAsset> assetKey,
-                               Model<?> model,
-                               Object object,
-                               ItemStack stack,
-                               MatrixStack matrices,
-                               OrderedRenderCommandQueue queue,
-                               int light,
-                               int outlineColor,
-                               CallbackInfo ci) {
-        OW$emissiveTrimNow.set(stack.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false));
+    private void ow$markSimple(EquipmentModel.LayerType layerType, RegistryKey<EquipmentAsset> assetKey, Model<?> model, Object object, ItemStack stack, MatrixStack matrices, OrderedRenderCommandQueue queue, int light, int outlineColor, CallbackInfo ci) {
+        int state = 0;
+        if (stack.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false)) state = 1;
+        else if (stack.getOrDefault(ModDataComponents.PULSING_TRIM, false)) state = 2;
+        OW$trimState.set(state);
     }
 
     @Inject(
-            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;" +
-                    "Lnet/minecraft/registry/RegistryKey;" +
-                    "Lnet/minecraft/client/model/Model;" +
-                    "Ljava/lang/Object;" +
-                    "Lnet/minecraft/item/ItemStack;" +
-                    "Lnet/minecraft/client/util/math/MatrixStack;" +
-                    "Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;" +
-                    "II)V",
+            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;II)V",
             at = @At("TAIL")
     )
-    private void ow$clearSimple(EquipmentModel.LayerType layerType,
-                                RegistryKey<EquipmentAsset> assetKey,
-                                Model<?> model,
-                                Object object,
-                                ItemStack stack,
-                                MatrixStack matrices,
-                                OrderedRenderCommandQueue queue,
-                                int light,
-                                int outlineColor,
-                                CallbackInfo ci) {
-        OW$emissiveTrimNow.remove();
+    private void ow$clearSimple(EquipmentModel.LayerType layerType, RegistryKey<EquipmentAsset> assetKey, Model<?> model, Object object, ItemStack stack, MatrixStack matrices, OrderedRenderCommandQueue queue, int light, int outlineColor, CallbackInfo ci) {
+        OW$trimState.remove();
     }
 
     @Inject(
-            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;" +
-                    "Lnet/minecraft/registry/RegistryKey;" +
-                    "Lnet/minecraft/client/model/Model;" +
-                    "Ljava/lang/Object;" +
-                    "Lnet/minecraft/item/ItemStack;" +
-                    "Lnet/minecraft/client/util/math/MatrixStack;" +
-                    "Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;" +
-                    "ILnet/minecraft/util/Identifier;II)V",
+            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;ILnet/minecraft/util/Identifier;II)V",
             at = @At("HEAD")
     )
-    private void ow$markFull(EquipmentModel.LayerType layerType,
-                             RegistryKey<EquipmentAsset> assetKey,
-                             Model<?> model,
-                             Object object,
-                             ItemStack stack,
-                             MatrixStack matrices,
-                             OrderedRenderCommandQueue queue,
-                             int light,
-                             Identifier altTexture,
-                             int outlineColor,
-                             int order,
-                             CallbackInfo ci) {
-        OW$emissiveTrimNow.set(stack.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false));
+    private void ow$markFull(EquipmentModel.LayerType layerType, RegistryKey<EquipmentAsset> assetKey, Model<?> model, Object object, ItemStack stack, MatrixStack matrices, OrderedRenderCommandQueue queue, int light, Identifier altTexture, int outlineColor, int order, CallbackInfo ci) {
+        int state = 0;
+        if (stack.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false)) state = 1;
+        else if (stack.getOrDefault(ModDataComponents.PULSING_TRIM, false)) state = 2;
+        OW$trimState.set(state);
+    }
+
+    // Safely clear ThreadLocal for the full overload as well
+    @Inject(
+            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;ILnet/minecraft/util/Identifier;II)V",
+            at = @At("TAIL")
+    )
+    private void ow$clearFull(EquipmentModel.LayerType layerType, RegistryKey<EquipmentAsset> assetKey, Model<?> model, Object object, ItemStack stack, MatrixStack matrices, OrderedRenderCommandQueue queue, int light, Identifier altTexture, int outlineColor, int order, CallbackInfo ci) {
+        OW$trimState.remove();
     }
 
     @Redirect(
-            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;" +
-                    "Lnet/minecraft/registry/RegistryKey;" +
-                    "Lnet/minecraft/client/model/Model;" +
-                    "Ljava/lang/Object;" +
-                    "Lnet/minecraft/item/ItemStack;" +
-                    "Lnet/minecraft/client/util/math/MatrixStack;" +
-                    "Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;" +
-                    "ILnet/minecraft/util/Identifier;II)V",
+            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;ILnet/minecraft/util/Identifier;II)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/render/command/RenderCommandQueue;" +
-                            "submitModel(Lnet/minecraft/client/model/Model;" +
-                            "Ljava/lang/Object;" +
-                            "Lnet/minecraft/client/util/math/MatrixStack;" +
-                            "Lnet/minecraft/client/render/RenderLayer;" +
-                            "III" +
-                            "Lnet/minecraft/client/texture/Sprite;" +
-                            "I" +
-                            "Lnet/minecraft/client/render/command/ModelCommandRenderer$CrumblingOverlayCommand;)V"
+                    target = "Lnet/minecraft/client/render/command/RenderCommandQueue;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/RenderLayer;IIILnet/minecraft/client/texture/Sprite;ILnet/minecraft/client/render/command/ModelCommandRenderer$CrumblingOverlayCommand;)V"
             )
     )
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void ow$emissiveTrimSubmit(RenderCommandQueue queue,
-                                       Model model,
-                                       Object state,
-                                       MatrixStack matrices,
-                                       RenderLayer layer,
-                                       int light,
-                                       int overlay,
-                                       int tintedColor,
-                                       Sprite sprite,
-                                       int outlineColor,
-                                       ModelCommandRenderer.CrumblingOverlayCommand crumble) {
+    private void ow$emissiveTrimSubmit(RenderCommandQueue queue, Model model, Object stateObj, MatrixStack matrices, RenderLayer layer, int light, int overlay, int tintedColor, Sprite sprite, int outlineColor, ModelCommandRenderer.CrumblingOverlayCommand crumble) {
 
-        int useLight = (OW$emissiveTrimNow.get() && sprite != null) ? FULL_BRIGHT : light;
-        queue.submitModel(model, state, matrices, layer, useLight, overlay, tintedColor, sprite, outlineColor, crumble);
+        int useLight = light;
+        int state = OW$trimState.get();
+
+        if (sprite != null) {
+            if (state == 1) {
+                // Static Glow
+                useLight = FULL_BRIGHT;
+            } else if (state == 2) {
+                // Dynamic Pulse (Echo Shard Breathing)
+                long time = Util.getMeasuringTimeMs();
+
+                // Generates a sine wave that goes from 0.0 to 1.0 smoothly over ~1.25 seconds
+                float sine = (MathHelper.sin(time / 500.0f) + 1.0f) / 2.0f;
+
+                // Map the sine wave to Minecraft's light levels (60 is darkish, 240 is max brightness)
+                int currentLight = (int) (60 + sine * 180);
+
+                // Pack block and sky light together into the int
+                useLight = (currentLight << 16) | currentLight;
+            }
+        }
+
+        queue.submitModel(model, stateObj, matrices, layer, useLight, overlay, tintedColor, sprite, outlineColor, crumble);
     }
-
 }
