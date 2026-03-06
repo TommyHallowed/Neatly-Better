@@ -5,6 +5,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.equipment.trim.ArmorTrim;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.SmithingScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,14 +32,17 @@ public abstract class SmithingScreenHandlerMixin {
     private static Predicate<ItemStack> oldways$allowSacsInAddition(Predicate<ItemStack> original) {
         return stack -> original.test(stack)
                 || stack.isOf(Items.GLOW_INK_SAC)
-                || stack.isOf(Items.INK_SAC);
+                || stack.isOf(Items.INK_SAC)
+                || stack.isOf(Items.ECHO_SHARD);
     }
 
     @Inject(method = "isValidIngredient", at = @At("HEAD"), cancellable = true)
     private void oldways$isValidIngredient(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
         boolean glow = stack.isOf(Items.GLOW_INK_SAC);
         boolean ink  = stack.isOf(Items.INK_SAC);
-        if (!glow && !ink) return;
+        boolean echo = stack.isOf(Items.ECHO_SHARD);
+
+        if (!glow && !ink && !echo) return;
 
         SmithingScreenHandler self = (SmithingScreenHandler)(Object)this;
         Slot template = self.getSlot(0);
@@ -51,7 +55,12 @@ public abstract class SmithingScreenHandlerMixin {
             if (trim == null) return;
 
             boolean emissive = base.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
-            if ((glow && !emissive) || (ink && emissive)) {
+            boolean pulsing = base.getOrDefault(ModDataComponents.PULSING_TRIM, false);
+
+            // Replaced ArmorItem check with the Vanilla Tag check!
+            boolean isArmor = base.isIn(ItemTags.TRIMMABLE_ARMOR);
+
+            if ((glow && !emissive) || (echo && !pulsing && isArmor) || (ink && (emissive || pulsing))) {
                 cir.setReturnValue(true);
             }
         }
@@ -76,17 +85,31 @@ public abstract class SmithingScreenHandlerMixin {
 
         ItemStack add = addSlot.getStack();
         boolean emissive = base.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
+        boolean pulsing = base.getOrDefault(ModDataComponents.PULSING_TRIM, false);
+
+        // Replaced ArmorItem check with the Vanilla Tag check!
+        boolean isArmor = base.isIn(ItemTags.TRIMMABLE_ARMOR);
 
         if (add.isOf(Items.GLOW_INK_SAC) && !emissive) {
             ItemStack result = base.copy();
             result.set(ModDataComponents.EMISSIVE_TRIM, true);
+            result.remove(ModDataComponents.PULSING_TRIM);
             outSlot.setStack(result);
             return;
         }
 
-        if (add.isOf(Items.INK_SAC) && emissive) {
+        if (add.isOf(Items.ECHO_SHARD) && !pulsing && isArmor) {
+            ItemStack result = base.copy();
+            result.set(ModDataComponents.PULSING_TRIM, true);
+            result.remove(ModDataComponents.EMISSIVE_TRIM);
+            outSlot.setStack(result);
+            return;
+        }
+
+        if (add.isOf(Items.INK_SAC) && (emissive || pulsing)) {
             ItemStack result = base.copy();
             result.remove(ModDataComponents.EMISSIVE_TRIM);
+            result.remove(ModDataComponents.PULSING_TRIM);
             outSlot.setStack(result);
         }
     }
