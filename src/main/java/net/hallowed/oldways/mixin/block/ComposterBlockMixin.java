@@ -13,5 +13,6 @@ public abstract class ComposterBlockMixin {
     @Inject(method = "registerDefaultCompostableItems", at = @At("TAIL"))
     private static void oldways$addPoisonousPotato(CallbackInfo ci) {
         ComposterBlock.ITEM_TO_LEVEL_INCREASE_CHANCE.put(Items.POISONOUS_POTATO, 0.5f);
+        ComposterBlock.ITEM_TO_LEVEL_INCREASE_CHANCE.put(Items.ROTTEN_FLESH, 0.3f);
     }
 }
