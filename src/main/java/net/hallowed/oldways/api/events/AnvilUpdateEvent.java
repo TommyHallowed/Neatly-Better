@@ -2,22 +2,22 @@ package net.hallowed.oldways.api.events;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public final class AnvilUpdateEvent {
     public interface AnvilUpdateCallback {
-        ActionResult update(AnvilUpdateEvent event);
+        InteractionResult update(AnvilUpdateEvent event);
     }
 
     public static final Event<@NotNull AnvilUpdateCallback> EVENT =
             EventFactory.createArrayBacked(AnvilUpdateCallback.class, listeners -> event -> {
                 for (AnvilUpdateCallback l : listeners) {
-                    ActionResult r = l.update(event);
-                    if (r != ActionResult.PASS) return r;
+                    InteractionResult r = l.update(event);
+                    if (r != InteractionResult.PASS) return r;
                 }
-                return ActionResult.PASS;
+                return InteractionResult.PASS;
             });
 
     private final ItemStack left, right;

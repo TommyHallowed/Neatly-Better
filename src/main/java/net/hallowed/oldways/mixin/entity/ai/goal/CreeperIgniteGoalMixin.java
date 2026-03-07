@@ -1,10 +1,10 @@
 package net.hallowed.oldways.mixin.entity.ai.goal;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.CreeperIgniteGoal;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.SwellGoal;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,11 +14,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(CreeperIgniteGoal.class)
+@Mixin(SwellGoal.class)
 public abstract class CreeperIgniteGoalMixin {
 
     @Final
-    @Shadow private CreeperEntity creeper;
+    @Shadow private Creeper creeper;
     @Shadow @Nullable private LivingEntity target;
 
     @Unique private int oldways$orbitDir;
@@ -27,8 +27,8 @@ public abstract class CreeperIgniteGoalMixin {
     @Unique private int oldways$nextRepathTick;
     @Unique private double oldways$lastTx, oldways$lastTz;
 
-    @Inject(method = "<init>(Lnet/minecraft/entity/mob/CreeperEntity;)V", at = @At("TAIL"))
-    private void oldways$seed(CreeperEntity creeper, CallbackInfo ci) {
+    @Inject(method = "<init>(Lnet/minecraft/world/entity/monster/Creeper;)V", at = @At("TAIL"))
+    private void oldways$seed(Creeper creeper, CallbackInfo ci) {
         this.oldways$orbitDir = (creeper.getId() & 1) == 0 ? 1 : -1;
         this.oldways$theta = creeper.getRandom().nextDouble() * Math.PI * 2.0;
         this.oldways$nextRepathTick = 0;
@@ -38,22 +38,22 @@ public abstract class CreeperIgniteGoalMixin {
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void oldways$igniteBehavior(CallbackInfo ci) {
-        if (!this.creeper.isAlive() || this.creeper.getFuseSpeed() <= 0) return;
+        if (!this.creeper.isAlive() || this.creeper.getSwellDir() <= 0) return;
 
-        PlayerEntity player = this.target instanceof PlayerEntity p
+        Player player = this.target instanceof Player p
                 ? p
-                : this.creeper.getEntityWorld().getClosestPlayer(this.creeper, 12.0);
+                : this.creeper.level().getNearestPlayer(this.creeper, 12.0);
         if (player == null) return;
-        if (!this.creeper.getVisibilityCache().canSee(player)) return;
+        if (!this.creeper.getSensing().hasLineOfSight(player)) return;
 
-        final Difficulty diff = this.creeper.getEntityWorld().getDifficulty();
+        final Difficulty diff = this.creeper.level().getDifficulty();
 
         if (diff == Difficulty.NORMAL) {
-            if (this.creeper.age >= this.oldways$nextRepathTick) {
-                this.creeper.getNavigation().startMovingTo(player, 0.80);
-                this.oldways$nextRepathTick = this.creeper.age + 8;
+            if (this.creeper.tickCount >= this.oldways$nextRepathTick) {
+                this.creeper.getNavigation().moveTo(player, 0.80);
+                this.oldways$nextRepathTick = this.creeper.tickCount + 8;
             }
-            this.creeper.getLookControl().lookAt(player, 30.0F, 30.0F);
+            this.creeper.getLookControl().setLookAt(player, 30.0F, 30.0F);
             return;
         }
 
@@ -76,15 +76,15 @@ public abstract class CreeperIgniteGoalMixin {
             final double tz = cz + Math.sin(this.oldways$theta) * r;
             final double ty = player.getY();
 
-            if (this.creeper.age >= this.oldways$nextRepathTick ||
-                    this.creeper.squaredDistanceTo(this.oldways$lastTx, this.creeper.getY(), this.oldways$lastTz) < 0.7 * 0.7) {
-                this.creeper.getNavigation().startMovingTo(tx, ty, tz, 1.05);
+            if (this.creeper.tickCount >= this.oldways$nextRepathTick ||
+                    this.creeper.distanceToSqr(this.oldways$lastTx, this.creeper.getY(), this.oldways$lastTz) < 0.7 * 0.7) {
+                this.creeper.getNavigation().moveTo(tx, ty, tz, 1.05);
                 this.oldways$lastTx = tx;
                 this.oldways$lastTz = tz;
-                this.oldways$nextRepathTick = this.creeper.age + 5;
+                this.oldways$nextRepathTick = this.creeper.tickCount + 5;
             }
 
-            this.creeper.getLookControl().lookAt(player, 30.0F, 30.0F);
+            this.creeper.getLookControl().setLookAt(player, 30.0F, 30.0F);
         }
     }
 }

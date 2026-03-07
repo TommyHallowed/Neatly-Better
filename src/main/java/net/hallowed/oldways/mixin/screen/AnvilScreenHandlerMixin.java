@@ -2,23 +2,24 @@ package net.hallowed.oldways.mixin.screen;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.hallowed.oldways.api.events.AnvilUpdateEvent;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ItemEnchantmentsComponent;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.screen.AnvilScreenHandler;
-import net.minecraft.screen.ForgingScreenHandler;
-import net.minecraft.screen.Property;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.slot.ForgingSlotsManager;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.DataSlot;
+import net.minecraft.world.inventory.ItemCombinerMenu;
+import net.minecraft.world.inventory.ItemCombinerMenuSlotDefinition;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,130 +32,130 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(AnvilScreenHandler.class)
-public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
-    @Shadow @Final private Property levelCost;
-    @Shadow private int repairItemUsage;
+@Mixin(AnvilMenu.class)
+public abstract class AnvilScreenHandlerMixin extends ItemCombinerMenu {
+    @Shadow @Final private DataSlot cost;
+    @Shadow private int repairItemCountCost;
 
     @Unique private boolean oldways$consumeRightOnTake = false;
     @Unique private int oldways$cachedLevelCost = 0;
     @Unique private int oldways$costAtTake = 0;
     @Unique private int oldways$deltaSeen = 0;
 
-    protected AnvilScreenHandlerMixin(ScreenHandlerType<?> type, int syncId,
-                                      PlayerInventory inv, ScreenHandlerContext ctx, ForgingSlotsManager slots) {
+    protected AnvilScreenHandlerMixin(MenuType<?> type, int syncId,
+                                      Inventory inv, ContainerLevelAccess ctx, ItemCombinerMenuSlotDefinition slots) {
         super(type, syncId, inv, ctx, slots);
     }
 
-    @Inject(method = "updateResult", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "createResult", at = @At("HEAD"), cancellable = true)
     private void oldways$featherBypass(CallbackInfo ci) {
-        ItemStack left = this.getSlot(0).getStack();
-        if (!left.isOf(Items.FEATHER)) return;
+        ItemStack left = this.getSlot(0).getItem();
+        if (!left.is(Items.FEATHER)) return;
 
-        ItemStack right = this.getSlot(1).getStack();
+        ItemStack right = this.getSlot(1).getItem();
         ItemStack out = left.copy();
-        ItemEnchantmentsComponent existing =
-                out.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
+        ItemEnchantments existing =
+                out.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
 
-        if (right.isOf(Items.ENCHANTED_BOOK)) {
+        if (right.is(Items.ENCHANTED_BOOK)) {
             int lvl = oldways$getKnockbackLevelFromBook(right);
             if (lvl <= 0) return;
             int target = Math.min(2, lvl);
-            this.context.run((world, pos) -> {
-                RegistryEntry<Enchantment> kb = world.getRegistryManager().getOptionalEntry(Enchantments.KNOCKBACK).orElseThrow();
-                ItemEnchantmentsComponent.Builder b = new ItemEnchantmentsComponent.Builder(existing);
+            this.access.execute((world, pos) -> {
+                Holder<@NotNull Enchantment> kb = world.registryAccess().get(Enchantments.KNOCKBACK).orElseThrow();
+                ItemEnchantments.Mutable b = new ItemEnchantments.Mutable(existing);
                 b.set(kb, target);
-                out.set(DataComponentTypes.ENCHANTMENTS, b.build());
+                out.set(DataComponents.ENCHANTMENTS, b.toImmutable());
             });
-            this.output.setStack(0, out);
+            this.resultSlots.setItem(0, out);
             int count = Math.max(1, left.getCount());
-            this.levelCost.set(target * count);
-            this.repairItemUsage = 0;
+            this.cost.set(target * count);
+            this.repairItemCountCost = 0;
             oldways$consumeRightOnTake = true;
             ci.cancel();
             return;
         }
 
-        if (right.isOf(Items.FEATHER)) {
+        if (right.is(Items.FEATHER)) {
             int l = oldways$getKnockbackLevelFromItem(left);
             int r = oldways$getKnockbackLevelFromItem(right);
             if (l == 0 && r == 0) return;
             int target = (l == r && l > 0) ? Math.min(2, l + 1) : Math.max(l, r);
-            this.context.run((world, pos) -> {
-                RegistryEntry<Enchantment> kb = world.getRegistryManager().getOptionalEntry(Enchantments.KNOCKBACK).orElseThrow();
-                ItemEnchantmentsComponent.Builder b = new ItemEnchantmentsComponent.Builder(existing);
+            this.access.execute((world, pos) -> {
+                Holder<@NotNull Enchantment> kb = world.registryAccess().get(Enchantments.KNOCKBACK).orElseThrow();
+                ItemEnchantments.Mutable b = new ItemEnchantments.Mutable(existing);
                 b.set(kb, target);
-                out.set(DataComponentTypes.ENCHANTMENTS, b.build());
+                out.set(DataComponents.ENCHANTMENTS, b.toImmutable());
             });
-            this.output.setStack(0, out);
+            this.resultSlots.setItem(0, out);
             int count = Math.max(1, left.getCount());
-            this.levelCost.set(target * count);
-            this.repairItemUsage = 1;
+            this.cost.set(target * count);
+            this.repairItemCountCost = 1;
             oldways$consumeRightOnTake = false;
             ci.cancel();
         }
     }
 
-    @Inject(method = "updateResult", at = @At("TAIL"))
+    @Inject(method = "createResult", at = @At("TAIL"))
     private void oldways$mendingAndRename(CallbackInfo ci) {
         oldways$consumeRightOnTake = false;
 
-        ItemStack left  = this.getSlot(0).getStack();
-        ItemStack right = this.getSlot(1).getStack();
+        ItemStack left  = this.getSlot(0).getItem();
+        ItemStack right = this.getSlot(1).getItem();
 
         if (isPureMendingBook(left)) {
-            this.output.setStack(0, ItemStack.EMPTY);
-            this.levelCost.set(0);
-            this.repairItemUsage = 0;
+            this.resultSlots.setItem(0, ItemStack.EMPTY);
+            this.cost.set(0);
+            this.repairItemCountCost = 0;
             oldways$cachedLevelCost = 0;
             return;
         }
 
         if (isPureMendingBook(right)) {
             AnvilUpdateEvent event = new AnvilUpdateEvent(left, right, 0);
-            ActionResult res = AnvilUpdateEvent.EVENT.invoker().update(event);
+            InteractionResult res = AnvilUpdateEvent.EVENT.invoker().update(event);
 
-            if (res == ActionResult.FAIL) {
-                this.output.setStack(0, ItemStack.EMPTY);
-                this.levelCost.set(0);
-                this.repairItemUsage = 0;
+            if (res == InteractionResult.FAIL) {
+                this.resultSlots.setItem(0, ItemStack.EMPTY);
+                this.cost.set(0);
+                this.repairItemCountCost = 0;
                 oldways$cachedLevelCost = 0;
                 return;
             }
 
-            if (res == ActionResult.CONSUME) {
-                this.output.setStack(0, event.getOutput());
-                this.levelCost.set(event.getCost());
-                this.repairItemUsage = 0;
+            if (res == InteractionResult.CONSUME) {
+                this.resultSlots.setItem(0, event.getOutput());
+                this.cost.set(event.getCost());
+                this.repairItemCountCost = 0;
                 oldways$consumeRightOnTake = true;
             }
         }
 
         if (oldways$isPureRename()) {
-            this.levelCost.set(0);
+            this.cost.set(0);
             oldways$cachedLevelCost = 0;
         } else {
-            oldways$cachedLevelCost = this.levelCost.get();
+            oldways$cachedLevelCost = this.cost.get();
         }
     }
 
-    @Inject(method = "onTakeOutput(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/item/ItemStack;)V",
+    @Inject(method = "onTake(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;)V",
             at = @At("HEAD"))
-    private void oldways$preTake(PlayerEntity player, ItemStack taken, CallbackInfo ci) {
-        oldways$costAtTake = this.levelCost.get();
+    private void oldways$preTake(Player player, ItemStack taken, CallbackInfo ci) {
+        oldways$costAtTake = this.cost.get();
         oldways$deltaSeen = 0;
         if (!oldways$consumeRightOnTake) return;
-        ItemStack right = this.getSlot(1).getStack();
-        if (right.isOf(Items.ENCHANTED_BOOK)) {
-            right.decrement(1);
-            this.getSlot(1).setStack(right.isEmpty() ? ItemStack.EMPTY : right);
+        ItemStack right = this.getSlot(1).getItem();
+        if (right.is(Items.ENCHANTED_BOOK)) {
+            right.shrink(1);
+            this.getSlot(1).setByPlayer(right.isEmpty() ? ItemStack.EMPTY : right);
         }
         oldways$consumeRightOnTake = false;
     }
 
     @ModifyArg(
-            method = "onTakeOutput(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/item/ItemStack;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;addExperienceLevels(I)V"),
+            method = "onTake(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;giveExperienceLevels(I)V"),
             index = 0
     )
     private int oldways$captureDelta(int delta) {
@@ -163,43 +164,43 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
     }
 
     @Inject(
-            method = "onTakeOutput(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/item/ItemStack;)V",
+            method = "onTake(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;)V",
             at = @At("TAIL")
     )
-    private void oldways$chargeIfSkipped(PlayerEntity player, ItemStack taken, CallbackInfo ci) {
-        if (!player.getAbilities().creativeMode && oldways$deltaSeen == 0 && oldways$costAtTake > 0 && player.experienceLevel >= oldways$costAtTake) {
-            player.addExperienceLevels(-oldways$costAtTake);
+    private void oldways$chargeIfSkipped(Player player, ItemStack taken, CallbackInfo ci) {
+        if (!player.getAbilities().instabuild && oldways$deltaSeen == 0 && oldways$costAtTake > 0 && player.experienceLevel >= oldways$costAtTake) {
+            player.giveExperienceLevels(-oldways$costAtTake);
         }
         oldways$costAtTake = 0;
         oldways$deltaSeen = 0;
     }
 
-    @Inject(method = "getLevelCost", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getCost", at = @At("HEAD"), cancellable = true)
     private void oldways$getLevelCostMirror(CallbackInfoReturnable<Integer> cir) {
         if (oldways$isPureRename()) {
             cir.setReturnValue(oldways$cachedLevelCost);
         }
     }
 
-    @Inject(method = "canTakeOutput", at = @At("HEAD"), cancellable = true)
-    private void oldways$allowTakeWhenZeroCost(PlayerEntity player, boolean present, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "mayPickup", at = @At("HEAD"), cancellable = true)
+    private void oldways$allowTakeWhenZeroCost(Player player, boolean present, CallbackInfoReturnable<Boolean> cir) {
         if (oldways$isPureRename()) {
             cir.setReturnValue(present);
         }
     }
 
-    @ModifyConstant(method = "updateResult", constant = @Constant(intValue = 40, ordinal = 2))
+    @ModifyConstant(method = "createResult", constant = @Constant(intValue = 40, ordinal = 2))
     private int oldways$removeTooExpensiveGate(int original) {
         return Integer.MAX_VALUE;
     }
 
     @Unique
     private boolean oldways$outputIsRenamed() {
-        ItemStack input = this.getSlot(0).getStack();
-        ItemStack output = this.getSlot(2).getStack();
+        ItemStack input = this.getSlot(0).getItem();
+        ItemStack output = this.getSlot(2).getItem();
         if (output.isEmpty()) return false;
-        Text inName  = input.get(DataComponentTypes.CUSTOM_NAME);
-        Text outName = output.get(DataComponentTypes.CUSTOM_NAME);
+        Component inName  = input.get(DataComponents.CUSTOM_NAME);
+        Component outName = output.get(DataComponents.CUSTOM_NAME);
         if (inName == null && outName == null) return false;
         if (inName == null) return true;
         if (outName == null) return true;
@@ -208,20 +209,20 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 
     @Unique
     private boolean oldways$isPureRename() {
-        ItemStack right = this.getSlot(1).getStack();
+        ItemStack right = this.getSlot(1).getItem();
         return right.isEmpty() && oldways$outputIsRenamed();
     }
 
     @Unique
     private static boolean isPureMendingBook(ItemStack stack) {
-        if (!stack.isOf(Items.ENCHANTED_BOOK)) return false;
-        ItemEnchantmentsComponent stored =
-                stack.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
+        if (!stack.is(Items.ENCHANTED_BOOK)) return false;
+        ItemEnchantments stored =
+                stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
         boolean mending = false;
         int count = 0;
-        for (Object2IntMap.Entry<RegistryEntry<Enchantment>> e : stored.getEnchantmentEntries()) {
+        for (Object2IntMap.Entry<Holder<@NotNull Enchantment>> e : stored.entrySet()) {
             count++;
-            if (e.getKey().matchesKey(Enchantments.MENDING)) mending = true;
+            if (e.getKey().is(Enchantments.MENDING)) mending = true;
             else return false;
         }
         return mending && count == 1;
@@ -229,11 +230,11 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 
     @Unique
     private static int oldways$getKnockbackLevelFromBook(ItemStack stack) {
-        if (!stack.isOf(Items.ENCHANTED_BOOK)) return 0;
-        ItemEnchantmentsComponent stored =
-                stack.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
-        for (Object2IntMap.Entry<RegistryEntry<Enchantment>> e : stored.getEnchantmentEntries()) {
-            if (e.getKey().matchesKey(Enchantments.KNOCKBACK)) {
+        if (!stack.is(Items.ENCHANTED_BOOK)) return 0;
+        ItemEnchantments stored =
+                stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
+        for (Object2IntMap.Entry<Holder<@NotNull Enchantment>> e : stored.entrySet()) {
+            if (e.getKey().is(Enchantments.KNOCKBACK)) {
                 int lvl = e.getIntValue();
                 return Math.min(Math.max(lvl, 1), 2);
             }
@@ -243,10 +244,10 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 
     @Unique
     private static int oldways$getKnockbackLevelFromItem(ItemStack stack) {
-        ItemEnchantmentsComponent ench =
-                stack.getOrDefault(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
-        for (Object2IntMap.Entry<RegistryEntry<Enchantment>> e : ench.getEnchantmentEntries()) {
-            if (e.getKey().matchesKey(Enchantments.KNOCKBACK)) {
+        ItemEnchantments ench =
+                stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+        for (Object2IntMap.Entry<Holder<@NotNull Enchantment>> e : ench.entrySet()) {
+            if (e.getKey().is(Enchantments.KNOCKBACK)) {
                 int lvl = e.getIntValue();
                 return Math.min(Math.max(lvl, 0), 2);
             }

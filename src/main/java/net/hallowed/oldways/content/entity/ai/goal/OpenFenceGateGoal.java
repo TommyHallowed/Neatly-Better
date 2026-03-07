@@ -1,9 +1,9 @@
 package net.hallowed.oldways.content.entity.ai.goal;
 
-import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.world.entity.Mob;
 
 public class OpenFenceGateGoal extends FenceGateInteractGoal {
-    public OpenFenceGateGoal(MobEntity mob) {
+    public OpenFenceGateGoal(Mob mob) {
         super(mob);
     }
 }

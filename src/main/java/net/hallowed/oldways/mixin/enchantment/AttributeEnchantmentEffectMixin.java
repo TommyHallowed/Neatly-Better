@@ -1,11 +1,12 @@
 package net.hallowed.oldways.mixin.enchantment;
 
-import net.minecraft.enchantment.effect.AttributeEnchantmentEffect;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.enchantment.effects.EnchantmentAttributeEffect;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -13,37 +14,37 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(AttributeEnchantmentEffect.class)
+@Mixin(EnchantmentAttributeEffect.class)
 public abstract class AttributeEnchantmentEffectMixin {
 
     @Unique private static final double VANILLA_PER_LEVEL  = 0.15;
     @Unique private static final double DESIRED_PER_LEVEL  = 0.046875;
     @Unique private static final double SCALE = DESIRED_PER_LEVEL / VANILLA_PER_LEVEL;
 
-    @Shadow public abstract RegistryEntry<EntityAttribute> attribute();
+    @Shadow public abstract Holder<@NotNull Attribute> attribute();
 
     @Inject(
-            method = "createAttributeModifier(ILnet/minecraft/util/StringIdentifiable;)Lnet/minecraft/entity/attribute/EntityAttributeModifier;",
+            method = "getModifier(ILnet/minecraft/util/StringRepresentable;)Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;",
             at = @At("RETURN"),
             cancellable = true
     )
-    private void oldways$weakerProtectionViaGamerule(int level, StringIdentifiable suffix,
-                                                     CallbackInfoReturnable<EntityAttributeModifier> cir) {
+    private void oldways$weakerProtectionViaGamerule(int level, StringRepresentable suffix,
+                                                     CallbackInfoReturnable<AttributeModifier> cir) {
         if (!isBurningTime(attribute())) return;
 
 
-        EntityAttributeModifier orig = cir.getReturnValue();
+        AttributeModifier orig = cir.getReturnValue();
         if (orig == null) return;
 
         // Scale down the modifier’s magnitude
-        double scaled = orig.value() * SCALE;
-        cir.setReturnValue(new EntityAttributeModifier(orig.id(), scaled, orig.operation()));
+        double scaled = orig.amount() * SCALE;
+        cir.setReturnValue(new AttributeModifier(orig.id(), scaled, orig.operation()));
     }
 
     @Unique
-    private static boolean isBurningTime(RegistryEntry<EntityAttribute> entry) {
-        return entry.getKey()
-                .map(k -> k.getValue().equals(Identifier.ofVanilla("burning_time")))
+    private static boolean isBurningTime(Holder<@NotNull Attribute> entry) {
+        return entry.unwrapKey()
+                .map(k -> k.identifier().equals(Identifier.withDefaultNamespace("burning_time")))
                 .orElse(false);
     }
 }

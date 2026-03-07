@@ -1,29 +1,30 @@
 package net.hallowed.oldways.content.item;
 
 import net.hallowed.oldways.util.FastChunkScanner;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
-import net.minecraft.entity.boss.BossBar;
-import net.minecraft.entity.boss.ServerBossBar;
-import net.minecraft.entity.decoration.GlowItemFrameEntity;
-import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.FilledMapItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerBossEvent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.BossEvent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.decoration.GlowItemFrame;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.MapItem;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -40,7 +41,7 @@ public class MapBuilderItem extends Item {
     public static final String NBT_FACING = "MapFacing";
     public static final String NBT_PLAYER_FACING = "PlayerFacing";
 
-    public MapBuilderItem(Settings settings) {
+    public MapBuilderItem(Properties settings) {
         super(settings);
     }
 
@@ -52,7 +53,7 @@ public class MapBuilderItem extends Item {
     public static class MapGenerationQueue {
         private static final Queue<GenerationJob> JOBS = new LinkedList<>();
 
-        public static void addJob(ServerPlayerEntity player, List<MapGenerationTask> tasks) {
+        public static void addJob(ServerPlayer player, List<MapGenerationTask> tasks) {
             JOBS.add(new GenerationJob(player, tasks));
         }
 
@@ -76,20 +77,20 @@ public class MapBuilderItem extends Item {
         }
 
         private static class GenerationJob {
-            private final ServerPlayerEntity player;
+            private final ServerPlayer player;
             private final Queue<MapGenerationTask> queuedTasks;
             private final List<MapGenerationTask> activeTasks = new ArrayList<>();
             private final int totalTasks;
             private int completed = 0;
-            private final ServerBossBar bossBar;
+            private final ServerBossEvent bossBar;
 
-            public GenerationJob(ServerPlayerEntity player, List<MapGenerationTask> tasks) {
+            public GenerationJob(ServerPlayer player, List<MapGenerationTask> tasks) {
                 this.player = player;
                 this.queuedTasks = new LinkedList<>(tasks);
                 this.totalTasks = tasks.size();
-                this.bossBar = (ServerBossBar) new ServerBossBar(
-                        Text.literal("Mapping Area (0%)"), BossBar.Color.BLUE, BossBar.Style.PROGRESS
-                ).setDarkenSky(false);
+                this.bossBar = (ServerBossEvent) new ServerBossEvent(
+                        Component.literal("Mapping Area (0%)"), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS
+                ).setDarkenScreen(false);
                 this.bossBar.addPlayer(player);
             }
 
@@ -126,48 +127,48 @@ public class MapBuilderItem extends Item {
 
                 float percent = (completed + activeProgress) / totalTasks;
                 percent = Math.min(1.0f, Math.max(0.0f, percent));
-                bossBar.setPercent(percent);
+                bossBar.setProgress(percent);
 
                 int displayPercent = (int)(percent * 100);
-                bossBar.setName(Text.literal(String.format("Mapping Area (%d%%)", displayPercent)));
+                bossBar.setName(Component.literal(String.format("Mapping Area (%d%%)", displayPercent)));
             }
 
             public void finish() {
                 bossBar.removePlayer(player);
-                player.sendMessage(Text.literal("Map generation complete!").formatted(Formatting.GREEN), false);
+                player.displayClientMessage(Component.literal("Map generation complete!").withStyle(ChatFormatting.GREEN), false);
             }
         }
     }
 
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
-        World world = context.getWorld();
-        if (world.isClient()) return ActionResult.SUCCESS;
+    public @NotNull InteractionResult useOn(UseOnContext context) {
+        Level world = context.getLevel();
+        if (world.isClientSide()) return InteractionResult.SUCCESS;
 
-        PlayerEntity player = context.getPlayer();
-        ItemStack stack = context.getStack();
-        NbtCompound nbt = getCustomData(stack);
-        int step = nbt.getInt(NBT_STEP, 0);
-        BlockPos pos = context.getBlockPos();
+        Player player = context.getPlayer();
+        ItemStack stack = context.getItemInHand();
+        CompoundTag nbt = getCustomData(stack);
+        int step = nbt.getIntOr(NBT_STEP, 0);
+        BlockPos pos = context.getClickedPos();
 
         if (step == 2) {
-            int p1X = nbt.getInt(NBT_P1_X, 0), p1Y = nbt.getInt(NBT_P1_Y, 0), p1Z = nbt.getInt(NBT_P1_Z, 0);
-            int p2X = nbt.getInt(NBT_P2_X, 0), p2Y = nbt.getInt(NBT_P2_Y, 0), p2Z = nbt.getInt(NBT_P2_Z, 0);
+            int p1X = nbt.getIntOr(NBT_P1_X, 0), p1Y = nbt.getIntOr(NBT_P1_Y, 0), p1Z = nbt.getIntOr(NBT_P1_Z, 0);
+            int p2X = nbt.getIntOr(NBT_P2_X, 0), p2Y = nbt.getIntOr(NBT_P2_Y, 0), p2Z = nbt.getIntOr(NBT_P2_Z, 0);
 
             int minX = Math.min(p1X, p2X), maxX = Math.max(p1X, p2X);
             int minY = Math.min(p1Y, p2Y), maxY = Math.max(p1Y, p2Y);
             int minZ = Math.min(p1Z, p2Z), maxZ = Math.max(p1Z, p2Z);
 
             if (pos.getX() >= minX && pos.getX() <= maxX && pos.getY() >= minY && pos.getY() <= maxY && pos.getZ() >= minZ && pos.getZ() <= maxZ) {
-                if (buildMapWall((ServerWorld) world, player, stack)) {
+                if (buildMapWall((ServerLevel) world, player, stack)) {
                     nbt.putInt(NBT_STEP, 0);
                     nbt.putBoolean(NBT_HAS_P1, false);
                     nbt.putBoolean(NBT_HAS_P2, false);
                     saveCustomData(stack, nbt);
                 }
-                return ActionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             } else {
-                return ActionResult.PASS;
+                return InteractionResult.PASS;
             }
         }
 
@@ -175,40 +176,40 @@ public class MapBuilderItem extends Item {
         nbt.putInt(NBT_P1_Y, pos.getY());
         nbt.putInt(NBT_P1_Z, pos.getZ());
         nbt.putBoolean(NBT_HAS_P1, true);
-        nbt.putInt(NBT_FACING, context.getSide().getIndex());
+        nbt.putInt(NBT_FACING, context.getClickedFace().get3DDataValue());
         if (player != null) {
-            nbt.putInt(NBT_PLAYER_FACING, player.getHorizontalFacing().getIndex());
+            nbt.putInt(NBT_PLAYER_FACING, player.getDirection().get3DDataValue());
         }
         checkAdvanceToStep2(stack, nbt);
 
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        ItemStack stack = user.getStackInHand(hand);
-        if (!world.isClient()) {
-            NbtCompound nbt = getCustomData(stack);
-            if (user.isSneaking()) {
-                int currentZoom = nbt.getInt(NBT_ZOOM, 0);
+    public @NotNull InteractionResult use(Level world, Player user, @NotNull InteractionHand hand) {
+        ItemStack stack = user.getItemInHand(hand);
+        if (!world.isClientSide()) {
+            CompoundTag nbt = getCustomData(stack);
+            if (user.isShiftKeyDown()) {
+                int currentZoom = nbt.getIntOr(NBT_ZOOM, 0);
                 int newZoom = (currentZoom + 1) % 5;
                 nbt.putInt(NBT_ZOOM, newZoom);
                 saveCustomData(stack, nbt);
-                user.sendMessage(Text.literal("Map Zoom Level: " + newZoom).formatted(Formatting.YELLOW), true);
-                return ActionResult.SUCCESS;
+                user.displayClientMessage(Component.literal("Map Zoom Level: " + newZoom).withStyle(ChatFormatting.YELLOW), true);
+                return InteractionResult.SUCCESS;
             }
 
-            if (nbt.getInt(NBT_STEP, 0) == 0) {
+            if (nbt.getIntOr(NBT_STEP, 0) == 0) {
                 nbt.putInt(NBT_STEP, 1);
                 saveCustomData(stack, nbt);
             }
         }
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     public void onLeftClickBlock(BlockPos pos, ItemStack stack) {
-        NbtCompound nbt = getCustomData(stack);
-        int step = nbt.getInt(NBT_STEP, 0);
+        CompoundTag nbt = getCustomData(stack);
+        int step = nbt.getIntOr(NBT_STEP, 0);
 
         if (step == 0 || step == 1) {
             nbt.putInt(NBT_P2_X, pos.getX());
@@ -219,8 +220,8 @@ public class MapBuilderItem extends Item {
         }
     }
 
-    private void checkAdvanceToStep2(ItemStack stack, NbtCompound nbt) {
-        if (nbt.getBoolean(NBT_HAS_P1, false) && nbt.getBoolean(NBT_HAS_P2, false)) {
+    private void checkAdvanceToStep2(ItemStack stack, CompoundTag nbt) {
+        if (nbt.getBooleanOr(NBT_HAS_P1, false) && nbt.getBooleanOr(NBT_HAS_P2, false)) {
             nbt.putInt(NBT_STEP, 2);
             if (!nbt.contains(NBT_ZOOM)) nbt.putInt(NBT_ZOOM, 0);
         }
@@ -229,16 +230,15 @@ public class MapBuilderItem extends Item {
 
     private record MapTarget(BlockPos framePos, int targetX, int targetZ, int rotation) {}
 
-    private boolean buildMapWall(ServerWorld world, PlayerEntity player, ItemStack toolStack) {
-        NbtCompound nbt = getCustomData(toolStack);
-        int p1X = nbt.getInt(NBT_P1_X, 0), p1Y = nbt.getInt(NBT_P1_Y, 0), p1Z = nbt.getInt(NBT_P1_Z, 0);
-        int p2X = nbt.getInt(NBT_P2_X, 0), p2Y = nbt.getInt(NBT_P2_Y, 0), p2Z = nbt.getInt(NBT_P2_Z, 0);
+    private boolean buildMapWall(ServerLevel world, Player player, ItemStack toolStack) {
+        CompoundTag nbt = getCustomData(toolStack);
+        int p1X = nbt.getIntOr(NBT_P1_X, 0), p1Y = nbt.getIntOr(NBT_P1_Y, 0), p1Z = nbt.getIntOr(NBT_P1_Z, 0);
+        int p2X = nbt.getIntOr(NBT_P2_X, 0), p2Y = nbt.getIntOr(NBT_P2_Y, 0), p2Z = nbt.getIntOr(NBT_P2_Z, 0);
 
-        Direction facing = Direction.byIndex(nbt.getInt(NBT_FACING, Direction.UP.getIndex()));
-        if (facing == null) facing = Direction.UP;
+        Direction facing = Direction.from3DDataValue(nbt.getIntOr(NBT_FACING, Direction.UP.get3DDataValue()));
 
-        Direction pFacing = Direction.byIndex(nbt.getInt(NBT_PLAYER_FACING, Direction.NORTH.getIndex()));
-        if (pFacing == null || pFacing.getAxis().isVertical()) pFacing = Direction.NORTH;
+        Direction pFacing = Direction.from3DDataValue(nbt.getIntOr(NBT_PLAYER_FACING, Direction.NORTH.get3DDataValue()));
+        if (pFacing.getAxis().isVertical()) pFacing = Direction.NORTH;
 
         int minX = Math.min(p1X, p2X), maxX = Math.max(p1X, p2X);
         int minY = Math.min(p1Y, p2Y), maxY = Math.max(p1Y, p2Y);
@@ -282,12 +282,12 @@ public class MapBuilderItem extends Item {
         if (vecRight.getZ() > 0 || vecDown.getZ() > 0) startZ = minZ;
         else if (vecRight.getZ() < 0 || vecDown.getZ() < 0) startZ = maxZ;
 
-        byte zoom = (byte) nbt.getInt(NBT_ZOOM, 0);
+        byte zoom = (byte) nbt.getIntOr(NBT_ZOOM, 0);
         int scaleMultiplier = 1 << zoom;
         int mapSize = 128 * scaleMultiplier;
 
-        int gridX = MathHelper.floor((player.getX() + 64.0) / mapSize);
-        int gridZ = MathHelper.floor((player.getZ() + 64.0) / mapSize);
+        int gridX = Mth.floor((player.getX() + 64.0) / mapSize);
+        int gridZ = Mth.floor((player.getZ() + 64.0) / mapSize);
         int centerMapTargetX = gridX * mapSize + mapSize / 2 - 64;
         int centerMapTargetZ = gridZ * mapSize + mapSize / 2 - 64;
 
@@ -302,8 +302,8 @@ public class MapBuilderItem extends Item {
                 int mapTargetX = centerMapTargetX + (u - width / 2) * mapSize;
                 int mapTargetZ = centerMapTargetZ + (v - height / 2) * mapSize;
 
-                BlockPos framePos = new BlockPos(x, y, z).offset(facing);
-                if (world.getBlockState(framePos).isReplaceable()) {
+                BlockPos framePos = new BlockPos(x, y, z).relative(facing);
+                if (world.getBlockState(framePos).canBeReplaced()) {
                     pendingMaps.add(new MapTarget(framePos, mapTargetX, mapTargetZ, frameRotation));
                 }
             }
@@ -316,12 +316,12 @@ public class MapBuilderItem extends Item {
         int glowToUse = 0;
 
         if (!player.isCreative()) {
-            int emptyMaps = player.getInventory().count(Items.MAP);
-            int normalFrames = player.getInventory().count(Items.ITEM_FRAME);
-            int glowFrames = player.getInventory().count(Items.GLOW_ITEM_FRAME);
+            int emptyMaps = player.getInventory().countItem(Items.MAP);
+            int normalFrames = player.getInventory().countItem(Items.ITEM_FRAME);
+            int glowFrames = player.getInventory().countItem(Items.GLOW_ITEM_FRAME);
 
             if (emptyMaps < requiredItems || (normalFrames + glowFrames) < requiredItems) {
-                player.sendMessage(Text.literal("Not enough materials! Need " + requiredItems + "x Empty Map and Item Frames.").formatted(Formatting.RED), false);
+                player.displayClientMessage(Component.literal("Not enough materials! Need " + requiredItems + "x Empty Map and Item Frames.").withStyle(ChatFormatting.RED), false);
                 return false;
             }
 
@@ -331,49 +331,49 @@ public class MapBuilderItem extends Item {
             consumeItems(player, Items.MAP, requiredItems);
             if (normalToUse > 0) consumeItems(player, Items.ITEM_FRAME, normalToUse);
             if (glowToUse > 0) consumeItems(player, Items.GLOW_ITEM_FRAME, glowToUse);
-            toolStack.decrementUnlessCreative(1, player);
+            toolStack.consume(1, player);
         }
 
         List<MapGenerationTask> unifiedPhase = new ArrayList<>();
         int normalSpawnsRemaining = normalToUse;
 
         for (MapTarget target : pendingMaps) {
-            ItemStack mapStack = FilledMapItem.createMap(world, target.targetX, target.targetZ, zoom, false, false);
+            ItemStack mapStack = MapItem.create(world, target.targetX, target.targetZ, zoom, false, false);
 
             boolean useGlow = normalSpawnsRemaining <= 0;
             if (!useGlow) normalSpawnsRemaining--;
 
-            ItemFrameEntity itemFrame = useGlow ? new GlowItemFrameEntity(world, target.framePos, facing) : new ItemFrameEntity(world, target.framePos, facing);
-            itemFrame.setHeldItemStack(mapStack);
+            ItemFrame itemFrame = useGlow ? new GlowItemFrame(world, target.framePos, facing) : new ItemFrame(world, target.framePos, facing);
+            itemFrame.setItem(mapStack);
             itemFrame.setRotation(target.rotation);
-            world.spawnEntity(itemFrame);
+            world.addFreshEntity(itemFrame);
 
             // Create ONE unified task per map frame (The boolean constructor variable is gone!)
             unifiedPhase.add(new FastChunkScanner(world, mapStack, target.targetX, target.targetZ, zoom));
         }
 
-        MapGenerationQueue.addJob((ServerPlayerEntity) player, unifiedPhase);
+        MapGenerationQueue.addJob((ServerPlayer) player, unifiedPhase);
 
         return true;
     }
 
-    private void consumeItems(PlayerEntity player, Item item, int amount) {
-        for (int i = 0; i < player.getInventory().size(); i++) {
-            ItemStack stack = player.getInventory().getStack(i);
-            if (stack.isOf(item)) {
+    private void consumeItems(Player player, Item item, int amount) {
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.is(item)) {
                 int toTake = Math.min(amount, stack.getCount());
-                stack.decrement(toTake);
+                stack.shrink(toTake);
                 amount -= toTake;
                 if (amount <= 0) break;
             }
         }
     }
 
-    private NbtCompound getCustomData(ItemStack stack) {
-        return stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt();
+    private CompoundTag getCustomData(ItemStack stack) {
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
     }
 
-    private void saveCustomData(ItemStack stack, NbtCompound nbt) {
-        stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt));
+    private void saveCustomData(ItemStack stack, CompoundTag nbt) {
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(nbt));
     }
 }

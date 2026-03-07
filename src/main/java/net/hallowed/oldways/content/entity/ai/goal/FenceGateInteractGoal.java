@@ -1,57 +1,57 @@
 package net.hallowed.oldways.content.entity.ai.goal;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FenceGateBlock;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.pathing.MobNavigation;
-import net.minecraft.entity.ai.pathing.Path;
-import net.minecraft.entity.ai.pathing.PathNode;
-import net.minecraft.entity.ai.pathing.EntityNavigation;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.FenceGateBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.pathfinder.Node;
+import net.minecraft.world.level.pathfinder.Path;
 
 public abstract class FenceGateInteractGoal extends Goal {
 
-    protected final MobEntity mob;
-    protected BlockPos gatePos = BlockPos.ORIGIN;
+    protected final Mob mob;
+    protected BlockPos gatePos = BlockPos.ZERO;
     protected boolean hasGate;
     private boolean passed;
     private float doorOpenDirX;
     private float doorOpenDirZ;
 
-    public FenceGateInteractGoal(MobEntity mob) {
+    public FenceGateInteractGoal(Mob mob) {
         this.mob = mob;
 
-        if (!(mob.getNavigation() instanceof MobNavigation)) {
+        if (!(mob.getNavigation() instanceof GroundPathNavigation)) {
             throw new IllegalArgumentException("Unsupported mob type for FenceGateInteractGoal");
         }
     }
 
 
     @Override
-    public boolean canStart() {
-        final EntityNavigation nav = mob.getNavigation();
-        if (!(nav instanceof MobNavigation groundNav)) return false;
+    public boolean canUse() {
+        final PathNavigation nav = mob.getNavigation();
+        if (!(nav instanceof GroundPathNavigation groundNav)) return false;
 
-        Path path = groundNav.getCurrentPath();
+        Path path = groundNav.getPath();
         if (path == null) return false;
 
-        int limit = Math.min(path.getCurrentNodeIndex() + 2, path.getLength());
-        World w = mob.getEntityWorld();
+        int limit = Math.min(path.getNextNodeIndex() + 2, path.getNodeCount());
+        Level w = mob.level();
 
         for (int i = 0; i < limit; i++) {
-            PathNode node = path.getNode(i);
+            Node node = path.getNode(i);
             BlockPos probe = new BlockPos(
-                    node.x + mob.getRandom().nextBetween(-2, 2),
+                    node.x + mob.getRandom().nextIntBetweenInclusive(-2, 2),
                     node.y,
-                    node.z + mob.getRandom().nextBetween(-2, 2)
+                    node.z + mob.getRandom().nextIntBetweenInclusive(-2, 2)
             );
 
-            if (mob.squaredDistanceTo(probe.getX() + 0.5, probe.getY(), probe.getZ() + 0.5) < 2.25D) {
+            if (mob.distanceToSqr(probe.getX() + 0.5, probe.getY(), probe.getZ() + 0.5) < 2.25D) {
                 BlockState s = w.getBlockState(probe);
                 if (s.getBlock() instanceof FenceGateBlock) {
                     this.gatePos = probe;
@@ -65,7 +65,7 @@ public abstract class FenceGateInteractGoal extends Goal {
     }
 
     @Override
-    public boolean shouldContinue() {
+    public boolean canContinueToUse() {
         return !this.passed;
     }
 
@@ -83,7 +83,7 @@ public abstract class FenceGateInteractGoal extends Goal {
     }
 
     @Override
-    public boolean shouldRunEveryTick() {
+    public boolean requiresUpdateEveryTick() {
         return true;
     }
 
@@ -101,21 +101,21 @@ public abstract class FenceGateInteractGoal extends Goal {
     protected void setOpen(boolean open) {
         if (!this.hasGate) return;
 
-        World w = mob.getEntityWorld();
+        Level w = mob.level();
         BlockState s = w.getBlockState(this.gatePos);
         if (!(s.getBlock() instanceof FenceGateBlock)) return;
 
-        if (s.contains(FenceGateBlock.OPEN) && s.get(FenceGateBlock.OPEN) != open) {
-            w.setBlockState(this.gatePos, s.with(FenceGateBlock.OPEN, open), 10);
+        if (s.hasProperty(FenceGateBlock.OPEN) && s.getValue(FenceGateBlock.OPEN) != open) {
+            w.setBlock(this.gatePos, s.setValue(FenceGateBlock.OPEN, open), 10);
 
             w.playSound(null,
                     this.gatePos,
-                    open ? SoundEvents.BLOCK_FENCE_GATE_OPEN : SoundEvents.BLOCK_FENCE_GATE_CLOSE,
-                    SoundCategory.BLOCKS,
+                    open ? SoundEvents.FENCE_GATE_OPEN : SoundEvents.FENCE_GATE_CLOSE,
+                    SoundSource.BLOCKS,
                     1.0F,
                     w.getRandom().nextFloat() * 0.1F + 0.9F
             );
-            w.emitGameEvent(open ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, this.gatePos, GameEvent.Emitter.of(mob));
+            w.gameEvent(open ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, this.gatePos, GameEvent.Context.of(mob));
         }
     }
 }

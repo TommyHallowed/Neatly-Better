@@ -3,14 +3,14 @@ package net.hallowed.oldways.client.mixin.ui;
 import net.hallowed.oldways.client.util.RecipeBookUtil;
 import net.hallowed.oldways.client.util.SettingsPrefs;
 import net.hallowed.oldways.client.util.SettingsPrefs.RecipeBookMode;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.RecipeBookScreen;
-import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.recipebook.ClientRecipeBook;
-import net.minecraft.recipe.book.RecipeBookType;
-import net.minecraft.screen.AbstractRecipeScreenHandler;
+import net.minecraft.client.ClientRecipeBook;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
+import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.inventory.RecipeBookMenu;
+import net.minecraft.world.inventory.RecipeBookType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,31 +19,29 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ClientPlayerEntity.class)
+@Mixin(LocalPlayer.class)
 public abstract class ClientPlayerEntityMixin {
     @Shadow @Final private ClientRecipeBook recipeBook;
-    @Shadow @Final public ClientPlayNetworkHandler networkHandler;
+    @Shadow @Final public ClientPacketListener connection;
 
     @Unique
     private static final SettingsPrefs OW$prefs = SettingsPrefs.get();
 
-    @Inject(method = "closeScreen", at = @At("HEAD"))
+    @Inject(method = "clientSideCloseContainer", at = @At("HEAD"))
     private void oldways$closeRecipeBookIfOpen(CallbackInfo ci) {
         RecipeBookMode mode = OW$prefs.recipeBookMode;
         if (mode == RecipeBookMode.SHOWN) return;
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client == null || client.currentScreen == null) return;
+        Minecraft client = Minecraft.getInstance();
+        if (client.screen == null) return;
 
-        if (client.currentScreen instanceof RecipeBookScreen<?> recipeScreen) {
-            RecipeBookWidget<?> recipeBookWidget = recipeScreen.recipeBook;
-            if (recipeBookWidget == null) return;
+        if (client.screen instanceof AbstractRecipeBookScreen<?> recipeScreen) {
+            RecipeBookComponent<?> recipeBookWidget = recipeScreen.recipeBookComponent;
 
-            AbstractRecipeScreenHandler handler = recipeBookWidget.craftingScreenHandler;
-            if (handler == null) return;
+            RecipeBookMenu handler = recipeBookWidget.menu;
 
-            RecipeBookType category = handler.getCategory();
-            RecipeBookUtil.closeRecipeBook(this.recipeBook, this.networkHandler, category);
+            RecipeBookType category = handler.getRecipeBookType();
+            RecipeBookUtil.closeRecipeBook(this.recipeBook, this.connection, category);
         }
     }
 }

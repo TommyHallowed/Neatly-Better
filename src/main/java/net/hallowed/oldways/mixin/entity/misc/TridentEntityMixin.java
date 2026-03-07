@@ -1,31 +1,31 @@
 package net.hallowed.oldways.mixin.entity.misc;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.TridentEntity;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.arrow.ThrownTrident;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(TridentEntity.class)
+@Mixin(ThrownTrident.class)
 abstract class TridentEntityMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void oldways$returnFromVoid(CallbackInfo ci) {
-        TridentEntity self = (TridentEntity) (Object) this;
-        DataTracker tracker = self.getDataTracker();
+        ThrownTrident self = (ThrownTrident) (Object) this;
+        SynchedEntityData tracker = self.getEntityData();
 
-        byte loyalty = tracker.get(TridentEntity.LOYALTY);
+        byte loyalty = tracker.get(ThrownTrident.ID_LOYALTY);
         if (loyalty <= 0) return;
 
         Entity owner = self.getOwner();
-        if (!(owner instanceof PlayerEntity player) || !player.isAlive()) return;
+        if (!(owner instanceof Player player) || !player.isAlive()) return;
 
-        if (self.getY() < self.getEntityWorld().getBottomY()) {
-            self.setNoClip(true);
-            self.onPlayerCollision(player);
+        if (self.getY() < self.level().getMinY()) {
+            self.setNoPhysics(true);
+            self.playerTouch(player);
         }
     }
 }

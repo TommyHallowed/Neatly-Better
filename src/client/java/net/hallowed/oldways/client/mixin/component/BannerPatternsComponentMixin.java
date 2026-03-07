@@ -2,7 +2,7 @@ package net.hallowed.oldways.client.mixin.component;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.component.type.BannerPatternsComponent;
+import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.*;
 
@@ -11,11 +11,11 @@ import org.spongepowered.asm.mixin.injection.*;
  * This affects banners AND shields (since shields copy the component).
  */
 @Environment(EnvType.CLIENT)
-@Mixin(BannerPatternsComponent.class)
+@Mixin(BannerPatternLayers.class)
 public abstract class BannerPatternsComponentMixin {
 
     @ModifyConstant(
-            method = { "appendTooltip" },
+            method = { "addToTooltip" },
             constant = @Constant(intValue = 6),
             require = 0
     )
@@ -24,7 +24,7 @@ public abstract class BannerPatternsComponentMixin {
     }
 
     @Redirect(
-            method = { "appendTooltip" },
+            method = { "addToTooltip" },
             at = @At(value = "INVOKE", target = "Ljava/lang/Math;min(II)I"),
             require = 0
     )

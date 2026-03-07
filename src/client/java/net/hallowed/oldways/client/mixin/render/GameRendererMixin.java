@@ -2,16 +2,16 @@ package net.hallowed.oldways.client.mixin.render;
 
 import net.hallowed.oldways.client.util.GameRendererPickHelper;
 import net.hallowed.oldways.client.util.SwingThroughGrassClient;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,23 +23,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
-    @Shadow @Final private MinecraftClient client;
+    @Shadow @Final private Minecraft minecraft;
 
     @Unique private boolean ow$attackHeld = false;
 
-    @Inject(method = "updateCrosshairTarget", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "pick", at = @At("HEAD"), cancellable = true)
     private void oldways$swingThroughWhenTargetingEntity(float tickProgress, CallbackInfo ci) {
         if (!SwingThroughGrassClient.enabled()) return;
-        if (client == null || client.player == null || client.world == null) return;
+        if (minecraft == null || minecraft.player == null || minecraft.level == null) return;
 
-        final Entity camera = client.getCameraEntity();
+        final Entity camera = minecraft.getCameraEntity();
         if (camera == null) return;
 
-        final double blockRange  = client.player.getBlockInteractionRange();
-        final double entityRange = client.player.getEntityInteractionRange();
+        final double blockRange  = minecraft.player.blockInteractionRange();
+        final double entityRange = minecraft.player.entityInteractionRange();
 
         // FIX: Replaced the old shadow method with the new 1.21 player method!
-        final HitResult vanillaFront = client.player.getCrosshairTarget(tickProgress, camera);
+        final HitResult vanillaFront = minecraft.player.raycastHitResult(tickProgress, camera);
 
         final HitResult behindResult = GameRendererPickHelper.pickIgnoringOutlineOnly(camera, blockRange, entityRange, tickProgress);
 
@@ -47,12 +47,12 @@ public abstract class GameRendererMixin {
             return;
         }
 
-        final boolean pressing = client.options.attackKey.isPressed();
+        final boolean pressing = minecraft.options.keyAttack.isDown();
         if (pressing && !ow$attackHeld && vanillaFront instanceof BlockHitResult bhr) {
             try {
                 BlockPos frontPos = bhr.getBlockPos();
-                BlockState frontState = client.world.getBlockState(frontPos);
-                if (!frontState.isOf(Blocks.COBWEB)) {
+                BlockState frontState = minecraft.level.getBlockState(frontPos);
+                if (!frontState.is(Blocks.COBWEB)) {
                     tryBreakIfOneHit(bhr);
                 }
             } catch (Throwable ignored) {
@@ -61,23 +61,23 @@ public abstract class GameRendererMixin {
         }
         ow$attackHeld = pressing;
 
-        client.crosshairTarget = behindResult;
-        client.targetedEntity  = ehr.getEntity();
+        minecraft.hitResult = behindResult;
+        minecraft.crosshairPickEntity  = ehr.getEntity();
 
         ci.cancel();
     }
 
     @Unique
     private void tryBreakIfOneHit(BlockHitResult bhr) {
-        if (client.interactionManager == null || client.player == null || client.world == null) return;
+        if (minecraft.gameMode == null || minecraft.player == null || minecraft.level == null) return;
 
-        final World world = client.world;
+        final Level world = minecraft.level;
         final BlockPos pos = bhr.getBlockPos();
         final BlockState state = world.getBlockState(pos);
         if (state.isAir()) return;
 
-        if (state.calcBlockBreakingDelta(client.player, world, pos) >= 1.0F) {
-            client.interactionManager.attackBlock(pos, bhr.getSide());
+        if (state.getDestroyProgress(minecraft.player, world, pos) >= 1.0F) {
+            minecraft.gameMode.startDestroyBlock(pos, bhr.getDirection());
         }
     }
 }

@@ -1,8 +1,8 @@
 package net.hallowed.oldways.client.mixin.entity;
 
 import net.hallowed.oldways.client.util.ItemEntityRenderStateAccessor;
-import net.minecraft.client.render.entity.state.ItemEntityRenderState;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.renderer.entity.state.ItemEntityRenderState;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 

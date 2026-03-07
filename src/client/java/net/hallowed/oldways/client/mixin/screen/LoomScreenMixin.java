@@ -1,6 +1,6 @@
 package net.hallowed.oldways.client.mixin.screen;
 
-import net.minecraft.client.gui.screen.ingame.LoomScreen;
+import net.minecraft.client.gui.screens.inventory.LoomScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
@@ -10,8 +10,8 @@ public abstract class LoomScreenMixin {
 
     @ModifyConstant(
             method = {
-                    "onInventoryChanged",
-                    "drawBackground",
+                    "containerChanged",
+                    "renderBg",
                     "render"
             },
             constant = @Constant(intValue = 6),

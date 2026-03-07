@@ -1,12 +1,12 @@
 package net.hallowed.oldways.content.feature;
 
 import net.fabricmc.fabric.api.entity.event.v1.EntityElytraEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public final class ElytraFlightLimiter {
     private ElytraFlightLimiter() {}
@@ -17,22 +17,22 @@ public final class ElytraFlightLimiter {
 
     public static void init() {
         EntityElytraEvents.ALLOW.register((LivingEntity entity) -> {
-            if (!(entity instanceof PlayerEntity p)) return true;
-            if (p.isGliding()) return true;
+            if (!(entity instanceof Player p)) return true;
+            if (p.isFallFlying()) return true;
 
             double feetY = p.getBoundingBox().minY;
-            Vec3d start = new Vec3d(p.getX(), feetY, p.getZ());
-            Vec3d end   = new Vec3d(p.getX(), feetY - (MIN_CLEARANCE_BLOCKS + 0.05), p.getZ());
+            Vec3 start = new Vec3(p.getX(), feetY, p.getZ());
+            Vec3 end   = new Vec3(p.getX(), feetY - (MIN_CLEARANCE_BLOCKS + 0.05), p.getZ());
 
-            BlockHitResult hit = p.getEntityWorld().raycast(new RaycastContext(
+            BlockHitResult hit = p.level().clip(new ClipContext(
                     start, end,
-                    RaycastContext.ShapeType.COLLIDER,
-                    RaycastContext.FluidHandling.NONE,
+                    ClipContext.Block.COLLIDER,
+                    ClipContext.Fluid.NONE,
                     p
             ));
 
             if (hit.getType() == HitResult.Type.BLOCK) {
-                double clearance = feetY - hit.getPos().y;
+                double clearance = feetY - hit.getLocation().y;
 
                 if (p.fallDistance > BYPASS_FALL_DISTANCE) {
                     return true;

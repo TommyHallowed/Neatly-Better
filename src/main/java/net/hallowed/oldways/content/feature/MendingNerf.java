@@ -2,16 +2,17 @@ package net.hallowed.oldways.content.feature;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import net.hallowed.oldways.api.events.AnvilUpdateEvent;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ItemEnchantmentsComponent;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.util.ActionResult;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+import org.jetbrains.annotations.NotNull;
 
 public final class MendingNerf {
     private MendingNerf() {}
@@ -21,53 +22,53 @@ public final class MendingNerf {
 
             ItemStack left  = event.getLeft();
             ItemStack right = event.getRight();
-            if (left.isEmpty() || right.isEmpty() || !right.isOf(Items.ENCHANTED_BOOK))
-                return ActionResult.PASS;
+            if (left.isEmpty() || right.isEmpty() || !right.is(Items.ENCHANTED_BOOK))
+                return InteractionResult.PASS;
 
-            ItemEnchantmentsComponent stored = right.getOrDefault(
-                    DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
-            if (!containsEnchant(stored, Enchantments.MENDING)) return ActionResult.PASS;
+            ItemEnchantments stored = right.getOrDefault(
+                    DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
+            if (!containsEnchant(stored, Enchantments.MENDING)) return InteractionResult.PASS;
             int storedCount = 0;
-            for (Entry<RegistryEntry<Enchantment>> ignored : stored.getEnchantmentEntries()) storedCount++;
-            if (storedCount != 1) return ActionResult.PASS;
+            for (Entry<Holder<@NotNull Enchantment>> ignored : stored.entrySet()) storedCount++;
+            if (storedCount != 1) return InteractionResult.PASS;
 
-            boolean hasDurabilityTag = left.isIn(ItemTags.DURABILITY_ENCHANTABLE);
-            boolean isDamageable     = left.isDamageable();
+            boolean hasDurabilityTag = left.is(ItemTags.DURABILITY_ENCHANTABLE);
+            boolean isDamageable     = left.isDamageableItem();
             if (!hasDurabilityTag || !isDamageable) {
-                return ActionResult.FAIL;
+                return InteractionResult.FAIL;
             }
 
-            ItemEnchantmentsComponent live = left.getOrDefault(
-                    DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
+            ItemEnchantments live = left.getOrDefault(
+                    DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
 
             boolean hasConflict = containsEnchant(live, Enchantments.INFINITY);
 
-            boolean hasRepairCost = left.get(DataComponentTypes.REPAIR_COST) != null;
+            boolean hasRepairCost = left.get(DataComponents.REPAIR_COST) != null;
 
             if (hasConflict || hasRepairCost) {
                 ItemStack out = left.copy();
 
                 if (!live.isEmpty() && containsEnchant(live, Enchantments.MENDING)) {
-                    ItemEnchantmentsComponent.Builder b = new ItemEnchantmentsComponent.Builder(live);
-                    b.remove(e -> e.matchesKey(Enchantments.MENDING));
-                    out.set(DataComponentTypes.ENCHANTMENTS, b.build());
+                    ItemEnchantments.Mutable b = new ItemEnchantments.Mutable(live);
+                    b.removeIf(e -> e.is(Enchantments.MENDING));
+                    out.set(DataComponents.ENCHANTMENTS, b.toImmutable());
                 }
 
-                out.remove(DataComponentTypes.REPAIR_COST);
+                out.remove(DataComponents.REPAIR_COST);
 
                 event.setOutput(out);
                 event.setCost(2);
-                return ActionResult.CONSUME;
+                return InteractionResult.CONSUME;
             }
 
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         });
     }
 
-    public static boolean containsEnchant(ItemEnchantmentsComponent comp, RegistryKey<Enchantment> key) {
+    public static boolean containsEnchant(ItemEnchantments comp, ResourceKey<@NotNull Enchantment> key) {
         if (comp.isEmpty()) return false;
-        for (Entry<RegistryEntry<Enchantment>> e : comp.getEnchantmentEntries()) {
-            if (e.getKey().matchesKey(key)) return true;
+        for (Entry<Holder<@NotNull Enchantment>> e : comp.entrySet()) {
+            if (e.getKey().is(key)) return true;
         }
         return false;
     }

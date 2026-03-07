@@ -1,12 +1,12 @@
 package net.hallowed.oldways.util;
 
 import net.hallowed.oldways.api.LinkableMinecart;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.vehicle.AbstractMinecartEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 
 public class CollisionUtils {
     public static boolean shouldCollide(Entity source, Entity target) {
-        if (!(source instanceof AbstractMinecartEntity check)) {
+        if (!(source instanceof AbstractMinecart check)) {
             return true;
         } else {
             int i = 0;
@@ -16,7 +16,7 @@ public class CollisionUtils {
                 check = ((LinkableMinecart) check).oldways$getFollower();
                 ++i;
                 if (check == null || i >= collisionDepth) {
-                    check = (AbstractMinecartEntity) source;
+                    check = (AbstractMinecart) source;
                     i = 0;
 
                     while (check != target) {

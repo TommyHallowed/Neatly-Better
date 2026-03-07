@@ -1,8 +1,8 @@
 package net.hallowed.oldways.init;
 
 import net.hallowed.oldways.api.OWRegistry;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Items;
 
 import static net.hallowed.oldways.init.ModBlocks.*;
 
@@ -11,10 +11,10 @@ public final class ModItemGroupRegistrar {
 
     public static void register() {
 
-        OWRegistry.addToGroup(ItemGroups.TOOLS, entries ->
-                entries.add(ModItems.MAP_BUILDER));
+        OWRegistry.addToGroup(CreativeModeTabs.TOOLS_AND_UTILITIES, entries ->
+                entries.accept(ModItems.MAP_BUILDER));
 
-        OWRegistry.addToGroup(ItemGroups.BUILDING_BLOCKS, entries -> {
+        OWRegistry.addToGroup(CreativeModeTabs.BUILDING_BLOCKS, entries -> {
             entries.addAfter(Items.SMOOTH_STONE,   SMOOTH_STONE_STAIRS);
             entries.addAfter(Items.CALCITE,   CALCITE_STAIRS);
             entries.addAfter(Items.QUARTZ_BRICKS,   QUARTZ_BRICK_STAIRS);

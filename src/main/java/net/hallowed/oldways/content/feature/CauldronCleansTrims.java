@@ -2,21 +2,21 @@ package net.hallowed.oldways.content.feature;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.hallowed.oldways.init.ModDataComponents;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.LeveledCauldronBlock;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.stat.Stats;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 public final class CauldronCleansTrims {
     private CauldronCleansTrims() {}
@@ -25,61 +25,61 @@ public final class CauldronCleansTrims {
         UseBlockCallback.EVENT.register(CauldronCleansTrims::onUseBlock);
     }
 
-    private static ActionResult onUseBlock(PlayerEntity player, World world, Hand hand, BlockHitResult hit) {
-        if (player == null) return ActionResult.PASS;
+    private static InteractionResult onUseBlock(Player player, Level world, InteractionHand hand, BlockHitResult hit) {
+        if (player == null) return InteractionResult.PASS;
 
-        final ItemStack stack = player.getStackInHand(hand);
+        final ItemStack stack = player.getItemInHand(hand);
 
         // Only proceed if the item actually has a trim applied to it
-        if (!stack.contains(DataComponentTypes.TRIM)) return ActionResult.PASS;
+        if (!stack.has(DataComponents.TRIM)) return InteractionResult.PASS;
 
         final BlockPos pos = hit.getBlockPos();
         final BlockState state = world.getBlockState(pos);
-        if (!state.isOf(Blocks.WATER_CAULDRON)) return ActionResult.PASS;
+        if (!state.is(Blocks.WATER_CAULDRON)) return InteractionResult.PASS;
 
-        final int level = state.get(LeveledCauldronBlock.LEVEL);
-        if (level <= 0) return ActionResult.PASS;
+        final int level = state.getValue(LayeredCauldronBlock.LEVEL);
+        if (level <= 0) return InteractionResult.PASS;
 
-        if (world.isClient()) return ActionResult.SUCCESS;
+        if (world.isClientSide()) return InteractionResult.SUCCESS;
 
         // Create a cleaned copy of the item
         ItemStack cleanedItem = stack.copy();
         cleanedItem.setCount(1);
-        cleanedItem.remove(DataComponentTypes.TRIM);
+        cleanedItem.remove(DataComponents.TRIM);
         cleanedItem.remove(ModDataComponents.EMISSIVE_TRIM);
         cleanedItem.remove(ModDataComponents.PULSING_TRIM);
 
-        if (!player.getAbilities().creativeMode) {
+        if (!player.getAbilities().instabuild) {
             // Decrease water level
             if (level > 1) {
-                world.setBlockState(pos, state.with(LeveledCauldronBlock.LEVEL, level - 1), Block.NOTIFY_ALL);
+                world.setBlock(pos, state.setValue(LayeredCauldronBlock.LEVEL, level - 1), Block.UPDATE_ALL);
             } else {
-                world.setBlockState(pos, Blocks.CAULDRON.getDefaultState(), Block.NOTIFY_ALL);
+                world.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), Block.UPDATE_ALL);
             }
 
             // Replace or give the item
             if (stack.getCount() == 1) {
-                player.setStackInHand(hand, cleanedItem);
+                player.setItemInHand(hand, cleanedItem);
             } else {
-                stack.decrement(1);
-                if (!player.getInventory().insertStack(cleanedItem)) {
-                    player.dropItem(cleanedItem, false);
+                stack.shrink(1);
+                if (!player.getInventory().add(cleanedItem)) {
+                    player.drop(cleanedItem, false);
                 }
             }
         } else {
             // If in creative, we still want to clean the item, we just don't drain the water
             if (stack.getCount() == 1) {
-                player.setStackInHand(hand, cleanedItem);
+                player.setItemInHand(hand, cleanedItem);
             } else {
-                if (!player.getInventory().insertStack(cleanedItem)) {
-                    player.dropItem(cleanedItem, false);
+                if (!player.getInventory().add(cleanedItem)) {
+                    player.drop(cleanedItem, false);
                 }
             }
         }
 
         // Play splashing sound and increment the vanilla cauldron cleaning stat
-        world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 1.0F, 1.0F);
-        player.incrementStat(Stats.CLEAN_ARMOR);
-        return ActionResult.SUCCESS;
+        world.playSound(null, pos, SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 1.0F, 1.0F);
+        player.awardStat(Stats.CLEAN_ARMOR);
+        return InteractionResult.SUCCESS;
     }
 }

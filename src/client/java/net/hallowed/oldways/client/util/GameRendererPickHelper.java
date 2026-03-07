@@ -1,48 +1,47 @@
 package net.hallowed.oldways.client.util;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.projectile.ProjectileUtil;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.hit.HitResult.Type;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.HitResult.Type;
+import net.minecraft.world.phys.Vec3;
 
 public final class GameRendererPickHelper {
     private GameRendererPickHelper() {}
 
     public static HitResult pickIgnoringOutlineOnly(Entity camera, double blockRange, double entityRange, float tickProgress) {
-        World world = camera.getEntityWorld();
-        if (world == null) return null;
+        Level world = camera.level();
 
         double d = Math.max(blockRange, entityRange);
         double maxSq = d * d;
 
-        Vec3d start = camera.getCameraPosVec(tickProgress);
-        Vec3d dir   = camera.getRotationVec(tickProgress);
-        Vec3d end   = start.add(dir.x * d, dir.y * d, dir.z * d);
+        Vec3 start = camera.getEyePosition(tickProgress);
+        Vec3 dir   = camera.getViewVector(tickProgress);
+        Vec3 end   = start.add(dir.x * d, dir.y * d, dir.z * d);
 
-        BlockHitResult blockHit = world.raycast(new RaycastContext(
+        BlockHitResult blockHit = world.clip(new ClipContext(
                 start, end,
-                RaycastContext.ShapeType.COLLIDER,
-                RaycastContext.FluidHandling.NONE,
+                ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,
                 camera
         ));
 
         HitResult best = blockHit;
-        double bestSq = blockHit.getPos().squaredDistanceTo(start);
+        double bestSq = blockHit.getLocation().distanceToSqr(start);
 
-        Box box = camera.getBoundingBox().stretch(dir.multiply(d)).expand(1.0D, 1.0D, 1.0D);
-        EntityHitResult entityHit = ProjectileUtil.raycast(camera, start, end, box, EntityPredicates.CAN_HIT, maxSq);
+        AABB box = camera.getBoundingBox().expandTowards(dir.scale(d)).inflate(1.0D, 1.0D, 1.0D);
+        EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(camera, start, end, box, EntitySelector.CAN_BE_PICKED, maxSq);
 
         if (entityHit != null) {
-            double entSq = entityHit.getPos().squaredDistanceTo(start);
+            double entSq = entityHit.getLocation().distanceToSqr(start);
             if (entSq < bestSq || best.getType() == Type.MISS) {
                 best = entityHit;
                 //noinspection UnusedAssignment
@@ -53,11 +52,11 @@ public final class GameRendererPickHelper {
         return ensureInRange(best, start, (best instanceof EntityHitResult) ? entityRange : blockRange);
     }
 
-    private static HitResult ensureInRange(HitResult hit, Vec3d cameraPos, double range) {
-        Vec3d hp = hit.getPos();
-        if (!hp.isInRange(cameraPos, range)) {
-            Direction dir = Direction.getFacing(hp.x - cameraPos.x, hp.y - cameraPos.y, hp.z - cameraPos.z);
-            return BlockHitResult.createMissed(hp, dir, BlockPos.ofFloored(hp));
+    private static HitResult ensureInRange(HitResult hit, Vec3 cameraPos, double range) {
+        Vec3 hp = hit.getLocation();
+        if (!hp.closerThan(cameraPos, range)) {
+            Direction dir = Direction.getApproximateNearest(hp.x - cameraPos.x, hp.y - cameraPos.y, hp.z - cameraPos.z);
+            return BlockHitResult.miss(hp, dir, BlockPos.containing(hp));
         }
         return hit;
     }

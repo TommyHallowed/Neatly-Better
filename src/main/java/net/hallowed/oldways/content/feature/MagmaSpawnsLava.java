@@ -2,34 +2,35 @@ package net.hallowed.oldways.content.feature;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
-import net.minecraft.block.Blocks;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ItemEnchantmentsComponent;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.level.block.Blocks;
+import org.jetbrains.annotations.NotNull;
 
 public final class MagmaSpawnsLava {
     private MagmaSpawnsLava() {}
 
     public static void init() {
         PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {
-            if (!(world instanceof ServerWorld serverWorld)) return true;
-            if (!state.isOf(Blocks.MAGMA_BLOCK)) return true;
+            if (!(world instanceof ServerLevel serverWorld)) return true;
+            if (!state.is(Blocks.MAGMA_BLOCK)) return true;
 
-            ItemStack stack = player.getMainHandStack();
+            ItemStack stack = player.getMainHandItem();
             if (!hasSilkTouch(stack)) {
-                BlockPos targetPos = pos.toImmutable();
+                BlockPos targetPos = pos.immutable();
 
                 world.removeBlock(pos, false);
 
-                serverWorld.setBlockState(targetPos, Blocks.LAVA.getDefaultState());
+                serverWorld.setBlockAndUpdate(targetPos, Blocks.LAVA.defaultBlockState());
 
                 double cx = targetPos.getX() + 0.5;
                 double cy = targetPos.getY() + 0.9;
@@ -44,7 +45,7 @@ public final class MagmaSpawnsLava {
                     double z = cz + Math.sin(angle) * radius;
                     double vy = 0.05 + world.getRandom().nextDouble() * 0.04;
 
-                    serverWorld.spawnParticles(
+                    serverWorld.sendParticles(
                             ParticleTypes.FLAME,
                             x, cy, z,
                             1,
@@ -56,8 +57,8 @@ public final class MagmaSpawnsLava {
                 serverWorld.playSound(
                         null,
                         cx, cy, cz,
-                        SoundEvents.BLOCK_LAVA_EXTINGUISH,
-                        SoundCategory.BLOCKS,
+                        SoundEvents.LAVA_EXTINGUISH,
+                        SoundSource.BLOCKS,
                         0.6f,
                         1.0f + (serverWorld.getRandom().nextFloat() - 0.5f) * 0.2f
                 );
@@ -70,12 +71,12 @@ public final class MagmaSpawnsLava {
 
     private static boolean hasSilkTouch(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return false;
-        ItemEnchantmentsComponent ench = stack.getOrDefault(
-                DataComponentTypes.ENCHANTMENTS,
-                ItemEnchantmentsComponent.DEFAULT
+        ItemEnchantments ench = stack.getOrDefault(
+                DataComponents.ENCHANTMENTS,
+                ItemEnchantments.EMPTY
         );
-        for (Object2IntMap.Entry<RegistryEntry<Enchantment>> e : ench.getEnchantmentEntries()) {
-            if (e.getKey().matchesKey(Enchantments.SILK_TOUCH) && e.getIntValue() > 0) {
+        for (Object2IntMap.Entry<Holder<@NotNull Enchantment>> e : ench.entrySet()) {
+            if (e.getKey().is(Enchantments.SILK_TOUCH) && e.getIntValue() > 0) {
                 return true;
             }
         }

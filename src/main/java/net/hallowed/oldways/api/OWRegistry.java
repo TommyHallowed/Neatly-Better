@@ -2,15 +2,16 @@ package net.hallowed.oldways.api;
 
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.hallowed.TheOldWays;
-import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,48 +24,48 @@ public final class OWRegistry {
 
     /* ----------------- IDs ----------------- */
     public static Identifier id(String path) {
-        return Identifier.of(TheOldWays.MOD_ID, path);
+        return Identifier.fromNamespaceAndPath(TheOldWays.MOD_ID, path);
     }
 
     /* ----------------- Registry Keys ----------------- */
-    public static RegistryKey<Block> blockKey(String path) {
-        return RegistryKey.of(RegistryKeys.BLOCK, id(path));
+    public static ResourceKey<@NotNull Block> blockKey(String path) {
+        return ResourceKey.create(Registries.BLOCK, id(path));
     }
 
-    public static RegistryKey<Item> itemKey(String path) {
-        return RegistryKey.of(RegistryKeys.ITEM, id(path));
+    public static ResourceKey<@NotNull Item> itemKey(String path) {
+        return ResourceKey.create(Registries.ITEM, id(path));
     }
 
     /* ----------------- Register helpers ----------------- */
-    public static <T> T register(Registry<T> reg, String path, T value) {
+    public static <T> T register(Registry<@NotNull T> reg, String path, T value) {
         return Registry.register(reg, id(path), value);
     }
 
     public static Block registerBlock(String name, Block block) {
-        return Registry.register(Registries.BLOCK, id(name), block);
+        return Registry.register(BuiltInRegistries.BLOCK, id(name), block);
     }
 
     public static Block registerBlockWithItem(String name, Block block) {
         Block b = registerBlock(name, block);
-        Registry.register(Registries.ITEM, id(name),
-                new BlockItem(b, new Item.Settings().registryKey(itemKey(name))));
+        Registry.register(BuiltInRegistries.ITEM, id(name),
+                new BlockItem(b, new Item.Properties().setId(itemKey(name))));
         return b;
     }
 
-    public static Block registerBlockWithItem(String name, Block block, Item.Settings itemSettings) {
+    public static Block registerBlockWithItem(String name, Block block, Item.Properties itemSettings) {
         Block b = registerBlock(name, block);
-        Registry.register(Registries.ITEM, id(name), new BlockItem(b, itemSettings));
+        Registry.register(BuiltInRegistries.ITEM, id(name), new BlockItem(b, itemSettings));
         return b;
     }
 
     public static Item registerItem(String name, Item item) {
-        return Registry.register(Registries.ITEM, id(name), item);
+        return Registry.register(BuiltInRegistries.ITEM, id(name), item);
     }
 
     /* ----------------- ItemGroup batching -----------------*/
-    private static final Map<RegistryKey<ItemGroup>, List<ItemGroupEvents.ModifyEntries>> PENDING = new HashMap<>();
+    private static final Map<ResourceKey<@NotNull CreativeModeTab>, List<ItemGroupEvents.ModifyEntries>> PENDING = new HashMap<>();
 
-    public static void addToGroup(RegistryKey<ItemGroup> group, ItemGroupEvents.ModifyEntries handler) {
+    public static void addToGroup(ResourceKey<@NotNull CreativeModeTab> group, ItemGroupEvents.ModifyEntries handler) {
         PENDING.computeIfAbsent(group, g -> new ArrayList<>()).add(handler);
     }
 

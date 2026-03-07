@@ -1,25 +1,26 @@
 package net.hallowed.oldways.mixin.enchantment;
 
 import net.hallowed.oldways.util.ProtectionContext;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.DamageUtil;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.CombatRules;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(DamageUtil.class)
+@Mixin(CombatRules.class)
 public abstract class DamageUtilMixin {
 
     /* ===================== hard-coded caps =====================
@@ -41,7 +42,7 @@ public abstract class DamageUtilMixin {
     @Unique
     private static final float MAX_POINTS  = 20.0f; // vanilla protection points hard-cap
 
-    @Inject(method = "getInflictedDamage(FF)F", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getDamageAfterMagicAbsorb(FF)F", at = @At("RETURN"), cancellable = true)
     private static void oldways$capProtectionPoints(float damageDealt, float protectionPoints,
                                                     CallbackInfoReturnable<Float> cir) {
 
@@ -52,9 +53,9 @@ public abstract class DamageUtilMixin {
         // If vanilla says there are no protection points, nothing to clamp.
         if (protectionPoints <= 0.0f) return;
 
-        final boolean isFire       = src.isIn(DamageTypeTags.IS_FIRE);
-        final boolean isExplosion  = src.isIn(DamageTypeTags.IS_EXPLOSION);
-        final boolean isProjectile = src.isIn(DamageTypeTags.IS_PROJECTILE);
+        final boolean isFire       = src.is(DamageTypeTags.IS_FIRE);
+        final boolean isExplosion  = src.is(DamageTypeTags.IS_EXPLOSION);
+        final boolean isProjectile = src.is(DamageTypeTags.IS_PROJECTILE);
 
         // Sum enchantment levels across equipped armor (max practical: 16)
         int lvlProt       = getTotalLevel(ent, Enchantments.PROTECTION);
@@ -70,22 +71,22 @@ public abstract class DamageUtilMixin {
         if (isProjectile) allowed += clamp01(PROJECTILE_CAP_FRACTION) * (lvlProjProt  / MAX_LEVELS) * MAX_POINTS;
 
         // Respect vanilla’s hard 20-point cap
-        allowed = MathHelper.clamp(allowed, 0.0F, MAX_POINTS);
+        allowed = Mth.clamp(allowed, 0.0F, MAX_POINTS);
 
         // Clamp incoming protection to our allowed cap, then apply vanilla formula
-        float p = Math.min(MathHelper.clamp(protectionPoints, 0.0F, MAX_POINTS), allowed);
+        float p = Math.min(Mth.clamp(protectionPoints, 0.0F, MAX_POINTS), allowed);
         float result = damageDealt * (1.0F - p / 25.0F);
         cir.setReturnValue(result);
     }
 
     @Unique
-    private static int getTotalLevel(LivingEntity ent, RegistryKey<Enchantment> key) {
-        RegistryEntry<Enchantment> entry = ent.getRegistryManager().getEntryOrThrow(key);
+    private static int getTotalLevel(LivingEntity ent, ResourceKey<@NotNull Enchantment> key) {
+        Holder<@NotNull Enchantment> entry = ent.registryAccess().getOrThrow(key);
         int total = 0;
         for (EquipmentSlot slot : EquipmentSlot.VALUES) {
-            ItemStack stack = ent.getEquippedStack(slot);
+            ItemStack stack = ent.getItemBySlot(slot);
             if (!stack.isEmpty()) {
-                total += EnchantmentHelper.getLevel(entry, stack);
+                total += EnchantmentHelper.getItemEnchantmentLevel(entry, stack);
             }
         }
         return total;

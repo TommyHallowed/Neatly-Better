@@ -4,30 +4,25 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.hallowed.oldways.content.item.MapBuilderItem;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.BundleContentsComponent;
-import net.minecraft.component.type.ContainerComponent;
-import net.minecraft.component.type.LodestoneTrackerComponent;
-import net.minecraft.component.type.NbtComponent;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.recipe.StonecuttingRecipe;
-import net.minecraft.registry.Registries;
-import net.minecraft.screen.StonecutterScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.GlobalPos;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.BundleContents;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.component.LodestoneTracker;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,76 +35,66 @@ public final class OldWaysNetwork {
     private OldWaysNetwork() {}
 
     public static final String MODID = "old-ways";
-    private static Identifier id(String path) { return Identifier.of(MODID, path); }
+    private static Identifier id(String path) { return Identifier.fromNamespaceAndPath(MODID, path); }
 
     /* ===================== Packets ===================== */
 
     /** C2S: empty request asking server to scan player's ender chest. */
-    public record EnderCheckRequest() implements CustomPayload {
-        public static final CustomPayload.Id<EnderCheckRequest> ID =
-                new CustomPayload.Id<>(id("ender_check_request"));
-        public static final PacketCodec<RegistryByteBuf, EnderCheckRequest> CODEC =
-                PacketCodec.unit(new EnderCheckRequest());
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+    public record EnderCheckRequest() implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<@NotNull EnderCheckRequest> ID =
+                new CustomPacketPayload.Type<>(id("ender_check_request"));
+        public static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull EnderCheckRequest> CODEC =
+                StreamCodec.unit(new EnderCheckRequest());
+        @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
     }
 
     /** S2C: overlay booleans (compass/clock) from ender chest deep scan. */
-    public record EnderCheckResponse(boolean hasCompass, boolean hasClock) implements CustomPayload {
-        public static final CustomPayload.Id<EnderCheckResponse> ID =
-                new CustomPayload.Id<>(id("ender_check_response"));
-        public static final PacketCodec<RegistryByteBuf, EnderCheckResponse> CODEC =
-                PacketCodec.tuple(
-                        PacketCodecs.BOOLEAN, EnderCheckResponse::hasCompass,
-                        PacketCodecs.BOOLEAN, EnderCheckResponse::hasClock,
+    public record EnderCheckResponse(boolean hasCompass, boolean hasClock) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<@NotNull EnderCheckResponse> ID =
+                new CustomPacketPayload.Type<>(id("ender_check_response"));
+        public static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull EnderCheckResponse> CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.BOOL, EnderCheckResponse::hasCompass,
+                        ByteBufCodecs.BOOL, EnderCheckResponse::hasClock,
                         EnderCheckResponse::new
                 );
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+        @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
     }
 
     /** S2C: lodestone waypoints discovered inside the player's ender chest (deep). */
-    public record EnderLodestones(List<LodestoneEntry> entries) implements CustomPayload {
-        public static final CustomPayload.Id<EnderLodestones> ID =
-                new CustomPayload.Id<>(id("ender_lodestones"));
-        public static final PacketCodec<RegistryByteBuf, EnderLodestones> CODEC =
-                PacketCodec.tuple(
-                        PacketCodecs.collection(ArrayList::new, LodestoneEntry.CODEC),
+    public record EnderLodestones(List<LodestoneEntry> entries) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<@NotNull EnderLodestones> ID =
+                new CustomPacketPayload.Type<>(id("ender_lodestones"));
+        public static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull EnderLodestones> CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.collection(ArrayList::new, LodestoneEntry.CODEC),
                         EnderLodestones::entries,
                         EnderLodestones::new
                 );
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+        @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
     }
 
     /** A single lodestone target from an ender-chest item (possibly nested). */
     public record LodestoneEntry(Identifier dim, int x, int y, int z, int color, String label) {
         // color==-1 means "absent", label=="" means "absent"
-        static final PacketCodec<RegistryByteBuf, LodestoneEntry> CODEC =
-                PacketCodec.tuple(
-                        Identifier.PACKET_CODEC, LodestoneEntry::dim,
-                        PacketCodecs.VAR_INT,    LodestoneEntry::x,
-                        PacketCodecs.VAR_INT,    LodestoneEntry::y,
-                        PacketCodecs.VAR_INT,    LodestoneEntry::z,
-                        PacketCodecs.VAR_INT,    LodestoneEntry::color,
-                        PacketCodecs.STRING,     LodestoneEntry::label,
+        static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull LodestoneEntry> CODEC =
+                StreamCodec.composite(
+                        Identifier.STREAM_CODEC, LodestoneEntry::dim,
+                        ByteBufCodecs.VAR_INT,    LodestoneEntry::x,
+                        ByteBufCodecs.VAR_INT,    LodestoneEntry::y,
+                        ByteBufCodecs.VAR_INT,    LodestoneEntry::z,
+                        ByteBufCodecs.VAR_INT,    LodestoneEntry::color,
+                        ByteBufCodecs.STRING_UTF8,     LodestoneEntry::label,
                         LodestoneEntry::new
                 );
     }
 
     /** C2S: Action payload for the Map Builder (0=Zoom, 1=Facing, 2=Reset) */
-    public record MapBuilderPayload(int action) implements CustomPayload {
-        public static final CustomPayload.Id<MapBuilderPayload> ID = new CustomPayload.Id<>(id("map_builder_action"));
-        public static final PacketCodec<RegistryByteBuf, MapBuilderPayload> CODEC =
-                PacketCodec.tuple(PacketCodecs.INTEGER, MapBuilderPayload::action, MapBuilderPayload::new);
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
-    }
-
-    public record StonecutterRecraftPayload(Identifier targetItem, boolean craftMax) implements CustomPayload {
-        public static final CustomPayload.Id<StonecutterRecraftPayload> ID = new CustomPayload.Id<>(id("stonecutter_recraft"));
-        public static final PacketCodec<RegistryByteBuf, StonecutterRecraftPayload> CODEC = PacketCodec.tuple(
-                Identifier.PACKET_CODEC, StonecutterRecraftPayload::targetItem,
-                PacketCodecs.BOOLEAN, StonecutterRecraftPayload::craftMax,
-                StonecutterRecraftPayload::new
-        );
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+    public record MapBuilderPayload(int action) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<@NotNull MapBuilderPayload> ID = new CustomPacketPayload.Type<>(id("map_builder_action"));
+        public static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull MapBuilderPayload> CODEC =
+                StreamCodec.composite(ByteBufCodecs.INT, MapBuilderPayload::action, MapBuilderPayload::new);
+        @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
     }
 
     /* ===================== Registration (common/server) ===================== */
@@ -134,85 +119,38 @@ public final class OldWaysNetwork {
 
         ServerPlayNetworking.registerGlobalReceiver(MapBuilderPayload.ID, (payload, ctx) ->
                 ctx.player().server.execute(() -> {
-                    ItemStack stack = ctx.player().getMainHandStack();
+                    ItemStack stack = ctx.player().getMainHandItem();
                     if (!(stack.getItem() instanceof MapBuilderItem)) return;
 
-                    NbtComponent data = stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT);
-                    NbtCompound nbt = data.copyNbt();
-                    int step = nbt.getInt(MapBuilderItem.NBT_STEP, 0);
+                    CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+                    CompoundTag nbt = data.copyTag();
+                    int step = nbt.getIntOr(MapBuilderItem.NBT_STEP, 0);
 
                     // Action 1: Reset (Shift + Left Click Air)
                     if (payload.action() == 1) {
                         nbt.putInt(MapBuilderItem.NBT_STEP, 0);
                         nbt.putBoolean(MapBuilderItem.NBT_HAS_P1, false);
                         nbt.putBoolean(MapBuilderItem.NBT_HAS_P2, false);
-                        ctx.player().sendMessage(Text.literal("Right Click a block to set corner 1\nLeft Click a block to set corner 2").formatted(Formatting.YELLOW), false);
+                        ctx.player().displayClientMessage(Component.literal("Right Click a block to set corner 1\nLeft Click a block to set corner 2").withStyle(ChatFormatting.YELLOW), false);
                     }
                     // Action 0: Zoom (Shift + Z)
                     else if (step == 2 && payload.action() == 0) {
-                        int currentZoom = nbt.getInt(MapBuilderItem.NBT_ZOOM, 1);
+                        int currentZoom = nbt.getIntOr(MapBuilderItem.NBT_ZOOM, 1);
                         int zoom = (currentZoom + 1) % 5;
                         nbt.putInt(MapBuilderItem.NBT_ZOOM, zoom);
-                        ctx.player().sendMessage(Text.literal("Map zoom in: " + zoom + "x").formatted(Formatting.AQUA), true);
+                        ctx.player().displayClientMessage(Component.literal("Map zoom in: " + zoom + "x").withStyle(ChatFormatting.AQUA), true);
                     }
 
-                    stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt));
+                    stack.set(DataComponents.CUSTOM_DATA, CustomData.of(nbt));
                 })
         );
-
-        // --- NEW: Stonecutter Recraft Registration ---
-        PayloadTypeRegistry.playC2S().register(StonecutterRecraftPayload.ID, StonecutterRecraftPayload.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(StonecutterRecraftPayload.ID, (payload, ctx) -> {
-            ServerPlayerEntity player = ctx.player();
-            player.server.execute(() -> {
-                if (!(player.currentScreenHandler instanceof StonecutterScreenHandler)) return;
-
-                Item targetItemType = Registries.ITEM.get(payload.targetItem());
-                if (targetItemType == Items.AIR) return;
-
-                int amountToCraft = payload.craftMax() ? 64 : 1;
-                for (int i = 0; i < amountToCraft; i++) {
-                    if (!tryCraftOne(player, targetItemType)) break;
-                }
-            });
-        });
-
     }
 
-    // --- Recraft Logic ---
-    private static boolean tryCraftOne(ServerPlayerEntity player, Item targetItemType) {
-        Inventory playerInv = player.getInventory();
-
-        // Use values() to safely get all active recipes from the manager in 1.21
-        for (RecipeEntry<?> recipeEntry : player.server.getRecipeManager().values()) {
-            if (recipeEntry.value() instanceof StonecuttingRecipe recipe) {
-                // Use the new 1.21 record getters: result() and ingredient()
-                ItemStack outputSample = recipe.result();
-
-                if (!outputSample.isOf(targetItemType)) continue;
-
-                for (int slot = 0; slot < playerInv.size(); slot++) {
-                    ItemStack stackInSlot = playerInv.getStack(slot);
-                    if (stackInSlot.isEmpty()) continue;
-
-                    if (recipe.ingredient().test(stackInSlot)) {
-                        stackInSlot.decrement(1);
-                        ItemStack result = outputSample.copy();
-                        if (!player.getInventory().insertStack(result)) {
-                            player.dropItem(result, false);
-                        }
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
 
     /** Computes ender-chest state and pushes both overlay booleans and lodestone targets. */
-    public static void pushEnderChestState(ServerPlayerEntity player) {
-        boolean compass = hasInEnderDeep(player, s -> s.isOf(Items.COMPASS));
-        boolean clock   = hasInEnderDeep(player, s -> s.isOf(Items.CLOCK));
+    public static void pushEnderChestState(ServerPlayer player) {
+        boolean compass = hasInEnderDeep(player, s -> s.is(Items.COMPASS));
+        boolean clock   = hasInEnderDeep(player, s -> s.is(Items.CLOCK));
         ServerPlayNetworking.send(player, new EnderCheckResponse(compass, clock));
 
         List<LodestoneEntry> lodestones = collectEnderLodestones(player);
@@ -221,10 +159,10 @@ public final class OldWaysNetwork {
 
     // ---- deep scan helpers ----
 
-    private static boolean hasInEnderDeep(ServerPlayerEntity p, Predicate<ItemStack> test) {
+    private static boolean hasInEnderDeep(ServerPlayer p, Predicate<ItemStack> test) {
         var inv = p.getEnderChestInventory();
-        for (int i = 0; i < inv.size(); i++) {
-            if (matchesDeep(inv.getStack(i), test)) return true;
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            if (matchesDeep(inv.getItem(i), test)) return true;
         }
         return false;
     }
@@ -237,11 +175,11 @@ public final class OldWaysNetwork {
         return false;
     }
 
-    private static List<LodestoneEntry> collectEnderLodestones(ServerPlayerEntity player) {
+    private static List<LodestoneEntry> collectEnderLodestones(ServerPlayer player) {
         List<LodestoneEntry> out = new ArrayList<>();
         var inv = player.getEnderChestInventory();
-        for (int i = 0; i < inv.size(); i++) {
-            ItemStack s = inv.getStack(i);
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            ItemStack s = inv.getItem(i);
             if (!s.isEmpty()) collectFromStack(s, out);
         }
         return out;
@@ -249,11 +187,11 @@ public final class OldWaysNetwork {
 
     private static void collectFromStack(ItemStack stack, List<LodestoneEntry> out) {
         // lodestone on this stack?
-        LodestoneTrackerComponent lc = stack.get(DataComponentTypes.LODESTONE_TRACKER);
+        LodestoneTracker lc = stack.get(DataComponents.LODESTONE_TRACKER);
         if (lc != null && lc.target().isPresent()) {
             GlobalPos gp = lc.target().get();
             BlockPos bp = gp.pos();
-            Identifier dimId = gp.dimension().getValue();
+            Identifier dimId = gp.dimension().identifier();
             // parse color once from name
             int color = parseHexColor(stack);
             String label = getPlainName(stack);
@@ -265,13 +203,13 @@ public final class OldWaysNetwork {
     }
 
     private static Iterable<ItemStack> iterateBundle(ItemStack stack) {
-        BundleContentsComponent bundle = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
-        return (bundle == null) ? List.of() : bundle.iterate();
+        BundleContents bundle = stack.get(DataComponents.BUNDLE_CONTENTS);
+        return (bundle == null) ? List.of() : bundle.items();
     }
 
     private static Iterable<ItemStack> iterateContainer(ItemStack stack) {
-        ContainerComponent container = stack.get(DataComponentTypes.CONTAINER);
-        return (container == null) ? List.of() : container.iterateNonEmpty();
+        ItemContainerContents container = stack.get(DataComponents.CONTAINER);
+        return (container == null) ? List.of() : container.nonEmptyItems();
     }
 
     // ---- color & label (single pass, server side) ----
@@ -296,8 +234,8 @@ public final class OldWaysNetwork {
     }
 
     private static String getNameString(ItemStack stack) {
-        Text t = stack.get(DataComponentTypes.CUSTOM_NAME);
-        if (t == null) t = stack.get(DataComponentTypes.ITEM_NAME);
+        Component t = stack.get(DataComponents.CUSTOM_NAME);
+        if (t == null) t = stack.get(DataComponents.ITEM_NAME);
         return t == null ? null : t.getString();
     }
 }

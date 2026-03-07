@@ -3,9 +3,9 @@ package net.hallowed.oldways.init;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.hallowed.oldways.api.OWRegistry;
 import net.hallowed.oldways.content.item.MapBuilderItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public final class ModItems {
     private ModItems() {}
@@ -15,20 +15,20 @@ public final class ModItems {
     public static void register() {
 
         MAP_BUILDER = OWRegistry.registerItem("map_builder",
-                new MapBuilderItem(new Item.Settings()
-                        .maxCount(1)
-                        .registryKey(OWRegistry.itemKey("map_builder"))));
+                new MapBuilderItem(new Item.Properties()
+                        .stacksTo(1)
+                        .setId(OWRegistry.itemKey("map_builder"))));
 
         // Server-side Left-Click block detection for Corner 2
         AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
-            if (!world.isClient() && !player.isSpectator()) {
-                ItemStack stack = player.getStackInHand(hand);
+            if (!world.isClientSide() && !player.isSpectator()) {
+                ItemStack stack = player.getItemInHand(hand);
                 if (stack.getItem() instanceof MapBuilderItem builder) {
                     builder.onLeftClickBlock(pos, stack);
-                    return ActionResult.SUCCESS; // Cancel block breaking
+                    return InteractionResult.SUCCESS; // Cancel block breaking
                 }
             }
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         });
     }
 }

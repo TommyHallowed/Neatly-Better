@@ -1,13 +1,13 @@
 package net.hallowed.oldways.client.util;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.BundleContentsComponent;
-import net.minecraft.component.type.ContainerComponent;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.BundleContents;
+import net.minecraft.world.item.component.ItemContainerContents;
 
 public final class InventoryDeepScan {
     private InventoryDeepScan() {}
@@ -19,24 +19,24 @@ public final class InventoryDeepScan {
     private static boolean hasRecoveryCompassCached = false;
     private static boolean hasClockCached   = false;
 
-    public static boolean hasCompass(PlayerEntity p) {
+    public static boolean hasCompass(Player p) {
         refreshIfNeeded(p); return hasCompassCached;
     }
 
-    public static boolean hasAnyCompass(PlayerEntity p) {
+    public static boolean hasAnyCompass(Player p) {
         refreshIfNeeded(p); return hasCompassCached || hasRecoveryCompassCached;
     }
-    public static boolean hasClock(PlayerEntity p) {
+    public static boolean hasClock(Player p) {
         refreshIfNeeded(p); return hasClockCached;
     }
 
     @SuppressWarnings("unused")
     public static void invalidate() { lastScanNs = 0L; }
 
-    private static void refreshIfNeeded(PlayerEntity p) {
+    private static void refreshIfNeeded(Player p) {
         if (p == null) {
-            var mc = MinecraftClient.getInstance();
-            p = (mc != null) ? mc.player : null;
+            var mc = Minecraft.getInstance();
+            p = mc.player;
         }
         if (p == null) return;
 
@@ -49,25 +49,25 @@ public final class InventoryDeepScan {
         hasClockCached           = hasItemDeep(p, Items.CLOCK);
     }
 
-    private static boolean hasItemDeep(PlayerEntity p, Item target) {
+    private static boolean hasItemDeep(Player p, Item target) {
         var inv = p.getInventory();
-        for (int i = 0; i < inv.size(); i++) if (matchesDeep(inv.getStack(i), target)) return true;
-        return matchesDeep(p.getOffHandStack(), target);
+        for (int i = 0; i < inv.getContainerSize(); i++) if (matchesDeep(inv.getItem(i), target)) return true;
+        return matchesDeep(p.getOffhandItem(), target);
     }
 
     private static boolean matchesDeep(ItemStack stack, Item target) {
         if (stack == null || stack.isEmpty()) return false;
-        if (stack.isOf(target)) return true;
+        if (stack.is(target)) return true;
 
-        BundleContentsComponent bundle = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
+        BundleContents bundle = stack.get(DataComponents.BUNDLE_CONTENTS);
         if (bundle != null) {
-            for (ItemStack child : bundle.iterate()) {
+            for (ItemStack child : bundle.items()) {
                 if (!child.isEmpty() && matchesDeep(child, target)) return true;
             }
         }
-        ContainerComponent container = stack.get(DataComponentTypes.CONTAINER);
+        ItemContainerContents container = stack.get(DataComponents.CONTAINER);
         if (container != null) {
-            for (ItemStack child : container.iterateNonEmpty()) {
+            for (ItemStack child : container.nonEmptyItems()) {
                 if (matchesDeep(child, target)) return true;
             }
         }

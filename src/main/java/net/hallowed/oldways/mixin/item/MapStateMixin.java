@@ -1,7 +1,7 @@
 package net.hallowed.oldways.mixin.item;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.map.MapState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -10,16 +10,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(MapState.class)
+@Mixin(MapItemSavedData.class)
 public class MapStateMixin {
     @Shadow @Final @Mutable
     private boolean unlimitedTracking;
 
     @Inject(
-            method = "getPlayerSyncData(Lnet/minecraft/entity/player/PlayerEntity;)Lnet/minecraft/item/map/MapState$PlayerUpdateTracker;",
+            method = "getHoldingPlayer(Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/world/level/saveddata/maps/MapItemSavedData$HoldingPlayer;",
             at = @At("HEAD")
     )
-    private void oldways$enableUnlimitedTracking(PlayerEntity player, CallbackInfoReturnable<MapState.PlayerUpdateTracker> cir) {
+    private void oldways$enableUnlimitedTracking(Player player, CallbackInfoReturnable<MapItemSavedData.HoldingPlayer> cir) {
         this.unlimitedTracking = true;
     }
 }

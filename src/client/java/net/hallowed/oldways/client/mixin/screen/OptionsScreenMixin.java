@@ -1,11 +1,11 @@
 package net.hallowed.oldways.client.mixin.screen;
 
 import net.hallowed.oldways.client.screen.GameplaySettingsScreen;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.option.OptionsScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.options.OptionsScreen;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -19,14 +19,14 @@ public abstract class OptionsScreenMixin {
             method = "init",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/screen/option/OptionsScreen;createButton(Lnet/minecraft/text/Text;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/widget/ButtonWidget;",
+                    target = "Lnet/minecraft/client/gui/screens/options/OptionsScreen;openScreenButton(Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;",
                     ordinal = 8
             )
     )
-    private ButtonWidget oldways$replaceTelemetryWithGameplay(OptionsScreen self, Text message, Supplier<Screen> supplier) {
-        return ButtonWidget.builder(
-                Text.translatable("options.gameplay.button"),
-                btn -> MinecraftClient.getInstance().setScreen(new GameplaySettingsScreen(self))
+    private Button oldways$replaceTelemetryWithGameplay(OptionsScreen self, Component message, Supplier<Screen> supplier) {
+        return Button.builder(
+                Component.translatable("options.gameplay.button"),
+                btn -> Minecraft.getInstance().setScreen(new GameplaySettingsScreen(self))
         ).build();
     }
 
@@ -34,10 +34,10 @@ public abstract class OptionsScreenMixin {
             method = "init",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/MinecraftClient;isTelemetryEnabledByApi()Z"
+                    target = "Lnet/minecraft/client/Minecraft;allowsTelemetry()Z"
             )
     )
-    private boolean oldways$skipTelemetryDisable(MinecraftClient client) {
+    private boolean oldways$skipTelemetryDisable(Minecraft client) {
         return true;
     }
 }

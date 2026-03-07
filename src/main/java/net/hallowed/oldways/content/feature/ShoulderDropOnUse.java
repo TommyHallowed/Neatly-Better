@@ -1,30 +1,29 @@
 package net.hallowed.oldways.content.feature;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.world.World;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 
 public final class ShoulderDropOnUse {
     private ShoulderDropOnUse() {}
 
     public static void register() {
-        UseBlockCallback.EVENT.register((PlayerEntity player, World world, Hand hand, BlockHitResult hit) -> {
-            if (!(world instanceof ServerWorld)) return ActionResult.PASS;
-            if (hand != Hand.MAIN_HAND) return ActionResult.PASS;
-            if (!player.getMainHandStack().isEmpty()) return ActionResult.PASS;
-            if (!player.isInSneakingPose()) return ActionResult.PASS;
-            if (!(player instanceof ServerPlayerEntity sp)) return ActionResult.PASS;
-            boolean hasLeft  = !sp.getLeftShoulderNbt().isEmpty();
-            boolean hasRight = !sp.getRightShoulderNbt().isEmpty();
-            if (!hasLeft && !hasRight) return ActionResult.PASS;
-            sp.dropShoulderEntities();
-            return ActionResult.SUCCESS_SERVER;
+        UseBlockCallback.EVENT.register((Player player, Level world, InteractionHand hand, BlockHitResult hit) -> {
+            if (!(world instanceof ServerLevel)) return InteractionResult.PASS;
+            if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+            if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
+            if (!player.isCrouching()) return InteractionResult.PASS;
+            if (!(player instanceof ServerPlayer sp)) return InteractionResult.PASS;
+            boolean hasLeft  = !sp.getShoulderEntityLeft().isEmpty();
+            boolean hasRight = !sp.getShoulderEntityRight().isEmpty();
+            if (!hasLeft && !hasRight) return InteractionResult.PASS;
+            sp.removeEntitiesOnShoulder();
+            return InteractionResult.SUCCESS_SERVER;
         });
     }
 }

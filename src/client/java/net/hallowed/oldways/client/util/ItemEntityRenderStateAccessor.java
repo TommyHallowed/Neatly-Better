@@ -1,6 +1,6 @@
 package net.hallowed.oldways.client.util;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public interface ItemEntityRenderStateAccessor {
     ItemStack olditems$getStack();

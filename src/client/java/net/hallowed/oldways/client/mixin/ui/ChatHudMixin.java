@@ -2,10 +2,10 @@ package net.hallowed.oldways.client.mixin.ui;
 
 import net.hallowed.oldways.client.util.CopyScreenshotHelper;
 import net.hallowed.oldways.client.util.SettingsPrefs;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableTextContent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -20,10 +20,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 
-@Mixin(ChatHud.class)
+@Mixin(ChatComponent.class)
 public abstract class ChatHudMixin {
 
-    @Shadow @Final MinecraftClient client;
+    @Shadow @Final Minecraft minecraft;
 
     @Unique private static final Executor OLDWAYS_SHOT_EXEC = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "OldWays-ScreenshotCopy");
@@ -35,13 +35,13 @@ public abstract class ChatHudMixin {
 
     @Unique private static volatile String OLDWAYS_LAST_FILE = null;
 
-    @Inject(method = "addMessage(Lnet/minecraft/text/Text;)V", at = @At("TAIL"))
-    private void oldways$copyScreenshotIfVanillaSaved(Text message, CallbackInfo ci) {
+    @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("TAIL"))
+    private void oldways$copyScreenshotIfVanillaSaved(Component message, CallbackInfo ci) {
         if (!OW$prefs.copyScreenshots) return;
-        if (!(message.getContent() instanceof TranslatableTextContent tc)) return;
+        if (!(message.getContents() instanceof TranslatableContents tc)) return;
         if (!"screenshot.success".equals(tc.getKey())) return;
 
-        final Path shotsDir = this.client.runDirectory.toPath().resolve("screenshots");
+        final Path shotsDir = this.minecraft.gameDirectory.toPath().resolve("screenshots");
 
         OLDWAYS_SHOT_EXEC.execute(() -> {
             File dir = shotsDir.toFile();

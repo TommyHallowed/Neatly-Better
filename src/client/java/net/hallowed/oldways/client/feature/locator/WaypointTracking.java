@@ -4,25 +4,24 @@
  */
 package net.hallowed.oldways.client.feature.locator;
 
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.BundleContentsComponent;
-import net.minecraft.component.type.ContainerComponent;
-import net.minecraft.component.type.LodestoneTrackerComponent;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.text.Text;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.GlobalPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.BundleContents;
+import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.component.LodestoneTracker;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public final class WaypointTracking {
     private WaypointTracking() {}
@@ -42,17 +41,17 @@ public final class WaypointTracking {
     private record Node(ItemStack stack, int depth) {}
 
     @SuppressWarnings("SameReturnValue")
-    public static List<ClientWaypoint> update(PlayerEntity player) {
+    public static List<ClientWaypoint> update(Player player) {
         WAYPOINTS.clear();
         if (player == null) return WAYPOINTS;
 
-        final RegistryKey<World> dim = player.getEntityWorld().getRegistryKey();
+        final ResourceKey<Level> dim = player.level().dimension();
 
         // Collect initial roots (main inv + offhand)
         final List<ItemStack> roots = new ArrayList<>(46);
-        final DefaultedList<ItemStack> main = player.getInventory().getMainStacks();
+        final NonNullList<ItemStack> main = player.getInventory().getNonEquipmentItems();
         if (main != null) roots.addAll(main);
-        final ItemStack off = player.getOffHandStack();
+        final ItemStack off = player.getOffhandItem();
         if (off != null && !off.isEmpty()) roots.add(off);
 
         // Scan roots
@@ -63,8 +62,8 @@ public final class WaypointTracking {
         // Optional: ender chest (this can be large; we still guard in the scanner)
         if (SCAN_INVENTORIES) {
             var ender = player.getEnderChestInventory();
-            for (int i = 0, n = ender.size(); i < n; i++) {
-                ItemStack s = ender.getStack(i);
+            for (int i = 0, n = ender.getContainerSize(); i < n; i++) {
+                ItemStack s = ender.getItem(i);
                 if (!s.isEmpty()) scanStackIterative(player, dim, s);
             }
         }
@@ -78,7 +77,7 @@ public final class WaypointTracking {
      * Non-recursive DFS over container components. This is intentionally iterative to avoid SOE and
      * to enforce global budgets (depth and total scanned nodes).
      */
-    private static void scanStackIterative(PlayerEntity player, RegistryKey<World> dim, ItemStack root) {
+    private static void scanStackIterative(Player player, ResourceKey<Level> dim, ItemStack root) {
         int scanned = 0;
         final Deque<Node> work = new ArrayDeque<>();
         work.add(new Node(root, 0));
@@ -91,11 +90,11 @@ public final class WaypointTracking {
 
             scanned++;
             // 1) Waypoints from special items on THIS stack
-            if (stack.isOf(Items.RECOVERY_COMPASS)) {
-                player.getLastDeathPos().ifPresent(last -> {
+            if (stack.is(Items.RECOVERY_COMPASS)) {
+                player.getLastDeathLocation().ifPresent(last -> {
                     if (last.dimension() == dim && last.pos() != null) {
                         WaypointTracking.WAYPOINTS.add(new ClientWaypoint(
-                                Vec3d.ofCenter(last.pos()),
+                                Vec3.atCenterOf(last.pos()),
                                 label(stack),
                                 IdentifierHelper.style("death"),
                                 ColorHandler.getColor(stack).or(() -> Optional.of(RECOVERY_COLOR))
@@ -105,12 +104,12 @@ public final class WaypointTracking {
             }
 
             if (SHOW_LODESTONE) {
-                final LodestoneTrackerComponent lc = stack.get(DataComponentTypes.LODESTONE_TRACKER);
+                final LodestoneTracker lc = stack.get(DataComponents.LODESTONE_TRACKER);
                 if (lc != null && lc.target().isPresent()) {
                     final GlobalPos pos = lc.target().get();
                     if (pos.dimension() == dim && pos.pos() != null) {
                         WaypointTracking.WAYPOINTS.add(new ClientWaypoint(
-                                Vec3d.ofCenter(pos.pos()),
+                                Vec3.atCenterOf(pos.pos()),
                                 label(stack),
                                 IdentifierHelper.style("lodestone"),
                                 ColorHandler.getColor(stack).or(() -> Optional.of(LODESTONE_COLOR))
@@ -125,17 +124,17 @@ public final class WaypointTracking {
             // Note: Do NOT use streams here; plain loops keep stack traces clean and predictable.
             // --- replace these two blocks in scanStackIterative ---
 
-            final BundleContentsComponent bundle = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
+            final BundleContents bundle = stack.get(DataComponents.BUNDLE_CONTENTS);
             if (bundle != null) {
                 // BundleContentsComponent is NOT Iterable; iterate via stream()
-                bundle.stream().forEach(child -> {
+                bundle.itemCopyStream().forEach(child -> {
                     if (child != null && !child.isEmpty()) {
                         work.addLast(new Node(child, depth + 1));
                     }
                 });
             }
 
-            final ContainerComponent container = stack.get(DataComponentTypes.CONTAINER);
+            final ItemContainerContents container = stack.get(DataComponents.CONTAINER);
             if (container != null) {
                 // ContainerComponent is NOT Iterable; iterate via stream()
                 container.stream().forEach(child -> {
@@ -150,15 +149,15 @@ public final class WaypointTracking {
         // (since roots come from player inv / ender chest). This avoids freezing on weird graphs.
     }
 
-    private static Optional<Text> label(ItemStack stack) {
-        Text t = stack.get(DataComponentTypes.CUSTOM_NAME);
-        if (t == null) t = stack.get(DataComponentTypes.ITEM_NAME);
+    private static Optional<Component> label(ItemStack stack) {
+        Component t = stack.get(DataComponents.CUSTOM_NAME);
+        if (t == null) t = stack.get(DataComponents.ITEM_NAME);
         return ColorHandler.removeColorCode(t);
     }
 
     static final class IdentifierHelper {
-        static net.minecraft.util.Identifier style(String path) {
-            return net.minecraft.util.Identifier.of("old-ways", path);
+        static net.minecraft.resources.Identifier style(String path) {
+            return net.minecraft.resources.Identifier.fromNamespaceAndPath("old-ways", path);
         }
     }
 }

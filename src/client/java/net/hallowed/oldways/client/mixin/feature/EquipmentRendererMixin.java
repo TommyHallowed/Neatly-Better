@@ -1,23 +1,24 @@
 package net.hallowed.oldways.client.mixin.feature;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hallowed.oldways.init.ModDataComponents;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.command.ModelCommandRenderer;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.command.RenderCommandQueue;
-import net.minecraft.client.render.entity.equipment.EquipmentModel;
-import net.minecraft.client.render.entity.equipment.EquipmentRenderer;
-import net.minecraft.client.texture.Sprite;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.equipment.EquipmentAsset;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.equipment.EquipmentAsset;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,7 +27,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(EquipmentRenderer.class)
+@Mixin(EquipmentLayerRenderer.class)
 public abstract class EquipmentRendererMixin {
 
     @Unique private static final int FULL_BRIGHT = 0xF000F0;
@@ -35,10 +36,10 @@ public abstract class EquipmentRendererMixin {
     @Unique private static final ThreadLocal<Integer> OW$trimState = ThreadLocal.withInitial(() -> 0);
 
     @Inject(
-            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;II)V",
+            method = "renderLayers(Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/world/item/ItemStack;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;II)V",
             at = @At("HEAD")
     )
-    private void ow$markSimple(EquipmentModel.LayerType layerType, RegistryKey<EquipmentAsset> assetKey, Model<?> model, Object object, ItemStack stack, MatrixStack matrices, OrderedRenderCommandQueue queue, int light, int outlineColor, CallbackInfo ci) {
+    private void ow$markSimple(EquipmentClientInfo.LayerType layerType, ResourceKey<@NotNull EquipmentAsset> assetKey, Model<?> model, Object object, ItemStack stack, PoseStack matrices, SubmitNodeCollector queue, int light, int outlineColor, CallbackInfo ci) {
         int state = 0;
         if (stack.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false)) state = 1;
         else if (stack.getOrDefault(ModDataComponents.PULSING_TRIM, false)) state = 2;
@@ -46,18 +47,18 @@ public abstract class EquipmentRendererMixin {
     }
 
     @Inject(
-            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;II)V",
+            method = "renderLayers(Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/world/item/ItemStack;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;II)V",
             at = @At("TAIL")
     )
-    private void ow$clearSimple(EquipmentModel.LayerType layerType, RegistryKey<EquipmentAsset> assetKey, Model<?> model, Object object, ItemStack stack, MatrixStack matrices, OrderedRenderCommandQueue queue, int light, int outlineColor, CallbackInfo ci) {
+    private void ow$clearSimple(EquipmentClientInfo.LayerType layerType, ResourceKey<@NotNull EquipmentAsset> assetKey, Model<?> model, Object object, ItemStack stack, PoseStack matrices, SubmitNodeCollector queue, int light, int outlineColor, CallbackInfo ci) {
         OW$trimState.remove();
     }
 
     @Inject(
-            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;ILnet/minecraft/util/Identifier;II)V",
+            method = "renderLayers(Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/world/item/ItemStack;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/resources/Identifier;II)V",
             at = @At("HEAD")
     )
-    private void ow$markFull(EquipmentModel.LayerType layerType, RegistryKey<EquipmentAsset> assetKey, Model<?> model, Object object, ItemStack stack, MatrixStack matrices, OrderedRenderCommandQueue queue, int light, Identifier altTexture, int outlineColor, int order, CallbackInfo ci) {
+    private void ow$markFull(EquipmentClientInfo.LayerType layerType, ResourceKey<@NotNull EquipmentAsset> assetKey, Model<?> model, Object object, ItemStack stack, PoseStack matrices, SubmitNodeCollector queue, int light, Identifier altTexture, int outlineColor, int order, CallbackInfo ci) {
         int state = 0;
         if (stack.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false)) state = 1;
         else if (stack.getOrDefault(ModDataComponents.PULSING_TRIM, false)) state = 2;
@@ -66,22 +67,22 @@ public abstract class EquipmentRendererMixin {
 
     // Safely clear ThreadLocal for the full overload as well
     @Inject(
-            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;ILnet/minecraft/util/Identifier;II)V",
+            method = "renderLayers(Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/world/item/ItemStack;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/resources/Identifier;II)V",
             at = @At("TAIL")
     )
-    private void ow$clearFull(EquipmentModel.LayerType layerType, RegistryKey<EquipmentAsset> assetKey, Model<?> model, Object object, ItemStack stack, MatrixStack matrices, OrderedRenderCommandQueue queue, int light, Identifier altTexture, int outlineColor, int order, CallbackInfo ci) {
+    private void ow$clearFull(EquipmentClientInfo.LayerType layerType, ResourceKey<@NotNull EquipmentAsset> assetKey, Model<?> model, Object object, ItemStack stack, PoseStack matrices, SubmitNodeCollector queue, int light, Identifier altTexture, int outlineColor, int order, CallbackInfo ci) {
         OW$trimState.remove();
     }
 
     @Redirect(
-            method = "render(Lnet/minecraft/client/render/entity/equipment/EquipmentModel$LayerType;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;ILnet/minecraft/util/Identifier;II)V",
+            method = "renderLayers(Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/world/item/ItemStack;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/resources/Identifier;II)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/render/command/RenderCommandQueue;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/RenderLayer;IIILnet/minecraft/client/texture/Sprite;ILnet/minecraft/client/render/command/ModelCommandRenderer$CrumblingOverlayCommand;)V"
+                    target = "Lnet/minecraft/client/renderer/OrderedSubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/TextureAtlasSprite;ILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V"
             )
     )
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void ow$emissiveTrimSubmit(RenderCommandQueue queue, Model model, Object stateObj, MatrixStack matrices, RenderLayer layer, int light, int overlay, int tintedColor, Sprite sprite, int outlineColor, ModelCommandRenderer.CrumblingOverlayCommand crumble) {
+    private void ow$emissiveTrimSubmit(OrderedSubmitNodeCollector queue, Model model, Object stateObj, PoseStack matrices, RenderType layer, int light, int overlay, int tintedColor, TextureAtlasSprite sprite, int outlineColor, ModelFeatureRenderer.CrumblingOverlay crumble) {
 
         int useLight = light;
         int state = OW$trimState.get();
@@ -92,10 +93,10 @@ public abstract class EquipmentRendererMixin {
                 useLight = FULL_BRIGHT;
             } else if (state == 2) {
                 // Dynamic Pulse (Echo Shard Breathing)
-                long time = Util.getMeasuringTimeMs();
+                long time = Util.getMillis();
 
                 // Generates a sine wave that goes from 0.0 to 1.0 smoothly over ~1.25 seconds
-                float sine = (MathHelper.sin(time / 500.0f) + 1.0f) / 2.0f;
+                float sine = (Mth.sin(time / 500.0f) + 1.0f) / 2.0f;
 
                 // Map the sine wave to Minecraft's light levels (60 is darkish, 240 is max brightness)
                 int currentLight = (int) (60 + sine * 180);

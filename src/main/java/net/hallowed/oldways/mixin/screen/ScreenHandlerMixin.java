@@ -1,39 +1,39 @@
 package net.hallowed.oldways.mixin.screen;
 
 import net.hallowed.oldways.network.OldWaysNetwork;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ClickType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @SuppressWarnings("ConstantValue")
-@Mixin(ScreenHandler.class)
+@Mixin(AbstractContainerMenu.class)
 public abstract class ScreenHandlerMixin {
 
-    @Inject(method = "onSlotClick", at = @At("TAIL"))
-    private void oldways$enderSyncAfterClick(int slotIndex, int button, SlotActionType actionType,
-                                             PlayerEntity player, CallbackInfo ci) {
-        if (!(player instanceof ServerPlayerEntity sp)) return;
-        if (!((Object) this instanceof GenericContainerScreenHandler g)) return;
+    @Inject(method = "clicked", at = @At("TAIL"))
+    private void oldways$enderSyncAfterClick(int slotIndex, int button, ClickType actionType,
+                                             Player player, CallbackInfo ci) {
+        if (!(player instanceof ServerPlayer sp)) return;
+        if (!((Object) this instanceof ChestMenu g)) return;
 
-        Inventory inv = g.inventory;
+        Container inv = g.getContainer();
         if (inv == sp.getEnderChestInventory()) {
             OldWaysNetwork.pushEnderChestState(sp);
         }
     }
 
-    @Inject(method = "onClosed", at = @At("TAIL"))
-    private void oldways$enderSyncOnClose(PlayerEntity player, CallbackInfo ci) {
-        if (!(player instanceof ServerPlayerEntity sp)) return;
-        if (!((Object) this instanceof GenericContainerScreenHandler g)) return;
+    @Inject(method = "removed", at = @At("TAIL"))
+    private void oldways$enderSyncOnClose(Player player, CallbackInfo ci) {
+        if (!(player instanceof ServerPlayer sp)) return;
+        if (!((Object) this instanceof ChestMenu g)) return;
 
-        Inventory inv = g.inventory;
+        Container inv = g.getContainer();
         if (inv == sp.getEnderChestInventory()) {
             OldWaysNetwork.pushEnderChestState(sp);
         }

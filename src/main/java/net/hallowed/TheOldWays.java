@@ -4,7 +4,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.hallowed.oldways.content.feature.HostileAttributeTweaks;
 import net.hallowed.oldways.content.item.MapBuilderItem;
-import net.hallowed.oldways.init.ModEvents;
 import net.hallowed.oldways.api.OWRegistry;
 import net.hallowed.oldways.init.*;
 import net.hallowed.oldways.network.OldWaysNetwork;

@@ -4,13 +4,12 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.fabricmc.fabric.api.event.Event;
 import net.hallowed.oldways.client.util.SettingsPrefs;
-import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.TextIconButtonWidget;
-import net.minecraft.client.realms.gui.screen.RealmsNotificationsScreen;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.SpriteIconButton;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
 
 import java.util.Iterator;
 import java.util.List;
@@ -27,29 +27,32 @@ import java.util.List;
 @Mixin(value = TitleScreen.class, priority = 400)
 public abstract class TitleScreenMixin {
 
-    @Shadow @Nullable private RealmsNotificationsScreen realmsNotificationGui;
+    @Shadow @Nullable private RealmsNotificationsScreen realmsNotificationsScreen;
 
     @Unique private static final int V_SPACING = 4;
-    @Unique private static final Identifier OW$PHASE = Identifier.of("old-ways", "title_buttons_late");
-    @Unique private static boolean OW$afterInitHooked = false;
 
+    // FIX: Using your environment's Identifier class
+    @Unique private static final Identifier OW$PHASE = Identifier.fromNamespaceAndPath("old-ways", "title_buttons_late");
+    @Unique private static boolean OW$afterInitHooked = false;
 
     @ModifyArg(
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V"
+                    // FIX: Reverted the return type to 'V' (void) because Mojang's new
+                    // GuiRenderState update removed the 'int' return type from drawString!
+                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Ljava/lang/String;III)V"
             ),
             index = 1
     )
     private String oldways$stripFabricModded(String original) {
-        return "Minecraft " + net.minecraft.SharedConstants.getGameVersion().name();
+        return "Minecraft " + net.minecraft.SharedConstants.getCurrentVersion().name();
     }
 
     @Inject(method = "init", at = @At("RETURN"))
     private void oldways$hookAfterInitAndKillNotifier(CallbackInfo ci) {
         if (!SettingsPrefs.get().realmsButtons) {
-            this.realmsNotificationGui = null;
+            this.realmsNotificationsScreen = null;
         }
 
         if (!OW$afterInitHooked) {
@@ -59,25 +62,27 @@ public abstract class TitleScreenMixin {
                 if (!(screen instanceof TitleScreen)) return;
 
                 var prefs = SettingsPrefs.get();
-                List<ClickableWidget> buttons = Screens.getButtons(screen);
+
+                List<AbstractWidget> buttons = Screens.getButtons(screen);
 
                 if (!prefs.accessibilityButton) {
-                    for (Iterator<ClickableWidget> it = buttons.iterator(); it.hasNext();) {
-                        ClickableWidget wgt = it.next();
+                    for (Iterator<AbstractWidget> it = buttons.iterator(); it.hasNext();) {
+                        AbstractWidget wgt = it.next();
                         if (wgt.getMessage().getString().toLowerCase().contains("access")) {
                             it.remove();
-                            if (wgt instanceof TextIconButtonWidget ti) { ti.visible = false; ti.active = false; }
+
+                            if (wgt instanceof SpriteIconButton ti) { ti.visible = false; ti.active = false; }
                         }
                     }
                 }
 
                 if (prefs.realmsButtons) return;
 
-                final Text REALMS    = Text.translatable("menu.online");
-                final Text COPYRIGHT = Text.translatable("title.credits");
+                final Component REALMS    = Component.translatable("menu.online");
+                final Component COPYRIGHT = Component.translatable("title.credits");
 
-                ClickableWidget realmsBtn = null;
-                for (ClickableWidget wgt : buttons) {
+                AbstractWidget realmsBtn = null;
+                for (AbstractWidget wgt : buttons) {
                     if (wgt.getMessage().equals(REALMS)) { realmsBtn = wgt; break; }
                 }
 
@@ -89,15 +94,15 @@ public abstract class TitleScreenMixin {
                 final int delta = realmsBtn.getHeight() + V_SPACING;
                 final int cutY  = realmsBtn.getY();
 
-                for (ClickableWidget wgt : buttons) {
+                for (AbstractWidget wgt : buttons) {
                     if (wgt == realmsBtn || !wgt.visible) continue;
                     if (wgt.getMessage().equals(COPYRIGHT)) continue;
 
                     boolean inCenterColumn = (wgt.getX() <= centerRight) && (wgt.getX() + wgt.getWidth() >= centerLeft);
-                    boolean isSmallIcon    = (wgt instanceof TextIconButtonWidget) && wgt.getWidth() <= 22 && wgt.getHeight() <= 22;
+                    boolean isSmallIcon    = (wgt instanceof SpriteIconButton) && wgt.getWidth() <= 22 && wgt.getHeight() <= 22;
 
                     if (wgt.getY() >= cutY && (inCenterColumn || isSmallIcon)
-                            && (wgt instanceof ButtonWidget || wgt instanceof TextIconButtonWidget)) {
+                            && (wgt instanceof Button || wgt instanceof SpriteIconButton)) {
                         wgt.setY(wgt.getY() - delta);
                     }
                 }

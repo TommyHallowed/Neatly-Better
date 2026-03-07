@@ -2,26 +2,27 @@ package net.hallowed.oldways.init;
 
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleBuilder;
 import net.hallowed.TheOldWays;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.rule.GameRule;
-import net.minecraft.world.rule.GameRuleCategory;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.gamerules.GameRule;
+import net.minecraft.world.level.gamerules.GameRuleCategory;
+import org.jetbrains.annotations.NotNull;
 
 public final class ModGameRules {
 
     private ModGameRules() {}
 
-    public static GameRule<Boolean> FULL_ENCHANTING_COST;
-    public static GameRule<Boolean> BEACON_SOAK_EFFECTS;
-    public static GameRule<Boolean> XP_FROM_MINING_NON_ORE;
-    public static GameRule<Boolean> XP_FROM_PLACING_BLOCKS;
-    public static GameRule<Boolean> VILLAGER_EMERALD_BLOCK_TEMPT;
-    public static GameRule<Boolean> VILLAGER_GLOBAL_CURING_PRICES;
-    public static GameRule<Boolean> VILLAGER_INFINITE_CURING_DISCOUNTS;
-    public static GameRule<Boolean> DO_ELYTRA_FIREWORK_BOOSTING;
+    public static GameRule<@NotNull Boolean> FULL_ENCHANTING_COST;
+    public static GameRule<@NotNull Boolean> BEACON_SOAK_EFFECTS;
+    public static GameRule<@NotNull Boolean> XP_FROM_MINING_NON_ORE;
+    public static GameRule<@NotNull Boolean> XP_FROM_PLACING_BLOCKS;
+    public static GameRule<@NotNull Boolean> VILLAGER_EMERALD_BLOCK_TEMPT;
+    public static GameRule<@NotNull Boolean> VILLAGER_GLOBAL_CURING_PRICES;
+    public static GameRule<@NotNull Boolean> VILLAGER_INFINITE_CURING_DISCOUNTS;
+    public static GameRule<@NotNull Boolean> DO_ELYTRA_FIREWORK_BOOSTING;
 
-    public static GameRule<Integer> SPONGE_BLOCK_ABSORB_RADIUS;
-    public static GameRule<Integer> MAX_BEACON_RANGE;
-    public static GameRule<Integer> SHIELD_RAISE_DELAY_TICKS;
+    public static GameRule<@NotNull Integer> SPONGE_BLOCK_ABSORB_RADIUS;
+    public static GameRule<@NotNull Integer> MAX_BEACON_RANGE;
+    public static GameRule<@NotNull Integer> SHIELD_RAISE_DELAY_TICKS;
 
     public static void register() {
         FULL_ENCHANTING_COST               = bool("full_enchanting_cost",                GameRuleCategory.PLAYER,   true);
@@ -38,15 +39,15 @@ public final class ModGameRules {
         SHIELD_RAISE_DELAY_TICKS           = integer("shield_raise_delay_ticks",         GameRuleCategory.PLAYER,   0);
     }
 
-    private static GameRule<Boolean> bool(String id, GameRuleCategory cat, boolean def) {
+    private static GameRule<@NotNull Boolean> bool(String id, GameRuleCategory cat, boolean def) {
         return GameRuleBuilder.forBoolean(def)
                 .category(cat)
-                .buildAndRegister(Identifier.of(TheOldWays.MOD_ID, id));
+                .buildAndRegister(Identifier.fromNamespaceAndPath(TheOldWays.MOD_ID, id));
     }
 
-    private static GameRule<Integer> integer(String id, GameRuleCategory cat, int def) {
+    private static GameRule<@NotNull Integer> integer(String id, GameRuleCategory cat, int def) {
         return GameRuleBuilder.forInteger(def)
                 .category(cat)
-                .buildAndRegister(Identifier.of(TheOldWays.MOD_ID, id));
+                .buildAndRegister(Identifier.fromNamespaceAndPath(TheOldWays.MOD_ID, id));
     }
 }

@@ -1,18 +1,18 @@
 package net.hallowed.oldways.content.feature;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.minecraft.block.AnvilBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Items;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AnvilBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 public final class AnvilRestoration {
     private AnvilRestoration() {}
@@ -21,43 +21,43 @@ public final class AnvilRestoration {
         UseBlockCallback.EVENT.register(AnvilRestoration::onUseBlock);
     }
 
-    private static ActionResult onUseBlock(PlayerEntity player, World world, Hand hand, BlockHitResult hit) {
-        if (hand != Hand.MAIN_HAND) return ActionResult.PASS;
-        if (!player.isInSneakingPose()) return ActionResult.PASS;
-        if (!player.getStackInHand(hand).isOf(Items.IRON_BLOCK)) return ActionResult.PASS;
+    private static InteractionResult onUseBlock(Player player, Level world, InteractionHand hand, BlockHitResult hit) {
+        if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+        if (!player.isCrouching()) return InteractionResult.PASS;
+        if (!player.getItemInHand(hand).is(Items.IRON_BLOCK)) return InteractionResult.PASS;
 
         BlockPos pos = hit.getBlockPos();
         BlockState state = world.getBlockState(pos);
 
-        boolean canRepairDamaged = state.isOf(Blocks.DAMAGED_ANVIL);
-        boolean canRepairChipped = state.isOf(Blocks.CHIPPED_ANVIL);
+        boolean canRepairDamaged = state.is(Blocks.DAMAGED_ANVIL);
+        boolean canRepairChipped = state.is(Blocks.CHIPPED_ANVIL);
 
         if (!canRepairDamaged && !canRepairChipped) {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
 
         // CLIENT: cancel placement prediction; don't modify world
-        if (world.isClient()) {
-            return ActionResult.SUCCESS;
+        if (world.isClientSide()) {
+            return InteractionResult.SUCCESS;
         }
 
         // SERVER: perform the repair
         BlockState newState;
         if (canRepairDamaged) {
-            newState = Blocks.CHIPPED_ANVIL.getDefaultState()
-                    .with(AnvilBlock.FACING, state.get(AnvilBlock.FACING));
+            newState = Blocks.CHIPPED_ANVIL.defaultBlockState()
+                    .setValue(AnvilBlock.FACING, state.getValue(AnvilBlock.FACING));
         } else {
-            newState = Blocks.ANVIL.getDefaultState()
-                    .with(AnvilBlock.FACING, state.get(AnvilBlock.FACING));
+            newState = Blocks.ANVIL.defaultBlockState()
+                    .setValue(AnvilBlock.FACING, state.getValue(AnvilBlock.FACING));
         }
 
         if (newState != state) {
-            world.setBlockState(pos, newState);
-            world.playSound(null, pos, SoundEvents.BLOCK_ANVIL_USE, SoundCategory.BLOCKS, 1.0f, 1.0f);
-                player.getStackInHand(hand).decrementUnlessCreative(1, player);
-            return ActionResult.SUCCESS_SERVER;
+            world.setBlockAndUpdate(pos, newState);
+            world.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0f, 1.0f);
+                player.getItemInHand(hand).consume(1, player);
+            return InteractionResult.SUCCESS_SERVER;
         }
 
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 }

@@ -1,14 +1,15 @@
 package net.hallowed.oldways.content.feature;
 
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ConsumableComponents;
-import net.minecraft.component.type.FoodComponent;
-import net.minecraft.component.type.RepairableComponent;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.Consumables;
+import net.minecraft.world.item.enchantment.Repairable;
+import org.jetbrains.annotations.NotNull;
 
 public final class AddedItemProperties {
     private AddedItemProperties() {}
@@ -17,25 +18,25 @@ public final class AddedItemProperties {
     public static void register() {
         DefaultItemComponentEvents.MODIFY.register(ctx ->
                 ctx.modify(Items.GLISTERING_MELON_SLICE, builder -> {
-                    FoodComponent food = new FoodComponent.Builder()
+                    FoodProperties food = new FoodProperties.Builder()
                             .nutrition(4)
                             .saturationModifier(0.6F)
                             .build();
-                    builder.add(DataComponentTypes.FOOD, food);
-                    builder.add(DataComponentTypes.CONSUMABLE, ConsumableComponents.FOOD);
+                    builder.set(DataComponents.FOOD, food);
+                    builder.set(DataComponents.CONSUMABLE, Consumables.DEFAULT_FOOD);
                 })
         );
         DefaultItemComponentEvents.MODIFY.register(ctx ->
                 ctx.modify(Items.TRIDENT, builder -> {
                     try {
-                        RegistryEntry<?> shardEntry = Items.PRISMARINE_SHARD.getRegistryEntry();
-                        RegistryEntryList<?> registryList = RegistryEntryList.of(shardEntry);
-                        RepairableComponent repairable = new RepairableComponent((RegistryEntryList<Item>) registryList);
-                        builder.add(DataComponentTypes.REPAIRABLE, repairable);
+                        Holder<?> shardEntry = Items.PRISMARINE_SHARD.builtInRegistryHolder();
+                        HolderSet<?> registryList = HolderSet.direct(shardEntry);
+                        Repairable repairable = new Repairable((HolderSet<@NotNull Item>) registryList);
+                        builder.set(DataComponents.REPAIRABLE, repairable);
                     } catch (Throwable t) {
                         try {
-                            RepairableComponent repairable = new RepairableComponent(RegistryEntryList.of(Items.PRISMARINE_SHARD.getRegistryEntry()));
-                            builder.add(DataComponentTypes.REPAIRABLE, repairable);
+                            Repairable repairable = new Repairable(HolderSet.direct(Items.PRISMARINE_SHARD.builtInRegistryHolder()));
+                            builder.set(DataComponents.REPAIRABLE, repairable);
                         } catch (Throwable ignored) {
                         }
                     }

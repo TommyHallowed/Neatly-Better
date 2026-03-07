@@ -2,10 +2,10 @@ package net.hallowed.oldways.client.mixin.screen;
 
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.hallowed.oldways.client.util.SettingsPrefs;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.option.OnlineOptionsScreen;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.options.OnlineOptionsScreen;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,10 +24,10 @@ public abstract class OnlineOptionsScreenMixin {
     private void oldways$hideRealmsNotifications(CallbackInfo ci) {
         if (!OW$prefs.realmsButtons) return;
         Screen self = (Screen)(Object)this;
-        List<ClickableWidget> buttons = Screens.getButtons(self);
+        List<AbstractWidget> buttons = Screens.getButtons(self);
 
-        final Text REALMS_NOTIF = Text.translatable("options.realmsNotifications");
-        final Text REALMS_NOTIF_TITLE = Text.translatable("options.realmsNotifications");
+        final Component REALMS_NOTIF = Component.translatable("options.realmsNotifications");
+        final Component REALMS_NOTIF_TITLE = Component.translatable("options.realmsNotifications");
 
         buttons.removeIf(b ->
                 b.getMessage().equals(REALMS_NOTIF) ||

@@ -1,10 +1,10 @@
 package net.hallowed.oldways.client.util;
 
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.phys.Vec3;
 
 public interface ChainableRenderState {
-    Vec3d oldways$getLinkedPos();
-    void oldways$setLinkedPos(Vec3d pos);
+    Vec3 oldways$getLinkedPos();
+    void oldways$setLinkedPos(Vec3 pos);
 
     double oldways$getStartOffset();
     void oldways$setStartOffset(double offset);
@@ -12,6 +12,6 @@ public interface ChainableRenderState {
     double oldways$getEndOffset();
     void oldways$setEndOffset(double offset);
 
-    Vec3d oldways$getVisualOffset();
-    void oldways$setVisualOffset(Vec3d offset);
+    Vec3 oldways$getVisualOffset();
+    void oldways$setVisualOffset(Vec3 offset);
 }

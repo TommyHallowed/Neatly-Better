@@ -2,53 +2,71 @@ package net.hallowed.oldways.mixin.entity.ai.task;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
+
 import net.hallowed.oldways.content.entity.ai.task.FarmerReplantTask;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.brain.MemoryModuleType;
-import net.minecraft.entity.ai.brain.task.*;
-import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.village.VillagerProfession;
+
+import net.minecraft.core.Holder;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.behavior.BehaviorControl;
+import net.minecraft.world.entity.ai.behavior.GiveGiftToHero;
+import net.minecraft.world.entity.ai.behavior.HarvestFarmland;
+import net.minecraft.world.entity.ai.behavior.RunOne;
+import net.minecraft.world.entity.ai.behavior.SetLookAndInteract;
+import net.minecraft.world.entity.ai.behavior.SetWalkTargetFromBlockMemory;
+import net.minecraft.world.entity.ai.behavior.ShowTradesToPlayer;
+import net.minecraft.world.entity.ai.behavior.StrollAroundPoi;
+import net.minecraft.world.entity.ai.behavior.StrollToPoi;
+import net.minecraft.world.entity.ai.behavior.StrollToPoiList;
+import net.minecraft.world.entity.ai.behavior.UpdateActivityFromSchedule;
+import net.minecraft.world.entity.ai.behavior.UseBonemeal;
+import net.minecraft.world.entity.ai.behavior.VillagerGoalPackages;
+import net.minecraft.world.entity.ai.behavior.WorkAtComposter;
+import net.minecraft.world.entity.ai.behavior.WorkAtPoi;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
+
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(VillagerTaskListProvider.class)
+@Mixin(VillagerGoalPackages.class)
 public abstract class VillagerTaskListProviderMixin {
 
-    @Inject(method = "createWorkTasks", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getWorkPackage", at = @At("HEAD"), cancellable = true)
     private static void oldways$addTillingTask(
-            RegistryEntry<VillagerProfession> profession,
+            Holder<@NotNull VillagerProfession> profession,
             float speed,
-            CallbackInfoReturnable<ImmutableList<Pair<Integer, ? extends Task<? super VillagerEntity>>>> cir
+            CallbackInfoReturnable<ImmutableList<@NotNull Pair<Integer, ? extends BehaviorControl<? super Villager>>>> cir
     ) {
-        if (!profession.matchesKey(VillagerProfession.FARMER)) return;
+        if (!profession.is(VillagerProfession.FARMER)) return;
 
-        VillagerWorkTask farmerWork = new FarmerWorkTask();
+        WorkAtPoi farmerWork = new WorkAtComposter();
 
-        RandomTask<VillagerEntity> bundled = new RandomTask<>(ImmutableList.of(
+        RunOne<@NotNull Villager> bundled = new RunOne<>(ImmutableList.of(
                 Pair.of(farmerWork, 7),
-                Pair.of(GoAroundTask.create(MemoryModuleType.JOB_SITE, 0.4F, 4), 2),
-                Pair.of(GoToPosTask.create(MemoryModuleType.JOB_SITE, 0.4F, 1, 10), 5),
-                Pair.of(GoToSecondaryPositionTask.create(MemoryModuleType.SECONDARY_JOB_SITE, speed, 1, 6, MemoryModuleType.JOB_SITE), 5),
-                Pair.of(new FarmerVillagerTask(), 2),
+                Pair.of(StrollAroundPoi.create(MemoryModuleType.JOB_SITE, 0.4F, 4), 2),
+                Pair.of(StrollToPoi.create(MemoryModuleType.JOB_SITE, 0.4F, 1, 10), 5),
+                Pair.of(StrollToPoiList.create(MemoryModuleType.SECONDARY_JOB_SITE, speed, 1, 6, MemoryModuleType.JOB_SITE), 5),
+                Pair.of(new HarvestFarmland(), 2),
                 Pair.of(new FarmerReplantTask(), 3),
-                Pair.of(new BoneMealTask(), 4)
+                Pair.of(new UseBonemeal(), 4)
         ));
 
-        Pair<Integer, Task<LivingEntity>> busyFollow = VillagerTaskListProvider.createBusyFollowTask();
+        Pair<Integer, BehaviorControl<@NotNull LivingEntity>> busyFollow = VillagerGoalPackages.getMinimalLookBehavior();
 
-        ImmutableList<Pair<Integer, ? extends Task<? super VillagerEntity>>> out =
-                ImmutableList.<Pair<Integer, ? extends Task<? super VillagerEntity>>>builder()
+        ImmutableList<@NotNull Pair<Integer, ? extends BehaviorControl<? super Villager>>> out =
+                ImmutableList.<Pair<Integer, ? extends BehaviorControl<? super Villager>>>builder()
                         .add(busyFollow)
                         .add(Pair.of(5, bundled))
-                        .add(Pair.of(10, new HoldTradeOffersTask(400, 1600)))
-                        .add(Pair.of(10, FindInteractionTargetTask.create(EntityType.PLAYER, 4)))
-                        .add(Pair.of(2, VillagerWalkTowardsTask.create(MemoryModuleType.JOB_SITE, speed, 9, 100, 1200)))
-                        .add(Pair.of(3, new GiveGiftsToHeroTask(100)))
-                        .add(Pair.of(99, ScheduleActivityTask.create()))
+                        .add(Pair.of(10, new ShowTradesToPlayer(400, 1600)))
+                        .add(Pair.of(10, SetLookAndInteract.create(EntityType.PLAYER, 4)))
+                        .add(Pair.of(2, SetWalkTargetFromBlockMemory.create(MemoryModuleType.JOB_SITE, speed, 9, 100, 1200)))
+                        .add(Pair.of(3, new GiveGiftToHero(100)))
+                        .add(Pair.of(99, UpdateActivityFromSchedule.create()))
                         .build();
 
         cir.setReturnValue(out);

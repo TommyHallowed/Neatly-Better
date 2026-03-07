@@ -3,19 +3,25 @@ package net.hallowed.oldways.client.screen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hallowed.oldways.client.util.SettingsPrefs;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.*;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.layouts.GridLayout;
+import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
+import net.minecraft.client.gui.layouts.LayoutSettings;
+import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 
 @SuppressWarnings("unused")
 @Environment(EnvType.CLIENT)
 public class OverlaySettingsScreen extends Screen {
-    public static final Text TITLE = Text.translatable("options.gameplay.overlay.title");
+    public static final Component TITLE = Component.translatable("options.gameplay.overlay.title");
 
     private final Screen parent;
     private SettingsPrefs P;
@@ -27,77 +33,76 @@ public class OverlaySettingsScreen extends Screen {
 
     @Override
     protected void init() {
-        this.clearChildren();
+        this.clearWidgets();
         this.P = SettingsPrefs.get();
 
-        ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this, 20, 33);
-        DirectionalLayoutWidget header = layout.addHeader(DirectionalLayoutWidget.vertical().spacing(8));
-        header.getMainPositioner().marginTop(10);
-        header.add(new TextWidget(TITLE, this.textRenderer), Positioner::alignHorizontalCenter);
+        HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this, 20, 33);
+        LinearLayout header = layout.addToHeader(LinearLayout.vertical().spacing(8));
+        header.defaultCellSetting().paddingTop(10);
+        header.addChild(new StringWidget(TITLE, this.font), LayoutSettings::alignHorizontallyCenter);
 
-        GridWidget grid = new GridWidget();
-        grid.getMainPositioner().marginX(5).marginBottom(4).alignHorizontalCenter();
-        GridWidget.Adder adder = grid.createAdder(2);
+        GridLayout grid = new GridLayout();
+        grid.defaultCellSetting().paddingHorizontal(5).paddingBottom(4).alignHorizontallyCenter();
+        GridLayout.RowHelper adder = grid.createRowHelper(2);
 
         // Row 1 — ON/OFF
-        adder.add(ButtonWidget.builder(showCoordsText(), b -> {
+        adder.addChild(Button.builder(showCoordsText(), b -> {
             P.showCoords = !P.showCoords;
             b.setMessage(showCoordsText());
             SettingsPrefs.save();
-        }).tooltip(Tooltip.of(Text.translatable("options.gameplay.overlay.coords.tooltip"))).build());
+        }).tooltip(Tooltip.create(Component.translatable("options.gameplay.overlay.coords.tooltip"))).build());
 
-        adder.add(ButtonWidget.builder(showTimeText(), b -> {
+        adder.addChild(Button.builder(showTimeText(), b -> {
             P.showTime = !P.showTime;
             b.setMessage(showTimeText());
             SettingsPrefs.save();
-        }).tooltip(Tooltip.of(Text.translatable("options.gameplay.overlay.time.tooltip"))).build());
+        }).tooltip(Tooltip.create(Component.translatable("options.gameplay.overlay.time.tooltip"))).build());
 
-        adder.add(ButtonWidget.builder(coordsPosText(), b -> {
+        adder.addChild(Button.builder(coordsPosText(), b -> {
             P.coordsPos = P.coordsPos.next();
             b.setMessage(coordsPosText());
             SettingsPrefs.save();
-        }).tooltip(Tooltip.of(Text.translatable("options.gameplay.overlay.coords_pos.tooltip"))).build());
+        }).tooltip(Tooltip.create(Component.translatable("options.gameplay.overlay.coords_pos.tooltip"))).build());
 
-        adder.add(ButtonWidget.builder(timePosText(), b -> {
+        adder.addChild(Button.builder(timePosText(), b -> {
             P.timePos = P.timePos.next();
             b.setMessage(timePosText());
             SettingsPrefs.save();
-        }).tooltip(Tooltip.of(Text.translatable("options.gameplay.overlay.time_pos.tooltip"))).build());
+        }).tooltip(Tooltip.create(Component.translatable("options.gameplay.overlay.time_pos.tooltip"))).build());
 
-        TextFieldWidget timeFmt = new TextFieldWidget(
-                this.textRenderer, 0, 0, 150, 20,
-                Text.translatable("options.gameplay.overlay.time_format")
+        EditBox timeFmt = new EditBox(
+                this.font, 0, 0, 150, 20,
+                Component.translatable("options.gameplay.overlay.time_format")
         );
-        timeFmt.setText(P.timeDayFormat);
-        timeFmt.setTooltip(Tooltip.of(Text.translatable("options.gameplay.overlay.time_format.tooltip")));
-        timeFmt.setChangedListener(s -> { P.timeDayFormat = s; SettingsPrefs.save(); });
-        adder.add(timeFmt);
+        timeFmt.setValue(P.timeDayFormat);
+        timeFmt.setTooltip(Tooltip.create(Component.translatable("options.gameplay.overlay.time_format.tooltip")));
+        timeFmt.setResponder(s -> { P.timeDayFormat = s; SettingsPrefs.save(); });
+        adder.addChild(timeFmt);
 
-        TextFieldWidget coordsFmt = new TextFieldWidget(
-                this.textRenderer, 0, 0, 150, 20,
-                Text.translatable("options.gameplay.overlay.coords_format")
+        EditBox coordsFmt = new EditBox(
+                this.font, 0, 0, 150, 20,
+                Component.translatable("options.gameplay.overlay.coords_format")
         );
-        coordsFmt.setText(P.coordsFormat);
-        coordsFmt.setTooltip(Tooltip.of(Text.translatable("options.gameplay.overlay.coords_format.tooltip")));
-        coordsFmt.setChangedListener(s -> { P.coordsFormat = s; SettingsPrefs.save(); });
-        adder.add(coordsFmt);
+        coordsFmt.setValue(P.coordsFormat);
+        coordsFmt.setTooltip(Tooltip.create(Component.translatable("options.gameplay.overlay.coords_format.tooltip")));
+        coordsFmt.setResponder(s -> { P.coordsFormat = s; SettingsPrefs.save(); });
+        adder.addChild(coordsFmt);
 
-        layout.addBody(grid);
+        layout.addToContents(grid);
 
-        ButtonWidget doneBtn = ButtonWidget.builder(ScreenTexts.DONE, b -> {
+        Button doneBtn = Button.builder(CommonComponents.GUI_DONE, b -> {
             SettingsPrefs.save();
-            assert this.client != null;
-            this.client.setScreen(this.parent);
+            this.minecraft.setScreen(this.parent);
         }).width(200).build();
-        layout.addFooter(doneBtn);
+        layout.addToFooter(doneBtn);
 
-        layout.forEachChild(this::addDrawableChild);
-        layout.refreshPositions();
+        layout.visitWidgets(this::addRenderableWidget);
+        layout.arrangeElements();
         this.setInitialFocus(doneBtn);
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         int top = 31, bottom = this.height - 31;
         context.fill(0, top + 2, this.width, bottom - 2, 0x7F000000);
         int light = 0x4DFFFFFF, dark = 0xBF000000;
@@ -108,24 +113,24 @@ public class OverlaySettingsScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
     }
 
-    private MutableText showCoordsText() {
-        return Text.translatable("options.gameplay.overlay.show_coords")
-                .append(Text.literal(": "))
-                .append(P.showCoords ? ScreenTexts.ON : ScreenTexts.OFF);
+    private MutableComponent showCoordsText() {
+        return Component.translatable("options.gameplay.overlay.show_coords")
+                .append(Component.literal(": "))
+                .append(P.showCoords ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF);
     }
-    private MutableText showTimeText() {
-        return Text.translatable("options.gameplay.overlay.show_time")
-                .append(Text.literal(": "))
-                .append(P.showTime ? ScreenTexts.ON : ScreenTexts.OFF);
+    private MutableComponent showTimeText() {
+        return Component.translatable("options.gameplay.overlay.show_time")
+                .append(Component.literal(": "))
+                .append(P.showTime ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF);
     }
-    private MutableText coordsPosText() {
-        return Text.translatable("options.gameplay.overlay.coords_pos")
-                .append(Text.literal(": "))
-                .append(Text.translatable(P.coordsPos.langKey));
+    private MutableComponent coordsPosText() {
+        return Component.translatable("options.gameplay.overlay.coords_pos")
+                .append(Component.literal(": "))
+                .append(Component.translatable(P.coordsPos.langKey));
     }
-    private MutableText timePosText() {
-        return Text.translatable("options.gameplay.overlay.time_pos")
-                .append(Text.literal(": "))
-                .append(Text.translatable(P.timePos.langKey));
+    private MutableComponent timePosText() {
+        return Component.translatable("options.gameplay.overlay.time_pos")
+                .append(Component.literal(": "))
+                .append(Component.translatable(P.timePos.langKey));
     }
 }

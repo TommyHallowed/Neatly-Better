@@ -1,21 +1,21 @@
 package net.hallowed.oldways.content.feature;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.LeveledCauldronBlock;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.stat.Stats;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 public final class CauldronCleansFilledMap {
     private CauldronCleansFilledMap() {}
@@ -24,41 +24,41 @@ public final class CauldronCleansFilledMap {
         UseBlockCallback.EVENT.register(CauldronCleansFilledMap::onUseBlock);
     }
 
-    private static ActionResult onUseBlock(PlayerEntity player, World world, Hand hand, BlockHitResult hit) {
-        if (player == null) return ActionResult.PASS;
+    private static InteractionResult onUseBlock(Player player, Level world, InteractionHand hand, BlockHitResult hit) {
+        if (player == null) return InteractionResult.PASS;
 
-        final ItemStack stack = player.getStackInHand(hand);
-        if (!stack.isOf(Items.FILLED_MAP)) return ActionResult.PASS;
+        final ItemStack stack = player.getItemInHand(hand);
+        if (!stack.is(Items.FILLED_MAP)) return InteractionResult.PASS;
 
         final BlockPos pos = hit.getBlockPos();
         final BlockState state = world.getBlockState(pos);
-        if (!state.isOf(Blocks.WATER_CAULDRON)) return ActionResult.PASS;
+        if (!state.is(Blocks.WATER_CAULDRON)) return InteractionResult.PASS;
 
-        final int level = state.get(LeveledCauldronBlock.LEVEL);
-        if (level <= 0) return ActionResult.PASS;
+        final int level = state.getValue(LayeredCauldronBlock.LEVEL);
+        if (level <= 0) return InteractionResult.PASS;
 
-        if (world.isClient()) return ActionResult.SUCCESS;
+        if (world.isClientSide()) return InteractionResult.SUCCESS;
 
-        if (!player.getAbilities().creativeMode) {
+        if (!player.getAbilities().instabuild) {
             if (level > 1) {
-                world.setBlockState(pos, state.with(LeveledCauldronBlock.LEVEL, level - 1), Block.NOTIFY_ALL);
+                world.setBlock(pos, state.setValue(LayeredCauldronBlock.LEVEL, level - 1), Block.UPDATE_ALL);
             } else {
-                world.setBlockState(pos, Blocks.CAULDRON.getDefaultState(), Block.NOTIFY_ALL);
+                world.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), Block.UPDATE_ALL);
             }
 
             ItemStack emptyMap = new ItemStack(Items.MAP);
             if (stack.getCount() == 1) {
-                player.setStackInHand(hand, emptyMap);
+                player.setItemInHand(hand, emptyMap);
             } else {
-                stack.decrement(1);
-                if (!player.getInventory().insertStack(emptyMap)) {
-                    player.dropItem(emptyMap, false);
+                stack.shrink(1);
+                if (!player.getInventory().add(emptyMap)) {
+                    player.drop(emptyMap, false);
                 }
             }
         }
 
-        world.playSound(null, pos, SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.BLOCKS, 1.0F, 1.0F);
-        player.incrementStat(Stats.USE_CAULDRON);
-        return ActionResult.SUCCESS;
+        world.playSound(null, pos, SoundEvents.BOOK_PAGE_TURN, SoundSource.BLOCKS, 1.0F, 1.0F);
+        player.awardStat(Stats.USE_CAULDRON);
+        return InteractionResult.SUCCESS;
     }
 }

@@ -1,27 +1,28 @@
 package net.hallowed.oldways.mixin.entity.ai;
 
 import net.hallowed.oldways.api.OWCompat;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.AttributeModifierSlot;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.PiglinBrain;
-import net.minecraft.item.equipment.trim.ArmorTrim;
-import net.minecraft.item.equipment.trim.ArmorTrimMaterial;
-import net.minecraft.item.equipment.trim.ArmorTrimMaterials;
-import net.minecraft.item.equipment.trim.ArmorTrimPattern;
-import net.minecraft.item.equipment.trim.ArmorTrimPatterns;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.piglin.PiglinAi;
+import net.minecraft.world.item.equipment.trim.ArmorTrim;
+import net.minecraft.world.item.equipment.trim.TrimMaterial;
+import net.minecraft.world.item.equipment.trim.TrimMaterials;
+import net.minecraft.world.item.equipment.trim.TrimPattern;
+import net.minecraft.world.item.equipment.trim.TrimPatterns;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(PiglinBrain.class)
+@Mixin(PiglinAi.class)
 public abstract class PiglinBrainMixin {
 
     @Inject(
-            method = "isWearingPiglinSafeArmor(Lnet/minecraft/entity/LivingEntity;)Z",
+            method = "isWearingSafeArmor(Lnet/minecraft/world/entity/LivingEntity;)Z",
             at = @At("RETURN"),
             cancellable = true
     )
@@ -29,16 +30,16 @@ public abstract class PiglinBrainMixin {
         if (OWCompat.RESPECTMYTRIMS) return;
         if (cir.getReturnValue()) return;
 
-        for (EquipmentSlot slot : AttributeModifierSlot.ARMOR) {
-            ArmorTrim trimComp = entity.getEquippedStack(slot)
-                    .getComponents().get(DataComponentTypes.TRIM);
+        for (EquipmentSlot slot : EquipmentSlotGroup.ARMOR) {
+            ArmorTrim trimComp = entity.getItemBySlot(slot)
+                    .getComponents().get(DataComponents.TRIM);
             if (trimComp == null) continue;
 
-            RegistryEntry<ArmorTrimMaterial> material = trimComp.material();
-            RegistryEntry<ArmorTrimPattern>  pattern  = trimComp.pattern();
+            Holder<@NotNull TrimMaterial> material = trimComp.material();
+            Holder<@NotNull TrimPattern>  pattern  = trimComp.pattern();
 
-            boolean isGoldTrim = material != null && material.matchesKey(ArmorTrimMaterials.GOLD);
-            boolean isSnout    = pattern  != null && pattern.matchesKey(ArmorTrimPatterns.SNOUT);
+            boolean isGoldTrim = material.is(TrimMaterials.GOLD);
+            boolean isSnout    = pattern.is(TrimPatterns.SNOUT);
 
             if (isGoldTrim || isSnout) {
                 cir.setReturnValue(true);

@@ -1,14 +1,14 @@
 package net.hallowed.oldways.client.util;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.player.Player;
 
 
 public final class HudFormatting {
     private HudFormatting() {}
 
-    private static final MinecraftClient MC = MinecraftClient.getInstance();
+    private static final Minecraft MC = Minecraft.getInstance();
     private static final SettingsPrefs P = SettingsPrefs.get();
 
     public record Line(String text, int argb) {}
@@ -30,17 +30,17 @@ public final class HudFormatting {
 
     private static int secondBucket(long timeOfDay) { return (int)((timeOfDay % 24000L) / 20L); }
 
-    public static boolean shouldShowCoords(PlayerEntity p) {
+    public static boolean shouldShowCoords(Player p) {
         return P.showCoords && (InventoryDeepScan.hasCompass(p) || EnderCheckClient.enderHasCompass());
     }
-    public static boolean shouldShowTime(PlayerEntity p) {
+    public static boolean shouldShowTime(Player p) {
         return P.showTime && (InventoryDeepScan.hasClock(p) || EnderCheckClient.enderHasClock());
     }
 
-    public static Line coordsLine(PlayerEntity p) {
+    public static Line coordsLine(Player p) {
         final double x = p.getX(), y = p.getY(), z = p.getZ();
-        final ClientWorld w = MC.world;
-        final int colorBucket = (w != null) ? secondBucket(w.getTimeOfDay()) : 0;
+        final ClientLevel w = MC.level;
+        final int colorBucket = (w != null) ? secondBucket(w.getDayTime()) : 0;
 
         if (cachedCoords == null || movedEnough(x,y,z) || colorBucket != lastCoordColorBucket) {
             lastCoordX = x; lastCoordY = y; lastCoordZ = z;
@@ -50,10 +50,10 @@ public final class HudFormatting {
         return cachedCoords;
     }
 
-    public static Line timeLine(ClientWorld w) {
-        String hhmm = ticksToHHMM(w.getTimeOfDay());
-        int    day  = (int)(w.getTime() / 24000L);
-        int    bucket = secondBucket(w.getTimeOfDay());
+    public static Line timeLine(ClientLevel w) {
+        String hhmm = ticksToHHMM(w.getDayTime());
+        int    day  = (int)(w.getGameTime() / 24000L);
+        int    bucket = secondBucket(w.getDayTime());
         String key = hhmm + "|" + day + "|" + bucket;
         if (cachedTime == null || !key.equals(lastTimeKey)) {
             lastTimeKey = key;
@@ -71,8 +71,8 @@ public final class HudFormatting {
     public static int[] timeXY  (int textW, int lineH, float scale) { return ensureAnchor(textW, lineH, scale, false); }
 
     private static int[] ensureAnchor(int textW, int lineH, float scale, boolean forCoords) {
-        int screenW = MC.getWindow().getScaledWidth();
-        int screenH = MC.getWindow().getScaledHeight();
+        int screenW = MC.getWindow().getGuiScaledWidth();
+        int screenH = MC.getWindow().getGuiScaledHeight();
         String pos  = forCoords ? coordsPosition() : timePosition();
 
         boolean needFull = (screenW != lastScreenW) || (screenH != lastScreenH)

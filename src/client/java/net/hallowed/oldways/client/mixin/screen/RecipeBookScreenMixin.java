@@ -2,14 +2,14 @@ package net.hallowed.oldways.client.mixin.screen;
 
 import net.hallowed.oldways.client.util.SettingsPrefs;
 import net.hallowed.oldways.client.util.SettingsPrefs.RecipeBookMode;
-import net.minecraft.client.gui.screen.ingame.RecipeBookScreen;
+import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(RecipeBookScreen.class)
+@Mixin(AbstractRecipeBookScreen.class)
 public abstract class RecipeBookScreenMixin {
 
     @Unique
@@ -19,7 +19,7 @@ public abstract class RecipeBookScreenMixin {
             method = "init",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/screen/ingame/RecipeBookScreen;addRecipeBook()V"
+                    target = "Lnet/minecraft/client/gui/screens/inventory/AbstractRecipeBookScreen;initButton()V"
             ),
             cancellable = true
     )

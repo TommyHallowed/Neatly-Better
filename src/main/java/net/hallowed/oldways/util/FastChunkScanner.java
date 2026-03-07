@@ -5,23 +5,22 @@ import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Multisets;
 import net.hallowed.oldways.content.item.MapBuilderItem;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.MapColor;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.MapIdComponent;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.map.MapState;
-import net.minecraft.server.world.ChunkTicketType;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.saveddata.maps.MapId;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,11 +28,10 @@ import java.util.Set;
 
 public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
 
-    public static final ChunkTicketType MAP_BUILDER_TICKET = ChunkTicketType.PLAYER_LOADING;
+    public static final TicketType MAP_BUILDER_TICKET = TicketType.PLAYER_LOADING;
 
-    private final ServerWorld world;
+    private final ServerLevel world;
     private final ItemStack mapStack;
-    private final int centerX;
     private final int centerZ;
     private final int i; // scale multiplier
 
@@ -52,12 +50,9 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
     private List<ChunkPos> rowChunksList = new ArrayList<>();
     private final double[] previousHeights = new double[128];
 
-    private int forcedThisTick = 0;
-
-    public FastChunkScanner(ServerWorld world, ItemStack mapStack, int centerX, int centerZ, int scale) {
+    public FastChunkScanner(ServerLevel world, ItemStack mapStack, int centerX, int centerZ, int scale) {
         this.world = world;
         this.mapStack = mapStack;
-        this.centerX = centerX;
         this.centerZ = centerZ;
         this.i = 1 << scale;
 
@@ -90,14 +85,14 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
             // CRUCIAL: Unload chunks that are safely behind us to free up gigabytes of RAM!
             for (ChunkPos pos : activeTickets) {
                 if (!neededThisRow.contains(pos)) {
-                    world.getChunkManager().removeTicket(MAP_BUILDER_TICKET, pos, 1);
+                    world.getChunkSource().removeTicketWithRadius(MAP_BUILDER_TICKET, pos, 1);
                 }
             }
 
             // Load new chunks needed for this row
             for (ChunkPos pos : neededThisRow) {
                 if (!activeTickets.contains(pos)) {
-                    world.getChunkManager().addTicket(MAP_BUILDER_TICKET, pos, 1);
+                    world.getChunkSource().addTicketWithRadius(MAP_BUILDER_TICKET, pos, 1);
                 }
             }
 
@@ -110,13 +105,13 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
         } else if (processState == 1) {
             // STEP 1: WAIT FOR ROW CHUNKS
             int toProcess = Math.min(20, rowChunksList.size() - waitIndex);
-            forcedThisTick = 0;
+            int forcedThisTick = 0;
 
             for (int j = 0; j < toProcess; j++) {
                 if (waitIndex >= rowChunksList.size()) break;
 
                 ChunkPos pos = rowChunksList.get(waitIndex);
-                Chunk chunk = world.getChunkManager().getChunk(pos.x, pos.z, ChunkStatus.FEATURES, false);
+                ChunkAccess chunk = world.getChunkSource().getChunk(pos.x, pos.z, ChunkStatus.FEATURES, false);
 
                 if (chunk == null) {
                     if (forcedThisTick >= 1) break; // Limit CPU lag by only forcing 1 per tick
@@ -133,30 +128,30 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
 
         } else {
             // STEP 2: DRAW ROW (Ultra-Fast Array Caching)
-            MapIdComponent mapId = mapStack.get(DataComponentTypes.MAP_ID);
+            MapId mapId = mapStack.get(DataComponents.MAP_ID);
             if (mapId == null) return finish();
-            MapState state = world.getMapState(mapId);
+            MapItemSavedData state = world.getMapData(mapId);
             if (state == null) return finish();
 
-            int minBlockZ = (centerZ / i + p - 64) * i;
-            int minChunkZ = minBlockZ >> 4;
-            int maxChunkZ = (minBlockZ + i - 1) >> 4;
+            int startZ = (centerZ / i + p - 64) * i;
+            int minChunkZ = startZ >> 4;
+            int maxChunkZ = (startZ + i - 1) >> 4;
 
             // CACHE THE CHUNKS: Eliminates calling world.getChunk() 32,000 times!
             int cacheWidth = maxChunkX - minChunkX + 1;
             int cacheHeight = maxChunkZ - minChunkZ + 1;
-            Chunk[] chunkCache = new Chunk[cacheWidth * cacheHeight];
+            ChunkAccess[] chunkCache = new ChunkAccess[cacheWidth * cacheHeight];
 
             for (int cx = minChunkX; cx <= maxChunkX; cx++) {
                 for (int cz = minChunkZ; cz <= maxChunkZ; cz++) {
                     int idx = (cx - minChunkX) + (cz - minChunkZ) * cacheWidth;
-                    chunkCache[idx] = world.getChunkManager().getChunk(cx, cz, ChunkStatus.FEATURES, false);
+                    chunkCache[idx] = world.getChunkSource().getChunk(cx, cz, ChunkStatus.FEATURES, false);
                 }
             }
 
-            BlockPos.Mutable pos = new BlockPos.Mutable();
-            BlockPos.Mutable waterPos = new BlockPos.Mutable();
-            int bottomY = world.getBottomY();
+            BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+            BlockPos.MutableBlockPos waterPos = new BlockPos.MutableBlockPos();
+            int bottomY = world.getMinY();
 
             // Process all 128 horizontal pixels for this single row in one tick
             for (int o = 0; o < 128; o++) {
@@ -165,7 +160,6 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
                 double currentHeight = 0.0;
 
                 int startX = minBlockX + o * i;
-                int startZ = minBlockZ;
 
                 for (int u = 0; u < i; ++u) {
                     for (int v = 0; v < i; ++v) {
@@ -175,24 +169,24 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
                         int cx = blockX >> 4;
                         int cz = blockZ >> 4;
                         int idx = (cx - minChunkX) + (cz - minChunkZ) * cacheWidth;
-                        Chunk chunk = chunkCache[idx];
+                        ChunkAccess chunk = chunkCache[idx];
 
                         if (chunk == null) continue;
 
                         int localX = blockX & 15;
                         int localZ = blockZ & 15;
 
-                        int w = chunk.sampleHeightmap(Heightmap.Type.WORLD_SURFACE, localX, localZ) + 1;
+                        int w = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, localX, localZ) + 1;
                         BlockState blockState;
 
                         if (w <= bottomY) {
-                            blockState = Blocks.BEDROCK.getDefaultState();
+                            blockState = Blocks.BEDROCK.defaultBlockState();
                         } else {
                             do {
                                 --w;
                                 pos.set(blockX, w, blockZ);
                                 blockState = chunk.getBlockState(pos);
-                            } while (blockState.getMapColor(world, pos) == MapColor.CLEAR && w > bottomY);
+                            } while (blockState.getMapColor(world, pos) == MapColor.NONE && w > bottomY);
 
                             if (w > bottomY && !blockState.getFluidState().isEmpty()) {
                                 int x = w - 1;
@@ -205,8 +199,8 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
                                 } while (x > bottomY && !waterState.getFluidState().isEmpty());
 
                                 FluidState fluidState = blockState.getFluidState();
-                                if (!fluidState.isEmpty() && !blockState.isSideSolidFullSquare(world, pos, Direction.UP)) {
-                                    blockState = fluidState.getBlockState();
+                                if (!fluidState.isEmpty() && !blockState.isFaceSturdy(world, pos, Direction.UP)) {
+                                    blockState = fluidState.createLegacyBlock();
                                 }
                             }
                         }
@@ -217,10 +211,10 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
                 }
 
                 waterDepth /= Math.max(1, i * i);
-                MapColor mapColor = Iterables.getFirst(Multisets.copyHighestCountFirst(multiset), MapColor.CLEAR);
+                MapColor mapColor = Iterables.getFirst(Multisets.copyHighestCountFirst(multiset), MapColor.NONE);
 
                 MapColor.Brightness brightness = MapColor.Brightness.NORMAL;
-                if (mapColor == MapColor.WATER_BLUE) {
+                if (mapColor == MapColor.WATER) {
                     double depthVisual = (double) waterDepth * 0.1 + (double) (o + p & 1) * 0.2;
                     if (depthVisual < 0.5) brightness = MapColor.Brightness.HIGH;
                     else if (depthVisual > 0.9) brightness = MapColor.Brightness.LOW;
@@ -233,11 +227,11 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
                 previousHeights[o] = currentHeight;
                 if (p >= 0) {
                     assert mapColor != null;
-                    state.putColor(o, p, mapColor.getRenderColorByte(brightness));
+                    state.updateColor(o, p, mapColor.getPackedId(brightness));
                 }
             }
 
-            if (p >= 0) state.markDirty();
+            if (p >= 0) state.setDirty();
 
             p++; // Move to next row down
             if (p >= 128) {
@@ -251,7 +245,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
 
     private boolean finish() {
         for (ChunkPos pos : activeTickets) {
-            world.getChunkManager().removeTicket(MAP_BUILDER_TICKET, pos, 1);
+            world.getChunkSource().removeTicketWithRadius(MAP_BUILDER_TICKET, pos, 1);
         }
         activeTickets.clear();
         return true;

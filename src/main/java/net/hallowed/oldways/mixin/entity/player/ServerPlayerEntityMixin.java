@@ -1,12 +1,12 @@
 package net.hallowed.oldways.mixin.entity.player;
 
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerPlayerEntity.class)
+@Mixin(ServerPlayer.class)
 public abstract class ServerPlayerEntityMixin {
 
     @Inject(
@@ -14,8 +14,8 @@ public abstract class ServerPlayerEntityMixin {
             at = @At("HEAD"),
             cancellable = true)
     private void oldways$cancelShortNoDamageJumpDrops(CallbackInfo ci) {
-        ServerPlayerEntity self = (ServerPlayerEntity) (Object) this;
-        if (!self.inPowderSnow && !self.isTouchingWater() && !self.isSleeping() && !self.isGliding() && self.fallDistance <= self.getSafeFallDistance()) {
+        ServerPlayer self = (ServerPlayer) (Object) this;
+        if (!self.isInPowderSnow && !self.isInWater() && !self.isSleeping() && !self.isFallFlying() && self.fallDistance <= self.getMaxFallDistance()) {
             ci.cancel();
         }
     }
