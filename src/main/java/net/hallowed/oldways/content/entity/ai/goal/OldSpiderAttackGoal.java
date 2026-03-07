@@ -93,7 +93,7 @@ public class OldSpiderAttackGoal extends Goal {
                     && target.getBoundingBox().maxY > this.spider.getBoundingBox().minY
                     && target.getBoundingBox().minY < this.spider.getBoundingBox().maxY) {
 
-                this.attackTime = 20; // Old MC attack cooldown was 20 ticks
+                this.attackTime = 10; // Old MC attack cooldown was 20 ticks
 
                 // Attack the target! (1.21.4 requires the ServerLevel cast)
                 if (!this.spider.level().isClientSide()) {
