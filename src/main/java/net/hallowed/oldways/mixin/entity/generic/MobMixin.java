@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Mob.class)
-public abstract class MobEntityMixin {
+public abstract class MobMixin {
 
     @Inject(method = "getAttackBoundingBox", at = @At("RETURN"), cancellable = true)
     private void oldways$extraReach(CallbackInfoReturnable<AABB> cir) {
