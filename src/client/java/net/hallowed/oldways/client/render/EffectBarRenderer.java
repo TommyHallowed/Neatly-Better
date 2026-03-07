@@ -12,12 +12,6 @@ import net.minecraft.world.effect.MobEffectUtil;
 
 public class EffectBarRenderer {
 
-    // Hide bars that are longer than 30 minutes (36000 ticks)
-    private static final int MAX_REMAINING_DURATION = 36000;
-
-    // Hide beacon/ambient effects for the first 5 seconds (100 ticks) so they don't flicker when refreshing
-    private static final int MIN_AMBIENT_AGE = 100;
-
     // HUD bars
     public static void renderHUD(GuiGraphics context, MobEffectInstance effect, int x, int y) {
         int maxDuration = ((OWEffectInstance) effect).oldways$getMaxDuration();
@@ -68,10 +62,10 @@ public class EffectBarRenderer {
     private static boolean shouldRenderBar(MobEffectInstance effect, int maxDuration) {
         if (maxDuration <= 0 || effect.isInfiniteDuration()) return false;
 
-        if (effect.getDuration() > MAX_REMAINING_DURATION) return false;
+        if (effect.getDuration() > 36000) return false;
 
         int age = maxDuration - effect.getDuration();
-        return !effect.isAmbient() || age >= MIN_AMBIENT_AGE;
+        return !effect.isAmbient() || age >= 100;
     }
 
     private static float getSmoothProgress(MobEffectInstance effect, int maxDuration) {
