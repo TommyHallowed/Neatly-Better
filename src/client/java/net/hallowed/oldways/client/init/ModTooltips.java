@@ -106,7 +106,6 @@ public final class ModTooltips {
     private static int findUpgradeHeaderIndex(List<Component> lines) {
         for (int i = 0, n = lines.size(); i < n; i++) {
             String s = lines.get(i).getString();
-            if (s == null) continue;
             s = s.trim();
             if (s.equalsIgnoreCase("Upgrade:") || s.equalsIgnoreCase("Upgrade")) {
                 return i;

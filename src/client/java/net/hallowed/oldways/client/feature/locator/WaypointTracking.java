@@ -22,6 +22,7 @@ import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.component.LodestoneTracker;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 public final class WaypointTracking {
     private WaypointTracking() {}
@@ -45,14 +46,14 @@ public final class WaypointTracking {
         WAYPOINTS.clear();
         if (player == null) return WAYPOINTS;
 
-        final ResourceKey<Level> dim = player.level().dimension();
+        final ResourceKey<@NotNull Level> dim = player.level().dimension();
 
         // Collect initial roots (main inv + offhand)
         final List<ItemStack> roots = new ArrayList<>(46);
-        final NonNullList<ItemStack> main = player.getInventory().getNonEquipmentItems();
-        if (main != null) roots.addAll(main);
+        final NonNullList<@NotNull ItemStack> main = player.getInventory().getNonEquipmentItems();
+        roots.addAll(main);
         final ItemStack off = player.getOffhandItem();
-        if (off != null && !off.isEmpty()) roots.add(off);
+        if (!off.isEmpty()) roots.add(off);
 
         // Scan roots
         for (ItemStack s : roots) {
@@ -77,7 +78,7 @@ public final class WaypointTracking {
      * Non-recursive DFS over container components. This is intentionally iterative to avoid SOE and
      * to enforce global budgets (depth and total scanned nodes).
      */
-    private static void scanStackIterative(Player player, ResourceKey<Level> dim, ItemStack root) {
+    private static void scanStackIterative(Player player, ResourceKey<@NotNull Level> dim, ItemStack root) {
         int scanned = 0;
         final Deque<Node> work = new ArrayDeque<>();
         work.add(new Node(root, 0));
@@ -92,7 +93,7 @@ public final class WaypointTracking {
             // 1) Waypoints from special items on THIS stack
             if (stack.is(Items.RECOVERY_COMPASS)) {
                 player.getLastDeathLocation().ifPresent(last -> {
-                    if (last.dimension() == dim && last.pos() != null) {
+                    if (last.dimension() == dim) {
                         WaypointTracking.WAYPOINTS.add(new ClientWaypoint(
                                 Vec3.atCenterOf(last.pos()),
                                 label(stack),
@@ -107,7 +108,7 @@ public final class WaypointTracking {
                 final LodestoneTracker lc = stack.get(DataComponents.LODESTONE_TRACKER);
                 if (lc != null && lc.target().isPresent()) {
                     final GlobalPos pos = lc.target().get();
-                    if (pos.dimension() == dim && pos.pos() != null) {
+                    if (pos.dimension() == dim) {
                         WaypointTracking.WAYPOINTS.add(new ClientWaypoint(
                                 Vec3.atCenterOf(pos.pos()),
                                 label(stack),
@@ -121,14 +122,12 @@ public final class WaypointTracking {
             // 2) Expand children if allowed and within depth budget
             if (!SCAN_INVENTORIES || depth >= MAX_NESTING_DEPTH) continue;
 
-            // Note: Do NOT use streams here; plain loops keep stack traces clean and predictable.
-            // --- replace these two blocks in scanStackIterative ---
 
             final BundleContents bundle = stack.get(DataComponents.BUNDLE_CONTENTS);
             if (bundle != null) {
                 // BundleContentsComponent is NOT Iterable; iterate via stream()
                 bundle.itemCopyStream().forEach(child -> {
-                    if (child != null && !child.isEmpty()) {
+                    if (!child.isEmpty()) {
                         work.addLast(new Node(child, depth + 1));
                     }
                 });
@@ -138,7 +137,7 @@ public final class WaypointTracking {
             if (container != null) {
                 // ContainerComponent is NOT Iterable; iterate via stream()
                 container.stream().forEach(child -> {
-                    if (child != null && !child.isEmpty()) {
+                    if (!child.isEmpty()) {
                         work.addLast(new Node(child, depth + 1));
                     }
                 });

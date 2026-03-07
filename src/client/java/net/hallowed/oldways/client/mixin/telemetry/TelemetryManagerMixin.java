@@ -1,4 +1,4 @@
-package net.hallowed.oldways.client.mixin.ui;
+package net.hallowed.oldways.client.mixin.telemetry;
 
 import net.hallowed.oldways.client.util.SettingsPrefs;
 import net.minecraft.client.telemetry.ClientTelemetryManager;

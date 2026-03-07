@@ -95,10 +95,8 @@ public final class WaypointRendering {
     private static void drawWaypoint(Minecraft client, GuiGraphics ctx, int centerY, Entry e) {
         WaypointStyle asset = client.getWaypointStyles()
                 .get(ResourceKey.create(WaypointStyleAssets.ROOT_ID, e.wp.style()));
-        if (asset == null) return;
 
         Identifier sprite = asset.sprite((float) Math.sqrt(e.distSq));
-        if (sprite == null) return;
 
         int color = ARGB.color(255, e.wp.getColor());
         ctx.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, e.x, centerY - 2, 9, 9, color);

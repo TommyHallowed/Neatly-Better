@@ -1,7 +1,6 @@
 package net.hallowed.oldways.client.mixin.render;
 
 import net.hallowed.oldways.client.util.GameRendererPickHelper;
-import net.hallowed.oldways.client.util.SwingThroughGrassClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
@@ -29,7 +28,6 @@ public abstract class GameRendererMixin {
 
     @Inject(method = "pick", at = @At("HEAD"), cancellable = true)
     private void oldways$swingThroughWhenTargetingEntity(float tickProgress, CallbackInfo ci) {
-        if (!SwingThroughGrassClient.enabled()) return;
         if (minecraft == null || minecraft.player == null || minecraft.level == null) return;
 
         final Entity camera = minecraft.getCameraEntity();

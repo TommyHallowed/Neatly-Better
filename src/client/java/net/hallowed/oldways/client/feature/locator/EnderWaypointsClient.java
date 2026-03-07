@@ -21,23 +21,21 @@ public final class EnderWaypointsClient {
 
     public static void register() {
         ClientPlayNetworking.registerGlobalReceiver(OldWaysNetwork.EnderLodestones.ID,
-                (payload, context) -> {
-                    context.client().execute(() -> {
-                        CACHE.clear();
-                        for (OldWaysNetwork.LodestoneEntry e : payload.entries()) {
+                (payload, context) -> context.client().execute(() -> {
+                    CACHE.clear();
+                    for (OldWaysNetwork.LodestoneEntry e : payload.entries()) {
 
-                            // FIX 1: Translated RegistryKey.of(RegistryKeys.WORLD) to ResourceKey.create(Registries.DIMENSION)
-                            ResourceKey<@NotNull Level> dim = ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, e.dim());
+                        // FIX 1: Translated RegistryKey.of(RegistryKeys.WORLD) to ResourceKey.create(Registries.DIMENSION)
+                        ResourceKey<@NotNull Level> dim = ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, e.dim());
 
-                            // FIX 2: Translated Vec3d to Vec3
-                            Vec3 pos = new Vec3(e.x() + 0.5, e.y() + 0.5, e.z() + 0.5);
+                        // FIX 2: Translated Vec3d to Vec3
+                        Vec3 pos = new Vec3(e.x() + 0.5, e.y() + 0.5, e.z() + 0.5);
 
-                            Integer color = e.color() >= 0 ? e.color() : null;
-                            String lbl = e.label();
-                            CACHE.add(new Entry(dim, pos, lbl == null || lbl.isBlank() ? null : lbl, color));
-                        }
-                    });
-                });
+                        Integer color = e.color() >= 0 ? e.color() : null;
+                        String lbl = e.label();
+                        CACHE.add(new Entry(dim, pos, lbl == null || lbl.isBlank() ? null : lbl, color));
+                    }
+                }));
     }
 
     public static void appendForDimension(ResourceKey<@NotNull Level> dim, List<ClientWaypoint> out) {
