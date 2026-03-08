@@ -3,6 +3,7 @@ package net.hallowed.oldways.mixin.item;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import java.util.Map;
 import java.util.WeakHashMap;
+
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.MapItem;
 import net.minecraft.world.level.Level;

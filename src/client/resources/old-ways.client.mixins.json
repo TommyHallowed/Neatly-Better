@@ -35,6 +35,7 @@
     "telemetry.TelemetryLogManagerMixin",
     "telemetry.TelemetryManagerMixin",
     "telemetry.YggdrassilTelemetrySessionMixin",
+    "ui.ChatComponentMixin",
     "ui.ChatHudMixin",
     "ui.ClientPlayerEntityMixin",
     "ui.MinecraftClientMixin",

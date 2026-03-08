@@ -113,37 +113,6 @@ public final class OldWaysNetwork {
         // push once on join (fresh load)
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
                 pushEnderChestState(handler.player));
-
-        // Map Builder Registrations
-        PayloadTypeRegistry.playC2S().register(MapBuilderPayload.ID, MapBuilderPayload.CODEC);
-
-        ServerPlayNetworking.registerGlobalReceiver(MapBuilderPayload.ID, (payload, ctx) ->
-                ctx.player().server.execute(() -> {
-                    ItemStack stack = ctx.player().getMainHandItem();
-                    if (!(stack.getItem() instanceof MapBuilderItem)) return;
-
-                    CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-                    CompoundTag nbt = data.copyTag();
-                    int step = nbt.getIntOr(MapBuilderItem.NBT_STEP, 0);
-
-                    // Action 1: Reset (Shift + Left Click Air)
-                    if (payload.action() == 1) {
-                        nbt.putInt(MapBuilderItem.NBT_STEP, 0);
-                        nbt.putBoolean(MapBuilderItem.NBT_HAS_P1, false);
-                        nbt.putBoolean(MapBuilderItem.NBT_HAS_P2, false);
-                        ctx.player().displayClientMessage(Component.literal("Right Click a block to set corner 1\nLeft Click a block to set corner 2").withStyle(ChatFormatting.YELLOW), false);
-                    }
-                    // Action 0: Zoom (Shift + Z)
-                    else if (step == 2 && payload.action() == 0) {
-                        int currentZoom = nbt.getIntOr(MapBuilderItem.NBT_ZOOM, 1);
-                        int zoom = (currentZoom + 1) % 5;
-                        nbt.putInt(MapBuilderItem.NBT_ZOOM, zoom);
-                        ctx.player().displayClientMessage(Component.literal("Map zoom in: " + zoom + "x").withStyle(ChatFormatting.AQUA), true);
-                    }
-
-                    stack.set(DataComponents.CUSTOM_DATA, CustomData.of(nbt));
-                })
-        );
     }
 
 

@@ -43,7 +43,7 @@
     "item.SplashPotionItemMixin",
     "other.HungerManagerMixin",
     "other.NetherPortalMixin",
-    "screen.AnvilScreenHandlerMixin",
+    "screen.AnvilMenuMixin",
     "screen.LoomScreenHandlerMixin",
     "screen.ScreenHandlerMixin",
     "screen.SmithingScreenHandlerMixin",

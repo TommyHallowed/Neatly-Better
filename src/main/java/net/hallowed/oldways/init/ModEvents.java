@@ -13,7 +13,6 @@ public final class ModEvents {
         MinecartChainHandler.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
-        MendingNerf.init();
         BoneMealExpansion.init();
         ElytraFlightLimiter.init();
         CauldronCleansFilledMap.init();

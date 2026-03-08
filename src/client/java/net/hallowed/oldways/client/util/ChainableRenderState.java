@@ -2,6 +2,7 @@ package net.hallowed.oldways.client.util;
 
 import net.minecraft.world.phys.Vec3;
 
+@SuppressWarnings("unused")
 public interface ChainableRenderState {
     Vec3 oldways$getLinkedPos();
     void oldways$setLinkedPos(Vec3 pos);
