@@ -1,11 +1,11 @@
 package net.hallowed.oldways.mixin.screen;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.hallowed.oldways.api.events.AnvilUpdateEvent;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AnvilMenu.class)
-public abstract class AnvilScreenHandlerMixin extends ItemCombinerMenu {
+public abstract class AnvilMenuMixin extends ItemCombinerMenu {
     @Shadow @Final private DataSlot cost;
     @Shadow private int repairItemCountCost;
 
@@ -42,9 +42,33 @@ public abstract class AnvilScreenHandlerMixin extends ItemCombinerMenu {
     @Unique private int oldways$costAtTake = 0;
     @Unique private int oldways$deltaSeen = 0;
 
-    protected AnvilScreenHandlerMixin(MenuType<?> type, int syncId,
-                                      Inventory inv, ContainerLevelAccess ctx, ItemCombinerMenuSlotDefinition slots) {
+    protected AnvilMenuMixin(MenuType<?> type, int syncId,
+                             Inventory inv, ContainerLevelAccess ctx, ItemCombinerMenuSlotDefinition slots) {
         super(type, syncId, inv, ctx, slots);
+    }
+
+    // --- Color Codes ---
+    @Inject(method = "validateName", at = @At("HEAD"), cancellable = true)
+    private static void oldways$allowColorsAndFormat(String string, CallbackInfoReturnable<String> cir) {
+        String translated = string.replaceAll("&([0-9a-fA-Fk-oK-OrR])", "§$1");
+
+        StringBuilder builder = new StringBuilder();
+        for (char c : translated.toCharArray()) {
+            if (net.minecraft.util.StringUtil.isAllowedChatCharacter(c) || c == '§') {
+                builder.append(c);
+            }
+        }
+        String result = builder.toString();
+        cir.setReturnValue(result.length() <= 50 ? result : null);
+    }
+
+    // --- Remove default italics from renames ---
+    @ModifyExpressionValue(
+            method = {"setItemName", "createResult"},
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/Component;literal(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;")
+    )
+    private MutableComponent oldways$makeRenamesNonItalic(MutableComponent original) {
+        return original.withStyle(style -> style.withItalic(false));
     }
 
     @Inject(method = "createResult", at = @At("HEAD"), cancellable = true)
@@ -97,39 +121,8 @@ public abstract class AnvilScreenHandlerMixin extends ItemCombinerMenu {
     }
 
     @Inject(method = "createResult", at = @At("TAIL"))
-    private void oldways$mendingAndRename(CallbackInfo ci) {
+    private void oldways$handleRenameCost(CallbackInfo ci) {
         oldways$consumeRightOnTake = false;
-
-        ItemStack left  = this.getSlot(0).getItem();
-        ItemStack right = this.getSlot(1).getItem();
-
-        if (isPureMendingBook(left)) {
-            this.resultSlots.setItem(0, ItemStack.EMPTY);
-            this.cost.set(0);
-            this.repairItemCountCost = 0;
-            oldways$cachedLevelCost = 0;
-            return;
-        }
-
-        if (isPureMendingBook(right)) {
-            AnvilUpdateEvent event = new AnvilUpdateEvent(left, right, 0);
-            InteractionResult res = AnvilUpdateEvent.EVENT.invoker().update(event);
-
-            if (res == InteractionResult.FAIL) {
-                this.resultSlots.setItem(0, ItemStack.EMPTY);
-                this.cost.set(0);
-                this.repairItemCountCost = 0;
-                oldways$cachedLevelCost = 0;
-                return;
-            }
-
-            if (res == InteractionResult.CONSUME) {
-                this.resultSlots.setItem(0, event.getOutput());
-                this.cost.set(event.getCost());
-                this.repairItemCountCost = 0;
-                oldways$consumeRightOnTake = true;
-            }
-        }
 
         if (oldways$isPureRename()) {
             this.cost.set(0);
@@ -211,21 +204,6 @@ public abstract class AnvilScreenHandlerMixin extends ItemCombinerMenu {
     private boolean oldways$isPureRename() {
         ItemStack right = this.getSlot(1).getItem();
         return right.isEmpty() && oldways$outputIsRenamed();
-    }
-
-    @Unique
-    private static boolean isPureMendingBook(ItemStack stack) {
-        if (!stack.is(Items.ENCHANTED_BOOK)) return false;
-        ItemEnchantments stored =
-                stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
-        boolean mending = false;
-        int count = 0;
-        for (Object2IntMap.Entry<Holder<@NotNull Enchantment>> e : stored.entrySet()) {
-            count++;
-            if (e.getKey().is(Enchantments.MENDING)) mending = true;
-            else return false;
-        }
-        return mending && count == 1;
     }
 
     @Unique
