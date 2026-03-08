@@ -11,9 +11,9 @@ import net.minecraft.world.phys.Vec3;
 public final class ElytraFlightLimiter {
     private ElytraFlightLimiter() {}
 
-    public static double MIN_CLEARANCE_BLOCKS = 3.0;
+    public static double MIN_CLEARANCE_BLOCKS = 2.0;
 
-    public static float BYPASS_FALL_DISTANCE = 3.0F;
+    public static float BYPASS_FALL_DISTANCE = 2.0F;
 
     public static void init() {
         EntityElytraEvents.ALLOW.register((LivingEntity entity) -> {
