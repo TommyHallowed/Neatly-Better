@@ -71,25 +71,30 @@ public final class ModTooltips {
             if (slot == EquipmentSlot.HEAD || slot == EquipmentSlot.CHEST ||
                     slot == EquipmentSlot.LEGS || slot == EquipmentSlot.FEET) {
 
-                int insertPos = lines.size();
+                net.minecraft.client.player.LocalPlayer player = net.minecraft.client.Minecraft.getInstance().player;
+                // Only add the tooltip if the player is NOT currently wearing this exact item
+                if (player == null || player.getItemBySlot(slot) != stack) {
 
-                // If Advanced Tooltips (F3+H) are enabled, find the start of the advanced section
-                if (type.isAdvanced()) {
-                    String regName = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-                    for (int i = 0; i < lines.size(); i++) {
-                        // The item's registry name (e.g., "minecraft:iron_chestplate") is always shown
-                        if (lines.get(i).getString().contains(regName)) {
-                            insertPos = i;
-                            // If the item is damaged, durability is displayed exactly one line above the registry name
-                            if (i > 0 && stack.isDamaged() && lines.get(i - 1).getString().contains("/")) {
-                                insertPos = i - 1;
+                    int insertPos = lines.size();
+
+                    // If Advanced Tooltips (F3+H) are enabled, find the start of the advanced section
+                    if (type.isAdvanced()) {
+                        String regName = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+                        for (int i = 0; i < lines.size(); i++) {
+                            // The item's registry name (e.g., "minecraft:iron_chestplate") is always shown
+                            if (lines.get(i).getString().contains(regName)) {
+                                insertPos = i;
+                                // If the item is damaged, durability is displayed exactly one line above the registry name
+                                if (i > 0 && stack.isDamaged() && lines.get(i - 1).getString().contains("/")) {
+                                    insertPos = i - 1;
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
+                    lines.add(insertPos, Component.empty());
+                    lines.add(insertPos + 1, Component.literal("Right Click To Equip").withStyle(ChatFormatting.YELLOW));
                 }
-                lines.add(insertPos, Component.empty());
-                lines.add(insertPos + 1, Component.literal("Right Click To Equip").withStyle(ChatFormatting.YELLOW));
             }
         }
 
