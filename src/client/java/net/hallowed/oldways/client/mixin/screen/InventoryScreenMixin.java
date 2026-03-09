@@ -1,9 +1,11 @@
 package net.hallowed.oldways.client.mixin.screen;
 
+
 import net.hallowed.oldways.client.feature.ui.TextureButtonWidget;
 import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.hallowed.oldways.client.util.InventoryDeepScan;
 import net.hallowed.oldways.client.util.SettingsPrefs;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -14,13 +16,13 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@SuppressWarnings("DataFlowIssue")
 @Mixin(InventoryScreen.class)
 public abstract class InventoryScreenMixin extends Screen {
     protected InventoryScreenMixin(Component title) { super(title); }
