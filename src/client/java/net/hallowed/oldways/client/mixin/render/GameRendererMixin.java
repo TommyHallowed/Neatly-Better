@@ -36,7 +36,6 @@ public abstract class GameRendererMixin {
         final double blockRange  = minecraft.player.blockInteractionRange();
         final double entityRange = minecraft.player.entityInteractionRange();
 
-        // FIX: Replaced the old shadow method with the new 1.21 player method!
         final HitResult vanillaFront = minecraft.player.raycastHitResult(tickProgress, camera);
 
         final HitResult behindResult = GameRendererPickHelper.pickIgnoringOutlineOnly(camera, blockRange, entityRange, tickProgress);
