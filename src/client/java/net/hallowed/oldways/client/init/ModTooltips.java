@@ -1,22 +1,26 @@
 package net.hallowed.oldways.client.init;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
+
 import net.hallowed.oldways.content.item.MapBuilderItem;
 import net.hallowed.oldways.init.ModDataComponents;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
+
 import java.util.List;
 
-@Environment(EnvType.CLIENT)
 public final class ModTooltips {
     private ModTooltips() {}
 
@@ -57,6 +61,36 @@ public final class ModTooltips {
             lines.add(Component.literal(" Shift + Z: Change Map Zoom").withStyle(ChatFormatting.YELLOW));
             lines.add(Component.empty());
             lines.add(Component.literal("Requires Empty Maps & Item Frames").withStyle(ChatFormatting.RED));
+        }
+
+        // --- Equip Tooltip ---
+        Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
+        if (equippable != null) {
+            EquipmentSlot slot = equippable.slot();
+            // Filter to only affect Armor and Elytra (ignores offhand/saddles)
+            if (slot == EquipmentSlot.HEAD || slot == EquipmentSlot.CHEST ||
+                    slot == EquipmentSlot.LEGS || slot == EquipmentSlot.FEET) {
+
+                int insertPos = lines.size();
+
+                // If Advanced Tooltips (F3+H) are enabled, find the start of the advanced section
+                if (type.isAdvanced()) {
+                    String regName = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+                    for (int i = 0; i < lines.size(); i++) {
+                        // The item's registry name (e.g., "minecraft:iron_chestplate") is always shown
+                        if (lines.get(i).getString().contains(regName)) {
+                            insertPos = i;
+                            // If the item is damaged, durability is displayed exactly one line above the registry name
+                            if (i > 0 && stack.isDamaged() && lines.get(i - 1).getString().contains("/")) {
+                                insertPos = i - 1;
+                            }
+                            break;
+                        }
+                    }
+                }
+                lines.add(insertPos, Component.empty());
+                lines.add(insertPos + 1, Component.literal("Right Click To Equip").withStyle(ChatFormatting.YELLOW));
+            }
         }
 
         // Updated method call to handle all special trims
