@@ -45,9 +45,12 @@ public class AutoRefill {
                 // Ensure the player didn't manually change slots and isn't holding an item with their cursor
                 if (currentState.selectedSlot() == lastState.selectedSlot() && player.containerMenu.getCarried().isEmpty()) {
 
-                    boolean refilledMain = checkAndRefill(client, player, InteractionHand.MAIN_HAND, lastState.mainHand(), currentState.mainHand());
-                    if (!refilledMain) {
-                        checkAndRefill(client, player, InteractionHand.OFF_HAND, lastState.offHand(), currentState.offHand());
+                    // Prevent auto-refill if the player swapped items to/from their offhand (e.g., pressed 'F')
+                    if (!isHandSwap(lastState, currentState)) {
+                        boolean refilledMain = checkAndRefill(client, player, InteractionHand.MAIN_HAND, lastState.mainHand(), currentState.mainHand());
+                        if (!refilledMain) {
+                            checkAndRefill(client, player, InteractionHand.OFF_HAND, lastState.offHand(), currentState.offHand());
+                        }
                     }
                 }
             }
@@ -55,6 +58,18 @@ public class AutoRefill {
             lastState = new PlayerHandState(player.getInventory().getSelectedSlot(), player.getMainHandItem().copy(), player.getOffhandItem().copy());
         });
     }
+
+    // --- NEW: Helper methods to detect offhand swapping ---
+    private static boolean isHandSwap(PlayerHandState last, PlayerHandState current) {
+        return isExactMatch(last.mainHand(), current.offHand()) && isExactMatch(last.offHand(), current.mainHand());
+    }
+
+    private static boolean isExactMatch(ItemStack a, ItemStack b) {
+        if (a.isEmpty() && b.isEmpty()) return true;
+        if (a.isEmpty() || b.isEmpty()) return false;
+        return a.getCount() == b.getCount() && ItemStack.isSameItemSameComponents(a, b);
+    }
+    // --------------------------------------------------------
 
     private static boolean checkAndRefill(Minecraft client, LocalPlayer player, InteractionHand hand, ItemStack last, ItemStack current) {
         if (last.isEmpty()) return false;
