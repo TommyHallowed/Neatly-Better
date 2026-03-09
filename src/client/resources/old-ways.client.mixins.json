@@ -46,7 +46,7 @@
     "ui.locatorbar.ExperienceBarMixin",
     "ui.locatorbar.InGameHudMixin",
     "ui.locatorbar.JumpBarMixin",
-    "ui.locatorbar.LocatorBarMixin"
+    "ui.locatorbar.LocatorBarRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
