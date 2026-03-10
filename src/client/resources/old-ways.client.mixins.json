@@ -37,6 +37,7 @@
     "telemetry.TelemetryLogManagerMixin",
     "telemetry.TelemetryManagerMixin",
     "telemetry.YggdrassilTelemetrySessionMixin",
+    "ui.ArmorTrimMixin",
     "ui.ChatComponentMixin",
     "ui.ChatHudMixin",
     "ui.ClientPlayerEntityMixin",
