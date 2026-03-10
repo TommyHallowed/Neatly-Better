@@ -4,7 +4,6 @@ package net.hallowed.oldways.client.init;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 
 import net.hallowed.oldways.content.item.MapBuilderItem;
-import net.hallowed.oldways.init.ModDataComponents;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -17,7 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.equipment.Equippable;
-import net.minecraft.world.item.equipment.trim.ArmorTrim;
 
 import java.util.List;
 
@@ -28,11 +26,6 @@ public final class ModTooltips {
             Component.literal("Can be used on trimmed items").withStyle(ChatFormatting.GRAY);
     private static final MutableComponent ECHO_SHARD_HINT =
             Component.literal("Can be used on trimmed armor").withStyle(ChatFormatting.GRAY);
-
-    private static final MutableComponent EMISSIVE_GLOW_LINE =
-            Component.literal(" Glowing").withStyle(ChatFormatting.AQUA);
-    private static final MutableComponent PULSING_ECHO_LINE =
-            Component.literal(" Pulsing").withStyle(ChatFormatting.DARK_AQUA);
 
     public static void init() {
         ItemTooltipCallback.EVENT.register(ModTooltips::onTooltip);
@@ -97,9 +90,6 @@ public final class ModTooltips {
                 }
             }
         }
-
-        // Updated method call to handle all special trims
-        appendSpecialTrimLines(stack, lines);
     }
 
     public static void addBasicUnderName(List<Component> lines, Component tip) {
@@ -115,41 +105,4 @@ public final class ModTooltips {
         lines.add(insertAt, tip);
     }
 
-    private static void appendSpecialTrimLines(ItemStack stack, List<Component> lines) {
-        boolean emissive = stack.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
-        boolean pulsing = stack.getOrDefault(ModDataComponents.PULSING_TRIM, false);
-
-        // If the item has neither effect, do nothing
-        if (!emissive && !pulsing) return;
-
-        ArmorTrim trim = stack.get(DataComponents.TRIM);
-        if (trim == null) return;
-
-        // Choose the correct text line to add
-        Component lineToAdd = emissive ? EMISSIVE_GLOW_LINE : PULSING_ECHO_LINE;
-
-        int up = findUpgradeHeaderIndex(lines);
-        if (up >= 0) {
-            int idx = up + 1;
-            int nonEmpty = 0;
-            for (; idx < lines.size() && nonEmpty < 2; idx++) {
-                if (!lines.get(idx).getString().isBlank()) nonEmpty++;
-            }
-            lines.add(idx, lineToAdd);
-            return;
-        }
-
-        lines.add(Math.min(2, lines.size()), lineToAdd);
-    }
-
-    private static int findUpgradeHeaderIndex(List<Component> lines) {
-        for (int i = 0, n = lines.size(); i < n; i++) {
-            String s = lines.get(i).getString();
-            s = s.trim();
-            if (s.equalsIgnoreCase("Upgrade:") || s.equalsIgnoreCase("Upgrade")) {
-                return i;
-            }
-        }
-        return -1;
-    }
 }
