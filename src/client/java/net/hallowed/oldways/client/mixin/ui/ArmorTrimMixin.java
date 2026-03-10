@@ -1,13 +1,14 @@
 package net.hallowed.oldways.client.mixin.ui;
 
-
 import net.hallowed.oldways.init.ModDataComponents;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,13 +41,24 @@ public class ArmorTrimMixin {
             DataComponentGetter getter,
             CallbackInfo ci
     ) {
+        boolean pulsing  = getter.getOrDefault(ModDataComponents.PULSING_TRIM, false);
         boolean emissive = getter.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
-        boolean pulsing = getter.getOrDefault(ModDataComponents.PULSING_TRIM, false);
 
         if (pulsing) {
             consumer.accept(PULSING_ECHO_LINE);
-        } else if (emissive) {
+        } else if (emissive && !oldways$hasElytraTrimsGlow(getter)) {
             consumer.accept(EMISSIVE_GLOW_LINE);
         }
+    }
+
+    /**
+     * Returns true if ElytraTrim's GLOW flag is set in CUSTOM_DATA,
+     * meaning ET is already providing its own "Glowing" tooltip line.
+     */
+    @Unique
+    private static boolean oldways$hasElytraTrimsGlow(DataComponentGetter getter) {
+        CustomData customData = getter.get(DataComponents.CUSTOM_DATA);
+        return customData != null
+                && customData.copyTag().contains("elytratrims:glow");
     }
 }
