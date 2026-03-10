@@ -11,6 +11,7 @@ public final class ModEvents {
         AnvilRestoration.register();
         AddedItemProperties.register();
         MinecartChainHandler.register();
+        CropHarvester.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();
