@@ -45,10 +45,31 @@ public class MapBuilderItem extends Item {
         super(settings);
     }
 
+    // ═══════════════════════════════════════════════════════════════════
+    //  Task interface — now with isWaiting() for adaptive tick budgeting
+    // ═══════════════════════════════════════════════════════════════════
+
     public interface MapGenerationTask {
+        /**
+         * Process one unit of work.
+         * @return true when this task is complete.
+         */
         boolean process();
+
+        /** Progress from 0.0 to 1.0 for the boss bar. */
         float getProgress();
+
+        /**
+         * Returns {@code true} when this task cannot make progress right
+         * now (e.g. waiting for chunks to generate). The tick loop uses
+         * this to yield early instead of busy-spinning.
+         */
+        default boolean isWaiting() { return false; }
     }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  Generation queue — optimised tick budget
+    // ═══════════════════════════════════════════════════════════════════
 
     public static class MapGenerationQueue {
         private static final Queue<GenerationJob> JOBS = new LinkedList<>();
@@ -57,22 +78,28 @@ public class MapBuilderItem extends Item {
             JOBS.add(new GenerationJob(player, tasks));
         }
 
+        /**
+         * Called once per server tick.
+         * Uses nanoTime for precise budgeting and keeps calling process()
+         * as long as the active task is making progress. When the task
+         * signals it's waiting (e.g. for async chunk generation), the
+         * loop yields immediately so the server thread can do other work.
+         */
         public static void tick() {
             if (JOBS.isEmpty()) return;
 
-            long start = System.currentTimeMillis();
+            long deadline = System.nanoTime() + 15_000_000L; // 15 ms budget
             GenerationJob currentJob = JOBS.peek();
 
-            if (currentJob != null) {
-                while (System.currentTimeMillis() - start < 15) {
-                    boolean jobFinished = currentJob.processNext();
-                    if (jobFinished) {
-                        currentJob.finish();
-                        JOBS.poll();
-                        break;
-                    }
-                    if (currentJob.isThrottled()) break;
+            while (currentJob != null && System.nanoTime() < deadline) {
+                boolean jobFinished = currentJob.processNext();
+                if (jobFinished) {
+                    currentJob.finish();
+                    JOBS.poll();
+                    currentJob = JOBS.peek();   // move to the next job if any
+                    continue;
                 }
+                if (currentJob.isThrottled()) break;
             }
         }
 
@@ -113,8 +140,18 @@ public class MapBuilderItem extends Item {
                 return queuedTasks.isEmpty() && activeTasks.isEmpty();
             }
 
+            /**
+             * Returns true when the tick loop should yield.
+             * Only throttles when the active task is actually waiting
+             * (e.g. for chunk generation), NOT simply because a task exists.
+             * This lets the loop call process() repeatedly while the
+             * scanner has work to do within the tick budget.
+             */
             public boolean isThrottled() {
-                return !activeTasks.isEmpty();
+                for (MapGenerationTask task : activeTasks) {
+                    if (task.isWaiting()) return true;
+                }
+                return false;
             }
 
             private void updateBossBar() {
@@ -139,6 +176,10 @@ public class MapBuilderItem extends Item {
             }
         }
     }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  Item interaction (unchanged logic)
+    // ═══════════════════════════════════════════════════════════════════
 
     @Override
     public @NotNull InteractionResult useOn(UseOnContext context) {
@@ -228,6 +269,10 @@ public class MapBuilderItem extends Item {
         saveCustomData(stack, nbt);
     }
 
+    // ═══════════════════════════════════════════════════════════════════
+    //  Map wall builder (unchanged logic)
+    // ═══════════════════════════════════════════════════════════════════
+
     private record MapTarget(BlockPos framePos, int targetX, int targetZ, int rotation) {}
 
     private boolean buildMapWall(ServerLevel world, Player player, ItemStack toolStack) {
@@ -246,11 +291,10 @@ public class MapBuilderItem extends Item {
 
         BlockPos vecRight;
         BlockPos vecDown;
-        int frameRotation = 0;
+        int frameRotation;
 
         if (facing == Direction.UP || facing == Direction.DOWN) {
             switch (pFacing) {
-                case NORTH -> { vecRight = new BlockPos(1, 0, 0); vecDown = new BlockPos(0, 0, 1); frameRotation = 0; }
                 case EAST -> { vecRight = new BlockPos(0, 0, 1); vecDown = new BlockPos(-1, 0, 0); frameRotation = 1; }
                 case SOUTH -> { vecRight = new BlockPos(-1, 0, 0); vecDown = new BlockPos(0, 0, -1); frameRotation = 2; }
                 case WEST -> { vecRight = new BlockPos(0, 0, -1); vecDown = new BlockPos(1, 0, 0); frameRotation = 3; }
@@ -259,7 +303,6 @@ public class MapBuilderItem extends Item {
         } else {
             switch (facing) {
                 case NORTH -> { vecRight = new BlockPos(-1, 0, 0); vecDown = new BlockPos(0, -1, 0); }
-                case SOUTH -> { vecRight = new BlockPos(1, 0, 0); vecDown = new BlockPos(0, -1, 0); }
                 case WEST -> { vecRight = new BlockPos(0, 0, 1); vecDown = new BlockPos(0, -1, 0); }
                 case EAST -> { vecRight = new BlockPos(0, 0, -1); vecDown = new BlockPos(0, -1, 0); }
                 default -> { vecRight = new BlockPos(1, 0, 0); vecDown = new BlockPos(0, -1, 0); }
@@ -313,7 +356,7 @@ public class MapBuilderItem extends Item {
         if (requiredItems == 0) return false;
 
         int normalToUse = requiredItems;
-        int glowToUse = 0;
+        int glowToUse;
 
         if (!player.isCreative()) {
             int emptyMaps = player.getInventory().countItem(Items.MAP);
@@ -348,7 +391,6 @@ public class MapBuilderItem extends Item {
             itemFrame.setRotation(target.rotation);
             world.addFreshEntity(itemFrame);
 
-            // Create ONE unified task per map frame (The boolean constructor variable is gone!)
             unifiedPhase.add(new FastChunkScanner(world, mapStack, target.targetX, target.targetZ, zoom));
         }
 

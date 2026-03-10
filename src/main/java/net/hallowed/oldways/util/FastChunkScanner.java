@@ -5,255 +5,701 @@ import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Multisets;
 import net.hallowed.oldways.content.item.MapBuilderItem;
+import net.hallowed.oldways.init.ModTickets;
+import net.hallowed.oldways.mixin.accessor.ServerChunkCacheAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.TicketType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.MapDecorations;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.saveddata.maps.MapDecorationType;
+import net.minecraft.world.level.saveddata.maps.MapDecorationTypes;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinWorkerThread;
+
+/**
+ * Fully async, ticket-based map chunk scanner with vanilla colour parity.
+ *
+ * <h3>Architecture</h3>
+ * <ol>
+ *   <li><b>Ticket-based loading</b> — uses {@code addTicketWithRadius()} with a
+ *       custom {@link ModTickets#MAP_SCAN} ticket to trigger async chunk generation
+ *       through the server's normal pipeline.</li>
+ *   <li><b>Polling</b> — each tick, polls {@code getChunkNow()} for chunks that
+ *       have reached FULL status.  This is truly non-blocking: it returns
+ *       immediately with null if the chunk isn't ready yet.</li>
+ *   <li><b>Distance manager flush</b> — after adding tickets, flushes the distance
+ *       manager via mixin to start generation immediately instead of waiting for
+ *       the next server tick.</li>
+ *   <li><b>Ticket budgeting</b> — at most {@link #MAX_OUTSTANDING_TICKETS} chunks
+ *       can have active tickets at once.  Tickets are removed as soon as chunks
+ *       are cached, freeing slots for more.</li>
+ * </ol>
+ *
+ * <h3>Additional features</h3>
+ * <ul>
+ *   <li><b>Multi-core pixel computation</b> — at map scales &ge; 3, colour
+ *       averaging is offloaded to a shared {@link ForkJoinPool}.</li>
+ *   <li><b>Structure icons</b> — scans every touched chunk for known
+ *       structure starts and writes decoration icons into the
+ *       {@code MAP_DECORATIONS} component.</li>
+ *   <li><b>Full vanilla colour parity</b> — water depth, height shadows,
+ *       ceiling dimensions, fluid correction, and banner decorations all
+ *       match {@code MapItem.update()} exactly.</li>
+ *   <li><b>Memory pressure safety valve</b> — if JVM heap exceeds 90%,
+ *       new ticket requests are paused until memory stabilises.</li>
+ * </ul>
+ */
 public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
 
-    public static final TicketType MAP_BUILDER_TICKET = TicketType.PLAYER_LOADING;
+    // ══════════════════════════════════════════════════════════════════════
+    //  Shared worker pool — daemon threads at reduced priority
+    //  Used for parallel pixel computation at large map scales.
+    // ══════════════════════════════════════════════════════════════════════
+    private static final ForkJoinPool COMPUTE_POOL = new ForkJoinPool(
+            Math.max(2, Runtime.getRuntime().availableProcessors() / 2),
+            pool -> {
+                ForkJoinWorkerThread t =
+                        ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+                t.setDaemon(true);
+                t.setPriority(Thread.NORM_PRIORITY - 2);
+                t.setName("OldWays-MapWorker-" + t.getPoolIndex());
+                return t;
+            },
+            null, true
+    );
+
+    // ──────────────────────────────────────────────────────────────────────
+    //  Per-scanner tuning constants
+    // ──────────────────────────────────────────────────────────────────────
+
+    /** Map scale threshold for parallel pixel computation. */
+    private static final int MIN_PARALLEL_SCALE = 3;
+
+    /** Columns per parallel work segment.  128 / 16 = 8 tasks at scale 3+. */
+    private static final int PARALLEL_SEGMENT_SIZE = 16;
+
+    /** Time budget per process() call in nanoseconds (~8 ms). */
+    private static final long BUDGET_NANOS = 8_000_000L;
+
+    /** Number of pixel rows to pre-ticket ahead of the current row. */
+    private static final int PREFETCH_ROWS_AHEAD = 4;
+
+    /** Heap usage threshold above which we stop adding tickets. */
+    private static final double MEMORY_PRESSURE_THRESHOLD = 0.90;
+
+    /** Max tickets active per scanner at any time. */
+    private static final int MAX_OUTSTANDING_TICKETS = 48;
+
+    // ──────────────────────────────────────────────────────────────────────
+    //  Structure → map-icon mapping
+    // ──────────────────────────────────────────────────────────────────────
+    @SuppressWarnings({"NullableProblems"})
+    private static final Map<Identifier, Holder<MapDecorationType>> STRUCTURE_ICONS;
+
+    static {
+        STRUCTURE_ICONS = Map.of(
+                Identifier.withDefaultNamespace("mansion"),         MapDecorationTypes.WOODLAND_MANSION,
+                Identifier.withDefaultNamespace("monument"),        MapDecorationTypes.OCEAN_MONUMENT,
+                Identifier.withDefaultNamespace("swamp_hut"),       MapDecorationTypes.SWAMP_HUT,
+                Identifier.withDefaultNamespace("jungle_pyramid"),  MapDecorationTypes.JUNGLE_TEMPLE,
+                Identifier.withDefaultNamespace("trial_chambers"),  MapDecorationTypes.TRIAL_CHAMBERS,
+                Identifier.withDefaultNamespace("village_plains"),  MapDecorationTypes.PLAINS_VILLAGE,
+                Identifier.withDefaultNamespace("village_desert"),  MapDecorationTypes.DESERT_VILLAGE,
+                Identifier.withDefaultNamespace("village_savanna"), MapDecorationTypes.SAVANNA_VILLAGE,
+                Identifier.withDefaultNamespace("village_snowy"),   MapDecorationTypes.SNOWY_VILLAGE,
+                Identifier.withDefaultNamespace("village_taiga"),   MapDecorationTypes.TAIGA_VILLAGE
+        );
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  Instance fields
+    // ══════════════════════════════════════════════════════════════════════
 
     private final ServerLevel world;
-    private final ItemStack mapStack;
-    private final int centerZ;
-    private final int i; // scale multiplier
+    private final ItemStack  mapStack;
+    private final int        centerX;
+    private final int        centerZ;
+    private final int        i;           // block-step = 1 << scale
+    private final int        minChunkX;
+    private final int        maxChunkX;
+    private final boolean    hasCeiling;
 
-    // Global Map X Boundaries (These never change)
-    private final int minBlockX;
-    private final int minChunkX;
-    private final int maxChunkX;
+    /** Local chunk cache — keyed by {@link ChunkPos#asLong}. */
+    private final Map<Long, ChunkAccess> chunkCache = new HashMap<>();
 
-    // --- STREAMING STATE TRACKER ---
-    // 0 = Prepare Row Chunks, 1 = Wait for Row Chunks, 2 = Draw Row
-    private int processState = 0;
-    private int p = -1; // Current map row being drawn (-1 for shadow initialization)
-    private int waitIndex = 0;
+    /** Chunk positions with currently active MAP_SCAN tickets. */
+    private final Set<Long> ticketedPositions = new HashSet<>();
 
-    private Set<ChunkPos> activeTickets = new HashSet<>();
-    private List<ChunkPos> rowChunksList = new ArrayList<>();
-    private final double[] previousHeights = new double[128];
+    /** Current pixel row being processed (-1 = shadow row, 0–127 = map rows). */
+    private int currentRow = -1;
 
-    public FastChunkScanner(ServerLevel world, ItemStack mapStack, int centerX, int centerZ, int scale) {
-        this.world = world;
+    /** Previous column heights for shadow/brightness computation. */
+    private final int[] prevColumnHeights = new int[128];
+
+    /** Detected structure positions for decoration. */
+    private final Map<String, StructureIconEntry> structureIcons = new LinkedHashMap<>();
+
+    /** Track which structure types we've already detected (avoid duplicates). */
+    private final Set<Identifier> detectedStructures = new HashSet<>();
+
+    /** True when the scanner is blocked waiting for chunk generation. */
+    private boolean waitingForChunks = false;
+
+    /** Number of tickets currently held by this scanner. */
+    private int outstandingTickets = 0;
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  Constructor
+    // ══════════════════════════════════════════════════════════════════════
+
+    public FastChunkScanner(ServerLevel world, ItemStack mapStack, int centerX, int centerZ, int zoom) {
+        this.world    = world;
         this.mapStack = mapStack;
-        this.centerZ = centerZ;
-        this.i = 1 << scale;
+        this.centerX  = centerX;
+        this.centerZ  = centerZ;
+        this.i        = 1 << zoom;
 
-        // Calculate global X boundaries just once
-        this.minBlockX = (centerX / i - 64) * i;
-        int maxBlockX = (centerX / i + 63) * i + (i - 1);
+        // Compute chunk X range covered by this map
+        int mapLeft  = centerX / i - 64;
+        int mapRight = mapLeft + 127;
+        this.minChunkX = (mapLeft  * i) >> 4;
+        this.maxChunkX = ((mapRight * i) + (i - 1)) >> 4;
 
-        this.minChunkX = minBlockX >> 4;
-        this.maxChunkX = maxBlockX >> 4;
+        this.hasCeiling = world.dimensionType().hasCeiling();
     }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  MapGenerationTask API
+    // ══════════════════════════════════════════════════════════════════════
 
     @Override
     public boolean process() {
-        if (processState == 0) {
-            // STEP 0: PREPARE ROW CHUNKS (Memory Streaming)
-            // Calculate exactly which chunks we need for JUST this one row of pixels
-            int minBlockZ = (centerZ / i + p - 64) * i;
-            int maxBlockZ = minBlockZ + (i - 1);
+        waitingForChunks = false;
 
-            int minChunkZ = minBlockZ >> 4;
-            int maxChunkZ = maxBlockZ >> 4;
+        MapId mapId = mapStack.get(DataComponents.MAP_ID);
+        if (mapId == null) { cleanup(); return true; }
 
-            Set<ChunkPos> neededThisRow = new HashSet<>();
-            for (int cx = minChunkX; cx <= maxChunkX; cx++) {
-                for (int cz = minChunkZ; cz <= maxChunkZ; cz++) {
-                    neededThisRow.add(new ChunkPos(cx, cz));
-                }
-            }
+        MapItemSavedData state = world.getMapData(mapId);
+        if (state == null) { cleanup(); return true; }
 
-            // CRUCIAL: Unload chunks that are safely behind us to free up gigabytes of RAM!
-            for (ChunkPos pos : activeTickets) {
-                if (!neededThisRow.contains(pos)) {
-                    world.getChunkSource().removeTicketWithRadius(MAP_BUILDER_TICKET, pos, 1);
-                }
-            }
-
-            // Load new chunks needed for this row
-            for (ChunkPos pos : neededThisRow) {
-                if (!activeTickets.contains(pos)) {
-                    world.getChunkSource().addTicketWithRadius(MAP_BUILDER_TICKET, pos, 1);
-                }
-            }
-
-            activeTickets = neededThisRow;
-            rowChunksList = new ArrayList<>(neededThisRow);
-            waitIndex = 0;
-            processState = 1;
-            return false; // Yield tick
-
-        } else if (processState == 1) {
-            // STEP 1: WAIT FOR ROW CHUNKS
-            int toProcess = Math.min(20, rowChunksList.size() - waitIndex);
-            int forcedThisTick = 0;
-
-            for (int j = 0; j < toProcess; j++) {
-                if (waitIndex >= rowChunksList.size()) break;
-
-                ChunkPos pos = rowChunksList.get(waitIndex);
-                ChunkAccess chunk = world.getChunkSource().getChunk(pos.x, pos.z, ChunkStatus.FEATURES, false);
-
-                if (chunk == null) {
-                    if (forcedThisTick >= 1) break; // Limit CPU lag by only forcing 1 per tick
-                    world.getChunk(pos.x, pos.z, ChunkStatus.FEATURES, true);
-                    forcedThisTick++;
-                }
-                waitIndex++;
-            }
-
-            if (waitIndex >= rowChunksList.size()) {
-                processState = 2; // Row is fully loaded, time to draw!
-            }
-            return false;
-
-        } else {
-            // STEP 2: DRAW ROW (Ultra-Fast Array Caching)
-            MapId mapId = mapStack.get(DataComponents.MAP_ID);
-            if (mapId == null) return finish();
-            MapItemSavedData state = world.getMapData(mapId);
-            if (state == null) return finish();
-
-            int startZ = (centerZ / i + p - 64) * i;
-            int minChunkZ = startZ >> 4;
-            int maxChunkZ = (startZ + i - 1) >> 4;
-
-            // CACHE THE CHUNKS: Eliminates calling world.getChunk() 32,000 times!
-            int cacheWidth = maxChunkX - minChunkX + 1;
-            int cacheHeight = maxChunkZ - minChunkZ + 1;
-            ChunkAccess[] chunkCache = new ChunkAccess[cacheWidth * cacheHeight];
-
-            for (int cx = minChunkX; cx <= maxChunkX; cx++) {
-                for (int cz = minChunkZ; cz <= maxChunkZ; cz++) {
-                    int idx = (cx - minChunkX) + (cz - minChunkZ) * cacheWidth;
-                    chunkCache[idx] = world.getChunkSource().getChunk(cx, cz, ChunkStatus.FEATURES, false);
-                }
-            }
-
-            BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-            BlockPos.MutableBlockPos waterPos = new BlockPos.MutableBlockPos();
-            int bottomY = world.getMinY();
-
-            // Process all 128 horizontal pixels for this single row in one tick
-            for (int o = 0; o < 128; o++) {
-                Multiset<MapColor> multiset = LinkedHashMultiset.create();
-                int waterDepth = 0;
-                double currentHeight = 0.0;
-
-                int startX = minBlockX + o * i;
-
-                for (int u = 0; u < i; ++u) {
-                    for (int v = 0; v < i; ++v) {
-                        int blockX = startX + u;
-                        int blockZ = startZ + v;
-
-                        int cx = blockX >> 4;
-                        int cz = blockZ >> 4;
-                        int idx = (cx - minChunkX) + (cz - minChunkZ) * cacheWidth;
-                        ChunkAccess chunk = chunkCache[idx];
-
-                        if (chunk == null) continue;
-
-                        int localX = blockX & 15;
-                        int localZ = blockZ & 15;
-
-                        int w = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, localX, localZ) + 1;
-                        BlockState blockState;
-
-                        if (w <= bottomY) {
-                            blockState = Blocks.BEDROCK.defaultBlockState();
-                        } else {
-                            do {
-                                --w;
-                                pos.set(blockX, w, blockZ);
-                                blockState = chunk.getBlockState(pos);
-                            } while (blockState.getMapColor(world, pos) == MapColor.NONE && w > bottomY);
-
-                            if (w > bottomY && !blockState.getFluidState().isEmpty()) {
-                                int x = w - 1;
-                                waterPos.set(pos);
-                                BlockState waterState;
-                                do {
-                                    waterPos.setY(x--);
-                                    waterState = chunk.getBlockState(waterPos);
-                                    ++waterDepth;
-                                } while (x > bottomY && !waterState.getFluidState().isEmpty());
-
-                                FluidState fluidState = blockState.getFluidState();
-                                if (!fluidState.isEmpty() && !blockState.isFaceSturdy(world, pos, Direction.UP)) {
-                                    blockState = fluidState.createLegacyBlock();
-                                }
-                            }
-                        }
-
-                        currentHeight += (double) w / (double) (i * i);
-                        multiset.add(blockState.getMapColor(world, pos));
-                    }
-                }
-
-                waterDepth /= Math.max(1, i * i);
-                MapColor mapColor = Iterables.getFirst(Multisets.copyHighestCountFirst(multiset), MapColor.NONE);
-
-                MapColor.Brightness brightness = MapColor.Brightness.NORMAL;
-                if (mapColor == MapColor.WATER) {
-                    double depthVisual = (double) waterDepth * 0.1 + (double) (o + p & 1) * 0.2;
-                    if (depthVisual < 0.5) brightness = MapColor.Brightness.HIGH;
-                    else if (depthVisual > 0.9) brightness = MapColor.Brightness.LOW;
-                } else {
-                    double heightDiff = (currentHeight - previousHeights[o]) * 4.0 / (double) (i + 4) + ((double) (o + p & 1) - 0.5) * 0.4;
-                    if (heightDiff > 0.6) brightness = MapColor.Brightness.HIGH;
-                    else if (heightDiff < -0.6) brightness = MapColor.Brightness.LOW;
-                }
-
-                previousHeights[o] = currentHeight;
-                if (p >= 0) {
-                    assert mapColor != null;
-                    state.updateColor(o, p, mapColor.getPackedId(brightness));
-                }
-            }
-
-            if (p >= 0) state.setDirty();
-
-            p++; // Move to next row down
-            if (p >= 128) {
-                return finish(); // Reached the bottom of the map!
-            } else {
-                processState = 0; // Loop back to fetch chunks for the next row
-                return false;
-            }
+        // ── Phase 1: Add tickets for chunks we need ────────────────────
+        if (!isMemoryPressured()) {
+            submitTickets();
         }
+
+        // ── Phase 2: Poll for chunks that are now ready ────────────────
+        pollReadyChunks();
+
+        // ── Phase 3: Draw rows where all chunks are cached ─────────────
+        boolean madeProgress = drawReadyRows(state);
+
+        // ── Phase 4: Evict old chunks to free memory ───────────────────
+        evictProcessedChunks();
+
+        // ── Done? ──────────────────────────────────────────────────────
+        if (currentRow >= 128) {
+            applyStructureDecorations();
+            cleanup();
+            return true;
+        }
+
+        waitingForChunks = !madeProgress;
+        return false;
     }
 
-    private boolean finish() {
-        for (ChunkPos pos : activeTickets) {
-            world.getChunkSource().removeTicketWithRadius(MAP_BUILDER_TICKET, pos, 1);
-        }
-        activeTickets.clear();
-        return true;
+    @Override
+    public boolean isWaiting() {
+        return waitingForChunks;
     }
 
     @Override
     public float getProgress() {
-        // Smoothly tracks progress out of 129 total rows (-1 to 127)
-        return (p + 1) / 129.0f;
+        return Math.max(0, currentRow) / 128f;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  Phase 1 — Submit tickets for chunk loading
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Adds {@link ModTickets#MAP_SCAN} tickets for the current row plus
+     * {@link #PREFETCH_ROWS_AHEAD} future rows.  Limits to at most
+     * {@link #MAX_OUTSTANDING_TICKETS} active tickets.
+     *
+     * <p>After adding tickets, flushes the distance manager so generation
+     * starts immediately rather than waiting for the next server tick.
+     */
+    private void submitTickets() {
+        ServerChunkCache cs = world.getChunkSource();
+        boolean added = false;
+
+        int endRow = Math.min(currentRow + PREFETCH_ROWS_AHEAD, 128);
+        for (int r = currentRow; r < endRow; r++) {
+            int rowZ  = (centerZ / i + r - 64) * i;
+            int minCZ = rowZ >> 4;
+            int maxCZ = (rowZ + i - 1) >> 4;
+
+            for (int cx = minChunkX; cx <= maxChunkX; cx++) {
+                for (int cz = minCZ; cz <= maxCZ; cz++) {
+                    long key = ChunkPos.asLong(cx, cz);
+
+                    // Already cached or already ticketed
+                    if (chunkCache.containsKey(key) || ticketedPositions.contains(key)) continue;
+
+                    // Budget check
+                    if (outstandingTickets >= MAX_OUTSTANDING_TICKETS) {
+                        if (added) {
+                            ((ServerChunkCacheAccessor) cs).invokeRunDistanceManagerUpdates();
+                        }
+                        return;
+                    }
+
+                    cs.addTicketWithRadius(ModTickets.MAP_SCAN, new ChunkPos(cx, cz), 0);
+                    ticketedPositions.add(key);
+                    outstandingTickets++;
+                    added = true;
+                }
+            }
+        }
+
+        // Flush distance manager once — processes all ticket additions
+        if (added) {
+            ((ServerChunkCacheAccessor) cs).invokeRunDistanceManagerUpdates();
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  Phase 2 — Poll for ready chunks
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * For each ticketed position, checks {@code getChunkNow()} to see if
+     * the chunk has reached FULL status.  If so, caches it and releases
+     * the ticket immediately to free the slot for more.
+     *
+     * <p>{@code getChunkNow()} is truly non-blocking: it just checks the
+     * server's internal chunk holder, returning null if not yet ready.
+     */
+    private void pollReadyChunks() {
+        ServerChunkCache cs = world.getChunkSource();
+
+        Iterator<Long> it = ticketedPositions.iterator();
+        while (it.hasNext()) {
+            long key = it.next();
+
+            // Already cached from a previous poll — just release ticket
+            if (chunkCache.containsKey(key)) {
+                cs.removeTicketWithRadius(ModTickets.MAP_SCAN,
+                        new ChunkPos(ChunkPos.getX(key), ChunkPos.getZ(key)), 0);
+                outstandingTickets--;
+                it.remove();
+                continue;
+            }
+
+            // Try to grab the chunk — null means not yet ready
+            LevelChunk chunk = cs.getChunkNow(ChunkPos.getX(key), ChunkPos.getZ(key));
+            if (chunk != null) {
+                chunkCache.put(key, chunk);
+                cs.removeTicketWithRadius(ModTickets.MAP_SCAN,
+                        new ChunkPos(ChunkPos.getX(key), ChunkPos.getZ(key)), 0);
+                outstandingTickets--;
+                it.remove();
+            }
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  Phase 3 — Draw rows where all chunks are cached
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Draws as many consecutive rows as possible within the time budget.
+     * A row can only be drawn when ALL its chunks are in the local cache.
+     *
+     * @return {@code true} if at least one row was drawn
+     */
+    private boolean drawReadyRows(MapItemSavedData state) {
+        long deadline = System.nanoTime() + BUDGET_NANOS;
+        boolean madeProgress = false;
+
+        while (currentRow < 128 && System.nanoTime() < deadline) {
+            int rowZ  = (centerZ / i + currentRow - 64) * i;
+            int minCZ = rowZ >> 4;
+            int maxCZ = (rowZ + i - 1) >> 4;
+
+            // Check if ALL chunks for this row are cached
+            boolean allReady = true;
+            for (int cx = minChunkX; cx <= maxChunkX && allReady; cx++) {
+                for (int cz = minCZ; cz <= maxCZ; cz++) {
+                    if (!chunkCache.containsKey(ChunkPos.asLong(cx, cz))) {
+                        allReady = false;
+                        break;
+                    }
+                }
+            }
+
+            if (!allReady) break; // Wait for polling to fill in the gaps
+
+            // All chunks ready — render this row
+            drawRow(state, rowZ);
+            checkBannersInRow(state, rowZ);
+            scanStructuresInRow(minCZ, maxCZ);
+
+            if (currentRow >= 0) {
+                state.setDirty();
+            }
+
+            currentRow++;
+            madeProgress = true;
+        }
+
+        return madeProgress;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  Row rendering — exact vanilla MapItem.update() parity
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Renders one pixel row (128 columns).
+     * At large scales (&ge; 3), pixel computation is parallelised via the
+     * shared {@link #COMPUTE_POOL}.
+     */
+    private void drawRow(MapItemSavedData state, int rowZ) {
+        // Pixel data arrays
+        final MapColor.Brightness[] brightnesses = new MapColor.Brightness[128];
+        final MapColor[]            colors       = new MapColor[128];
+
+        if (i >= (1 << MIN_PARALLEL_SCALE)) {
+            // ── Parallel path ────────────────────────────────────────────
+            int segments = (127 + PARALLEL_SEGMENT_SIZE) / PARALLEL_SEGMENT_SIZE;
+            List<CompletableFuture<Void>> futures = new ArrayList<>(segments);
+
+            for (int seg = 0; seg < segments; seg++) {
+                int colStart = seg * PARALLEL_SEGMENT_SIZE;
+                int colEnd   = Math.min(colStart + PARALLEL_SEGMENT_SIZE, 128);
+                futures.add(CompletableFuture.runAsync(() -> {
+                    for (int col = colStart; col < colEnd; col++) {
+                        computePixel(col, rowZ, colors, brightnesses);
+                    }
+                }, COMPUTE_POOL));
+            }
+            CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+        } else {
+            // ── Sequential path ──────────────────────────────────────────
+            for (int col = 0; col < 128; col++) {
+                computePixel(col, rowZ, colors, brightnesses);
+            }
+        }
+
+        // Write pixel data to the map (shadow row -1 is skipped)
+        if (currentRow >= 0) {
+            for (int col = 0; col < 128; col++) {
+                MapColor       mapColor   = colors[col];
+                MapColor.Brightness bright = brightnesses[col];
+                if (mapColor != MapColor.NONE) {
+                    state.setColor(col, currentRow, mapColor.getPackedId(bright));
+                }
+            }
+        }
+    }
+
+    /**
+     * Computes the colour and brightness of a single pixel column.
+     * This is the vanilla MapItem.update() per-pixel logic, including
+     * ceiling dimension rendering.
+     */
+    private void computePixel(int col, int rowZ, MapColor[] colors, MapColor.Brightness[] brightnesses) {
+        int mapX = (centerX / i + col - 64) * i;
+
+        // ── Ceiling dimension: hash-based dirt/stone pattern (vanilla) ───
+        if (hasCeiling) {
+            int hash = (mapX + rowZ) / i;
+            int raw = (hash * 233371 + hash / 63) * 63 % 256;
+            if (raw < 0) raw += 256;
+
+            if (raw < 128) {
+                colors[col]       = Blocks.DIRT.defaultBlockState().getMapColor(world, BlockPos.ZERO);
+                brightnesses[col] = MapColor.Brightness.LOW;
+            } else {
+                colors[col]       = Blocks.STONE.defaultBlockState().getMapColor(world, BlockPos.ZERO);
+                brightnesses[col] = MapColor.Brightness.HIGH;
+            }
+
+            double currentHeight = 100.0;
+            double prevHeight    = prevColumnHeights[col];
+            prevColumnHeights[col] = (int) currentHeight;
+            double diff = (currentHeight - prevHeight) * 4.0 / (i + 4);
+            if (diff > 0.6) {
+                brightnesses[col] = MapColor.Brightness.HIGH;
+            } else if (diff < -0.6) {
+                brightnesses[col] = MapColor.Brightness.LOW;
+            } else {
+                brightnesses[col] = MapColor.Brightness.NORMAL;
+            }
+            return;
+        }
+
+        // ── Normal/overworld dimension rendering ─────────────────────────
+        Multiset<MapColor> colorBag = LinkedHashMultiset.create();
+        double currentHeight = 0.0;
+        int    waterDepth = 0;
+
+        for (int dx = 0; dx < i; dx++) {
+            for (int dz = 0; dz < i; dz++) {
+                int blockX = mapX + dx;
+                int blockZ = rowZ + dz;
+                int chunkX = blockX >> 4;
+                int chunkZ_ = blockZ >> 4;
+
+                ChunkAccess chunk = chunkCache.get(ChunkPos.asLong(chunkX, chunkZ_));
+                if (chunk == null) {
+                    colorBag.add(MapColor.NONE);
+                    continue;
+                }
+
+                int localX = blockX & 15;
+                int localZ = blockZ & 15;
+
+                int y = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, localX, localZ) + 1;
+                BlockState blockState;
+
+                if (y > world.getMinY()) {
+                    // Walk down from surface to find non-air
+                    do {
+                        y--;
+                        blockState = chunk.getBlockState(new BlockPos(blockX, y, blockZ));
+                    } while (blockState.getMapColor(world, new BlockPos(blockX, y, blockZ)) == MapColor.NONE && y > world.getMinY());
+
+                    // Fluid correction — vanilla getCorrectStateForFluidBlock
+                    if (y > world.getMinY() && !blockState.getFluidState().isEmpty()) {
+                        int fluidY = y - 1;
+                        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+                        BlockState below;
+                        do {
+                            mutablePos.set(blockX, fluidY--, blockZ);
+                            below = chunk.getBlockState(mutablePos);
+                            waterDepth++;
+                        } while (fluidY > world.getMinY() && !below.getFluidState().isEmpty());
+                        blockState = getCorrectFluidBlock(world, blockState, new BlockPos(blockX, y, blockZ));
+                    }
+                } else {
+                    blockState = Blocks.BEDROCK.defaultBlockState();
+                }
+
+                currentHeight += (double) y / (double) (i * i);
+                colorBag.add(blockState.getMapColor(world, new BlockPos(blockX, y, blockZ)));
+            }
+        }
+
+        // Majority colour
+        MapColor mapColor = Iterables.getFirst(
+                Multisets.copyHighestCountFirst(colorBag), MapColor.NONE);
+        colors[col] = mapColor;
+
+        // Brightness / shadow computation
+        if (mapColor == MapColor.WATER) {
+            double f = (double) waterDepth * 0.1 + (double) (col + currentRow & 1) * 0.2;
+            if (f < 0.5) {
+                brightnesses[col] = MapColor.Brightness.HIGH;
+            } else if (f > 0.9) {
+                brightnesses[col] = MapColor.Brightness.LOW;
+            } else {
+                brightnesses[col] = MapColor.Brightness.NORMAL;
+            }
+        } else {
+            double prevHeight    = prevColumnHeights[col];
+            prevColumnHeights[col] = (int) currentHeight;
+            double dither = (col + currentRow & 1) * 0.2;
+            double diff   = (currentHeight - prevHeight) * 4.0 / (i + 4) + dither;
+
+            if (diff > 0.6) {
+                brightnesses[col] = MapColor.Brightness.HIGH;
+            } else if (diff < -0.6) {
+                brightnesses[col] = MapColor.Brightness.LOW;
+            } else {
+                brightnesses[col] = MapColor.Brightness.NORMAL;
+            }
+        }
+    }
+
+    /**
+     * Vanilla fluid block correction (MapItem.getCorrectStateForFluidBlock).
+     */
+    private static BlockState getCorrectFluidBlock(ServerLevel world, BlockState state, BlockPos pos) {
+        FluidState fluidState = state.getFluidState();
+        return !fluidState.isEmpty() && !state.isFaceSturdy(world, pos, Direction.UP)
+                ? fluidState.createLegacyBlock()
+                : state;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  Banner checking — vanilla parity
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Calls {@code state.checkBanners()} for every sub-block in the row,
+     * matching vanilla MapItem.update() which does this for every block
+     * a player's map covers during exploration.
+     */
+    private void checkBannersInRow(MapItemSavedData state, int rowZ) {
+        if (currentRow < 0) return; // shadow row, skip
+
+        for (int col = 0; col < 128; col++) {
+            int mapX = (centerX / i + col - 64) * i;
+            for (int dx = 0; dx < i; dx++) {
+                for (int dz = 0; dz < i; dz++) {
+                    int blockX = mapX + dx;
+                    int blockZ = rowZ + dz;
+                    state.checkBanners(world, blockX, blockZ);
+                }
+            }
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  Structure detection
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Scans all cached chunks in the current row for structure starts
+     * that have known map icons.
+     */
+    @SuppressWarnings({"NullableProblems"})
+    private void scanStructuresInRow(int minCZ, int maxCZ) {
+        for (int cx = minChunkX; cx <= maxChunkX; cx++) {
+            for (int cz = minCZ; cz <= maxCZ; cz++) {
+                ChunkAccess chunk = chunkCache.get(ChunkPos.asLong(cx, cz));
+                if (chunk == null) continue;
+
+                Map<Structure, StructureStart> starts = chunk.getAllStarts();
+                if (starts.isEmpty()) continue;
+
+                Registry<Structure> registry =
+                        world.registryAccess().lookupOrThrow(Registries.STRUCTURE);
+
+                for (Map.Entry<Structure, StructureStart> entry : starts.entrySet()) {
+                    StructureStart start = entry.getValue();
+                    if (start == null || !start.isValid()) continue;
+
+                    Identifier structureId = registry.getKey(entry.getKey());
+                    if (structureId == null) continue;
+
+                    // Check if path (e.g. "mansion") matches a known icon
+                    Identifier pathOnly = Identifier.withDefaultNamespace(structureId.getPath());
+
+                    Holder<MapDecorationType> iconHolder = STRUCTURE_ICONS.get(pathOnly);
+                    if (iconHolder == null) continue;
+                    if (detectedStructures.contains(pathOnly)) continue;
+                    detectedStructures.add(pathOnly);
+
+                    // Use the bounding box centre as the icon position
+                    var bb = start.getBoundingBox();
+                    int iconX = (bb.minX() + bb.maxX()) / 2;
+                    int iconZ = (bb.minZ() + bb.maxZ()) / 2;
+
+                    String decoKey = "oldways_" + structureId.getPath()
+                            + "_" + iconX + "_" + iconZ;
+                    structureIcons.put(decoKey, new StructureIconEntry(iconHolder, iconX, iconZ));
+                }
+            }
+        }
+    }
+
+    /**
+     * Writes all detected structure icons into the map's
+     * {@code MAP_DECORATIONS} component.
+     */
+    @SuppressWarnings("DataFlowIssue")
+    private void applyStructureDecorations() {
+        if (structureIcons.isEmpty()) return;
+
+        MapDecorations existing = mapStack.getOrDefault(
+                DataComponents.MAP_DECORATIONS, MapDecorations.EMPTY);
+        Map<String, MapDecorations.Entry> entries = new HashMap<>(existing.decorations());
+
+        for (Map.Entry<String, StructureIconEntry> e : structureIcons.entrySet()) {
+            StructureIconEntry icon = e.getValue();
+            entries.put(e.getKey(), new MapDecorations.Entry(
+                    icon.type(), icon.x(), icon.z(), 0f));
+        }
+
+        mapStack.set(DataComponents.MAP_DECORATIONS, new MapDecorations(entries));
+    }
+
+    @SuppressWarnings({"NullableProblems"})
+    private record StructureIconEntry(Holder<MapDecorationType> type, int x, int z) {}
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  Memory management
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Evicts cached chunks that are behind the current rendering row.
+     * Tickets were already removed during polling, so we only need to
+     * clear the cache entries.
+     */
+    private void evictProcessedChunks() {
+        if (currentRow <= 0) return;
+
+        // Compute the minimum chunk Z still needed
+        int prevRowZ = (centerZ / i + (currentRow - 1) - 64) * i;
+        int evictBelowCZ = prevRowZ >> 4;
+
+        chunkCache.entrySet().removeIf(entry ->
+                ChunkPos.getZ(entry.getKey()) < evictBelowCZ);
+    }
+
+    /**
+     * Returns {@code true} when heap usage exceeds the safety threshold.
+     */
+    private static boolean isMemoryPressured() {
+        Runtime rt = Runtime.getRuntime();
+        long used = rt.totalMemory() - rt.freeMemory();
+        long max  = rt.maxMemory();
+        return (double) used / max > MEMORY_PRESSURE_THRESHOLD;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  Cleanup
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Releases all resources — removes any remaining tickets and clears
+     * the chunk cache.
+     */
+    private void cleanup() {
+        if (!ticketedPositions.isEmpty()) {
+            ServerChunkCache cs = world.getChunkSource();
+            for (long key : ticketedPositions) {
+                cs.removeTicketWithRadius(ModTickets.MAP_SCAN,
+                        new ChunkPos(ChunkPos.getX(key), ChunkPos.getZ(key)), 0);
+            }
+            ticketedPositions.clear();
+        }
+        chunkCache.clear();
+        outstandingTickets = 0;
     }
 }

@@ -24,6 +24,7 @@ public class TheOldWays implements ModInitializer {
         ModPotions.registerAll();
         ModBrewing.register();
         ModGameRules.register();
+        ModTickets.init();
         ModEvents.init();
         ModDataComponents.init();
         HostileAttributeTweaks.init();
