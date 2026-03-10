@@ -3,6 +3,7 @@
   "package": "net.hallowed.oldways.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "accessor.MapItemSavedDataAccessor",
     "accessor.ServerChunkCacheAccessor",
     "block.AbstractBlockStateMixin",
     "block.BambooBlockMixin",
