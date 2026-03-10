@@ -16,52 +16,88 @@ import java.util.Objects;
 
 public class AutoRefill {
 
-    private static PlayerHandState lastState = null;
-    private static int tickDelay = 0;
+    // ---- Persistent state (replaces per-tick record + copies) ----
+    private static ItemStack lastMainHand = ItemStack.EMPTY;
+    private static ItemStack lastOffHand  = ItemStack.EMPTY;
+    private static int lastSelectedSlot   = -1;
+    private static int tickDelay          = 0;
 
     public static void register() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             LocalPlayer player = client.player;
-            if (player == null || client.gameMode == null || player.isCreative() || player.isSpectator()) {
-                lastState = null;
+            if (player == null || client.gameMode == null
+                    || player.isCreative() || player.isSpectator()) {
+                resetState();
                 return;
             }
 
-            // A small delay after refilling prevents the client from sending duplicate
-            // packets to the server before the inventory has fully stabilized.
+            // Cooldown after a refill — just update snapshots and wait
             if (tickDelay > 0) {
                 tickDelay--;
-                lastState = new PlayerHandState(player.getInventory().getSelectedSlot(), player.getMainHandItem().copy(), player.getOffhandItem().copy());
+                snapshotIfChanged(player);
                 return;
             }
 
-            PlayerHandState currentState = new PlayerHandState(
-                    player.getInventory().getSelectedSlot(),
-                    player.getMainHandItem().copy(),
-                    player.getOffhandItem().copy()
-            );
+            ItemStack currentMain = player.getMainHandItem();
+            ItemStack currentOff  = player.getOffhandItem();
+            int       currentSlot = player.getInventory().getSelectedSlot();
 
-            if (client.screen == null && lastState != null && !player.isDeadOrDying()) {
-                // Ensure the player didn't manually change slots and isn't holding an item with their cursor
-                if (currentState.selectedSlot() == lastState.selectedSlot() && player.containerMenu.getCarried().isEmpty()) {
-
-                    // Prevent auto-refill if the player swapped items to/from their offhand (e.g., pressed 'F')
-                    if (!isHandSwap(lastState, currentState)) {
-                        boolean refilledMain = checkAndRefill(client, player, InteractionHand.MAIN_HAND, lastState.mainHand(), currentState.mainHand());
+            if (client.screen == null && lastSelectedSlot != -1 && !player.isDeadOrDying()) {
+                // Only attempt refill if slot didn't change and cursor is empty
+                if (currentSlot == lastSelectedSlot && player.containerMenu.getCarried().isEmpty()) {
+                    // Skip if the player just pressed 'F' to swap hands
+                    if (!isHandSwap(lastMainHand, lastOffHand, currentMain, currentOff)) {
+                        boolean refilledMain = checkAndRefill(
+                                client, player, InteractionHand.MAIN_HAND, lastMainHand, currentMain);
                         if (!refilledMain) {
-                            checkAndRefill(client, player, InteractionHand.OFF_HAND, lastState.offHand(), currentState.offHand());
+                            checkAndRefill(
+                                    client, player, InteractionHand.OFF_HAND, lastOffHand, currentOff);
                         }
                     }
                 }
             }
 
-            lastState = new PlayerHandState(player.getInventory().getSelectedSlot(), player.getMainHandItem().copy(), player.getOffhandItem().copy());
+            // Only copy when something actually changed (zero copies in the common case)
+            snapshotIfChanged(player);
         });
     }
 
-    // --- NEW: Helper methods to detect offhand swapping ---
-    private static boolean isHandSwap(PlayerHandState last, PlayerHandState current) {
-        return isExactMatch(last.mainHand(), current.offHand()) && isExactMatch(last.offHand(), current.mainHand());
+    // ---- Snapshot helpers ----
+
+    private static void resetState() {
+        lastMainHand    = ItemStack.EMPTY;
+        lastOffHand     = ItemStack.EMPTY;
+        lastSelectedSlot = -1;
+    }
+
+    /**
+     * Compares live stacks to stored snapshots; only copies when a difference is found.
+     */
+    private static void snapshotIfChanged(LocalPlayer player) {
+        ItemStack liveMain = player.getMainHandItem();
+        ItemStack liveOff  = player.getOffhandItem();
+
+        if (!stacksMatch(lastMainHand, liveMain)) lastMainHand = liveMain.copy();
+        if (!stacksMatch(lastOffHand, liveOff))   lastOffHand  = liveOff.copy();
+        lastSelectedSlot = player.getInventory().getSelectedSlot();
+    }
+
+    /**
+     * Lightweight comparison — no allocations.
+     * Returns true when the stored snapshot still matches the live stack.
+     */
+    private static boolean stacksMatch(ItemStack stored, ItemStack live) {
+        if (stored.isEmpty() && live.isEmpty()) return true;
+        if (stored.isEmpty() || live.isEmpty()) return false;
+        return stored.getCount() == live.getCount()
+                && ItemStack.isSameItemSameComponents(stored, live);
+    }
+
+    // ---- Hand-swap detection ----
+
+    private static boolean isHandSwap(ItemStack lastMain, ItemStack lastOff,
+                                      ItemStack curMain,  ItemStack curOff) {
+        return isExactMatch(lastMain, curOff) && isExactMatch(lastOff, curMain);
     }
 
     private static boolean isExactMatch(ItemStack a, ItemStack b) {
@@ -69,75 +105,73 @@ public class AutoRefill {
         if (a.isEmpty() || b.isEmpty()) return false;
         return a.getCount() == b.getCount() && ItemStack.isSameItemSameComponents(a, b);
     }
-    // --------------------------------------------------------
 
-    private static boolean checkAndRefill(Minecraft client, LocalPlayer player, InteractionHand hand, ItemStack last, ItemStack current) {
+    // ---- Refill logic (unchanged behavior) ----
+
+    private static boolean checkAndRefill(Minecraft client, LocalPlayer player,
+                                          InteractionHand hand,
+                                          ItemStack last, ItemStack current) {
         if (last.isEmpty()) return false;
+        if (!isNeedsRefill(last, current)) return false;
 
-        boolean needsRefill = isNeedsRefill(last, current);
+        Inventory inv = player.getInventory();
+        int slotToRefillFrom = -1;
 
-        if (needsRefill) {
-            Inventory inv = player.getInventory();
-            int slotToRefillFrom = -1;
+        for (int i = 35; i >= 9; i--) {
+            ItemStack slotStack = inv.getItem(i);
+            if (!slotStack.is(last.getItem())) continue;
 
-            // Scan the main inventory (slots 9 to 35) backwards
-            for (int i = 35; i >= 9; i--) {
-                ItemStack slotStack = inv.getItem(i);
-                if (slotStack.is(last.getItem())) {
-                    if (last.getItem() instanceof PotionItem) {
-                        if (!Objects.equals(last.get(DataComponents.POTION_CONTENTS), slotStack.get(DataComponents.POTION_CONTENTS))) {
-                            continue;
-                        }
-                    }
-                    slotToRefillFrom = i;
-                    break;
+            if (last.getItem() instanceof PotionItem) {
+                if (!Objects.equals(
+                        last.get(DataComponents.POTION_CONTENTS),
+                        slotStack.get(DataComponents.POTION_CONTENTS))) {
+                    continue;
                 }
             }
-
-            if (slotToRefillFrom != -1) {
-                int syncId = player.inventoryMenu.containerId;
-
-                // If there is a leftover item (like an empty bucket or nearly broken rod),
-                // we simulate a Shift-Click to throw it into the inventory first.
-                if (!current.isEmpty()) {
-                    int handSlot = hand == InteractionHand.MAIN_HAND ? 36 + inv.getSelectedSlot() : 45;
-                    client.gameMode.handleInventoryMouseClick(syncId, handSlot, 0, ClickType.QUICK_MOVE, player);
-                }
-
-                // Simulate hovering over the replacement item and pressing the hotbar key to swap it into the hand
-                int hotbarButton = hand == InteractionHand.MAIN_HAND ? inv.getSelectedSlot() : 40; // 40 is the hardcoded button ID for swapping to offhand
-                client.gameMode.handleInventoryMouseClick(syncId, slotToRefillFrom, hotbarButton, ClickType.SWAP, player);
-
-                tickDelay = 3;
-                return true;
-            }
+            slotToRefillFrom = i;
+            break;
         }
-        return false;
+
+        if (slotToRefillFrom == -1) return false;
+
+        int syncId = player.inventoryMenu.containerId;
+
+        // Shift-click leftover items (empty buckets, near-broken rods) into inventory first
+        if (!current.isEmpty()) {
+            int handSlot = hand == InteractionHand.MAIN_HAND
+                    ? 36 + inv.getSelectedSlot() : 45;
+            client.gameMode.handleInventoryMouseClick(
+                    syncId, handSlot, 0, ClickType.QUICK_MOVE, player);
+        }
+
+        int hotbarButton = hand == InteractionHand.MAIN_HAND
+                ? inv.getSelectedSlot() : 40;
+        client.gameMode.handleInventoryMouseClick(
+                syncId, slotToRefillFrom, hotbarButton, ClickType.SWAP, player);
+
+        tickDelay = 3;
+        return true;
     }
 
     private static boolean isNeedsRefill(ItemStack last, ItemStack current) {
-        boolean needsRefill = false;
+        // Depleted completely
+        if (current.isEmpty()) return true;
 
-        // 1. Depleted completely
-        if (current.isEmpty()) {
-            needsRefill = true;
-        }
-        // 2. Turned into a generic container (buckets, bowls, bottles)
-        else if (current.getCount() == 1 && !current.is(last.getItem())) {
-            if (current.is(Items.GLASS_BOTTLE) || current.is(Items.BUCKET) || current.is(Items.BOWL)) {
-                needsRefill = true;
+        // Turned into a generic container (bucket, bowl, bottle)
+        if (current.getCount() == 1 && !current.is(last.getItem())) {
+            if (current.is(Items.GLASS_BOTTLE)
+                    || current.is(Items.BUCKET)
+                    || current.is(Items.BOWL)) {
+                return true;
             }
         }
-        // 3. Fishing rod about to break
-        else if (last.getItem() instanceof FishingRodItem && current.getItem() instanceof FishingRodItem) {
-            int damage = current.getDamageValue();
-            int maxDamage = current.getMaxDamage();
-            if (maxDamage - damage < 5) {
-                needsRefill = true;
-            }
+
+        // Fishing rod about to break
+        if (last.getItem() instanceof FishingRodItem
+                && current.getItem() instanceof FishingRodItem) {
+            return current.getMaxDamage() - current.getDamageValue() < 5;
         }
-        return needsRefill;
+
+        return false;
     }
-
-    private record PlayerHandState(int selectedSlot, ItemStack mainHand, ItemStack offHand) {}
 }

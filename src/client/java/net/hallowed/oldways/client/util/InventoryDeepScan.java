@@ -13,6 +13,7 @@ public final class InventoryDeepScan {
     private InventoryDeepScan() {}
 
     private static final long TTL_NS = 200_000_000L; // 200ms
+    private static final int MAX_DEPTH = 6;
 
     private static long lastScanNs = 0L;
     private static boolean hasCompassCached = false;
@@ -26,6 +27,7 @@ public final class InventoryDeepScan {
     public static boolean hasAnyCompass(Player p) {
         refreshIfNeeded(p); return hasCompassCached || hasRecoveryCompassCached;
     }
+
     public static boolean hasClock(Player p) {
         refreshIfNeeded(p); return hasClockCached;
     }
@@ -51,24 +53,26 @@ public final class InventoryDeepScan {
 
     private static boolean hasItemDeep(Player p, Item target) {
         var inv = p.getInventory();
-        for (int i = 0; i < inv.getContainerSize(); i++) if (matchesDeep(inv.getItem(i), target)) return true;
-        return matchesDeep(p.getOffhandItem(), target);
+        for (int i = 0; i < inv.getContainerSize(); i++)
+            if (matchesDeep(inv.getItem(i), target, 0)) return true;
+        return matchesDeep(p.getOffhandItem(), target, 0);
     }
 
-    private static boolean matchesDeep(ItemStack stack, Item target) {
+    private static boolean matchesDeep(ItemStack stack, Item target, int depth) {
         if (stack == null || stack.isEmpty()) return false;
         if (stack.is(target)) return true;
+        if (depth >= MAX_DEPTH) return false; // ← prevents StackOverflow
 
         BundleContents bundle = stack.get(DataComponents.BUNDLE_CONTENTS);
         if (bundle != null) {
             for (ItemStack child : bundle.items()) {
-                if (!child.isEmpty() && matchesDeep(child, target)) return true;
+                if (!child.isEmpty() && matchesDeep(child, target, depth + 1)) return true;
             }
         }
         ItemContainerContents container = stack.get(DataComponents.CONTAINER);
         if (container != null) {
             for (ItemStack child : container.nonEmptyItems()) {
-                if (matchesDeep(child, target)) return true;
+                if (matchesDeep(child, target, depth + 1)) return true;
             }
         }
         return false;

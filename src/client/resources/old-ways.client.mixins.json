@@ -13,6 +13,7 @@
     "feature.EquipmentRendererMixin",
     "item.ItemModelManagerMixin",
     "item.MapStateClientMixin",
+    "item.MapItemTooltipMixin",
     "item.PotionItemMixin",
     "options.GameOptionsMixin",
     "render.AbstractMinecartEntityRendererMixin",

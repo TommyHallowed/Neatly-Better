@@ -26,8 +26,8 @@ public final class WaypointRendering {
     private static final ArrayList<Entry> VISIBLE = new ArrayList<>(64);
     private static final ArrayDeque<Entry> POOL   = new ArrayDeque<>(64);
     private static final Comparator<Entry> BY_DIST_DESC = (a, b) -> Double.compare(b.distSq, a.distSq);
+    private static final int MAX_POOL_SIZE = 64;
 
-    private static final SettingsPrefs P = SettingsPrefs.get();
 
     private static final class Entry {
         ClientWaypoint wp;
@@ -71,12 +71,18 @@ public final class WaypointRendering {
             drawWaypoint(client, ctx, centerY, e);
         }
 
-        if (best != null && P.tabShowsNames && client.options.keyPlayerList.isDown()) {
+        if (best != null && SettingsPrefs.get().tabShowsNames && client.options.keyPlayerList.isDown()) {
             drawNamePopup(client, ctx, centerY, best.x, best.wp.text().orElse(null));
         }
 
         // Return to pool
-        for (Entry entry : VISIBLE) POOL.offerFirst(entry);
+
+        for (Entry entry : VISIBLE) {
+            entry.wp = null; // Release reference to prevent retaining waypoint data
+            if (POOL.size() < MAX_POOL_SIZE) {
+                POOL.offerFirst(entry);
+            }
+        }
         VISIBLE.clear();
     }
 

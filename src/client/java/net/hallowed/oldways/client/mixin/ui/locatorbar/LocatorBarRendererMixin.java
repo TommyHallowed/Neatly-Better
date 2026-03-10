@@ -1,5 +1,7 @@
 package net.hallowed.oldways.client.mixin.ui.locatorbar;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.hallowed.oldways.client.feature.locator.WaypointRendering;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -11,7 +13,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -20,26 +21,27 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 public abstract class LocatorBarRendererMixin implements ContextualBarRenderer {
     @Shadow @Final private Minecraft minecraft;
 
-    @Redirect(
+    @WrapOperation(
             method = "renderBackground",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V"
             )
     )
-    private void oldways$redirectDrawGuiTexture(
+    private void oldways$wrapDrawGuiTexture(
             GuiGraphics ctx,
             RenderPipeline pipeline,
             Identifier id,
-            int x, int y, int w, int h
+            int x, int y, int w, int h,
+            Operation<Void> original
     ) {
         boolean isLocatorBackground = id.getPath().contains("locator_bar_background");
-
         boolean isCreative = minecraft.player != null && minecraft.player.isCreative();
 
         if (!isLocatorBackground || isCreative) {
-            ctx.blitSprite(pipeline, id, x, y, w, h);
+            original.call(ctx, pipeline, id, x, y, w, h);
         }
+        // When suppressing, other mods' wraps still get a chance to decide
     }
 
     @Inject(method = "render", at = @At("RETURN"))

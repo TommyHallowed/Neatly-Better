@@ -1,10 +1,13 @@
 package net.hallowed;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.hallowed.oldways.client.feature.AutoRefill;
+import net.hallowed.oldways.client.feature.ClientMapPreviewTooltip;
 import net.hallowed.oldways.client.feature.locator.EnderWaypointsClient;
 import net.hallowed.oldways.client.init.ModTooltips;
 import net.hallowed.oldways.client.util.EnderCheckClient;
+import net.hallowed.oldways.tooltip.MapPreviewTooltip;
 
 
 public class TheOldWaysClient implements ClientModInitializer {
@@ -13,6 +16,14 @@ public class TheOldWaysClient implements ClientModInitializer {
         EnderCheckClient.register();
         EnderWaypointsClient.register();
         AutoRefill.register();
+
+        TooltipComponentCallback.EVENT.register(data -> {
+            if (data instanceof MapPreviewTooltip mapData) {
+                return new ClientMapPreviewTooltip(mapData);
+            }
+            return null;
+        });
+
         ModTooltips.init();
     }
 }

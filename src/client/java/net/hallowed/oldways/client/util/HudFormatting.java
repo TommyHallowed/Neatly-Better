@@ -9,7 +9,6 @@ public final class HudFormatting {
     private HudFormatting() {}
 
     private static final Minecraft MC = Minecraft.getInstance();
-    private static final SettingsPrefs P = SettingsPrefs.get();
 
     public record Line(String text, int argb) {}
     private record Parsed(String tail, int argb) {}
@@ -31,10 +30,10 @@ public final class HudFormatting {
     private static int secondBucket(long timeOfDay) { return (int)((timeOfDay % 24000L) / 20L); }
 
     public static boolean shouldShowCoords(Player p) {
-        return P.showCoords && (InventoryDeepScan.hasCompass(p) || EnderCheckClient.enderHasCompass());
+        return SettingsPrefs.get().showCoords && (InventoryDeepScan.hasCompass(p) || EnderCheckClient.enderHasCompass());
     }
     public static boolean shouldShowTime(Player p) {
-        return P.showTime && (InventoryDeepScan.hasClock(p) || EnderCheckClient.enderHasClock());
+        return SettingsPrefs.get().showTime && (InventoryDeepScan.hasClock(p) || EnderCheckClient.enderHasClock());
     }
 
     public static Line coordsLine(Player p) {
@@ -122,37 +121,19 @@ public final class HudFormatting {
     }
 
     public static Line buildCoords(double x, double y, double z) {
-        Parsed p = parseLeadingColor(P.coordsFormat);
+        Parsed p = parseLeadingColor(SettingsPrefs.get().coordsFormat);
         String fx = String.format("%.2f", x), fy = String.format("%.2f", y), fz = String.format("%.2f", z);
         String text = p.tail.replace("{x}", fx).replace("{y}", fy).replace("{z}", fz);
         return new Line(text, p.argb);
     }
 
     public static Line buildTimeDay(String timeHHMM, int day) {
-        Parsed p = parseLeadingColor(P.timeDayFormat);
+        Parsed p = parseLeadingColor(SettingsPrefs.get().timeDayFormat);
         String text = p.tail.replace("{time}", timeHHMM).replace("{day}", Integer.toString(day));
         return new Line(text, p.argb);
     }
-
-    public static int coordsColorARGB() { return parseLeadingColor(P.coordsFormat).argb; }
-    public static int timeColorARGB()   { return parseLeadingColor(P.timeDayFormat).argb; }
-
-    public static void cycleCoordsColor() {
-        P.coordsFormat = cycleLeadingColor(P.coordsFormat);
-        SettingsPrefs.save();
-        cachedCoords = null;
-    }
-    public static void cycleTimeColor() {
-        P.timeDayFormat = cycleLeadingColor(P.timeDayFormat);
-        SettingsPrefs.save();
-        cachedTime = null;
-    }
-
-    public static String coordsPosition() { return cornerToString(P.coordsPos); }
-    public static String timePosition()   { return cornerToString(P.timePos);  }
-
-    public static void cycleCoordsPosition() { P.coordsPos = P.coordsPos.next(); SettingsPrefs.save(); cachedCoordsXY = null; }
-    public static void cycleTimePosition()   { P.timePos   = P.timePos.next();   SettingsPrefs.save(); cachedTimeXY   = null; }
+    public static String coordsPosition() { return cornerToString(SettingsPrefs.get().coordsPos); }
+    public static String timePosition()   { return cornerToString(SettingsPrefs.get().timePos);  }
 
     private static String cornerToString(SettingsPrefs.Corner c) {
         return switch (c) {
@@ -169,18 +150,6 @@ public final class HudFormatting {
             if (rgb != null) return new Parsed(s.substring(2), 0xFF000000 | rgb);
         }
         return new Parsed(s == null ? "" : s, 0xFFFFFFFF);
-    }
-
-    private static String cycleLeadingColor(String fmt) {
-        char[] order = new char[]{'f','6','b','a','c','e','9','d','2','3','4','5','7','8','0'};
-        char current = 'f';
-        boolean b = fmt.charAt(0) == '&' || fmt.charAt(0) == '§';
-        if (fmt.length() >= 2 && b)
-            current = Character.toLowerCase(fmt.charAt(1));
-        int idx = 0;
-        for (int i = 0; i < order.length; i++) if (order[i] == current) { idx = (i + 1) % order.length; break; }
-        String tail = fmt.length() >= 2 && b ? fmt.substring(2) : fmt;
-        return "&" + order[idx] + tail;
     }
 
     private static Integer mcColorCodeToRGB(char code) {

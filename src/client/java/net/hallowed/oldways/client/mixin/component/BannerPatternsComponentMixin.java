@@ -22,13 +22,4 @@ public abstract class BannerPatternsComponentMixin {
     private int oldways$raiseTooltipCap(int original) {
         return 16;
     }
-
-    @Redirect(
-            method = { "addToTooltip" },
-            at = @At(value = "INVOKE", target = "Ljava/lang/Math;min(II)I"),
-            require = 0
-    )
-    private int oldways$widenMinForTooltip(int a, int b) {
-        return Math.min(a, 16);
-    }
 }

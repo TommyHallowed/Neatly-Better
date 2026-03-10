@@ -1,10 +1,7 @@
 package net.hallowed.oldways.client.init;
 
-
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
-
 import net.hallowed.oldways.content.item.MapBuilderItem;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,10 +19,38 @@ import java.util.List;
 public final class ModTooltips {
     private ModTooltips() {}
 
+    // ---- Cached components (zero per-render allocation) ----
+
     private static final MutableComponent GLOW_SAC_HINT =
-            Component.literal("Can be used on trimmed items").withStyle(ChatFormatting.GRAY);
+            Component.translatable("tooltip.old-ways.glow_ink_sac_hint")
+                    .withStyle(ChatFormatting.GRAY);
+
     private static final MutableComponent ECHO_SHARD_HINT =
-            Component.literal("Can be used on trimmed armor").withStyle(ChatFormatting.GRAY);
+            Component.translatable("tooltip.old-ways.echo_shard_hint")
+                    .withStyle(ChatFormatting.GRAY);
+
+    private static final MutableComponent TOTEM_COOLDOWN_HINT =
+            Component.translatable("tooltip.old-ways.totem_cooldown")
+                    .withStyle(ChatFormatting.GRAY);
+
+    private static final MutableComponent EQUIP_HINT =
+            Component.translatable("tooltip.old-ways.right_click_equip")
+                    .withStyle(ChatFormatting.YELLOW);
+
+    private static final List<Component> MAP_BUILDER_LINES = List.of(
+            Component.empty(),
+            Component.translatable("tooltip.old-ways.map_builder.right_click")
+                    .withStyle(ChatFormatting.YELLOW),
+            Component.translatable("tooltip.old-ways.map_builder.left_click")
+                    .withStyle(ChatFormatting.YELLOW),
+            Component.translatable("tooltip.old-ways.map_builder.build")
+                    .withStyle(ChatFormatting.YELLOW),
+            Component.translatable("tooltip.old-ways.map_builder.zoom")
+                    .withStyle(ChatFormatting.YELLOW),
+            Component.empty(),
+            Component.translatable("tooltip.old-ways.map_builder.requires")
+                    .withStyle(ChatFormatting.RED)
+    );
 
     public static void init() {
         ItemTooltipCallback.EVENT.register(ModTooltips::onTooltip);
@@ -44,41 +69,32 @@ public final class ModTooltips {
             addBasicUnderName(lines, ECHO_SHARD_HINT);
         }
         if (stack.is(Items.TOTEM_OF_UNDYING)) {
-            addBasicUnderName(lines, Component.literal("Cooldown on use: 60s").withStyle(ChatFormatting.GRAY));
+            addBasicUnderName(lines, TOTEM_COOLDOWN_HINT);
         }
         if (stack.getItem() instanceof MapBuilderItem) {
-            lines.add(Component.empty());
-            lines.add(Component.literal(" Right-Click: Set Top-Left Corner").withStyle(ChatFormatting.YELLOW));
-            lines.add(Component.literal(" Left-Click: Set Bottom-Right Corner").withStyle(ChatFormatting.YELLOW));
-            lines.add(Component.literal(" Right-Click in area: Build Map").withStyle(ChatFormatting.YELLOW));
-            lines.add(Component.literal(" Shift + Z: Change Map Zoom").withStyle(ChatFormatting.YELLOW));
-            lines.add(Component.empty());
-            lines.add(Component.literal("Requires Empty Maps & Item Frames").withStyle(ChatFormatting.RED));
+            lines.addAll(MAP_BUILDER_LINES);
         }
 
         // --- Equip Tooltip ---
         Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
         if (equippable != null) {
             EquipmentSlot slot = equippable.slot();
-            // Filter to only affect Armor and Elytra (ignores offhand/saddles)
-            if (slot == EquipmentSlot.HEAD || slot == EquipmentSlot.CHEST ||
-                    slot == EquipmentSlot.LEGS || slot == EquipmentSlot.FEET) {
+            if (slot == EquipmentSlot.HEAD || slot == EquipmentSlot.CHEST
+                    || slot == EquipmentSlot.LEGS || slot == EquipmentSlot.FEET) {
 
-                net.minecraft.client.player.LocalPlayer player = net.minecraft.client.Minecraft.getInstance().player;
-                // Only add the tooltip if the player is NOT currently wearing this exact item
+                net.minecraft.client.player.LocalPlayer player =
+                        net.minecraft.client.Minecraft.getInstance().player;
+
                 if (player == null || player.getItemBySlot(slot) != stack) {
-
                     int insertPos = lines.size();
 
-                    // If Advanced Tooltips (F3+H) are enabled, find the start of the advanced section
                     if (type.isAdvanced()) {
                         String regName = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
                         for (int i = 0; i < lines.size(); i++) {
-                            // The item's registry name (e.g., "minecraft:iron_chestplate") is always shown
                             if (lines.get(i).getString().contains(regName)) {
                                 insertPos = i;
-                                // If the item is damaged, durability is displayed exactly one line above the registry name
-                                if (i > 0 && stack.isDamaged() && lines.get(i - 1).getString().contains("/")) {
+                                if (i > 0 && stack.isDamaged()
+                                        && lines.get(i - 1).getString().contains("/")) {
                                     insertPos = i - 1;
                                 }
                                 break;
@@ -86,7 +102,7 @@ public final class ModTooltips {
                         }
                     }
                     lines.add(insertPos, Component.empty());
-                    lines.add(insertPos + 1, Component.literal("Right Click To Equip").withStyle(ChatFormatting.YELLOW));
+                    lines.add(insertPos + 1, EQUIP_HINT);
                 }
             }
         }
@@ -104,5 +120,4 @@ public final class ModTooltips {
         }
         lines.add(insertAt, tip);
     }
-
 }

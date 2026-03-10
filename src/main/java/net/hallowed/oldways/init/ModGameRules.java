@@ -11,7 +11,6 @@ public final class ModGameRules {
 
     private ModGameRules() {}
 
-    public static GameRule<@NotNull Boolean> FULL_ENCHANTING_COST;
     public static GameRule<@NotNull Boolean> BEACON_SOAK_EFFECTS;
     public static GameRule<@NotNull Boolean> XP_FROM_MINING_NON_ORE;
     public static GameRule<@NotNull Boolean> XP_FROM_PLACING_BLOCKS;
@@ -25,7 +24,6 @@ public final class ModGameRules {
     public static GameRule<@NotNull Integer> SHIELD_RAISE_DELAY_TICKS;
 
     public static void register() {
-        FULL_ENCHANTING_COST               = bool("full_enchanting_cost",                GameRuleCategory.PLAYER,   true);
         BEACON_SOAK_EFFECTS                = bool("beacon_soak_effects",                 GameRuleCategory.MISC,     true);
         XP_FROM_MINING_NON_ORE             = bool("xp_from_mining_non_ore",              GameRuleCategory.DROPS,    true);
         XP_FROM_PLACING_BLOCKS             = bool("xp_from_placing_blocks",              GameRuleCategory.DROPS,    true);

@@ -1,8 +1,8 @@
 package net.hallowed.oldways.mixin.entity.generic;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.hallowed.oldways.init.ModGameRules;
 import net.hallowed.oldways.util.ProtectionContext;
-
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
@@ -12,9 +12,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.BlocksAttacks;
-import net.minecraft.world.level.Level;
-
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,6 +23,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
 
+    // Cached — the cooldown API only reads the item's cooldown group, never mutates the stack
+    @Unique
+    private static ItemStack oldways$totemStack;
+
+    @Unique
+    private static ItemStack oldways$getTotemStack() {
+        if (oldways$totemStack == null) {
+            oldways$totemStack = new ItemStack(Items.TOTEM_OF_UNDYING);
+        }
+        return oldways$totemStack;
+    }
+
     /* ===================== 1) Totem cooldown ===================== */
 
     @Inject(
@@ -31,12 +42,11 @@ public abstract class LivingEntityMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    private void oldways$blockIfTotemCooling(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
-        if ((Object)this instanceof Player player) {
-            ItemStack totem = new ItemStack(Items.TOTEM_OF_UNDYING);
-            if (player.getCooldowns().isOnCooldown(totem)) {
+    private void oldways$blockIfTotemCooling(DamageSource source,
+                                             CallbackInfoReturnable<Boolean> cir) {
+        if ((Object) this instanceof Player player) {
+            if (player.getCooldowns().isOnCooldown(oldways$getTotemStack())) {
                 cir.setReturnValue(false);
-                cir.cancel();
             }
         }
     }
@@ -45,9 +55,13 @@ public abstract class LivingEntityMixin {
             method = "checkTotemDeathProtection(Lnet/minecraft/world/damagesource/DamageSource;)Z",
             at = @At("RETURN")
     )
-    private void oldways$applyTotemCooldown(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
-        if ((Object)this instanceof Player player) {
-                player.getCooldowns().addCooldown(new ItemStack(Items.TOTEM_OF_UNDYING), 1200);
+    private void oldways$applyTotemCooldown(DamageSource source,
+                                            CallbackInfoReturnable<Boolean> cir) {
+        // FIX: Only apply cooldown when the totem actually saved the player
+        if (!Boolean.TRUE.equals(cir.getReturnValue())) return;
+
+        if ((Object) this instanceof Player player) {
+            player.getCooldowns().addCooldown(oldways$getTotemStack(), 1200);
         }
     }
 
@@ -56,7 +70,7 @@ public abstract class LivingEntityMixin {
     @Inject(method = "getDamageAfterMagicAbsorb", at = @At("HEAD"))
     private void oldways$setProtContext(DamageSource source, float amount,
                                         CallbackInfoReturnable<Float> cir) {
-        ProtectionContext.set((LivingEntity)(Object)this, source);
+        ProtectionContext.set((LivingEntity) (Object) this, source);
     }
 
     @Inject(method = "getDamageAfterMagicAbsorb", at = @At("RETURN"))
@@ -90,7 +104,7 @@ public abstract class LivingEntityMixin {
         if (cir.getReturnValue() <= 0.0F) return;
         if (!source.is(DamageTypeTags.IS_EXPLOSION)) return;
 
-        LivingEntity self = (LivingEntity)(Object)this;
+        LivingEntity self = (LivingEntity) (Object) this;
         if (!(self instanceof Player player)) return;
 
         ItemStack blocking = self.getItemBlockingWith();
@@ -105,25 +119,23 @@ public abstract class LivingEntityMixin {
 
     /* ===================== 5) No shield raise delay ===================== */
 
-    @Inject(method = "getItemBlockingWith()Lnet/minecraft/world/item/ItemStack;", at = @At("HEAD"), cancellable = true)
-    private void oldways$customShieldRaiseDelay(CallbackInfoReturnable<ItemStack> cir) {
-        LivingEntity self = (LivingEntity)(Object)this;
+    // FIX: @ModifyReturnValue chains with other mods (replaces @Inject HEAD which killed compat)
+    // NOTE: getGameRules() only exists on ServerLevel in 1.21.11, so this stays server-side only.
+    //       The client may briefly show the shield raised before the server agrees — this is a
+    //       vanilla limitation. To fix the visual desync you'd need to sync the game rule value
+    //       to the client via a custom packet.
+    @ModifyReturnValue(
+            method = "getItemBlockingWith()Lnet/minecraft/world/item/ItemStack;",
+            at = @At("RETURN")
+    )
+    private ItemStack oldways$customShieldRaiseDelay(ItemStack original) {
+        if (original == null || original.isEmpty() || !original.is(Items.SHIELD)) return original;
 
-        if (!self.isUsingItem()) return;
-        ItemStack active = self.getUseItem();
-        if (active.isEmpty() || !active.is(Items.SHIELD)) return;
+        LivingEntity self = (LivingEntity) (Object) this;
+        if (!(self.level() instanceof ServerLevel serverLevel)) return original;
+        int delay = Math.max(0, serverLevel.getGameRules().get(ModGameRules.SHIELD_RAISE_DELAY_TICKS));
+        if (delay <= 0) return original;
 
-        int delay = 0;
-        Level w = self.level();
-        if (w instanceof ServerLevel sw) {
-            delay = Math.max(0, sw.getGameRules().get(ModGameRules.SHIELD_RAISE_DELAY_TICKS));
-        }
-
-        if (delay <= 0 || self.getTicksUsingItem() >= delay) {
-            cir.setReturnValue(active);
-        } else {
-            cir.setReturnValue(ItemStack.EMPTY);
-        }
-        cir.cancel();
+        return self.getTicksUsingItem() >= delay ? original : ItemStack.EMPTY;
     }
 }

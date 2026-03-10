@@ -3,12 +3,9 @@ package net.hallowed.oldways.network;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.hallowed.oldways.content.item.MapBuilderItem;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -19,7 +16,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.BundleContents;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.component.LodestoneTracker;
 import org.jetbrains.annotations.NotNull;
@@ -36,6 +32,9 @@ public final class OldWaysNetwork {
 
     public static final String MODID = "old-ways";
     private static Identifier id(String path) { return Identifier.fromNamespaceAndPath(MODID, path); }
+
+    /** Maximum nesting depth for container scanning. Prevents StackOverflow from malicious data. */
+    private static final int MAX_DEPTH = 6;
 
     /* ===================== Packets ===================== */
 
@@ -76,7 +75,6 @@ public final class OldWaysNetwork {
 
     /** A single lodestone target from an ender-chest item (possibly nested). */
     public record LodestoneEntry(Identifier dim, int x, int y, int z, int color, String label) {
-        // color==-1 means "absent", label=="" means "absent"
         static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull LodestoneEntry> CODEC =
                 StreamCodec.composite(
                         Identifier.STREAM_CODEC, LodestoneEntry::dim,
@@ -84,37 +82,25 @@ public final class OldWaysNetwork {
                         ByteBufCodecs.VAR_INT,    LodestoneEntry::y,
                         ByteBufCodecs.VAR_INT,    LodestoneEntry::z,
                         ByteBufCodecs.VAR_INT,    LodestoneEntry::color,
-                        ByteBufCodecs.STRING_UTF8,     LodestoneEntry::label,
+                        ByteBufCodecs.STRING_UTF8, LodestoneEntry::label,
                         LodestoneEntry::new
                 );
-    }
-
-    /** C2S: Action payload for the Map Builder (0=Zoom, 1=Facing, 2=Reset) */
-    public record MapBuilderPayload(int action) implements CustomPacketPayload {
-        public static final CustomPacketPayload.Type<@NotNull MapBuilderPayload> ID = new CustomPacketPayload.Type<>(id("map_builder_action"));
-        public static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull MapBuilderPayload> CODEC =
-                StreamCodec.composite(ByteBufCodecs.INT, MapBuilderPayload::action, MapBuilderPayload::new);
-        @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
     }
 
     /* ===================== Registration (common/server) ===================== */
 
     /** Call from your common init (TheOldWays#onInitialize). */
     public static void registerCommon() {
-        // codecs
         PayloadTypeRegistry.playC2S().register(EnderCheckRequest.ID, EnderCheckRequest.CODEC);
         PayloadTypeRegistry.playS2C().register(EnderCheckResponse.ID, EnderCheckResponse.CODEC);
         PayloadTypeRegistry.playS2C().register(EnderLodestones.ID,    EnderLodestones.CODEC);
 
-        // explicit client ping
         ServerPlayNetworking.registerGlobalReceiver(EnderCheckRequest.ID,
                 (payload, ctx) -> pushEnderChestState(ctx.player()));
 
-        // push once on join (fresh load)
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
                 pushEnderChestState(handler.player));
     }
-
 
     /** Computes ender-chest state and pushes both overlay booleans and lodestone targets. */
     public static void pushEnderChestState(ServerPlayer player) {
@@ -126,21 +112,22 @@ public final class OldWaysNetwork {
         ServerPlayNetworking.send(player, new EnderLodestones(lodestones));
     }
 
-    // ---- deep scan helpers ----
+    // ---- deep scan helpers (depth-limited) ----
 
     private static boolean hasInEnderDeep(ServerPlayer p, Predicate<ItemStack> test) {
         var inv = p.getEnderChestInventory();
         for (int i = 0; i < inv.getContainerSize(); i++) {
-            if (matchesDeep(inv.getItem(i), test)) return true;
+            if (matchesDeep(inv.getItem(i), test, 0)) return true;
         }
         return false;
     }
 
-    private static boolean matchesDeep(ItemStack stack, Predicate<ItemStack> test) {
+    private static boolean matchesDeep(ItemStack stack, Predicate<ItemStack> test, int depth) {
         if (stack == null || stack.isEmpty()) return false;
         if (test.test(stack)) return true;
-        for (ItemStack child : iterateBundle(stack))   if (matchesDeep(child, test)) return true;
-        for (ItemStack child : iterateContainer(stack)) if (matchesDeep(child, test)) return true;
+        if (depth >= MAX_DEPTH) return false; // ← prevents StackOverflow
+        for (ItemStack child : iterateBundle(stack))    if (matchesDeep(child, test, depth + 1)) return true;
+        for (ItemStack child : iterateContainer(stack)) if (matchesDeep(child, test, depth + 1)) return true;
         return false;
     }
 
@@ -149,26 +136,24 @@ public final class OldWaysNetwork {
         var inv = player.getEnderChestInventory();
         for (int i = 0; i < inv.getContainerSize(); i++) {
             ItemStack s = inv.getItem(i);
-            if (!s.isEmpty()) collectFromStack(s, out);
+            if (!s.isEmpty()) collectFromStack(s, out, 0);
         }
         return out;
     }
 
-    private static void collectFromStack(ItemStack stack, List<LodestoneEntry> out) {
-        // lodestone on this stack?
+    private static void collectFromStack(ItemStack stack, List<LodestoneEntry> out, int depth) {
         LodestoneTracker lc = stack.get(DataComponents.LODESTONE_TRACKER);
         if (lc != null && lc.target().isPresent()) {
             GlobalPos gp = lc.target().get();
             BlockPos bp = gp.pos();
             Identifier dimId = gp.dimension().identifier();
-            // parse color once from name
             int color = parseHexColor(stack);
             String label = getPlainName(stack);
             out.add(new LodestoneEntry(dimId, bp.getX(), bp.getY(), bp.getZ(), color, label));
         }
-        // recurse
-        for (ItemStack child : iterateBundle(stack))    collectFromStack(child, out);
-        for (ItemStack child : iterateContainer(stack)) collectFromStack(child, out);
+        if (depth >= MAX_DEPTH) return; // ← prevents StackOverflow
+        for (ItemStack child : iterateBundle(stack))    collectFromStack(child, out, depth + 1);
+        for (ItemStack child : iterateContainer(stack)) collectFromStack(child, out, depth + 1);
     }
 
     private static Iterable<ItemStack> iterateBundle(ItemStack stack) {
@@ -193,7 +178,7 @@ public final class OldWaysNetwork {
             try { return (int) Long.parseLong(m.group().substring(1), 16); }
             catch (NumberFormatException ignored) {}
         }
-        return -1; // absent
+        return -1;
     }
 
     private static String getPlainName(ItemStack stack) {
