@@ -18,7 +18,10 @@
 		],
 		"client": [
           "net.hallowed.TheOldWaysClient"
-		]
+		],
+        "elytratrims-client": [
+          "net.hallowed.oldways.client.compat.ElytraTrimsCompat"
+        ]
 	},
 	"mixins": [
       "old-ways.mixins.json",
@@ -30,5 +33,7 @@
 		"java": ">=21",
 		"fabric-api": "*"
 	},
-	"suggests": {}
+      "suggests": {
+          "elytratrims": "*"
+      }
 }

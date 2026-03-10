@@ -57,7 +57,6 @@ public abstract class SmithingScreenHandlerMixin {
             boolean emissive = base.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
             boolean pulsing = base.getOrDefault(ModDataComponents.PULSING_TRIM, false);
 
-            // Replaced ArmorItem check with the Vanilla Tag check!
             boolean isArmor = base.is(ItemTags.TRIMMABLE_ARMOR);
 
             if ((glow && !emissive) || (echo && !pulsing && isArmor) || (ink && (emissive || pulsing))) {
@@ -77,6 +76,7 @@ public abstract class SmithingScreenHandlerMixin {
         Slot baseSlot = self.getSlot(1);
         Slot addSlot  = self.getSlot(2);
 
+        // We only want to trigger our custom logic if there is NO template item
         if (template.hasItem() || !baseSlot.hasItem() || !addSlot.hasItem()) return;
 
         ItemStack base = baseSlot.getItem();
@@ -84,10 +84,10 @@ public abstract class SmithingScreenHandlerMixin {
         if (trim == null) return;
 
         ItemStack add = addSlot.getItem();
+
+        // --- Emissive & Pulsing Effects ---
         boolean emissive = base.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
         boolean pulsing = base.getOrDefault(ModDataComponents.PULSING_TRIM, false);
-
-        // Replaced ArmorItem check with the Vanilla Tag check!
         boolean isArmor = base.is(ItemTags.TRIMMABLE_ARMOR);
 
         if (add.is(Items.GLOW_INK_SAC) && !emissive) {
