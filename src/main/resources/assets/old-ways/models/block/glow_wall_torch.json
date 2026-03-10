@@ -1,6 +1,0 @@
-{
-  "parent": "old-ways:block/template_glow_torch_wall",
-  "textures": {
-    "torch": "old-ways:block/glow_torch"
-  }
-}
