@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PPP",
+    "PRP",
+    "PPP"
+  ],
+  "key": {
+    "P": "minecraft:paper",
+    "R": "minecraft:recovery_compass"
+  },
+  "result": {
+    "id": "old-ways:map_builder"
+  }
+}
