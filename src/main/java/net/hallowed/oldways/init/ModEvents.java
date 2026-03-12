@@ -12,6 +12,9 @@ public final class ModEvents {
         AddedItemProperties.register();
         MinecartChainHandler.register();
         CropHarvester.register();
+        ChestLockHandler.register();
+        PotionCooldownHandler.register();
+        ComposterRegistration.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();
