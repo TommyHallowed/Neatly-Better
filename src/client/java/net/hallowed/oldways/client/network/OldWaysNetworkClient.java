@@ -19,4 +19,8 @@ public final class OldWaysNetworkClient {
     public static void sendEnderCheck() {
         ClientPlayNetworking.send(new OldWaysNetwork.EnderCheckRequest());
     }
+
+    public static void sendArmorSwap(int containerId, int sourceSlotIndex) {
+        ClientPlayNetworking.send(new OldWaysNetwork.ArmorSwapRequest(containerId, sourceSlotIndex));
+    }
 }
