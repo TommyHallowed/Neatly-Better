@@ -11,8 +11,10 @@ public final class ModItemGroupRegistrar {
 
     public static void register() {
 
-        OWRegistry.addToGroup(CreativeModeTabs.TOOLS_AND_UTILITIES, entries ->
-                entries.accept(ModItems.MAP_BUILDER));
+        OWRegistry.addToGroup(CreativeModeTabs.TOOLS_AND_UTILITIES, entries -> {
+                entries.accept(ModItems.MAP_BUILDER);
+                entries.accept(ModItems.CHEST_LOCK);
+        });
 
         OWRegistry.addToGroup(CreativeModeTabs.BUILDING_BLOCKS, entries -> {
             entries.addAfter(Items.SMOOTH_STONE,   SMOOTH_STONE_STAIRS);
