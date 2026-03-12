@@ -33,6 +33,7 @@ public final class WaypointTracking {
     private static final boolean SHOW_LODESTONE   = true;
     private static final int     RECOVERY_COLOR   = 0xFFFF5555;
     private static final int     LODESTONE_COLOR  = 0xFF55AAFF;
+    private static boolean foundRecoveryCompass;
 
     /** Safety: prevent pathological nesting / cycles from burning CPU or crashing. */
     private static final int MAX_NESTING_DEPTH   = 16;    // deep enough for real gameplay, shallow enough for safety
@@ -44,7 +45,11 @@ public final class WaypointTracking {
     @SuppressWarnings("SameReturnValue")
     public static List<ClientWaypoint> update(Player player) {
         WAYPOINTS.clear();
-        if (player == null) return WAYPOINTS;
+        foundRecoveryCompass = false;
+        if (player == null) {
+            DeathTracker.reset();
+            return WAYPOINTS;
+        }
 
         final ResourceKey<@NotNull Level> dim = player.level().dimension();
 
@@ -71,6 +76,17 @@ public final class WaypointTracking {
 
         // External client waypoints for this dimension
         EnderWaypointsClient.appendForDimension(dim, WAYPOINTS);
+        GlobalPos deathLoc = player.getLastDeathLocation().orElse(null);
+        boolean showTimedDeath = DeathTracker.tick(deathLoc);
+        if (!foundRecoveryCompass && showTimedDeath
+                && deathLoc != null && deathLoc.dimension() == dim) {
+            WAYPOINTS.add(new ClientWaypoint(
+                    Vec3.atCenterOf(deathLoc.pos()),
+                    Optional.empty(),
+                    IdentifierHelper.style("death"),
+                    Optional.of(RECOVERY_COLOR)
+            ));
+        }
         return WAYPOINTS;
     }
 
@@ -92,6 +108,7 @@ public final class WaypointTracking {
             scanned++;
             // 1) Waypoints from special items on THIS stack
             if (stack.is(Items.RECOVERY_COMPASS)) {
+                foundRecoveryCompass = true;
                 player.getLastDeathLocation().ifPresent(last -> {
                     if (last.dimension() == dim) {
                         WaypointTracking.WAYPOINTS.add(new ClientWaypoint(
