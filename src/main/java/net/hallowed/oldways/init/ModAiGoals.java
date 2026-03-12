@@ -10,6 +10,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
+import net.minecraft.world.entity.animal.Animal;
 
 public final class ModAiGoals {
     private ModAiGoals() {}
@@ -60,6 +61,11 @@ public final class ModAiGoals {
             if (mob instanceof PathfinderMob path && !hasGoal(goals, SheepFleeFromWolvesGoal.class)) {
                 goals.addGoal(2, new SheepFleeFromWolvesGoal(path));
             }
+        }
+
+        // 6) Ground-item breeding — all Animals can eat thrown food items
+        if (mob instanceof Animal animal && !hasGoal(goals, GroundItemBreedGoal.class)) {
+            goals.addGoal(4, new GroundItemBreedGoal(animal));
         }
     }
 
