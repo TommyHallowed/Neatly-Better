@@ -1,7 +1,3 @@
-/*
- * The Old Ways - WaypointTracking
- * Hardened against cyclic container graphs and deep nesting.
- */
 package net.hallowed.oldways.client.feature.locator;
 
 import java.util.ArrayDeque;
@@ -9,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
+
+import net.hallowed.oldways.client.compat.BackpackedCompat;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
@@ -72,6 +70,12 @@ public final class WaypointTracking {
                 ItemStack s = ender.getItem(i);
                 if (!s.isEmpty()) scanStackIterative(player, dim, s);
             }
+        }
+
+        // Backpacked compat: scan equipped backpacks for recovery compasses / lodestone compasses
+        // (scanStackIterative already handles DataComponents.CONTAINER recursively)
+        for (ItemStack backpack : BackpackedCompat.getBackpackStacks(player)) {
+            if (!backpack.isEmpty()) scanStackIterative(player, dim, backpack);
         }
 
         // External client waypoints for this dimension

@@ -1,5 +1,6 @@
 package net.hallowed.oldways.client.util;
 
+import net.hallowed.oldways.client.compat.BackpackedCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
@@ -55,7 +56,15 @@ public final class InventoryDeepScan {
         var inv = p.getInventory();
         for (int i = 0; i < inv.getContainerSize(); i++)
             if (matchesDeep(inv.getItem(i), target, 0)) return true;
-        return matchesDeep(p.getOffhandItem(), target, 0);
+        if (matchesDeep(p.getOffhandItem(), target, 0)) return true;
+
+        // Backpacked compat: scan equipped backpacks
+        // (their DataComponents.CONTAINER is handled recursively by matchesDeep)
+        for (ItemStack backpack : BackpackedCompat.getBackpackStacks(p)) {
+            if (matchesDeep(backpack, target, 0)) return true;
+        }
+
+        return false;
     }
 
     private static boolean matchesDeep(ItemStack stack, Item target, int depth) {
