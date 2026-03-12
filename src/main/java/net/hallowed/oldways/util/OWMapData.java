@@ -19,7 +19,7 @@ import java.util.*;
  * can be restored on every server start without depending on item frames or
  * ItemStack components.
  */
-public class OldWaysMapData extends SavedData {
+public class OWMapData extends SavedData {
 
     private static final String DATA_NAME = "oldways_structures";
 
@@ -50,17 +50,17 @@ public class OldWaysMapData extends SavedData {
     //  CODEC & SavedDataType
     // ══════════════════════════════════════════════════════════════════════
 
-    public static final Codec<OldWaysMapData> CODEC = RecordCodecBuilder.create(instance ->
+    public static final Codec<OWMapData> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Codec.unboundedMap(Codec.STRING, StructureEntry.CODEC.listOf())
                             .fieldOf("structures")
                             .forGetter(d -> d.structures)
-            ).apply(instance, OldWaysMapData::new)
+            ).apply(instance, OWMapData::new)
     );
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static SavedDataType<@NotNull OldWaysMapData> type() {
-        return new SavedDataType(DATA_NAME, OldWaysMapData::new, CODEC, null);
+    public static SavedDataType<@NotNull OWMapData> type() {
+        return new SavedDataType(DATA_NAME, OWMapData::new, CODEC, null);
     }
 
     // ══════════════════════════════════════════════════════════════════════
@@ -78,12 +78,12 @@ public class OldWaysMapData extends SavedData {
     // ══════════════════════════════════════════════════════════════════════
 
     /** Creates an empty instance (used by the Supplier in {@link #type()}). */
-    public OldWaysMapData() {
+    public OWMapData() {
         this.structures = new HashMap<>();
     }
 
     /** CODEC constructor — wraps the decoded immutable map in a mutable one. */
-    private OldWaysMapData(Map<String, List<StructureEntry>> structures) {
+    private OWMapData(Map<String, List<StructureEntry>> structures) {
         this.structures = new HashMap<>(structures);
     }
 
@@ -94,7 +94,7 @@ public class OldWaysMapData extends SavedData {
     /**
      * Loads (or creates) the companion data from the overworld's data storage.
      */
-    public static OldWaysMapData get(MinecraftServer server) {
+    public static OWMapData get(MinecraftServer server) {
         return server.overworld().getDataStorage().computeIfAbsent(type());
     }
 
