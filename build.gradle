@@ -65,7 +65,8 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-    modImplementation "maven.modrinth:elytra-trims:blIGhB35"
+    modCompileOnly "maven.modrinth:elytra-trims:blIGhB35"
+    modCompileOnly "curse.maven:backpacked-352835:7573689"
 }
 
 processResources {
