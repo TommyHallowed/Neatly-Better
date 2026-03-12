@@ -1,8 +1,11 @@
 package net.hallowed.oldways.mixin.entity.player;
 
+import net.hallowed.oldways.content.feature.DeathChestHandler;
+import net.hallowed.oldways.init.ModGameRules;
 import net.hallowed.oldways.util.StonecutterMemory;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -12,6 +15,7 @@ import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
@@ -105,5 +109,19 @@ public abstract class PlayerMixin implements StonecutterMemory {
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
     private void oldways$readStonecutterMemory(ValueInput view, CallbackInfo ci) {
         this.oldways$lastCraftedStonecutterItem = view.getStringOr("oldways_last_stonecutter_item", "");
+    }
+
+    /* ------------------ (4) Death Chests ------------------ */
+    @Inject(method = "dropEquipment", at = @At("HEAD"), cancellable = true)
+    private void oldways$handleDeathChest(ServerLevel level, CallbackInfo ci) {
+        Player self = (Player) (Object) this;
+
+        // Skip if keepInventory handles it, or if the death chest gamerule is off
+        if (level.getGameRules().get(GameRules.KEEP_INVENTORY)) return;
+        if (!(Boolean) level.getGameRules().get(ModGameRules.DEATH_CHEST_ENABLED)) return;
+
+        // Cancel vanilla drops and spawn the death chest instead
+        ci.cancel();
+        DeathChestHandler.spawnDeathChest(self, level);
     }
 }
