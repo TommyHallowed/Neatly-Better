@@ -33,6 +33,9 @@ public class TheOldWays implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(FastChunkScanner::restoreAllStructures);
         ServerTickEvents.END_SERVER_TICK.register(server -> MapBuilderItem.MapGenerationQueue.tick());
 
+        // Flush dirty backpack state -- only sends packets for players whose backpack slots changed
+        ServerTickEvents.END_SERVER_TICK.register(OldWaysNetwork::flushDirtyBackpacks);
+
         // 2) Creative tab entries
         ModItemGroupRegistrar.register();
         OWRegistry.flushItemGroups();

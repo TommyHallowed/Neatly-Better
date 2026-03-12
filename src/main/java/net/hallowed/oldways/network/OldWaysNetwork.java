@@ -3,6 +3,7 @@ package net.hallowed.oldways.network;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.hallowed.oldways.compat.BackpackedServerCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponents;
@@ -12,6 +13,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -26,8 +28,11 @@ import net.minecraft.world.item.equipment.Equippable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,7 +84,34 @@ public final class OldWaysNetwork {
         @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
     }
 
-    /** A single lodestone target from an ender-chest item (possibly nested). */
+    /** S2C: overlay booleans (compass/clock/recovery compass) from backpack deep scan. */
+    public record BackpackCheckResponse(boolean hasCompass, boolean hasClock, boolean hasRecoveryCompass) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<@NotNull BackpackCheckResponse> ID =
+                new CustomPacketPayload.Type<>(id("backpack_check_response"));
+        public static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull BackpackCheckResponse> CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.BOOL, BackpackCheckResponse::hasCompass,
+                        ByteBufCodecs.BOOL, BackpackCheckResponse::hasClock,
+                        ByteBufCodecs.BOOL, BackpackCheckResponse::hasRecoveryCompass,
+                        BackpackCheckResponse::new
+                );
+        @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
+    }
+
+    /** S2C: lodestone waypoints discovered inside the player's backpacks (deep). */
+    public record BackpackLodestones(List<LodestoneEntry> entries) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<@NotNull BackpackLodestones> ID =
+                new CustomPacketPayload.Type<>(id("backpack_lodestones"));
+        public static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull BackpackLodestones> CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.collection(ArrayList::new, LodestoneEntry.CODEC),
+                        BackpackLodestones::entries,
+                        BackpackLodestones::new
+                );
+        @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
+    }
+
+    /** A single lodestone target from a container item (possibly nested). */
     public record LodestoneEntry(Identifier dim, int x, int y, int z, int color, String label) {
         static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull LodestoneEntry> CODEC =
                 StreamCodec.composite(
@@ -114,57 +146,44 @@ public final class OldWaysNetwork {
 
     /** Call from your common init (TheOldWays#onInitialize). */
     public static void registerCommon() {
-        // ── Packet type registration ──
+        // -- Packet type registration --
         PayloadTypeRegistry.playC2S().register(EnderCheckRequest.ID, EnderCheckRequest.CODEC);
         PayloadTypeRegistry.playS2C().register(EnderCheckResponse.ID, EnderCheckResponse.CODEC);
         PayloadTypeRegistry.playS2C().register(EnderLodestones.ID,    EnderLodestones.CODEC);
         PayloadTypeRegistry.playC2S().register(ArmorSwapRequest.ID,   ArmorSwapRequest.CODEC);
 
-        // ── Server-side receivers ──
+        // Backpack packets (S2C only -- server pushes data to client)
+        PayloadTypeRegistry.playS2C().register(BackpackCheckResponse.ID, BackpackCheckResponse.CODEC);
+        PayloadTypeRegistry.playS2C().register(BackpackLodestones.ID,    BackpackLodestones.CODEC);
+
+        // -- Server-side receivers --
         ServerPlayNetworking.registerGlobalReceiver(EnderCheckRequest.ID,
                 (payload, ctx) -> pushEnderChestState(ctx.player()));
 
         ServerPlayNetworking.registerGlobalReceiver(ArmorSwapRequest.ID,
                 (payload, ctx) -> handleArmorSwap(ctx.player(), payload));
 
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
-                pushEnderChestState(handler.player));
+        // -- On-join: push both ender chest and backpack state --
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            pushEnderChestState(handler.player);
+            pushBackpackState(handler.player);
+        });
     }
 
     /* ===================== Armor Swap Handler ===================== */
 
-    /**
-     * Server-side handler for the armor swap request.
-     * <p>
-     * Two paths depending on whether the armor slot is part of the current menu:
-     * <ul>
-     *   <li><b>In menu</b> — uses standard {@code menu.clicked()} calls for proper
-     *       menu bookkeeping, state tracking, and client sync.</li>
-     *   <li><b>Not in menu</b> (chests, furnaces, hoppers, etc.) — swaps directly
-     *       via inventory manipulation, then broadcasts changes.</li>
-     * </ul>
-     */
     private static void handleArmorSwap(ServerPlayer player, ArmorSwapRequest request) {
         AbstractContainerMenu menu = player.containerMenu;
-
-        // Validate container ID matches the currently open menu
         if (menu.containerId != request.containerId()) return;
-
-        // Validate slot index bounds
         int srcIdx = request.sourceSlotIndex();
         if (srcIdx < 0 || srcIdx >= menu.slots.size()) return;
-
-        // Must not have an item on the cursor
         if (!menu.getCarried().isEmpty()) return;
 
         Slot sourceSlot = menu.getSlot(srcIdx);
         ItemStack sourceItem = sourceSlot.getItem();
         if (sourceItem.isEmpty()) return;
-
-        // Can the player take from this slot?
         if (!sourceSlot.mayPickup(player)) return;
 
-        // Validate the item is equippable armor (HEAD/CHEST/LEGS/FEET only)
         Equippable equippable = sourceItem.get(DataComponents.EQUIPPABLE);
         if (equippable == null) return;
 
@@ -174,13 +193,11 @@ public final class OldWaysNetwork {
             return;
         }
 
-        // Don't swap if the source slot IS already the target armor slot
         if (sourceSlot.container == player.getInventory()) {
             int containerSlot = sourceSlot.getContainerSlot();
             if (containerSlot >= 36 && containerSlot <= 39) return;
         }
 
-        // Map equipment slot → player inventory index (36=feet, 37=legs, 38=chest, 39=head)
         int armorInvIndex = switch (eqSlot) {
             case FEET  -> 36;
             case LEGS  -> 37;
@@ -190,33 +207,23 @@ public final class OldWaysNetwork {
         };
         if (armorInvIndex == -1) return;
 
-        // Try to find the armor slot within the current menu
         OptionalInt menuArmorSlot = menu.findSlot(player.getInventory(), armorInvIndex);
 
         if (menuArmorSlot.isPresent()) {
-            // ── Armor slot IS in the menu: use standard click operations ──
-            // This mirrors vanilla's ServerGamePacketListenerImpl.handleContainerClick
-            // with suppress/resume for proper remote sync.
             int armorMenuIdx = menuArmorSlot.getAsInt();
             menu.suppressRemoteUpdates();
-            menu.clicked(srcIdx, 0, ClickType.PICKUP, player);         // pick up source item
-            menu.clicked(armorMenuIdx, 0, ClickType.PICKUP, player);   // place in armor (swap if occupied)
+            menu.clicked(srcIdx, 0, ClickType.PICKUP, player);
+            menu.clicked(armorMenuIdx, 0, ClickType.PICKUP, player);
             if (!menu.getCarried().isEmpty()) {
-                menu.clicked(srcIdx, 0, ClickType.PICKUP, player);     // put old armor back in source
+                menu.clicked(srcIdx, 0, ClickType.PICKUP, player);
             }
             menu.resumeRemoteUpdates();
             menu.broadcastFullState();
         } else {
-            // ── Armor slot NOT in menu: direct inventory manipulation ──
-            // This is the path that makes chests, furnaces, hoppers, etc. work.
             ItemStack currentlyEquipped = player.getItemBySlot(eqSlot);
-
-            // If the source slot can't accept the currently equipped item, bail
             if (!currentlyEquipped.isEmpty() && !sourceSlot.mayPlace(currentlyEquipped)) return;
-
             ItemStack toEquip = sourceItem.copy();
             ItemStack toReturn = currentlyEquipped.copy();
-
             sourceSlot.setByPlayer(toReturn);
             player.setItemSlot(eqSlot, toEquip);
             menu.broadcastChanges();
@@ -225,7 +232,6 @@ public final class OldWaysNetwork {
 
     /* ===================== Ender Chest Helpers ===================== */
 
-    /** Computes ender-chest state and pushes both overlay booleans and lodestone targets. */
     public static void pushEnderChestState(ServerPlayer player) {
         boolean compass = hasInEnderDeep(player, s -> s.is(Items.COMPASS));
         boolean clock   = hasInEnderDeep(player, s -> s.is(Items.CLOCK));
@@ -235,22 +241,11 @@ public final class OldWaysNetwork {
         ServerPlayNetworking.send(player, new EnderLodestones(lodestones));
     }
 
-    // ---- deep scan helpers (depth-limited) ----
-
     private static boolean hasInEnderDeep(ServerPlayer p, Predicate<ItemStack> test) {
         var inv = p.getEnderChestInventory();
         for (int i = 0; i < inv.getContainerSize(); i++) {
             if (matchesDeep(inv.getItem(i), test, 0)) return true;
         }
-        return false;
-    }
-
-    private static boolean matchesDeep(ItemStack stack, Predicate<ItemStack> test, int depth) {
-        if (stack == null || stack.isEmpty()) return false;
-        if (test.test(stack)) return true;
-        if (depth >= MAX_DEPTH) return false; // ← prevents StackOverflow
-        for (ItemStack child : iterateBundle(stack))    if (matchesDeep(child, test, depth + 1)) return true;
-        for (ItemStack child : iterateContainer(stack)) if (matchesDeep(child, test, depth + 1)) return true;
         return false;
     }
 
@@ -264,6 +259,69 @@ public final class OldWaysNetwork {
         return out;
     }
 
+    /* ===================== Backpack Helpers ===================== */
+
+    /**
+     * Set of player UUIDs whose backpack contents changed since the last flush.
+     * Populated by {@link net.hallowed.oldways.mixin.compat.BackpackInventoryMixin}
+     * when {@code BackpackInventory.setChanged()} fires.
+     */
+    private static final Set<UUID> DIRTY_BACKPACK_PLAYERS = new HashSet<>();
+
+    /** Called from the BackpackInventoryMixin when a backpack slot changes. */
+    public static void markBackpackDirty(ServerPlayer player) {
+        DIRTY_BACKPACK_PLAYERS.add(player.getUUID());
+    }
+
+    /**
+     * Called from {@code ServerTickEvents.END_SERVER_TICK}. Only processes
+     * players whose backpack contents actually changed (dirty set), then
+     * clears the set.  No work is done if nobody touched a backpack.
+     */
+    public static void flushDirtyBackpacks(MinecraftServer server) {
+        if (DIRTY_BACKPACK_PLAYERS.isEmpty()) return;
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (DIRTY_BACKPACK_PLAYERS.remove(player.getUUID())) {
+                pushBackpackState(player);
+            }
+        }
+        DIRTY_BACKPACK_PLAYERS.clear(); // catch any stale entries from disconnected players
+    }
+
+    /**
+     * Scans the player's Backpacked backpack inventories on the server and
+     * pushes overlay booleans + lodestone waypoints to the client.
+     */
+    public static void pushBackpackState(ServerPlayer player) {
+        List<ItemStack> backpacks = BackpackedServerCompat.getBackpackStacks(player);
+
+        boolean compass = false, clock = false, recovery = false;
+        List<LodestoneEntry> lodestones = new ArrayList<>();
+
+        for (ItemStack bp : backpacks) {
+            if (bp.isEmpty()) continue;
+            // Scan the backpack stack and its DataComponents.CONTAINER recursively
+            if (!compass)  compass  = matchesDeep(bp, s -> s.is(Items.COMPASS), 0);
+            if (!clock)    clock    = matchesDeep(bp, s -> s.is(Items.CLOCK), 0);
+            if (!recovery) recovery = matchesDeep(bp, s -> s.is(Items.RECOVERY_COMPASS), 0);
+            collectFromStack(bp, lodestones, 0);
+        }
+
+        ServerPlayNetworking.send(player, new BackpackCheckResponse(compass, clock, recovery));
+        ServerPlayNetworking.send(player, new BackpackLodestones(lodestones));
+    }
+
+    /* ===================== Shared Deep-Scan Helpers ===================== */
+
+    private static boolean matchesDeep(ItemStack stack, Predicate<ItemStack> test, int depth) {
+        if (stack == null || stack.isEmpty()) return false;
+        if (test.test(stack)) return true;
+        if (depth >= MAX_DEPTH) return false;
+        for (ItemStack child : iterateBundle(stack))    if (matchesDeep(child, test, depth + 1)) return true;
+        for (ItemStack child : iterateContainer(stack)) if (matchesDeep(child, test, depth + 1)) return true;
+        return false;
+    }
+
     private static void collectFromStack(ItemStack stack, List<LodestoneEntry> out, int depth) {
         LodestoneTracker lc = stack.get(DataComponents.LODESTONE_TRACKER);
         if (lc != null && lc.target().isPresent()) {
@@ -274,7 +332,7 @@ public final class OldWaysNetwork {
             String label = getPlainName(stack);
             out.add(new LodestoneEntry(dimId, bp.getX(), bp.getY(), bp.getZ(), color, label));
         }
-        if (depth >= MAX_DEPTH) return; // ← prevents StackOverflow
+        if (depth >= MAX_DEPTH) return;
         for (ItemStack child : iterateBundle(stack))    collectFromStack(child, out, depth + 1);
         for (ItemStack child : iterateContainer(stack)) collectFromStack(child, out, depth + 1);
     }
@@ -288,8 +346,6 @@ public final class OldWaysNetwork {
         ItemContainerContents container = stack.get(DataComponents.CONTAINER);
         return (container == null) ? List.of() : container.nonEmptyItems();
     }
-
-    // ---- color & label (single pass, server side) ----
 
     private static final Pattern HEX = Pattern.compile("#[0-9a-fA-F]{6}");
 

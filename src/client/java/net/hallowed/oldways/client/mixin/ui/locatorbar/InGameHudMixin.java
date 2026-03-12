@@ -2,8 +2,10 @@ package net.hallowed.oldways.client.mixin.ui.locatorbar;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.hallowed.oldways.api.OWCompat;
 import net.hallowed.oldways.client.feature.locator.WaypointTracking;
 import net.hallowed.oldways.client.feature.ui.SmallHudOverlay;
+import net.hallowed.oldways.client.util.BackpackCheckClient;
 import net.hallowed.oldways.client.util.InventoryDeepScan;
 import net.hallowed.oldways.client.util.SettingsPrefs;
 import net.minecraft.client.DeltaTracker;
@@ -48,7 +50,7 @@ public abstract class InGameHudMixin {
 
         boolean anyClientWp = !WaypointTracking.update(minecraft.player).isEmpty();
         if (!anyClientWp
-                && InventoryDeepScan.hasAnyCompass(minecraft.player)
+                && (InventoryDeepScan.hasAnyCompass(minecraft.player) || BackpackCheckClient.backpackHasAnyCompass())
                 && !WaypointTracking.WAYPOINTS.isEmpty()) {
             anyClientWp = true;
         }
@@ -69,6 +71,7 @@ public abstract class InGameHudMixin {
     /* ===================== 4) Show Hunger Bar while on Horse ===================== */
     @Inject(method = "renderPlayerHealth", at = @At("TAIL"))
     private void oldways$alwaysRenderFood(GuiGraphics context, CallbackInfo ci) {
+        if (OWCompat.HORSEMAN) return;
         Player player = minecraft.player;
         if (player == null) return;
 
@@ -85,6 +88,7 @@ public abstract class InGameHudMixin {
     /* ===================== 5) Move Horse Health Bar up slightly ===================== */
     @Inject(method = "renderVehicleHealth", at = @At("HEAD"))
     private void oldways$moveHorseHeartsUp(GuiGraphics context, CallbackInfo ci) {
+        if (OWCompat.HORSEMAN) return;
         var client = net.minecraft.client.Minecraft.getInstance();
         if (client.player == null || client.player.getAbilities().instabuild) {
             return;
@@ -96,6 +100,7 @@ public abstract class InGameHudMixin {
 
     @Inject(method = "renderVehicleHealth", at = @At("RETURN"))
     private void oldways$restoreMatrix(GuiGraphics context, CallbackInfo ci) {
+        if (OWCompat.HORSEMAN) return;
         if (minecraft.player != null && !minecraft.player.getAbilities().instabuild) {
             context.pose().popMatrix();
         }

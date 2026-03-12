@@ -6,7 +6,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 
-import net.hallowed.oldways.client.compat.BackpackedCompat;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
@@ -72,14 +71,16 @@ public final class WaypointTracking {
             }
         }
 
-        // Backpacked compat: scan equipped backpacks for recovery compasses / lodestone compasses
-        // (scanStackIterative already handles DataComponents.CONTAINER recursively)
-        for (ItemStack backpack : BackpackedCompat.getBackpackStacks(player)) {
-            if (!backpack.isEmpty()) scanStackIterative(player, dim, backpack);
-        }
+        // NOTE: Backpacked backpack contents are NOT available on the client
+        // (SyncMode.NONE). Backpack lodestone waypoints are pushed from the
+        // server via BackpackLodestones packets and appended below.
 
         // External client waypoints for this dimension
         EnderWaypointsClient.appendForDimension(dim, WAYPOINTS);
+
+        // Backpack lodestone waypoints (server-pushed)
+        BackpackWaypointsClient.appendForDimension(dim, WAYPOINTS);
+
         GlobalPos deathLoc = player.getLastDeathLocation().orElse(null);
         boolean showTimedDeath = DeathTracker.tick(deathLoc);
         if (!foundRecoveryCompass && showTimedDeath

@@ -1,6 +1,5 @@
 package net.hallowed.oldways.client.util;
 
-import net.hallowed.oldways.client.compat.BackpackedCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +22,10 @@ public final class InventoryDeepScan {
 
     public static boolean hasCompass(Player p) {
         refreshIfNeeded(p); return hasCompassCached;
+    }
+
+    public static boolean hasRecoveryCompass(Player p) {
+        refreshIfNeeded(p); return hasRecoveryCompassCached;
     }
 
     public static boolean hasAnyCompass(Player p) {
@@ -56,15 +59,11 @@ public final class InventoryDeepScan {
         var inv = p.getInventory();
         for (int i = 0; i < inv.getContainerSize(); i++)
             if (matchesDeep(inv.getItem(i), target, 0)) return true;
-        if (matchesDeep(p.getOffhandItem(), target, 0)) return true;
+        return matchesDeep(p.getOffhandItem(), target, 0);
 
-        // Backpacked compat: scan equipped backpacks
-        // (their DataComponents.CONTAINER is handled recursively by matchesDeep)
-        for (ItemStack backpack : BackpackedCompat.getBackpackStacks(p)) {
-            if (matchesDeep(backpack, target, 0)) return true;
-        }
-
-        return false;
+        // NOTE: Backpacked backpack contents are NOT available on the client
+        // (SyncMode.NONE). Backpack item detection is handled server-side
+        // and pushed via BackpackCheckResponse packets. See BackpackCheckClient.
     }
 
     private static boolean matchesDeep(ItemStack stack, Item target, int depth) {

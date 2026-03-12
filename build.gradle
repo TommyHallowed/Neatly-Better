@@ -13,12 +13,6 @@ base {
 
 repositories {
     maven { url = "https://api.modrinth.com/maven" } // Modrinth maven
-    maven {
-        url "https://cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
-    }
 }
 
 loom {
@@ -66,7 +60,8 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
     modCompileOnly "maven.modrinth:elytra-trims:blIGhB35"
-    modCompileOnly "curse.maven:backpacked-352835:7573689"
+    modCompileOnly files("libs/framework-fabric-1.21.11-0.13.11.jar")
+    modCompileOnly files("libs/backpacked-fabric-1.21.11-3.0.3.jar")
 }
 
 processResources {

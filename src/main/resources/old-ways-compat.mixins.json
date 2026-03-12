@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "net.hallowed.oldways.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "net.hallowed.oldways.mixin.OldWaysCompatMixinPlugin",
+  "mixins": [
+    "compat.BackpackInventoryMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

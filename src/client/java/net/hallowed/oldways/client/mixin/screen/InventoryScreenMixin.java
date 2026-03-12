@@ -2,6 +2,7 @@ package net.hallowed.oldways.client.mixin.screen;
 
 
 import net.hallowed.oldways.client.feature.ui.TextureButtonWidget;
+import net.hallowed.oldways.client.util.BackpackCheckClient;
 import net.hallowed.oldways.client.util.EnderCheckClient;
 import net.hallowed.oldways.client.util.InventoryDeepScan;
 import net.hallowed.oldways.client.util.SettingsPrefs;
@@ -74,8 +75,8 @@ public abstract class InventoryScreenMixin extends Screen {
         );
 
         var player = Minecraft.getInstance().player;
-        boolean hasCompass = player != null && (InventoryDeepScan.hasCompass(player) || EnderCheckClient.enderHasCompass());
-        boolean hasClock   = player != null && (InventoryDeepScan.hasClock(player)   || EnderCheckClient.enderHasClock());
+        boolean hasCompass = player != null && (InventoryDeepScan.hasCompass(player) || EnderCheckClient.enderHasCompass() || BackpackCheckClient.backpackHasCompass());
+        boolean hasClock   = player != null && (InventoryDeepScan.hasClock(player)   || EnderCheckClient.enderHasClock()   || BackpackCheckClient.backpackHasClock());
         coordsBtn.visible = hasCompass;
         timeBtn.visible   = hasClock;
 
@@ -95,8 +96,8 @@ public abstract class InventoryScreenMixin extends Screen {
 
         var mc = Minecraft.getInstance();
         var player = mc.player;
-        boolean hasCompass = player != null && (InventoryDeepScan.hasCompass(player) || EnderCheckClient.enderHasCompass());
-        boolean hasClock   = player != null && (InventoryDeepScan.hasClock(player)   || EnderCheckClient.enderHasClock());
+        boolean hasCompass = player != null && (InventoryDeepScan.hasCompass(player) || EnderCheckClient.enderHasCompass() || BackpackCheckClient.backpackHasCompass());
+        boolean hasClock   = player != null && (InventoryDeepScan.hasClock(player)   || EnderCheckClient.enderHasClock()   || BackpackCheckClient.backpackHasClock());
         coordsBtn.visible = hasCompass;
         timeBtn.visible   = hasClock;
 

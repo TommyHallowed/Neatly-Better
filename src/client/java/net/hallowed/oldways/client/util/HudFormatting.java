@@ -30,10 +30,16 @@ public final class HudFormatting {
     private static int secondBucket(long timeOfDay) { return (int)((timeOfDay % 24000L) / 20L); }
 
     public static boolean shouldShowCoords(Player p) {
-        return SettingsPrefs.get().showCoords && (InventoryDeepScan.hasCompass(p) || EnderCheckClient.enderHasCompass());
+        return SettingsPrefs.get().showCoords
+                && (InventoryDeepScan.hasCompass(p)
+                || EnderCheckClient.enderHasCompass()
+                || BackpackCheckClient.backpackHasCompass());
     }
     public static boolean shouldShowTime(Player p) {
-        return SettingsPrefs.get().showTime && (InventoryDeepScan.hasClock(p) || EnderCheckClient.enderHasClock());
+        return SettingsPrefs.get().showTime
+                && (InventoryDeepScan.hasClock(p)
+                || EnderCheckClient.enderHasClock()
+                || BackpackCheckClient.backpackHasClock());
     }
 
     public static Line coordsLine(Player p) {
@@ -145,7 +151,7 @@ public final class HudFormatting {
     }
 
     private static Parsed parseLeadingColor(String s) {
-        if (s != null && s.length() >= 2 && (s.charAt(0) == '&' || s.charAt(0) == '§')) {
+        if (s != null && s.length() >= 2 && (s.charAt(0) == '&' || s.charAt(0) == '\u00a7')) {
             Integer rgb = mcColorCodeToRGB(Character.toLowerCase(s.charAt(1)));
             if (rgb != null) return new Parsed(s.substring(2), 0xFF000000 | rgb);
         }

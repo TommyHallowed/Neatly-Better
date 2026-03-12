@@ -25,7 +25,8 @@
 	},
 	"mixins": [
       "old-ways.mixins.json",
-      "old-ways.client.mixins.json"
+      "old-ways.client.mixins.json",
+		"old-ways-compat.mixins.json"
     ],
 	"depends": {
 		"fabricloader": ">=0.18.4",
