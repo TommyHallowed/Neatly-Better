@@ -37,6 +37,7 @@
     "item.ItemStackMixin",
     "item.MapItemMixin",
     "item.MapStateMixin",
+    "item.PotionItemMixin",
     "item.SplashPotionItemMixin",
     "other.HungerManagerMixin",
     "other.NetherPortalMixin",
