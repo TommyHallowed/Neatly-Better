@@ -6,8 +6,6 @@ import com.google.common.collect.Multiset;
 import com.google.common.collect.Multisets;
 import net.hallowed.oldways.content.item.MapBuilderItem;
 import net.hallowed.oldways.init.ModTickets;
-import net.hallowed.oldways.mixin.accessor.MapItemSavedDataAccessor;
-import net.hallowed.oldways.mixin.accessor.ServerChunkCacheAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -111,7 +109,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
     private static final int PREFETCH_ROWS_AHEAD = 4;
 
     /** Heap usage threshold above which we stop adding tickets. */
-    private static final double MEMORY_PRESSURE_THRESHOLD = 0.90;
+    private static final double MEMORY_PRESSURE_THRESHOLD = 0.85;
 
     /** Max tickets active per scanner at any time. */
     private static final int MAX_OUTSTANDING_TICKETS = 48;
@@ -119,8 +117,8 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
     // ──────────────────────────────────────────────────────────────────────
     //  Structure → map-icon mapping
     // ──────────────────────────────────────────────────────────────────────
-    @SuppressWarnings({"NullableProblems"})
-    private static final Map<Identifier, Holder<MapDecorationType>> STRUCTURE_ICONS;
+
+    private static final Map<Identifier, Holder<@NotNull MapDecorationType>> STRUCTURE_ICONS;
 
     static {
         STRUCTURE_ICONS = Map.of(
@@ -128,7 +126,6 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
                 Identifier.withDefaultNamespace("monument"),        MapDecorationTypes.OCEAN_MONUMENT,
                 Identifier.withDefaultNamespace("swamp_hut"),       MapDecorationTypes.SWAMP_HUT,
                 Identifier.withDefaultNamespace("jungle_pyramid"),  MapDecorationTypes.JUNGLE_TEMPLE,
-                Identifier.withDefaultNamespace("trial_chambers"),  MapDecorationTypes.TRIAL_CHAMBERS,
                 Identifier.withDefaultNamespace("village_plains"),  MapDecorationTypes.PLAINS_VILLAGE,
                 Identifier.withDefaultNamespace("village_desert"),  MapDecorationTypes.DESERT_VILLAGE,
                 Identifier.withDefaultNamespace("village_savanna"), MapDecorationTypes.SAVANNA_VILLAGE,
@@ -273,13 +270,11 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
                 for (int cz = minCZ; cz <= maxCZ; cz++) {
                     long key = ChunkPos.asLong(cx, cz);
 
-                    // Already cached or already ticketed
                     if (chunkCache.containsKey(key) || ticketedPositions.contains(key)) continue;
 
-                    // Budget check
                     if (outstandingTickets >= MAX_OUTSTANDING_TICKETS) {
                         if (added) {
-                            ((ServerChunkCacheAccessor) cs).invokeRunDistanceManagerUpdates();
+                            cs.runDistanceManagerUpdates();  // ← instance call
                         }
                         return;
                     }
@@ -292,9 +287,8 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
             }
         }
 
-        // Flush distance manager once — processes all ticket additions
         if (added) {
-            ((ServerChunkCacheAccessor) cs).invokeRunDistanceManagerUpdates();
+            cs.runDistanceManagerUpdates();  // ← instance call
         }
     }
 
@@ -614,7 +608,6 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
      * Scans all cached chunks in the current row for structure starts
      * that have known map icons.
      */
-    @SuppressWarnings({"NullableProblems"})
     private void scanStructuresInRow(int minCZ, int maxCZ) {
         for (int cx = minChunkX; cx <= maxChunkX; cx++) {
             for (int cz = minCZ; cz <= maxCZ; cz++) {
@@ -624,7 +617,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
                 Map<Structure, StructureStart> starts = chunk.getAllStarts();
                 if (starts.isEmpty()) continue;
 
-                Registry<Structure> registry =
+                Registry<@NotNull Structure> registry =
                         world.registryAccess().lookupOrThrow(Registries.STRUCTURE);
 
                 for (Map.Entry<Structure, StructureStart> entry : starts.entrySet()) {
@@ -637,7 +630,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
                     // Check if path (e.g. "mansion") matches a known icon
                     Identifier pathOnly = Identifier.withDefaultNamespace(structureId.getPath());
 
-                    Holder<MapDecorationType> iconHolder = STRUCTURE_ICONS.get(pathOnly);
+                    Holder<@NotNull MapDecorationType> iconHolder = STRUCTURE_ICONS.get(pathOnly);
                     if (iconHolder == null) continue;
                     if (detectedStructures.contains(pathOnly)) continue;
                     detectedStructures.add(pathOnly);
@@ -658,7 +651,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
     /**
      * Writes all detected structure icons directly into the {@link MapItemSavedData}
      * using a mixin {@code @Invoker} accessor, AND persists them to the companion
-     * {@link OldWaysMapData} so they survive server restarts.
+     * {@link OWMapData} so they survive server restarts.
      *
      * <p><b>Why not write to {@code MAP_DECORATIONS} on the ItemStack?</b><br>
      * The {@code MAP_DECORATIONS} component is only synced to {@code MapItemSavedData}
@@ -668,7 +661,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
      * saved data bypasses this limitation entirely.
      *
      * <p><b>Persistence:</b> {@code MapItemSavedData.decorations} is transient and lost
-     * on restart.  We additionally store the entries in {@link OldWaysMapData} (a custom
+     * on restart.  We additionally store the entries in {@link OWMapData} (a custom
      * world-data file).  On server start, {@link #restoreAllStructures} reads them back
      * and re-applies the decorations.
      */
@@ -676,33 +669,30 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
     private void applyStructureDecorations(MapItemSavedData state) {
         if (structureIcons.isEmpty()) return;
 
-        // ── 1. Runtime: add decorations to the live MapItemSavedData ──────
         for (Map.Entry<String, StructureIconEntry> e : structureIcons.entrySet()) {
             StructureIconEntry icon = e.getValue();
-            ((MapItemSavedDataAccessor) state).invokeAddDecoration(
+            state.addDecoration(
                     icon.type(), world, e.getKey(),
                     icon.x(), icon.z(), 180.0, null);
         }
 
-        // ── 2. Persist: store into OldWaysMapData for cross-restart survival ──
         MapId mapId = mapStack.get(DataComponents.MAP_ID);
         if (mapId != null) {
-            List<OldWaysMapData.StructureEntry> persistent = new ArrayList<>();
+            List<OWMapData.StructureEntry> persistent = new ArrayList<>();
             for (Map.Entry<String, StructureIconEntry> e : structureIcons.entrySet()) {
                 StructureIconEntry icon = e.getValue();
-                persistent.add(new OldWaysMapData.StructureEntry(
+                persistent.add(new OWMapData.StructureEntry(
                         e.getKey(), icon.structurePath(), icon.x(), icon.z()));
             }
-            OldWaysMapData data = OldWaysMapData.get(world.getServer());
+            OWMapData data = OWMapData.get(world.getServer());
             data.putStructures(mapId.key(), persistent);
-            data.markRestored(mapId.key()); // already live — skip re-restore this session
+            data.markRestored(mapId.key());
         }
 
         state.setDirty();
     }
 
-    @SuppressWarnings({"NullableProblems"})
-    private record StructureIconEntry(Holder<MapDecorationType> type, int x, int z, String structurePath) {}
+    private record StructureIconEntry(Holder<@NotNull MapDecorationType> type, int x, int z, String structurePath) {}
 
     // ══════════════════════════════════════════════════════════════════════
     //  Server-start restoration
@@ -710,7 +700,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
 
     /**
      * Called once on {@code ServerLifecycleEvents.SERVER_STARTED} to restore
-     * structure decorations from the persistent {@link OldWaysMapData} into
+     * structure decorations from the persistent {@link OWMapData} into
      * every affected {@link MapItemSavedData}.
      *
      * <p>This ensures that maps in item frames (or anywhere) display their
@@ -718,29 +708,28 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
      * a player to pick up the map first.
      */
     public static void restoreAllStructures(MinecraftServer server) {
-        OldWaysMapData mapData = OldWaysMapData.get(server);
+        OWMapData mapData = OWMapData.get(server);
 
         for (String mapKey : mapData.getAllMapKeys()) {
             if (!mapData.needsRestore(mapKey)) continue;
 
-            // Parse MapId from the key string (e.g. "map_0" → MapId(0))
             MapId mapId;
             try {
                 int id = Integer.parseInt(mapKey.substring("map_".length()));
                 mapId = new MapId(id);
             } catch (NumberFormatException | IndexOutOfBoundsException ex) {
-                continue; // malformed key — skip
+                continue;
             }
 
             MapItemSavedData state = server.overworld().getMapData(mapId);
             if (state == null) continue;
 
-            for (OldWaysMapData.StructureEntry entry : mapData.getStructures(mapKey)) {
+            for (OWMapData.StructureEntry entry : mapData.getStructures(mapKey)) {
                 Identifier pathOnly = Identifier.withDefaultNamespace(entry.structurePath());
                 Holder<@NotNull MapDecorationType> holder = STRUCTURE_ICONS.get(pathOnly);
                 if (holder == null) continue;
 
-                ((MapItemSavedDataAccessor) state).invokeAddDecoration(
+                state.addDecoration(                // ← instance call on state
                         holder, null, entry.decoKey(),
                         entry.x(), entry.z(), 180.0, null);
             }
