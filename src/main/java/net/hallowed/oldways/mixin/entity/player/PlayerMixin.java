@@ -118,7 +118,7 @@ public abstract class PlayerMixin implements StonecutterMemory {
 
         // Skip if keepInventory handles it, or if the death chest gamerule is off
         if (level.getGameRules().get(GameRules.KEEP_INVENTORY)) return;
-        if (!(Boolean) level.getGameRules().get(ModGameRules.DEATH_CHEST_ENABLED)) return;
+        if (!(Boolean) level.getGameRules().get(ModGameRules.DEATH_CHEST)) return;
 
         // Cancel vanilla drops and spawn the death chest instead
         ci.cancel();
