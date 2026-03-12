@@ -11,6 +11,7 @@ public final class ModGameRules {
 
     private ModGameRules() {}
 
+    public static GameRule<@NotNull Boolean> DEATH_CHEST;
     public static GameRule<@NotNull Boolean> BEACON_SOAK_EFFECTS;
     public static GameRule<@NotNull Boolean> XP_FROM_MINING_NON_ORE;
     public static GameRule<@NotNull Boolean> XP_FROM_PLACING_BLOCKS;
@@ -24,6 +25,7 @@ public final class ModGameRules {
     public static GameRule<@NotNull Integer> SHIELD_RAISE_DELAY_TICKS;
 
     public static void register() {
+        DEATH_CHEST                        = bool("death_chest",                         GameRuleCategory.PLAYER,   false);
         BEACON_SOAK_EFFECTS                = bool("beacon_soak_effects",                 GameRuleCategory.MISC,     true);
         XP_FROM_MINING_NON_ORE             = bool("xp_from_mining_non_ore",              GameRuleCategory.DROPS,    true);
         XP_FROM_PLACING_BLOCKS             = bool("xp_from_placing_blocks",              GameRuleCategory.DROPS,    true);
