@@ -15,6 +15,7 @@ public final class ModEvents {
         ChestLockHandler.register();
         PotionCooldownHandler.register();
         ComposterRegistration.register();
+        ArmorStandSwapHandler.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();
