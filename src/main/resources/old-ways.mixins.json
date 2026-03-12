@@ -35,7 +35,6 @@
     "inventory.EnderChestInventoryMixin",
     "item.FireworkRocketItemMixin",
     "item.ItemStackMixin",
-    "item.LingeringPotionItemMixin",
     "item.MapItemMixin",
     "item.MapStateMixin",
     "item.SplashPotionItemMixin",

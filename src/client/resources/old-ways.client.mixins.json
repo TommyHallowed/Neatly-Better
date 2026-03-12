@@ -7,7 +7,6 @@
     "component.BannerPatternsComponentMixin",
     "entity.ClientEffectSyncMixin",
     "entity.ItemEntityRendererMixin",
-    "entity.ItemEntityRenderStateMixin",
     "entity.effect.MobEffectInstanceMixin",
     "feature.ClientPlayerInteractionManagerMixin",
     "feature.EquipmentRendererMixin",
