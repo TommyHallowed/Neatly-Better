@@ -1,5 +1,7 @@
 {
   "item.old-ways.map_builder": "Map Builder",
+  "item.old-ways.chest_lock": "Chest Key",
+
   "tooltip.old-ways.glow_ink_sac_hint": "Can be used on trimmed items",
   "tooltip.old-ways.echo_shard_hint": "Can be used on trimmed armor",
   "tooltip.old-ways.totem_cooldown": "Cooldown on use: 60s",
@@ -10,13 +12,6 @@
   "tooltip.old-ways.map_builder.zoom": " Shift + Z: Change Map Zoom",
   "tooltip.old-ways.map_builder.requires": "Requires Empty Maps & Item Frames",
 
-  "item.old-ways.rainbow_wool": "Rainbow Wool",
-  "item.old-ways.rainbow_carpet": "Rainbow Carpet",
-  "item.old-ways.warped_boat": "Warped Boat",
-  "item.old-ways.crimson_boat": "Crimson Boat",
-  "item.old-ways.dragon_burst_rocket": "Dragon Burst Rocket",
-  "item.old-ways.glow_torch": "Glow Torch",
-  "item.old-ways.netherite_horse_armor": "Netherite Horse Armor",
   "item.old-ways.smooth_stone_stairs": "Smooth Stone Stairs",
   "item.old-ways.calcite_stairs": "Calcite Stairs",
   "item.old-ways.quartz_brick_stairs": "Quartz Brick Stairs",
