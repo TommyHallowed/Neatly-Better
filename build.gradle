@@ -13,6 +13,12 @@ base {
 
 repositories {
     maven { url = "https://api.modrinth.com/maven" } // Modrinth maven
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
 }
 
 loom {
