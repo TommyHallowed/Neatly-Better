@@ -7,6 +7,8 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -53,6 +55,14 @@ public abstract class GuiMixin {
             }
 
             EffectBarRenderer.renderHUD(guiGraphics, effect, x, y);
+        }
+    }
+
+    @Inject(method = "renderAirBubbles", at = @At("HEAD"), cancellable = true)
+    private void oldways$hideAirBubblesWithWaterBreathing(
+            GuiGraphics guiGraphics, Player player, int i, int j, int k, CallbackInfo ci) {
+        if (player.hasEffect(MobEffects.WATER_BREATHING)) {
+            ci.cancel();
         }
     }
 }
