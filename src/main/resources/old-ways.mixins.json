@@ -28,6 +28,7 @@
     "entity.hostile.SpiderMixin",
     "entity.hostile.VexEntityMixin",
     "entity.misc.AbstractMinecartEntityMixin",
+    "entity.misc.ExperienceOrbMixin",
     "entity.misc.TridentEntityMixin",
     "entity.neutral.IronGolemEntityMixin",
     "entity.player.PlayerMixin",
