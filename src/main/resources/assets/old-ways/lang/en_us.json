@@ -1,6 +1,6 @@
 {
   "item.old-ways.map_builder": "Map Builder",
-  "item.old-ways.chest_lock": "Chest Key",
+  "item.old-ways.chest_key": "Chest Key",
 
   "tooltip.old-ways.glow_ink_sac_hint": "Can be used on trimmed items",
   "tooltip.old-ways.echo_shard_hint": "Can be used on trimmed armor",
@@ -9,7 +9,7 @@
   "tooltip.old-ways.map_builder.right_click": " Right-Click: Set Top-Left Corner",
   "tooltip.old-ways.map_builder.left_click": " Left-Click: Set Bottom-Right Corner",
   "tooltip.old-ways.map_builder.build": " Right-Click in area: Build Map",
-  "tooltip.old-ways.map_builder.zoom": " Shift + Z: Change Map Zoom",
+  "tooltip.old-ways.map_builder.zoom": " Shift + Right-Click in Air: Change Map Zoom",
   "tooltip.old-ways.map_builder.requires": "Requires Empty Maps & Item Frames",
 
   "item.old-ways.smooth_stone_stairs": "Smooth Stone Stairs",
