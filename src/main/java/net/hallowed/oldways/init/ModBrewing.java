@@ -23,10 +23,10 @@ public final class ModBrewing {
                     ModPotions.LONG_HASTE
             );
 
-            // Haste + Dragon Breath -> Strong Haste
+            // Haste + Golden Carrot -> Strong Haste
             builder.addMix(
                     ModPotions.HASTE,
-                    Items.DRAGON_BREATH,
+                    Items.GOLDEN_CARROT,
                     ModPotions.STRONG_HASTE
             );
 
@@ -37,10 +37,10 @@ public final class ModBrewing {
                     ModPotions.STRONG_LONG_HASTE
             );
 
-            // Long Haste + Dragon Breath -> Strong Long Haste
+            // Long Haste + Golden Carrot -> Strong Long Haste
             builder.addMix(
                     ModPotions.LONG_HASTE,
-                    Items.DRAGON_BREATH,
+                    Items.GOLDEN_CARROT,
                     ModPotions.STRONG_LONG_HASTE
             );
         });
