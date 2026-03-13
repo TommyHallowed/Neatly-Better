@@ -104,6 +104,9 @@ public class CropHarvester {
             }
         }
 
+        // Play the crop's break sound
+        level.playSound(null, pos, state.getSoundType().getBreakSound(), net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
+
         // 2. Reset the crop age to 0 (defaultBlockState always represents newly planted crops)
         level.setBlockAndUpdate(pos, block.defaultBlockState());
 
