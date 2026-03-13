@@ -112,7 +112,7 @@ public class ChestLockHandler {
 
         ItemStack heldItem = serverPlayer.getItemInHand(hand);
         boolean isSneaking = serverPlayer.isShiftKeyDown();
-        boolean holdingLock = heldItem.is(ModItems.CHEST_LOCK);
+        boolean holdingLock = heldItem.is(ModItems.CHEST_KEY);
 
         // ── Shift + Right-Click with Lock Item → Toggle lock ──
         if (isSneaking && holdingLock) {
@@ -173,7 +173,7 @@ public class ChestLockHandler {
             );
             // Give the lock item back
             if (!player.isCreative()) {
-                ItemStack lockBack = new ItemStack(ModItems.CHEST_LOCK);
+                ItemStack lockBack = new ItemStack(ModItems.CHEST_KEY);
                 if (!player.getInventory().add(lockBack)) {
                     player.drop(lockBack, false);
                 }

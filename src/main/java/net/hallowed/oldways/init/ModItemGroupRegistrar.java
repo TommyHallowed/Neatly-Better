@@ -13,7 +13,7 @@ public final class ModItemGroupRegistrar {
 
         OWRegistry.addToGroup(CreativeModeTabs.TOOLS_AND_UTILITIES, entries -> {
                 entries.accept(ModItems.MAP_BUILDER);
-                entries.accept(ModItems.CHEST_LOCK);
+                entries.accept(ModItems.CHEST_KEY);
         });
 
         OWRegistry.addToGroup(CreativeModeTabs.BUILDING_BLOCKS, entries -> {

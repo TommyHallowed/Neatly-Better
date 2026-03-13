@@ -10,7 +10,7 @@ import net.minecraft.world.item.ItemStack;
 public final class ModItems {
     private ModItems() {}
 
-    public static Item MAP_BUILDER, CHEST_LOCK;
+    public static Item MAP_BUILDER, CHEST_KEY;
 
     public static void register() {
 
@@ -19,10 +19,10 @@ public final class ModItems {
                         .stacksTo(1)
                         .setId(OWRegistry.itemKey("map_builder"))));
 
-        CHEST_LOCK = OWRegistry.registerItem("chest_lock",
+        CHEST_KEY = OWRegistry.registerItem("chest_key",
                 new Item(new Item.Properties()
                         .stacksTo(1)
-                        .setId(OWRegistry.itemKey("chest_lock"))));
+                        .setId(OWRegistry.itemKey("chest_key"))));
 
         // Server-side Left-Click block detection for Corner 2
         AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
