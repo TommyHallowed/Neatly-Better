@@ -9,15 +9,20 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantedItemInUse;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +31,9 @@ import java.util.Optional;
 @Mixin(ExperienceOrb.class)
 public abstract class ExperienceOrbMixin {
 
-    // ─── Configurable Values ───────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════
+    //  Configurable Constants
+    // ═══════════════════════════════════════════════════════════════════
 
     /**
      * XP-to-durability multiplier applied during Mending repair.
@@ -48,7 +55,22 @@ public abstract class ExperienceOrbMixin {
     @Unique
     private static final boolean MEND_HOTBAR_ONLY = false;
 
-    // ─── Inventory Mending ─────────────────────────────────────────────────────
+    /**
+     * Maximum number of extra orbs to collect per burst pickup.
+     * When one orb is picked up, other orbs already touching the player
+     * are collected instantly instead of waiting for vanilla's 2-tick delay.
+     * 0 = burst pickup disabled. 50 = up to 50 extra orbs per burst.
+     */
+    @Unique
+    private static final int MAX_BURST_ORBS = 50;
+
+    // ─── Re-entrancy guard for burst pickup ────────────────────────
+    @Unique
+    private static boolean oldways$inBurst = false;
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  Feature 1: Inventory Mending
+    // ═══════════════════════════════════════════════════════════════════
 
     /**
      * Extends Mending to repair items anywhere in the player's inventory,
@@ -68,10 +90,8 @@ public abstract class ExperienceOrbMixin {
             Optional<EnchantedItemInUse> original,
             ServerPlayer serverPlayer,
             int xpAmount) {
-        // Equipped Mending item found — use vanilla behavior
         if (original.isPresent()) return original;
 
-        // Scan inventory for damaged items with Mending
         List<EnchantedItemInUse> candidates = new ArrayList<>();
         int size = MEND_HOTBAR_ONLY ? 9 : serverPlayer.getInventory().getContainerSize();
 
@@ -93,16 +113,17 @@ public abstract class ExperienceOrbMixin {
         return Util.getRandomSafe(candidates, serverPlayer.getRandom());
     }
 
-    // ─── Custom XP-to-Durability Ratio ─────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════
+    //  Feature 2: Custom XP-to-Durability Ratio
+    // ═══════════════════════════════════════════════════════════════════
 
     /**
      * Wraps the call to EnchantmentHelper.modifyDurabilityToRepairFromXp()
      * to apply a custom conversion ratio instead of the vanilla enchantment-driven
      * calculation.
 
-     * Uses @WrapOperation (MixinExtras, bundled with Fabric Loader 0.15+) for
-     * maximum mod compatibility — properly chains with other mods wrapping the
-     * same call, unlike @Redirect which would conflict.
+     * Uses @WrapOperation for maximum mod compatibility — properly chains with
+     * other mods wrapping the same call.
 
      * When XP_TO_DURABILITY_MULTIPLIER == 2.0, delegates to vanilla unchanged.
      */
@@ -116,11 +137,64 @@ public abstract class ExperienceOrbMixin {
     private int oldways$customXpToDurability(
             ServerLevel level, ItemStack stack, int xpAmount,
             Operation<Integer> original) {
-        // Default multiplier — pass through to vanilla / other mods in the chain
         if (XP_TO_DURABILITY_MULTIPLIER == 2.0) {
             return original.call(level, stack, xpAmount);
         }
-        // Custom multiplier — override the enchantment-based calculation
         return Math.max(0, (int) (xpAmount * XP_TO_DURABILITY_MULTIPLIER));
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  Feature 3: Burst XP Orb Pickup
+    // ═══════════════════════════════════════════════════════════════════
+
+    /**
+     * When an XP orb is picked up, instantly collects other orbs that are
+     * already touching the player — eliminates vanilla's 2-tick delay
+     * between picking up orbs that arrived simultaneously.
+
+     * Collision-based only (no radius expansion) to preserve the vanilla
+     * feel of orbs flying toward the player. Only orbs that have actually
+     * reached the player get collected.
+
+     * Uses a static re-entrancy guard to prevent infinite recursion when
+     * calling playerTouch on burst orbs.
+     */
+    @Inject(method = "playerTouch", at = @At("TAIL"))
+    private void oldways$burstPickup(Player player, CallbackInfo ci) {
+        // Skip if already in a burst, disabled, or client-side
+        if (oldways$inBurst) return;
+        if (MAX_BURST_ORBS <= 0) return;
+        if (!(player.level() instanceof ServerLevel serverLevel)) return;
+
+        try {
+            oldways$inBurst = true;
+
+            ExperienceOrb self = (ExperienceOrb) (Object) this;
+            AABB playerBox = player.getBoundingBox();
+
+            // Find all other XP orbs currently colliding with the player
+            List<ExperienceOrb> collidingOrbs = serverLevel.getEntities(
+                    EntityTypeTest.forClass(ExperienceOrb.class),
+                    playerBox,
+                    orb -> orb.isAlive() && orb != self
+            );
+
+            if (collidingOrbs.isEmpty()) return;
+
+            int picked = 0;
+            for (ExperienceOrb orb : collidingOrbs) {
+                if (picked >= MAX_BURST_ORBS) break;
+
+                // Reset the pickup delay so vanilla processes this orb immediately
+                player.takeXpDelay = 0;
+
+                // Trigger vanilla pickup path (preserves Mending, XP award, sounds, etc.)
+                orb.playerTouch(player);
+
+                picked++;
+            }
+        } finally {
+            oldways$inBurst = false;
+        }
     }
 }
