@@ -1,6 +1,7 @@
 package net.hallowed.oldways.mixin.entity.generic;
 
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,6 +19,10 @@ public abstract class MobMixin {
 
         if (self instanceof Spider) {
                 cir.setReturnValue(base.inflate(0.65, 0.65, 0.65));
+        }
+
+        if (self instanceof IronGolem) {
+            cir.setReturnValue(base.inflate(0.0, 1.3, 0.0));
         }
     }
 }
