@@ -135,6 +135,7 @@ public class ChestLockHandler {
                             .withStyle(ChatFormatting.RED),
                     true
             );
+            level.playSound(null, pos, SoundEvents.CHEST_LOCKED, SoundSource.BLOCKS, 1.0f, 1.0f);
             return InteractionResult.FAIL;
         }
     }
