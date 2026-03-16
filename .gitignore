@@ -42,3 +42,4 @@ replay_*.log
 # wrapper
 !gradle/wrapper/gradle-wrapper.jar
 !gradle/wrapper/gradle-wrapper.properties
+/.todo/tasks.json

@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:stonecutting",
-  "ingredient": "minecraft:smooth_quartz",
-  "result": {
-    "count": 1,
-    "id": "old-ways:smooth_quartz_wall"
-  }
-}

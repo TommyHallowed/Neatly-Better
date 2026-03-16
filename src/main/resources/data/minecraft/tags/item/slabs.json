@@ -1,9 +1,9 @@
 {
   "replace": false,
   "values": [
-    "old-ways:calcite_slab",
-    "old-ways:quartz_brick_slab",
-    "old-ways:end_stone_slab",
-    "old-ways:smooth_basalt_slab"
+    "neatly-better:calcite_slab",
+    "neatly-better:quartz_brick_slab",
+    "neatly-better:end_stone_slab",
+    "neatly-better:smooth_basalt_slab"
   ]
 }

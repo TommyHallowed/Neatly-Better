@@ -1,0 +1,109 @@
+package net.hallowed.neatlybetter.client.mixin.item;
+
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+
+import net.hallowed.neatlybetter.client.tooltip.EffectTooltipData;
+import net.hallowed.neatlybetter.tooltip.MapPreviewTooltip;
+
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.component.OminousBottleAmplifier;
+import net.minecraft.world.item.component.SuspiciousStewEffects;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
+import net.minecraft.world.item.consume_effects.ConsumeEffect;
+import net.minecraft.world.level.saveddata.maps.MapId;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+@Mixin(Item.class)
+public abstract class ItemTooltipsMixin {
+
+    @ModifyReturnValue(
+            method = "getTooltipImage(Lnet/minecraft/world/item/ItemStack;)Ljava/util/Optional;",
+            at = @At("RETURN")
+    )
+    private Optional<TooltipComponent> neatlybetter$tooltipImage(
+            Optional<TooltipComponent> original,
+            ItemStack stack
+    ) {
+        if (original.isPresent()) return original;
+
+        if (stack.is(Items.FILLED_MAP)) {
+            MapId mapId = stack.get(DataComponents.MAP_ID);
+            if (mapId != null) {
+                return Optional.of(new MapPreviewTooltip(mapId));
+            }
+        }
+
+        PotionContents potionContents = stack.get(DataComponents.POTION_CONTENTS);
+        if (potionContents != null && potionContents.hasEffects()) {
+            float scale = stack.getOrDefault(DataComponents.POTION_DURATION_SCALE, 1.0F);
+            List<MobEffectInstance> effects = new ArrayList<>();
+            potionContents.forEachEffect(effects::add, 1.0F);
+            return Optional.of(new EffectTooltipData(
+                    effects, scale, neatlybetter$nCopies(effects.size())
+            ));
+        }
+
+        SuspiciousStewEffects stewEffects = stack.get(DataComponents.SUSPICIOUS_STEW_EFFECTS);
+        if (stewEffects != null && !stewEffects.effects().isEmpty()) {
+            List<MobEffectInstance> effects = stewEffects.effects()
+                    .stream()
+                    .map(SuspiciousStewEffects.Entry::createEffectInstance)
+                    .toList();
+            return Optional.of(new EffectTooltipData(
+                    effects, 1.0F, neatlybetter$nCopies(effects.size())
+            ));
+        }
+
+        OminousBottleAmplifier ominous = stack.get(DataComponents.OMINOUS_BOTTLE_AMPLIFIER);
+        if (ominous != null) {
+            List<MobEffectInstance> effects = List.of(
+                    new MobEffectInstance(MobEffects.BAD_OMEN, 120000, ominous.value(), false, false, true)
+            );
+            return Optional.of(new EffectTooltipData(effects, 1.0F, neatlybetter$nCopies(1)));
+        }
+
+        Consumable consumable = stack.get(DataComponents.CONSUMABLE);
+        if (consumable != null) {
+            List<MobEffectInstance> effects = new ArrayList<>();
+            List<Float> chances = new ArrayList<>();
+
+            for (ConsumeEffect consumeEffect : consumable.onConsumeEffects()) {
+                if (consumeEffect instanceof ApplyStatusEffectsConsumeEffect(
+                        List<MobEffectInstance> effects1, float probability
+                )) {
+                    for (MobEffectInstance effect : effects1) {
+                        effects.add(effect);
+                        chances.add(probability);
+                    }
+                }
+            }
+
+            if (!effects.isEmpty()) {
+                return Optional.of(new EffectTooltipData(effects, 1.0F, chances));
+            }
+        }
+
+        return original;
+    }
+
+    @Unique
+    private static List<Float> neatlybetter$nCopies(int n) {
+        return Collections.nCopies(n, (float) 1.0);
+    }
+}

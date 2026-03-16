@@ -1,32 +1,32 @@
 {
 	"schemaVersion": 1,
-	"id": "old-ways",
+	"id": "neatly-better",
 	"version": "${version}",
-    "accessWidener": "old-ways.accesswidener",
-	"name": "The Old Ways",
+    "accessWidener": "neatly-better.accesswidener",
+	"name": "Neatly Better",
 	"description": "A minecraft mod that brings balance and enjoynment of the old versions of the game while fixing & improving upon existing features.",
 	"authors": [
 		"Hallowed103"
 	],
 	"contact": {},
 	"license": "MIT",
-	"icon": "assets/old-ways/icon.png",
+	"icon": "assets/neatly-better/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-          "net.hallowed.TheOldWays"
+          "net.hallowed.NeatlyBetter"
 		],
 		"client": [
-          "net.hallowed.TheOldWaysClient"
+			"net.hallowed.NeatlyBetterClient"
 		],
         "elytratrims-client": [
-          "net.hallowed.oldways.client.compat.ElytraTrimsCompat"
+          "net.hallowed.neatlybetter.client.compat.ElytraTrimsCompat"
         ]
 	},
 	"mixins": [
-      "old-ways.mixins.json",
-      "old-ways.client.mixins.json",
-		"old-ways-compat.mixins.json"
+      "neatly-better.mixins.json",
+      "neatly-better.client.mixins.json",
+		"neatly-better-compat.mixins.json"
     ],
 	"depends": {
 		"fabricloader": ">=0.18.4",

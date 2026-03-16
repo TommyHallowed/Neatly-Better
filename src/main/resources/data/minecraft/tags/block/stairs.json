@@ -1,10 +1,10 @@
 {
   "replace": false,
   "values": [
-    "old-ways:smooth_stone_stairs",
-    "old-ways:calcite_stairs",
-    "old-ways:quartz_brick_stairs",
-    "old-ways:end_stone_stairs",
-    "old-ways:smooth_basalt_stairs"
+    "neatly-better:smooth_stone_stairs",
+    "neatly-better:calcite_stairs",
+    "neatly-better:quartz_brick_stairs",
+    "neatly-better:end_stone_stairs",
+    "neatly-better:smooth_basalt_stairs"
   ]
 }

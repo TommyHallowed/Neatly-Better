@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "N",
+    "I"
+  ],
+  "key": {
+    "N": "minecraft:gold_nugget",
+    "I": "minecraft:gold_ingot"
+  },
+  "result": {
+    "id": "neatly-better:chest_key"
+  }
+}

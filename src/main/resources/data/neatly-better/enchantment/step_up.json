@@ -1,0 +1,30 @@
+{
+  "anvil_cost": 8,
+  "description": {
+    "translate": "enchantment.neatly-better.step_up"
+  },
+  "max_cost": {
+    "base": 65,
+    "per_level_above_first": 10
+  },
+  "max_level": 1,
+  "min_cost": {
+    "base": 15,
+    "per_level_above_first": 10
+  },
+  "slots": [
+    "legs"
+  ],
+  "supported_items": "#minecraft:enchantable/leg_armor",
+  "weight": 2,
+  "effects": {
+    "minecraft:attributes": [
+      {
+        "attribute": "minecraft:step_height",
+        "id": "neatly-better:enchantment.step_up",
+        "amount": 0.45,
+        "operation": "add_value"
+      }
+    ]
+  }
+}

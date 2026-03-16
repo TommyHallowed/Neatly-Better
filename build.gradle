@@ -12,14 +12,14 @@ base {
 }
 
 repositories {
-    maven { url = "https://api.modrinth.com/maven" } // Modrinth maven
+    maven { url = "https://api.modrinth.com/maven" }
 }
 
 loom {
     splitEnvironmentSourceSets()
-    accessWidenerPath = file("src/main/resources/old-ways.accesswidener")
+    accessWidenerPath = file("src/main/resources/neatly-better.accesswidener")
     mods {
-        "old-ways" {
+        "neatly-better" {
             sourceSet sourceSets.main
             sourceSet sourceSets.client
         }
@@ -27,8 +27,7 @@ loom {
 
     runs {
         client {
-            client() // mark this as a client run config
-            // Optional: name "Minecraft Client"
+            client()
             vmArgs(
                     "--enable-native-access=ALL-UNNAMED",
                     "--add-opens=java.base/java.lang=ALL-UNNAMED",
@@ -37,8 +36,7 @@ loom {
             )
         }
         server {
-            server() // mark this as a server run config
-            // Optional: name "Minecraft Server"
+            server()
             vmArgs(
                     "--enable-native-access=ALL-UNNAMED",
                     "--add-opens=java.base/java.lang=ALL-UNNAMED",
@@ -51,7 +49,6 @@ loom {
 
 
 dependencies {
-	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 
     // Fabric
@@ -59,6 +56,7 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
+    // Integrations
     modCompileOnly "maven.modrinth:elytra-trims:blIGhB35"
     modCompileOnly files("libs/framework-fabric-1.21.11-0.13.11.jar")
     modCompileOnly files("libs/backpacked-fabric-1.21.11-3.0.3.jar")
@@ -77,9 +75,6 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
 	sourceCompatibility = JavaVersion.VERSION_21
@@ -94,7 +89,6 @@ jar {
 	}
 }
 
-// configure the maven publication
 publishing {
 	publications {
 		create("mavenJava", MavenPublication) {
@@ -103,11 +97,5 @@ publishing {
 		}
 	}
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
-	}
+	repositories {}
 }
