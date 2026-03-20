@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.screen;
 
-import net.hallowed.neatlybetter.client.screen.GameplaySettingsScreen;
+import net.fabricmc.fabric.api.client.screen.v1.Screens;
 
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
@@ -10,9 +10,8 @@ import net.minecraft.network.chat.Component;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
-
-import java.util.function.Supplier;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(OptionsScreen.class)
 public abstract class OptionsScreenMixin {
@@ -23,14 +22,11 @@ public abstract class OptionsScreenMixin {
 
         final Component TELEMETRY = Component.translatable("options.telemetry");
 
-    @Redirect(
-            method = "init",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/Minecraft;allowsTelemetry()Z"
-            )
-    )
-    private boolean neatlybetter$skipTelemetryDisable(Minecraft client) {
-        return true;
+        for (AbstractWidget widget : Screens.getButtons((OptionsScreen)(Object)this)) {
+            if (widget.getMessage().equals(TELEMETRY)) {
+                widget.active = false;
+                break;
+            }
+        }
     }
 }
