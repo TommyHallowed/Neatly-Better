@@ -15,13 +15,13 @@ public final class HudFormatting {
     public record Line(String text, int argb) {}
     private record Parsed(String tail, int argb) {}
 
-    private static final double COORD_REFRESH_EPS = 0.05;
-
     private static double lastCoordX, lastCoordY, lastCoordZ;
     private static int lastCoordColorBucket = Integer.MIN_VALUE;
+    private static String lastCoordsFormat;
     private static Line cachedCoords;
 
-    private static String lastTimeKey = null;
+    private static String lastTimeKey;
+    private static String lastTimeFormat;
     private static Line cachedTime;
 
     private static int   lastScreenW = -1, lastScreenH = -1;
@@ -50,9 +50,13 @@ public final class HudFormatting {
         final int colorBucket = (w != null) ? secondBucket(w.getDayTime()) : 0;
         final String currentFormat = NTClientConfig.CONFIG.coordsFormat.get();
 
-        if (cachedCoords == null || movedEnough(x,y,z) || colorBucket != lastCoordColorBucket) {
+        if (cachedCoords == null
+                || movedEnough(x, y, z)
+                || colorBucket != lastCoordColorBucket
+                || !currentFormat.equals(lastCoordsFormat)) {
             lastCoordX = x; lastCoordY = y; lastCoordZ = z;
             lastCoordColorBucket = colorBucket;
+            lastCoordsFormat = currentFormat;
             cachedCoords = buildCoords(x, y, z);
         }
         return cachedCoords;
@@ -64,16 +68,20 @@ public final class HudFormatting {
         int    bucket = secondBucket(w.getDayTime());
         String currentFormat = NTClientConfig.CONFIG.timeDayFormat.get();
         String key = hhmm + "|" + day + "|" + bucket;
-        if (cachedTime == null || !key.equals(lastTimeKey)) {
+
+        if (cachedTime == null
+                || !key.equals(lastTimeKey)
+                || !currentFormat.equals(lastTimeFormat)) {
             lastTimeKey = key;
-            cachedTime  = buildTimeDay(hhmm, day);
+            lastTimeFormat = currentFormat;
+            cachedTime = buildTimeDay(hhmm, day);
         }
         return cachedTime;
     }
 
     private static boolean movedEnough(double x, double y, double z) {
         double dx = x - lastCoordX, dy = y - lastCoordY, dz = z - lastCoordZ;
-        return (dx*dx + dy*dy + dz*dz) > (COORD_REFRESH_EPS * COORD_REFRESH_EPS);
+        return (dx*dx + dy*dy + dz*dz) > (0.05 * 0.05); //refresh rate of coords
     }
 
     public static int[] coordsXY(int textW, int lineH, float scale) { return ensureAnchor(textW, lineH, scale, true); }
@@ -121,7 +129,6 @@ public final class HudFormatting {
         };
     }
 
-    /* ========== helpers ========== */
     public static String ticksToHHMM(long dayTime) {
         long ticks = ((dayTime % 24000L) + 24000L) % 24000L;
         long adj = (ticks + 6000L) % 24000L;
@@ -142,8 +149,6 @@ public final class HudFormatting {
         String text = p.tail.replace("{time}", timeHHMM).replace("{day}", Integer.toString(day));
         return new Line(text, p.argb);
     }
-    public static String coordsPosition() { return cornerToString(SettingsPrefs.get().coordsPos); }
-    public static String timePosition()   { return cornerToString(SettingsPrefs.get().timePos);  }
 
     public static String coordsPosition() { return NTClientConfig.CONFIG.coordsPos.get().name().toLowerCase(); }
     public static String timePosition()   { return NTClientConfig.CONFIG.timePos.get().name().toLowerCase(); }
