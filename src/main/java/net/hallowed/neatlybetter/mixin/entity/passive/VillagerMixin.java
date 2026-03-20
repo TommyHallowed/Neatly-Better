@@ -31,7 +31,7 @@ public abstract class VillagerMixin {
     private GossipContainer gossips;
 
     @Unique
-    private static final int INFINITE_CURE_SOFT_CAP = 300;
+    private static final int INFINITE_CURE_SOFT_CAP = 1000;
 
     @Inject(method = "onReputationEventFrom", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$infiniteCuringDiscounts(ReputationEventType type, Entity entity, CallbackInfo ci) {
