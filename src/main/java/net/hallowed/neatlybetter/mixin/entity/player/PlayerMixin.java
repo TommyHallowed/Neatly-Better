@@ -5,7 +5,6 @@ import net.hallowed.neatlybetter.util.StonecutterMemory;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +14,6 @@ import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
@@ -109,17 +107,5 @@ public abstract class PlayerMixin implements StonecutterMemory {
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
     private void neatlybetter$readStonecutterMemory(ValueInput view, CallbackInfo ci) {
         this.neatlybetter$lastCraftedStonecutterItem = view.getStringOr("neatlybetter_last_stonecutter_item", "");
-    }
-
-    /* ------------------ (4) Death Chests ------------------ */
-    @Inject(method = "dropEquipment", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$handleDeathChest(ServerLevel level, CallbackInfo ci) {
-        Player self = (Player) (Object) this;
-
-        if (level.getGameRules().get(GameRules.KEEP_INVENTORY)) return;
-        if (!(Boolean) level.getGameRules().get(ModGameRules.DEATH_CHEST)) return;
-
-        ci.cancel();
-        DeathChestHandler.spawnDeathChest(self, level);
     }
 }
