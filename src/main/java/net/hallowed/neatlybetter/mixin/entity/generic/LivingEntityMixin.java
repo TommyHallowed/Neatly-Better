@@ -2,8 +2,11 @@ package net.hallowed.neatlybetter.mixin.entity.generic;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.feature.ItemCooldownHandler;
-import net.hallowed.neatlybetter.init.ModGameRules;
 import net.hallowed.neatlybetter.util.ProtectionContext;
 
 import net.minecraft.core.component.DataComponents;
@@ -118,17 +121,16 @@ public abstract class LivingEntityMixin {
     }
 
     /* ===================== 5) No shield raise delay ===================== */
-    @ModifyReturnValue(
-            method = "getItemBlockingWith()Lnet/minecraft/world/item/ItemStack;",
-            at = @At("RETURN")
+    @WrapOperation(
+            method = "getItemBlockingWith",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/item/component/BlocksAttacks;blockDelayTicks()I"
+            )
     )
-    private ItemStack neatlybetter$customShieldRaiseDelay(ItemStack original) {
-        if (original == null || original.isEmpty()) return original;
-
+    private int neatlybetter$customBlockDelay(BlocksAttacks instance, Operation<Integer> original) {
         LivingEntity self = (LivingEntity) (Object) this;
-        if (!(self.level() instanceof ServerLevel serverLevel)) return original;
-        int delay = Math.max(0, serverLevel.getGameRules().get(ModGameRules.SHIELD_RAISE_DELAY));
-        if (delay <= 0) return original;
+        if (!(self.level() instanceof ServerLevel)) return original.call(instance);
 
         int configDelay = NTServerConfig.CONFIG.shieldRaiseDelay.get();
         if (configDelay == 5) return original.call(instance);
