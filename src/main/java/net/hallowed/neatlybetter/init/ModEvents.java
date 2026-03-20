@@ -18,7 +18,7 @@ public final class ModEvents {
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();
-        ElytraFlightLimiter.init();
+        //ElytraFlightLimiter.init();
         CauldronCleaning.init();
     }
 }
