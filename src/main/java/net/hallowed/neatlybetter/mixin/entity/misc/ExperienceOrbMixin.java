@@ -2,6 +2,7 @@ package net.hallowed.neatlybetter.mixin.entity.misc;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
 import net.hallowed.neatlybetter.config.NTServerConfig.MendingScope;
@@ -21,8 +22,10 @@ import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -36,46 +39,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("ALL")
 @Mixin(ExperienceOrb.class)
 public abstract class ExperienceOrbMixin {
 
-    // ── Config ─────────────────────────────────────────────────────────────
-    @Unique private static final double  XP_TO_DURABILITY_MULTIPLIER = 4.0;
-    @Unique private static final boolean MEND_HOTBAR_ONLY            = false;
     @Unique private static final int     MAX_BURST_ORBS              = 50;
-
-    /** Set to {@code true} to enable XP-leak detection logs in the game console. */
     @Unique private static final boolean DEBUG_XP_TRACKING           = true;
 
-    // ── Logger (near-zero cost when DEBUG_XP_TRACKING is off) ──────────────
     @Unique private static final Logger LOGGER = LoggerFactory.getLogger("neatly-better");
 
-    // ── Re-entrancy guard for burst pickup ─────────────────────────────────
     @Unique private static boolean neatlybetter$inBurst = false;
 
-    // ── Per-orb debug state (safe — server tick is single-threaded) ────────
     @Unique private int neatlybetter$repairDepth = 0;
 
-    // ── Shadows ────────────────────────────────────────────────────────────
-    // NOTE: 'value' is NOT a field in 1.21.1 — it's stored in entityData.
-    //       Use getValue() via the helper below instead of shadowing 'value'.
     @Shadow private int count;
 
-    /**
-     * Safe accessor for the orb's XP value (backed by synched entity data,
-     * not a plain field in this MC version).
-     */
     @Unique
     private int neatlybetter$orbValue() {
         return ((ExperienceOrb) (Object) this).getValue();
     }
 
-    /* ═══════════════════════════════════════════════════════════════════════
-     *  DEBUG — repairPlayerItems HEAD
-     *
-     *  Fires once per recursion level. Vanilla recurses when leftover XP
-     *  can mend another item:  remaining = xp - actualRepair * xp / durToRepair
-     * ═══════════════════════════════════════════════════════════════════════ */
     @Inject(method = "repairPlayerItems", at = @At("HEAD"))
     private void neatlybetter$debugRepairHead(ServerPlayer player, int xpAmount,
                                               CallbackInfoReturnable<Integer> cir) {
@@ -86,9 +69,7 @@ public abstract class ExperienceOrbMixin {
                 player.getScoreboardName());
     }
 
-    /* ═══════════════════════════════════════════════════════════════════════
-     *  (1) Inventory Mending — extend candidate selection to full inventory
-     * ═══════════════════════════════════════════════════════════════════════ */
+    // ── mendingInventory ──
     @ModifyVariable(
             method  = "repairPlayerItems",
             at      = @At(value = "STORE"),
@@ -121,7 +102,6 @@ public abstract class ExperienceOrbMixin {
             return original;
         }
 
-        // Scan inventory for Mending items that need repair
         List<EnchantedItemInUse> candidates = new ArrayList<>();
         int size = (scope == MendingScope.HOTBAR) ? 9 : serverPlayer.getInventory().getContainerSize();
 
@@ -145,35 +125,21 @@ public abstract class ExperienceOrbMixin {
         if (DEBUG_XP_TRACKING) {
             if (result.isPresent()) {
                 ItemStack s = result.get().itemStack();
-                LOGGER.info("[neatly-better|XP]   (depth={}) Mending target [inventory]: {} "
+                LOGGER.info("[neatly-better|XP]   (depth={}) Mending target [{}]: {} "
                                 + "[dmg={}/{} candidates={}]",
-                        neatlybetter$repairDepth, s.getDisplayName().getString(),
+                        neatlybetter$repairDepth, scope.name().toLowerCase(),
+                        s.getDisplayName().getString(),
                         s.getDamageValue(), s.getMaxDamage(), candidates.size());
             } else {
                 LOGGER.info("[neatly-better|XP]   (depth={}) No mending target found "
-                                + "[slots={} candidates=0]",
-                        neatlybetter$repairDepth, size);
+                                + "[scope={} slots={} candidates=0]",
+                        neatlybetter$repairDepth, scope.name().toLowerCase(), size);
             }
         }
 
         return result;
     }
 
-    /* ═══════════════════════════════════════════════════════════════════════
-     *  (2) Custom XP-to-Durability Ratio
-     *
-     *  Vanilla back-conversion is proportional:
-     *      remaining = xp - actualRepair * xp / durToRepair
-     *  This self-corrects for any multiplier — no separate patch needed.
-     *
-     *  Integer truncation in (k * i / j) always rounds DOWN, so the player
-     *  keeps slightly MORE XP than the floating-point result. This is a tiny
-     *  player benefit, not a leak.
-     *
-     *  NOTE: When multiplier != 2.0 the original EnchantmentHelper call is
-     *  bypassed, so enchantment-level modifiers to repair rate won't apply.
-     *  If you need to chain them, call original.call() and scale its result.
-     * ═══════════════════════════════════════════════════════════════════════ */
     @WrapOperation(
             method = "repairPlayerItems",
             at     = @At(
@@ -192,21 +158,17 @@ public abstract class ExperienceOrbMixin {
         if (multiplier == 2.0) {
             int result = original.call(level, stack, xpAmount);
             if (DEBUG_XP_TRACKING) {
-                neatlybetter$logDurabilityConversion(xpAmount, result, stack.getDamageValue(), "vanilla");
+                neatlybetter$logDurabilityConversion(xpAmount, result, stack.getDamageValue(), "vanilla", multiplier);
             }
             return result;
         }
 
-        int result = Math.max(0, (int) (xpAmount * XP_TO_DURABILITY_MULTIPLIER));
+        int result = Math.max(0, (int) (xpAmount * multiplier));
 
         if (DEBUG_XP_TRACKING) {
             neatlybetter$logDurabilityConversion(xpAmount, result, stack.getDamageValue(),
-                    String.format("mod %.1fx", XP_TO_DURABILITY_MULTIPLIER));
+                    String.format("mod %.1fx", multiplier), multiplier);
 
-            // Degenerate case: result=0 when xpAmount > 0
-            // Vanilla does:  if (k > 0 && ...) { recurse } return 0;
-            // When j (durToRepair) = 0: k = min(0, dmg) = 0 → falls to return 0
-            // ALL XP is consumed with ZERO repair — a true leak!
             if (result == 0 && xpAmount > 0) {
                 LOGGER.warn("[neatly-better|XP]   ⚠ XP LEAK — durToRepair=0 from {}xp! "
                                 + "Vanilla will return 0, silently consuming all XP with no repair. "
@@ -218,22 +180,17 @@ public abstract class ExperienceOrbMixin {
         return result;
     }
 
-    /**
-     * Shared debug logging for the durability conversion step.
-     * Predicts what vanilla's proportional formula will compute.
-     */
     @Unique
     private void neatlybetter$logDurabilityConversion(int xpIn, int durToRepair,
-                                                      int itemDamage, String source) {
+                                                      int itemDamage, String source,
+                                                      double multiplier) {
         int clampedRepair = Math.min(durToRepair, itemDamage);
 
-        // Predict vanilla proportional formula: consumed = k * i / j  (integer math)
         int predictedConsumed  = (durToRepair > 0) ? (clampedRepair * xpIn / durToRepair) : xpIn;
         int predictedRemaining = xpIn - predictedConsumed;
 
-        // True floating-point cost for comparison
-        double trueCost = (XP_TO_DURABILITY_MULTIPLIER > 0)
-                ? clampedRepair / XP_TO_DURABILITY_MULTIPLIER : 0;
+        double trueCost = (multiplier > 0)
+                ? clampedRepair / multiplier : 0;
         double truncationGap = trueCost - predictedConsumed;
 
         LOGGER.info("[neatly-better|XP]   (depth={}) XP->Dur [{}] | xpIn={} dur={} itemDmg={} "
@@ -244,9 +201,6 @@ public abstract class ExperienceOrbMixin {
                 String.format("%.2f", trueCost),
                 String.format("%.4f", truncationGap));
 
-        // Truncation gap should always be >= 0 (player benefit).
-        // A negative gap means the player is being overcharged — should not happen
-        // with vanilla's integer-division formula, but flag it anyway.
         if (truncationGap < -0.01) {
             LOGGER.warn("[neatly-better|XP]   ⚠ UNEXPECTED OVERCHARGE — player charged "
                             + "{} more XP than the true cost warrants!",
@@ -254,9 +208,6 @@ public abstract class ExperienceOrbMixin {
         }
     }
 
-    /* ═══════════════════════════════════════════════════════════════════════
-     *  DEBUG — repairPlayerItems RETURN (audit each recursion level)
-     * ═══════════════════════════════════════════════════════════════════════ */
     @Inject(method = "repairPlayerItems", at = @At("RETURN"))
     private void neatlybetter$debugRepairReturn(ServerPlayer player, int xpAmount,
                                                 CallbackInfoReturnable<Integer> cir) {
@@ -271,8 +222,6 @@ public abstract class ExperienceOrbMixin {
                 returned > 0 ? "remaining goes to XP bar"
                         : "all consumed by mending (or no target found)");
 
-        // Negative return = XP destroyed (should be impossible with proportional formula,
-        // but another mixin or future MC change could introduce this)
         if (returned < 0) {
             LOGGER.warn("[neatly-better|XP]   ⚠ XP LEAK — return is NEGATIVE ({})! "
                     + "{} XP was silently destroyed.", returned, Math.abs(returned));
@@ -281,9 +230,6 @@ public abstract class ExperienceOrbMixin {
         neatlybetter$repairDepth--;
     }
 
-    /* ═══════════════════════════════════════════════════════════════════════
-     *  (3) Burst XP Orb Pickup — collect nearby orbs in the same tick
-     * ═══════════════════════════════════════════════════════════════════════ */
     @Inject(method = "playerTouch", at = @At("TAIL"))
     private void neatlybetter$burstPickup(Player player, CallbackInfo ci) {
         if (neatlybetter$inBurst) return;
@@ -321,8 +267,6 @@ public abstract class ExperienceOrbMixin {
             for (ExperienceOrb orb : collidingOrbs) {
                 if (picked >= MAX_BURST_ORBS) break;
 
-                // Guard: orb may have been consumed by a prior iteration's playerTouch
-                // (e.g. count decremented to 0 and discarded, or merged by another mod)
                 if (!orb.isAlive()) {
                     skippedDead++;
                     if (DEBUG_XP_TRACKING) {
