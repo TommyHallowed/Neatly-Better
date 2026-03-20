@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.item;
 
-import net.hallowed.neatlybetter.init.ModGameRules;
+import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.InteractionHand;
@@ -24,7 +24,7 @@ public class FireworkRocketItemMixin {
         MinecraftServer server = world.getServer();
         if (server == null) return;
 
-        if (server.overworld().getGameRules().get(ModGameRules.DO_ELYTRA_FIREWORK_BOOSTING)) return;
+        if (NTServerConfig.CONFIG.doElytraFireworkBoosting.get()) return;
         cir.setReturnValue(InteractionResult.FAIL);
     }
 }

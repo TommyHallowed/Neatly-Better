@@ -1,5 +1,7 @@
 package net.hallowed.neatlybetter.mixin.block;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -19,6 +21,7 @@ public abstract class AbstractBlockStateMixin {
 
     @Inject(method = "getDestroySpeed", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$setHardness(BlockGetter world, BlockPos pos, CallbackInfoReturnable<Float> cir) {
+        if (!NTServerConfig.CONFIG.harderNetherrack.get()) return;
         if (is(Blocks.NETHERRACK) || is(Blocks.CRIMSON_NYLIUM) || is(Blocks.WARPED_NYLIUM)) {
             cir.setReturnValue(1.4F);
         }

@@ -1,5 +1,7 @@
 package net.hallowed.neatlybetter.mixin.entity.ai.goal;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
@@ -29,6 +31,7 @@ public abstract class RangedBowAttackGoalMixin {
             cancellable = true
     )
     private void neatlybetter$dontShootShields(CallbackInfo ci) {
+        if (!NTServerConfig.CONFIG.rangedMobShieldHoldoff.get()) return;
         if (this.mob.level().getDifficulty() != Difficulty.HARD) {
             this.neatlybetter$shieldHoldoff = 0;
             return;

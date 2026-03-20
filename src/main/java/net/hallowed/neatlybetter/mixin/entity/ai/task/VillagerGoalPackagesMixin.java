@@ -3,6 +3,7 @@ package net.hallowed.neatlybetter.mixin.entity.ai.task;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.entity.ai.task.FarmerReplantTask;
 
 import net.minecraft.core.Holder;
@@ -42,6 +43,7 @@ public abstract class VillagerTaskListProviderMixin {
             float speed,
             CallbackInfoReturnable<ImmutableList<@NotNull Pair<Integer, ? extends BehaviorControl<? super Villager>>>> cir
     ) {
+        if (!NTServerConfig.CONFIG.villagerFarmerReplant.get()) return;
         if (!profession.is(VillagerProfession.FARMER)) return;
 
         WorkAtPoi farmerWork = new WorkAtComposter();

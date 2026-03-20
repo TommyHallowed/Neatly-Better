@@ -2,6 +2,7 @@ package net.hallowed.neatlybetter.mixin.block;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.feature.CauldronDispenseBehavior;
 
 import net.minecraft.core.dispenser.DispenseItemBehavior;
@@ -23,6 +24,8 @@ public abstract class DispenserBlockMixin {
     )
     private DispenseItemBehavior neatlybetter$wrapCauldronBehavior(
             DispenseItemBehavior original, Level level, ItemStack stack) {
+
+        if (!NTServerConfig.CONFIG.dispenserCauldronInteraction.get()) return original;
 
         if (stack.getItem() instanceof BucketItem
                 || stack.getItem() instanceof SolidBucketItem) {

@@ -1,5 +1,6 @@
 package net.hallowed.neatlybetter.mixin.entity.misc;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
@@ -16,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ThrowableKnockbackMixin {
     @Inject(method = "onHitEntity", at = @At("TAIL"))
     private void neatlybetter$knockbackPlayers(EntityHitResult entityHitResult, CallbackInfo ci) {
+        if (!NTServerConfig.CONFIG.throwableKnockbackToPlayers.get()) return;
         Entity self = (Entity) (Object) this;
         if (self.level().isClientSide()) return;
 

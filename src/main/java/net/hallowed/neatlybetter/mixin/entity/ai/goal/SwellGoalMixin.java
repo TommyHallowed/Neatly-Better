@@ -1,5 +1,6 @@
 package net.hallowed.neatlybetter.mixin.entity.ai.goal;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.SwellGoal;
@@ -31,6 +32,8 @@ public abstract class CreeperIgniteGoalMixin {
 
     @Inject(method = "start", at = @At("TAIL"))
     private void neatlybetter$onStart(CallbackInfo ci) {
+        if (!neatlybetter$anyFeatureEnabled()) return;
+
         this.neatlybetter$hasBeenSeen = false;
         this.neatlybetter$orbitDir = this.creeper.getRandom().nextBoolean() ? 1 : -1;
 
@@ -43,6 +46,8 @@ public abstract class CreeperIgniteGoalMixin {
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$onTick(CallbackInfo ci) {
+        if (!neatlybetter$anyFeatureEnabled()) return;
+
         if (this.target == null) {
             this.creeper.setSwellDir(-1);
             ci.cancel();
@@ -50,8 +55,8 @@ public abstract class CreeperIgniteGoalMixin {
         }
 
         if (this.target instanceof Player player) {
-            // 1. STEALTH CHECK
-            if (!this.neatlybetter$hasBeenSeen) {
+            // 1. STEALTH CHECK — gated by creeperSneaky
+            if (NTServerConfig.CONFIG.creeperSneaky.get() && !this.neatlybetter$hasBeenSeen) {
                 Vec3 viewVector = player.getViewVector(1.0F).normalize();
                 Vec3 toCreeper = this.creeper.position().subtract(player.position()).normalize();
 
@@ -60,9 +65,8 @@ public abstract class CreeperIgniteGoalMixin {
                 }
             }
 
-            // 2. SNEAKING LOGIC (Unseen)
-            if (!this.neatlybetter$hasBeenSeen) {
-                // Instead of stopping, the Creeper silently creeps closer to the player
+            // 2. SNEAKING LOGIC (Unseen) — gated by creeperSneaky
+            if (NTServerConfig.CONFIG.creeperSneaky.get() && !this.neatlybetter$hasBeenSeen) {
                 if (this.creeper.tickCount >= this.neatlybetter$nextRepathTick) {
                     this.creeper.getNavigation().moveTo(player, 1.2D);
                     this.neatlybetter$nextRepathTick = this.creeper.tickCount + 5;
@@ -78,8 +82,8 @@ public abstract class CreeperIgniteGoalMixin {
             // 3. MOVEMENT LOGIC (Spotted)
             Difficulty diff = this.creeper.level().getDifficulty();
 
-            if (diff == Difficulty.HARD) {
-                // Orbiting Logic
+            if (diff == Difficulty.HARD && NTServerConfig.CONFIG.creeperOrbiting.get()) {
+                // Orbiting Logic — gated by creeperOrbiting
                 final double MIN_RADIUS = 0.2;
                 final double PREF_RADIUS = 1.4;
                 final double ANG_SPEED = 0.16;
@@ -102,8 +106,8 @@ public abstract class CreeperIgniteGoalMixin {
                 }
                 this.creeper.getLookControl().setLookAt(player, 30.0F, 30.0F);
 
-            } else if (diff == Difficulty.NORMAL) {
-                // Walk Towards Logic
+            } else if (diff == Difficulty.NORMAL && NTServerConfig.CONFIG.creeperWalkIgnite.get()) {
+                // Walk-toward Logic — gated by creeperWalkIgnite
                 if (this.creeper.tickCount >= this.neatlybetter$nextRepathTick) {
                     this.creeper.getNavigation().moveTo(player, 1.2D);
                     this.neatlybetter$nextRepathTick = this.creeper.tickCount + 5;
@@ -127,5 +131,12 @@ public abstract class CreeperIgniteGoalMixin {
         }
 
         ci.cancel();
+    }
+
+    @Unique
+    private static boolean neatlybetter$anyFeatureEnabled() {
+        return NTServerConfig.CONFIG.creeperOrbiting.get()
+                || NTServerConfig.CONFIG.creeperWalkIgnite.get()
+                || NTServerConfig.CONFIG.creeperSneaky.get();
     }
 }

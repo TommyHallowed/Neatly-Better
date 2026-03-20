@@ -3,6 +3,7 @@ package net.hallowed.neatlybetter.client.mixin.item;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
 import net.hallowed.neatlybetter.client.tooltip.EffectTooltipData;
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.tooltip.MapPreviewTooltip;
 
 import net.minecraft.core.component.DataComponents;
@@ -44,13 +45,13 @@ public abstract class ItemTooltipsMixin {
 
         if (stack.is(Items.FILLED_MAP)) {
             MapId mapId = stack.get(DataComponents.MAP_ID);
-            if (mapId != null) {
+            if (mapId != null && NTClientConfig.CONFIG.mapTooltip.get()) {
                 return Optional.of(new MapPreviewTooltip(mapId));
             }
         }
 
         PotionContents potionContents = stack.get(DataComponents.POTION_CONTENTS);
-        if (potionContents != null && potionContents.hasEffects()) {
+        if (potionContents != null && potionContents.hasEffects() && NTClientConfig.CONFIG.potionEffectIcons.get()) {
             float scale = stack.getOrDefault(DataComponents.POTION_DURATION_SCALE, 1.0F);
             List<MobEffectInstance> effects = new ArrayList<>();
             potionContents.forEachEffect(effects::add, 1.0F);
@@ -60,7 +61,7 @@ public abstract class ItemTooltipsMixin {
         }
 
         SuspiciousStewEffects stewEffects = stack.get(DataComponents.SUSPICIOUS_STEW_EFFECTS);
-        if (stewEffects != null && !stewEffects.effects().isEmpty()) {
+        if (stewEffects != null && !stewEffects.effects().isEmpty() && NTClientConfig.CONFIG.susStewEffectIcons.get() && NTClientConfig.CONFIG.potionEffectIcons.get()) {
             List<MobEffectInstance> effects = stewEffects.effects()
                     .stream()
                     .map(SuspiciousStewEffects.Entry::createEffectInstance)
@@ -71,7 +72,7 @@ public abstract class ItemTooltipsMixin {
         }
 
         OminousBottleAmplifier ominous = stack.get(DataComponents.OMINOUS_BOTTLE_AMPLIFIER);
-        if (ominous != null) {
+        if (ominous != null && NTClientConfig.CONFIG.potionEffectIcons.get()) {
             List<MobEffectInstance> effects = List.of(
                     new MobEffectInstance(MobEffects.BAD_OMEN, 120000, ominous.value(), false, false, true)
             );
@@ -79,7 +80,7 @@ public abstract class ItemTooltipsMixin {
         }
 
         Consumable consumable = stack.get(DataComponents.CONSUMABLE);
-        if (consumable != null) {
+        if (consumable != null && NTClientConfig.CONFIG.potionEffectIcons.get()) {
             List<MobEffectInstance> effects = new ArrayList<>();
             List<Float> chances = new ArrayList<>();
 

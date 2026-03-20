@@ -1,5 +1,7 @@
 package net.hallowed.neatlybetter.mixin.enchantment;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
@@ -32,6 +34,8 @@ public abstract class AttributeEnchantmentEffectMixin {
     )
     private void neatlybetter$weakerProtectionViaGamerule(int level, StringRepresentable suffix,
                                                      CallbackInfoReturnable<AttributeModifier> cir) {
+
+        if (!NTServerConfig.CONFIG.protectionOverhaul.get()) return;
         if (!isBurningTime(attribute())) return;
 
 

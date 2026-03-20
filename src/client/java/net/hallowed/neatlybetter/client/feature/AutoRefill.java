@@ -2,6 +2,8 @@ package net.hallowed.neatlybetter.client.feature;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
@@ -33,6 +35,11 @@ public class AutoRefill {
 
     public static void register() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (!NTClientConfig.CONFIG.autoRefill.get()) {
+                resetState();
+                return;
+            }
+
             LocalPlayer player = client.player;
             if (player == null || client.gameMode == null
                     || player.isCreative() || player.isSpectator()) {

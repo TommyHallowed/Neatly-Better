@@ -2,6 +2,7 @@ package net.hallowed.neatlybetter.init;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.entity.ai.goal.*;
 
 import net.minecraft.server.level.ServerLevel;
@@ -29,30 +30,36 @@ public final class ModAiGoals {
 
         // 1) Run while charging crossbow
         if (type == EntityType.PILLAGER || type == EntityType.PIGLIN) {
-            if (mob instanceof PathfinderMob path && !hasGoal(goals, RunWhileChargingCrossbowGoal.class)) {
+            if (NTServerConfig.CONFIG.runWhileCharging.get()
+                    && mob instanceof PathfinderMob path
+                    && !hasGoal(goals, RunWhileChargingCrossbowGoal.class)) {
                 goals.addGoal(2, new RunWhileChargingCrossbowGoal(path, 1.0D));
             }
         }
 
         // 2) Parkour Goal
-        if (world.getDifficulty() == Difficulty.HARD &&
-                (type == EntityType.VINDICATOR ||
-                        type == EntityType.PIGLIN ||
+        if ((type == EntityType.VINDICATOR ||
                         type == EntityType.PIGLIN_BRUTE ||
-                        type == EntityType.WITCH)) {
-            if (!hasGoal(goals, ParkourGoal.class)) {
+                        type == EntityType.ZOMBIFIED_PIGLIN ||
+                        type == EntityType.ZOMBIE)) {
+            if (NTServerConfig.CONFIG.mobParkour.get()
+                    && world.getDifficulty() == Difficulty.HARD
+                    && !hasGoal(goals, ParkourGoal.class) ) {
                 goals.addGoal(1, new ParkourGoal(mob));
             }
         }
 
         // 3) Open Fence Gate
-        if (type == EntityType.VILLAGER && !hasGoal(goals, OpenFenceGateGoal.class)) {
-            goals.addGoal(2, new OpenFenceGateGoal(mob));
+        if (type == EntityType.VILLAGER) {
+            if (NTServerConfig.CONFIG.villagerOpensFenceGate.get()
+                    && !hasGoal(goals, OpenFenceGateGoal.class)) {
+                goals.addGoal(2, new OpenFenceGateGoal(mob));
+            }
         }
 
         // 4) Follow emerald block
         if (type == EntityType.VILLAGER) {
-            if (world.getGameRules().get(ModGameRules.VILLAGER_EMERALD_BLOCK_TEMPT)
+            if (NTServerConfig.CONFIG.villagerEmeraldBlockTempt.get()
                     && mob instanceof PathfinderMob path
                     && !hasGoal(goals, FollowEmeraldBlockGoal.class)) {
                 goals.addGoal(3, new FollowEmeraldBlockGoal(path, 0.5D, 16.0D, 2.5D));
@@ -61,13 +68,17 @@ public final class ModAiGoals {
 
         // 5) Sheep flee from wolves
         if (type == EntityType.SHEEP) {
-            if (mob instanceof PathfinderMob path && !hasGoal(goals, SheepFleeFromWolvesGoal.class)) {
+            if (NTServerConfig.CONFIG.sheepRunFromWolves.get()
+                    && mob instanceof PathfinderMob path
+                    && !hasGoal(goals, SheepFleeFromWolvesGoal.class)) {
                 goals.addGoal(2, new SheepFleeFromWolvesGoal(path));
             }
         }
 
         // 6) Ground-item breeding
-        if (mob instanceof Animal animal && !hasGoal(goals, GroundItemBreedGoal.class)) {
+        if (mob instanceof Animal animal
+                && NTServerConfig.CONFIG.groundItemBreeding.get()
+                && !hasGoal(goals, GroundItemBreedGoal.class)) {
             goals.addGoal(4, new GroundItemBreedGoal(animal));
         }
     }

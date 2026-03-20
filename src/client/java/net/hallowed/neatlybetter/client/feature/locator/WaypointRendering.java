@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.client.feature.locator;
 
-import net.hallowed.neatlybetter.client.util.SettingsPrefs;
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -73,7 +73,7 @@ public final class WaypointRendering {
             drawWaypoint(client, ctx, centerY, e);
         }
 
-        if (best != null && SettingsPrefs.get().tabShowsNames && client.options.keyPlayerList.isDown()) {
+        if (best != null && NTClientConfig.CONFIG.tabShowsNames.get() && client.options.keyPlayerList.isDown()) {
             drawNamePopup(client, ctx, centerY, best.x, best.wp.text().orElse(null));
         }
 

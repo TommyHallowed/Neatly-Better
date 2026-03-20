@@ -1,5 +1,6 @@
 package net.hallowed.neatlybetter.mixin.enchantment;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.util.ProtectionContext;
 
 import net.minecraft.core.Holder;
@@ -48,6 +49,8 @@ public abstract class DamageUtilMixin {
     @Inject(method = "getDamageAfterMagicAbsorb(FF)F", at = @At("RETURN"), cancellable = true)
     private static void neatlybetter$capProtectionPoints(float damageDealt, float protectionPoints,
                                                     CallbackInfoReturnable<Float> cir) {
+
+        if (!NTServerConfig.CONFIG.protectionOverhaul.get()) return;
 
         final DamageSource src = ProtectionContext.src();
         final LivingEntity ent = ProtectionContext.ent();

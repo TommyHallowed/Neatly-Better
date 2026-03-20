@@ -1,5 +1,6 @@
 package net.hallowed.neatlybetter.mixin.entity.hostile;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.entity.ai.goal.OldSpiderAttackGoal;
 
 import net.minecraft.world.entity.ai.goal.LeapAtTargetGoal;
@@ -17,6 +18,7 @@ public abstract class SpiderMixin {
     @Inject(method = "registerGoals", at = @At("TAIL"))
     private void neatlybetter$revertSpiderAI(CallbackInfo ci) {
         Spider self = (Spider) (Object) this;
+        if (!NTServerConfig.CONFIG.oldSpiderAttacks.get()) return;
 
         // 1. Remove the modern, delayed leaping and sluggish melee goals
         self.goalSelector.removeAllGoals(goal ->

@@ -35,7 +35,11 @@ public final class ItemCooldownHandler {
     }
 
     public static void applyTotemCooldown(Player player) {
-        player.getCooldowns().addCooldown(getTotemStack(), TOTEM_COOLDOWN_TICKS);
+
+        int seconds = NTServerConfig.CONFIG.totemCooldown.get();
+        if (seconds != 0) {
+            player.getCooldowns().addCooldown(getTotemStack(), seconds * 20);
+        }
     }
 
     public static void register() {

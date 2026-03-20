@@ -2,6 +2,8 @@ package net.hallowed.neatlybetter.client.init;
 
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.item.MapBuilderItem;
 
 import net.minecraft.ChatFormatting;
@@ -61,6 +63,8 @@ public final class ModTooltips {
                                   TooltipFlag type,
                                   List<Component> lines) {
         if (stack == null || stack.isEmpty()) return;
+
+        if (!NTClientConfig.CONFIG.tooltipGuide.get()) return;
 
         if (stack.is(Items.GLOW_INK_SAC)) {
             addBasicUnderName(lines, GLOW_SAC_HINT);

@@ -1,5 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.entity.effect;
 
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.util.NTEffectInstance;
 
 import net.minecraft.world.effect.MobEffectInstance;
@@ -20,11 +21,18 @@ public abstract class MobEffectInstanceMixin implements NTEffectInstance {
 
     @Inject(method = "<init>(Lnet/minecraft/core/Holder;IIZZZLnet/minecraft/world/effect/MobEffectInstance;)V", at = @At("RETURN"))
     private void neatlybetter$onInit(CallbackInfo ci) {
+        boolean effectBars = true;
+        try {
+            effectBars = NTClientConfig.CONFIG.effectBars.get();
+        } catch (IllegalStateException ignored) {
+        }
+        if (!effectBars) return;
         this.neatlybetter$maxDuration = this.duration;
     }
 
     @Inject(method = "setDetailsFrom", at = @At("RETURN"))
     private void neatlybetter$onCopyFrom(MobEffectInstance effect, CallbackInfo ci) {
+        if (!NTClientConfig.CONFIG.effectBars.get()) return;
         int incomingMax = ((NTEffectInstance) effect).neatlybetter$getMaxDuration();
 
         if (incomingMax > this.neatlybetter$maxDuration) {
@@ -34,6 +42,7 @@ public abstract class MobEffectInstanceMixin implements NTEffectInstance {
 
     @Inject(method = "update", at = @At("RETURN"))
     private void neatlybetter$onUpdate(MobEffectInstance effect, CallbackInfoReturnable<Boolean> cir) {
+        if (!NTClientConfig.CONFIG.effectBars.get()) return;
         int incomingMax = ((NTEffectInstance) effect).neatlybetter$getMaxDuration();
         if (incomingMax > this.neatlybetter$maxDuration) {
             this.neatlybetter$maxDuration = incomingMax;

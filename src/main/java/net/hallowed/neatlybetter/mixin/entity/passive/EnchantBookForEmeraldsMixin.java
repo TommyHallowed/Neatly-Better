@@ -1,6 +1,7 @@
 package net.hallowed.neatlybetter.mixin.entity.passive;
 
-import net.hallowed.neatlybetter.init.ModGameRules;
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -22,7 +23,7 @@ public class EnchantBookForEmeraldsMixin {
 
     @Inject(method = "getOffer", at = @At("HEAD"))
     private void neatlybetter$checkCap(ServerLevel level, Entity entity, RandomSource random, CallbackInfoReturnable<MerchantOffer> cir) {
-        neatlybetter$capActive = level.getGameRules().get(ModGameRules.VILLAGER_BOOK_LEVEL_CAP);
+        neatlybetter$capActive = NTServerConfig.CONFIG.villagerBookLevelCap.get();
     }
 
     @Redirect(method = "getOffer",

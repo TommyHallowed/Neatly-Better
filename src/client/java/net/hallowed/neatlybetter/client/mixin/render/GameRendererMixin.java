@@ -2,6 +2,8 @@ package net.hallowed.neatlybetter.client.mixin.render;
 
 import net.hallowed.neatlybetter.client.util.GameRendererPickHelper;
 
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
@@ -30,6 +32,7 @@ public abstract class GameRendererMixin {
 
     @Inject(method = "pick", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$swingThroughWhenTargetingEntity(float tickProgress, CallbackInfo ci) {
+        if (!NTClientConfig.CONFIG.swingThrough.get()) return;
         if (minecraft == null || minecraft.player == null || minecraft.level == null) return;
 
         final Entity camera = minecraft.getCameraEntity();

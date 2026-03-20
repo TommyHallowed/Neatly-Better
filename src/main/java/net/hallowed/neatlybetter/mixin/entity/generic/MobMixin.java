@@ -18,12 +18,15 @@ public abstract class MobMixin {
         Object self = this;
         AABB base = cir.getReturnValue();
 
-        if (self instanceof Spider) {
+        if (!NTServerConfig.CONFIG.oldSpiderAttacks.get()) {
+            if (self instanceof Spider) {
                 cir.setReturnValue(base.inflate(0.65, 0.65, 0.65));
         }
 
-        if (self instanceof IronGolem) {
-            cir.setReturnValue(base.inflate(0.0, 1.3, 0.0));
+        if (!NTServerConfig.CONFIG.ironGolemNoSpeedrun.get()) {
+            if (self instanceof IronGolem) {
+                cir.setReturnValue(base.inflate(0.0, 1.3, 0.0));
+            }
         }
     }
 }

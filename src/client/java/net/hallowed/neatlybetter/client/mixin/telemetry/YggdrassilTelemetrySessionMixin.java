@@ -3,7 +3,7 @@ package net.hallowed.neatlybetter.client.mixin.telemetry;
 import com.mojang.authlib.minecraft.TelemetryEvent;
 import com.mojang.authlib.yggdrasil.YggdrassilTelemetrySession;
 
-import net.hallowed.neatlybetter.client.util.SettingsPrefs;
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,14 +15,14 @@ public class YggdrassilTelemetrySessionMixin {
 
     @Inject(method = "isEnabled", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$forceDisabled(CallbackInfoReturnable<Boolean> cir) {
-        if (SettingsPrefs.get().telemetryOff) {
+        if (NTClientConfig.CONFIG.telemetryOff.get()) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(method = "createNewEvent", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$returnEmptyEvent(String type, CallbackInfoReturnable<TelemetryEvent> cir) {
-        if (SettingsPrefs.get().telemetryOff) {
+        if (NTClientConfig.CONFIG.telemetryOff.get()) {
             cir.setReturnValue(TelemetryEvent.EMPTY);
         }
     }

@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -51,9 +52,11 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
         super(type, syncId, inv, ctx, slots);
     }
 
-    // --- Color Codes ---
+    // ── anvilRenameColors ──
     @Inject(method = "validateName", at = @At("HEAD"), cancellable = true)
     private static void neatlybetter$allowColorsAndFormat(String string, CallbackInfoReturnable<String> cir) {
+        if (!NTServerConfig.CONFIG.anvilRenameColors.get()) return;
+
         String translated = string.replaceAll("&([0-9a-fA-Fk-oK-OrR])", "§$1");
 
         StringBuilder builder = new StringBuilder();
@@ -66,17 +69,21 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
         cir.setReturnValue(result.length() <= 50 ? result : null);
     }
 
-    // --- Remove default italics from renames ---
+    // ── anvilNoItalicsRename ──
     @ModifyExpressionValue(
             method = {"setItemName", "createResult"},
             at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/Component;literal(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;")
     )
     private MutableComponent neatlybetter$makeRenamesNonItalic(MutableComponent original) {
+        if (!NTServerConfig.CONFIG.anvilNoItalicsRename.get()) return original;
         return original.withStyle(style -> style.withItalic(false));
     }
 
+    // ── anvilEnchantFeather ──
     @Inject(method = "createResult", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$featherBypass(CallbackInfo ci) {
+        if (!NTServerConfig.CONFIG.anvilEnchantFeather.get()) return;
+
         ItemStack left = this.getSlot(0).getItem();
         if (!left.is(Items.FEATHER)) return;
 
@@ -124,11 +131,12 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
         }
     }
 
+    // ── anvilNoRenameCost (+ general bookkeeping) ──
     @Inject(method = "createResult", at = @At("TAIL"))
     private void neatlybetter$handleRenameCost(CallbackInfo ci) {
         neatlybetter$consumeRightOnTake = false;
 
-        if (neatlybetter$isPureRename()) {
+        if (NTServerConfig.CONFIG.anvilNoRenameCost.get() && neatlybetter$isPureRename()) {
             this.cost.set(0);
             neatlybetter$cachedLevelCost = 0;
         } else {
@@ -172,8 +180,10 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
         neatlybetter$deltaSeen = 0;
     }
 
+    // ── anvilNoRenameCost ──
     @Inject(method = "getCost", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$getLevelCostMirror(CallbackInfoReturnable<Integer> cir) {
+        if (!NTServerConfig.CONFIG.anvilNoRenameCost.get()) return;
         if (neatlybetter$isPureRename()) {
             cir.setReturnValue(neatlybetter$cachedLevelCost);
         }
@@ -181,13 +191,16 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
 
     @Inject(method = "mayPickup", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$allowTakeWhenZeroCost(Player player, boolean present, CallbackInfoReturnable<Boolean> cir) {
+        if (!NTServerConfig.CONFIG.anvilNoRenameCost.get()) return;
         if (neatlybetter$isPureRename()) {
             cir.setReturnValue(present);
         }
     }
 
+    // ── anvilNoTooExpensive ──
     @ModifyConstant(method = "createResult", constant = @Constant(intValue = 40, ordinal = 2))
     private int neatlybetter$removeTooExpensiveGate(int original) {
+        if (!NTServerConfig.CONFIG.anvilNoTooExpensive.get()) return original;
         return Integer.MAX_VALUE;
     }
 

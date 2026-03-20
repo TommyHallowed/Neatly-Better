@@ -1,7 +1,6 @@
 package net.hallowed.neatlybetter.mixin.entity.player;
 
-import net.hallowed.neatlybetter.content.feature.DeathChestHandler;
-import net.hallowed.neatlybetter.init.ModGameRules;
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.util.StonecutterMemory;
 
 import net.minecraft.core.Holder;
@@ -53,6 +52,7 @@ public abstract class PlayerMixin implements StonecutterMemory {
     /* ------------------ (2) Feather not dealing damage ------------------ */
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$featherPush(Entity target, CallbackInfo ci) {
+        if (!NTServerConfig.CONFIG.featherNoDamage.get()) return;
         Player self = (Player)(Object)this;
         if (self.getMainHandItem().is(Items.FEATHER)
                 && target instanceof LivingEntity living

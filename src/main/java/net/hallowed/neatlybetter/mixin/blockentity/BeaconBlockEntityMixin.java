@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.blockentity;
 
-import net.hallowed.neatlybetter.init.ModGameRules;
+import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -30,8 +30,8 @@ abstract class BeaconBlockEntityMixin {
             Level world, BlockPos pos, int beaconLevel,
             Holder<@NotNull MobEffect> primary, Holder<@NotNull MobEffect> secondary
     ) {
-        if (world instanceof ServerLevel sw) {
-            int rule = sw.getGameRules().get(ModGameRules.MAX_BEACON_RANGE);
+        if (world instanceof ServerLevel) {
+            int rule = NTServerConfig.CONFIG.maxBeaconRange.get();
             if (rule > 0) {
                 final int MAX_LEVEL = 4;
                 final double VANILLA_MAX_RADIUS = MAX_LEVEL * 10.0 + 10.0;
@@ -54,8 +54,8 @@ abstract class BeaconBlockEntityMixin {
             Holder<@NotNull MobEffect> primary, Holder<@NotNull MobEffect> secondary
     ) {
         boolean soak = false;
-        if (world instanceof ServerLevel sw) {
-            soak = sw.getGameRules().get(ModGameRules.BEACON_SOAK_EFFECTS);
+        if (world instanceof ServerLevel) {
+            soak = NTServerConfig.CONFIG.beaconSoakEffects.get();
         }
         if (!soak) return player.addEffect(instance);
 

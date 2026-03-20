@@ -4,7 +4,7 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.fabricmc.fabric.api.event.Event;
 
-import net.hallowed.neatlybetter.client.util.SettingsPrefs;
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -46,12 +46,15 @@ public abstract class TitleScreenMixin {
             index = 1
     )
     private String neatlybetter$stripFabricModded(String original) {
-        return "Minecraft " + net.minecraft.SharedConstants.getCurrentVersion().name();
+        if (NTClientConfig.CONFIG.customBranding.get()) {
+            return "Minecraft " + net.minecraft.SharedConstants.getCurrentVersion().name();
+        }
+        return original;
     }
 
     @Inject(method = "init", at = @At("RETURN"))
     private void neatlybetter$hookAfterInitAndKillNotifier(CallbackInfo ci) {
-        if (!SettingsPrefs.get().realmsButtons) {
+        if (!NTClientConfig.CONFIG.realmsButtons.get()) {
             this.realmsNotificationsScreen = null;
         }
 
@@ -65,7 +68,7 @@ public abstract class TitleScreenMixin {
 
                 List<AbstractWidget> buttons = Screens.getButtons(screen);
 
-                if (!prefs.accessibilityButton) {
+                if (!NTClientConfig.CONFIG.accessibilityButton.get()) {
                     for (Iterator<AbstractWidget> it = buttons.iterator(); it.hasNext();) {
                         AbstractWidget wgt = it.next();
                         if (wgt.getMessage().getString().toLowerCase().contains("access")) {
@@ -76,7 +79,7 @@ public abstract class TitleScreenMixin {
                     }
                 }
 
-                if (prefs.realmsButtons) return;
+                if (NTClientConfig.CONFIG.realmsButtons.get()) return;
 
                 final Component REALMS    = Component.translatable("menu.online");
                 final Component COPYRIGHT = Component.translatable("title.credits");

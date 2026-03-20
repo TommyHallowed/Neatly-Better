@@ -1,5 +1,7 @@
 package net.hallowed.neatlybetter.client.util;
 
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.player.Player;
@@ -30,13 +32,13 @@ public final class HudFormatting {
     private static int secondBucket(long timeOfDay) { return (int)((timeOfDay % 24000L) / 20L); }
 
     public static boolean shouldShowCoords(Player p) {
-        return SettingsPrefs.get().showCoords
+        return NTClientConfig.CONFIG.showCoords.get()
                 && (InventoryDeepScan.hasCompass(p)
                 || EnderCheckClient.enderHasCompass()
                 || BackpackCheckClient.backpackHasCompass());
     }
     public static boolean shouldShowTime(Player p) {
-        return SettingsPrefs.get().showTime
+        return NTClientConfig.CONFIG.showTime.get()
                 && (InventoryDeepScan.hasClock(p)
                 || EnderCheckClient.enderHasClock()
                 || BackpackCheckClient.backpackHasClock());
@@ -46,6 +48,7 @@ public final class HudFormatting {
         final double x = p.getX(), y = p.getY(), z = p.getZ();
         final ClientLevel w = MC.level;
         final int colorBucket = (w != null) ? secondBucket(w.getDayTime()) : 0;
+        final String currentFormat = NTClientConfig.CONFIG.coordsFormat.get();
 
         if (cachedCoords == null || movedEnough(x,y,z) || colorBucket != lastCoordColorBucket) {
             lastCoordX = x; lastCoordY = y; lastCoordZ = z;
@@ -59,6 +62,7 @@ public final class HudFormatting {
         String hhmm = ticksToHHMM(w.getDayTime());
         int    day  = (int)(w.getGameTime() / 24000L);
         int    bucket = secondBucket(w.getDayTime());
+        String currentFormat = NTClientConfig.CONFIG.timeDayFormat.get();
         String key = hhmm + "|" + day + "|" + bucket;
         if (cachedTime == null || !key.equals(lastTimeKey)) {
             lastTimeKey = key;
@@ -127,28 +131,22 @@ public final class HudFormatting {
     }
 
     public static Line buildCoords(double x, double y, double z) {
-        Parsed p = parseLeadingColor(SettingsPrefs.get().coordsFormat);
+        Parsed p = parseLeadingColor(NTClientConfig.CONFIG.coordsFormat.get());
         String fx = String.format("%.2f", x), fy = String.format("%.2f", y), fz = String.format("%.2f", z);
         String text = p.tail.replace("{x}", fx).replace("{y}", fy).replace("{z}", fz);
         return new Line(text, p.argb);
     }
 
     public static Line buildTimeDay(String timeHHMM, int day) {
-        Parsed p = parseLeadingColor(SettingsPrefs.get().timeDayFormat);
+        Parsed p = parseLeadingColor(NTClientConfig.CONFIG.timeDayFormat.get());
         String text = p.tail.replace("{time}", timeHHMM).replace("{day}", Integer.toString(day));
         return new Line(text, p.argb);
     }
     public static String coordsPosition() { return cornerToString(SettingsPrefs.get().coordsPos); }
     public static String timePosition()   { return cornerToString(SettingsPrefs.get().timePos);  }
 
-    private static String cornerToString(SettingsPrefs.Corner c) {
-        return switch (c) {
-            case TOP_RIGHT    -> "top_right";
-            case BOTTOM_LEFT  -> "bottom_left";
-            case BOTTOM_RIGHT -> "bottom_right";
-            default           -> "top_left";
-        };
-    }
+    public static String coordsPosition() { return NTClientConfig.CONFIG.coordsPos.get().name().toLowerCase(); }
+    public static String timePosition()   { return NTClientConfig.CONFIG.timePos.get().name().toLowerCase(); }
 
     private static Parsed parseLeadingColor(String s) {
         if (s != null && s.length() >= 2 && (s.charAt(0) == '&' || s.charAt(0) == '§')) {

@@ -2,7 +2,7 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 
-import net.hallowed.neatlybetter.client.util.SettingsPrefs;
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
@@ -25,7 +25,7 @@ public abstract class OnlineOptionsScreenMixin {
 
     @Inject(method = "init", at = @At("RETURN"))
     private void neatlybetter$hideRealmsNotifications(CallbackInfo ci) {
-        if (!neatlybetter$prefs.realmsButtons) return;
+        if (!NTClientConfig.CONFIG.realmsButtons.get()) return;
         Screen self = (Screen)(Object)this;
         List<AbstractWidget> buttons = Screens.getButtons(self);
 

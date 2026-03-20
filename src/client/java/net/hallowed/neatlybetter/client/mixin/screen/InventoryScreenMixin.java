@@ -3,6 +3,7 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 
 import net.hallowed.neatlybetter.client.feature.ui.TextureButtonWidget;
 import net.hallowed.neatlybetter.client.util.*;
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -58,16 +59,16 @@ public abstract class InventoryScreenMixin extends Screen {
                 baseCoordsX, rowY, BTN, BTN,
                 ModTextures.COMPASS_SHOWN,
                 ModTextures.COMPASS_HIDDEN,
-                () -> SettingsPrefs.get().showCoords,
-                b -> { var p = SettingsPrefs.get(); p.showCoords = !p.showCoords; SettingsPrefs.save(); }
+                NTClientConfig.CONFIG.showCoords::get,
+                b -> NTClientConfig.CONFIG.showCoords.set(!NTClientConfig.CONFIG.showCoords.get())
         );
 
         timeBtn = new TextureButtonWidget(
                 baseTimeX, rowY, BTN, BTN,
                 ModTextures.CLOCK_SHOWN,
                 ModTextures.CLOCK_HIDDEN,
-                () -> SettingsPrefs.get().showTime,
-                b -> { var p = SettingsPrefs.get(); p.showTime = !p.showTime; SettingsPrefs.save(); }
+                NTClientConfig.CONFIG.showTime::get,
+                b -> NTClientConfig.CONFIG.showTime.set(!NTClientConfig.CONFIG.showTime.get())
         );
 
         var player = Minecraft.getInstance().player;

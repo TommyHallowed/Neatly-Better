@@ -2,7 +2,7 @@ package net.hallowed.neatlybetter.mixin.entity.passive;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
-import net.hallowed.neatlybetter.init.ModGameRules;
+import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -37,8 +37,8 @@ public abstract class VillagerMixin {
     private void neatlybetter$infiniteCuringDiscounts(ReputationEventType type, Entity entity, CallbackInfo ci) {
         if (type != ReputationEventType.ZOMBIE_VILLAGER_CURED) return;
         Villager self = (Villager) (Object) this;
-        if (!(self.level() instanceof ServerLevel serverLevel)) return;
-        if (!serverLevel.getGameRules().get(ModGameRules.VILLAGER_INFINITE_CURING_DISCOUNTS)) return;
+        if (!(self.level() instanceof ServerLevel)) return;
+        if (!NTServerConfig.CONFIG.villagerInfiniteCuringDiscounts.get()) return;
 
         UUID uuid = entity.getUUID();
 
@@ -61,8 +61,8 @@ public abstract class VillagerMixin {
     @Inject(method = "getPlayerReputation", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$globalCuringPrices(Player player, CallbackInfoReturnable<Integer> cir) {
         Villager self = (Villager) (Object) this;
-        if (!(self.level() instanceof ServerLevel serverLevel)) return;
-        if (!serverLevel.getGameRules().get(ModGameRules.VILLAGER_GLOBAL_CURING_PRICES)) return;
+        if (!(self.level() instanceof ServerLevel)) return;
+        if (!NTServerConfig.CONFIG.villagerGlobalCuringPrices.get()) return;
 
         UUID playerUUID = player.getUUID();
 

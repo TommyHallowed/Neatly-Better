@@ -1,5 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.ui;
 
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.minecraft.server.packs.repository.PackCompatibility;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,6 +13,7 @@ public abstract class ResourcePackCompatibilityMixin {
 
     @Inject(method = "isCompatible", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$alwaysCompatible(CallbackInfoReturnable<Boolean> cir) {
+        if (NTClientConfig.CONFIG.resourcePackCompatibility.get()) return;
         cir.setReturnValue(true);
     }
 }

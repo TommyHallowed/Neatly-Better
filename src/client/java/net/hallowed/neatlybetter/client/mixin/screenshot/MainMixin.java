@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.screenshot;
 
-import net.hallowed.neatlybetter.client.util.SettingsPrefs;
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.main.Main;
 
@@ -20,7 +20,14 @@ public class MainMixin {
 
     @Inject(method = "main", at = @At("HEAD"), remap = false)
     private static void neatlybetter$enableAwt(CallbackInfo ci) {
-        if (!neatlybetter$prefs.copyScreenshots) return;
+        boolean copyEnabled = true;
+        try {
+            copyEnabled = NTClientConfig.CONFIG.copyScreenshots.get();
+        } catch (IllegalStateException ignored) {
+        }
+
+        if (!copyEnabled) return;
+
         if (!System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("mac")) {
             System.setProperty("java.awt.headless", "false");
         }

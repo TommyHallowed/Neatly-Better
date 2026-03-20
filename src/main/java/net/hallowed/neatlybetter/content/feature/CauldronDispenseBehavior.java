@@ -5,7 +5,7 @@ import java.util.Map;
 
 import net.fabricmc.fabric.api.transfer.v1.fluid.CauldronFluidContent;
 
-import net.hallowed.neatlybetter.init.ModGameRules;
+import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -50,7 +50,7 @@ public class CauldronDispenseBehavior implements DispenseItemBehavior {
     public @NonNull ItemStack dispense(BlockSource source, @NonNull ItemStack stack) {
         ServerLevel level = source.level();
 
-        if (!level.getGameRules().get(ModGameRules.DISPENSER_CAULDRON_INTERACTION)) {
+        if (!NTServerConfig.CONFIG.dispenserCauldronInteraction.get()) {
             return fallback.dispense(source, stack);
         }
 

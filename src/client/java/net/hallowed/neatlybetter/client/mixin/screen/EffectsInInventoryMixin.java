@@ -3,6 +3,7 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 import com.google.common.collect.Ordering;
 
 import net.hallowed.neatlybetter.client.render.EffectBarRenderer;
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -25,6 +26,8 @@ public abstract class EffectsInInventoryMixin {
 
     @Inject(method = "renderEffects", at = @At("TAIL"))
     private void neatlybetter$renderEffectBars(GuiGraphics guiGraphics, Collection<MobEffectInstance> collection, int x, int rowHeight, int mouseX, int mouseY, int maxWidth, CallbackInfo ci) {
+        if (!NTClientConfig.CONFIG.effectBars.get()) return;
+
         Iterable<MobEffectInstance> sortedEffects = Ordering.natural().sortedCopy(collection);
         int currentY = this.screen.topPos;
         boolean isWide = maxWidth > 32;

@@ -66,23 +66,27 @@ public abstract class LivingEntityMixin {
     @Inject(method = "getDamageAfterMagicAbsorb", at = @At("HEAD"))
     private void neatlybetter$setProtContext(DamageSource source, float amount,
                                              CallbackInfoReturnable<Float> cir) {
+        if (!NTServerConfig.CONFIG.protectionOverhaul.get()) return;
         ProtectionContext.set((LivingEntity) (Object) this, source);
     }
 
     @Inject(method = "getDamageAfterMagicAbsorb", at = @At("RETURN"))
     private void neatlybetter$clearProtContext(DamageSource source, float amount,
                                                CallbackInfoReturnable<Float> cir) {
+        if (!NTServerConfig.CONFIG.protectionOverhaul.get()) return;
         ProtectionContext.clear();
     }
 
     /* ===================== 3) Resistance effect absorption nerf ===================== */
     @ModifyConstant(method = "getDamageAfterMagicAbsorb", constant = @Constant(intValue = 25))
     private int neatlybetter$resistanceDenominatorInt(int original) {
+        if (!NTServerConfig.CONFIG.resistanceOverhaul.get()) return original;
         return 50;
     }
 
     @ModifyConstant(method = "getDamageAfterMagicAbsorb", constant = @Constant(floatValue = 25.0F))
     private float neatlybetter$resistanceDenominatorFloat(float original) {
+        if (!NTServerConfig.CONFIG.resistanceOverhaul.get()) return original;
         return 50.0F;
     }
 
@@ -95,6 +99,8 @@ public abstract class LivingEntityMixin {
                                                       DamageSource source,
                                                       float amount,
                                                       CallbackInfoReturnable<Float> cir) {
+
+        if (!NTServerConfig.CONFIG.explosionsDisableShield.get()) return;
         if (cir.getReturnValue() <= 0.0F) return;
         if (!source.is(DamageTypeTags.IS_EXPLOSION)) return;
 
@@ -124,12 +130,17 @@ public abstract class LivingEntityMixin {
         int delay = Math.max(0, serverLevel.getGameRules().get(ModGameRules.SHIELD_RAISE_DELAY));
         if (delay <= 0) return original;
 
-        return self.getTicksUsingItem() >= delay ? original : ItemStack.EMPTY;
+        int configDelay = NTServerConfig.CONFIG.shieldRaiseDelay.get();
+        if (configDelay == 5) return original.call(instance);
+        return configDelay;
     }
 
     /* ===================== 6) Step Up disabled while sneaking ===================== */
     @ModifyReturnValue(method = "maxUpStep", at = @At("RETURN"))
     private float neatlybetter$suppressStepUpWhileShifting(float original) {
+
+        if (!NTServerConfig.CONFIG.stepUpDisabledWhileShifting.get()) return original;
+
         LivingEntity self = (LivingEntity) (Object) this;
 
         boolean shifting = self.isShiftKeyDown();

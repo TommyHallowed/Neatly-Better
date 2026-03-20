@@ -2,6 +2,7 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 
 import com.google.common.collect.Ordering;
 import net.hallowed.neatlybetter.client.render.EffectBarRenderer;
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
@@ -26,6 +27,8 @@ public abstract class GuiMixin {
 
     @Inject(method = "renderEffects", at = @At("TAIL"))
     private void neatlybetter$renderHUDEffectBars(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        if (!NTClientConfig.CONFIG.effectBars.get()) return;
+
         Collection<MobEffectInstance> collection = this.minecraft.player.getActiveEffects();
         if (collection.isEmpty()) return;
 

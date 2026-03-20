@@ -5,7 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.hallowed.neatlybetter.client.util.SettingsPrefs;
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -55,7 +55,7 @@ public abstract class ItemEntityRendererMixin {
             ItemEntityRenderState state, PoseStack matrices,
             SubmitNodeCollector queue, CameraRenderState camera, CallbackInfo ci) {
 
-        if (!SettingsPrefs.get().render2DItems
+        if (!NTClientConfig.CONFIG.render2DItems.get()
                 || state.item.isEmpty()
                 || state.item.usesBlockLight()) {
             neatlybetter$isFlat.set(false);

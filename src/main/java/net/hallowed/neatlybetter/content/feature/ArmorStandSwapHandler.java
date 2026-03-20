@@ -2,6 +2,8 @@ package net.hallowed.neatlybetter.content.feature;
 
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -19,11 +21,14 @@ public class ArmorStandSwapHandler {
 
     public static void register() {
         UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-            if (hand != InteractionHand.MAIN_HAND
-                    || !player.isShiftKeyDown()
-                    || !(entity instanceof ArmorStand armorStand)) {
-                return InteractionResult.PASS;
-            }
+
+            if (!NTServerConfig.CONFIG.armorStandSwap.get()) return InteractionResult.PASS;
+
+                if (hand != InteractionHand.MAIN_HAND
+                        || !player.isShiftKeyDown()
+                        || !(entity instanceof ArmorStand armorStand)) {
+                    return InteractionResult.PASS;
+                }
 
             if (armorStand.isMarker() || player.isSpectator()) {
                 return InteractionResult.PASS;

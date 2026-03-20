@@ -3,6 +3,10 @@ package net.hallowed.neatlybetter.mixin.entity.misc;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+
+import net.hallowed.neatlybetter.config.NTServerConfig.MendingScope;
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
@@ -95,7 +99,18 @@ public abstract class ExperienceOrbMixin {
             ServerPlayer serverPlayer,
             int xpAmount) {
 
-        // If vanilla already found an equipped target, keep it
+        MendingScope scope = NTServerConfig.CONFIG.mendingInventory.get();
+
+        if (scope == MendingScope.VANILLA) {
+            if (DEBUG_XP_TRACKING && original.isPresent()) {
+                ItemStack s = original.get().itemStack();
+                LOGGER.info("[neatly-better|XP]   (depth={}) Mending target [vanilla]: {} [dmg={}/{}]",
+                        neatlybetter$repairDepth, s.getDisplayName().getString(),
+                        s.getDamageValue(), s.getMaxDamage());
+            }
+            return original;
+        }
+
         if (original.isPresent()) {
             if (DEBUG_XP_TRACKING) {
                 ItemStack s = original.get().itemStack();
@@ -108,7 +123,7 @@ public abstract class ExperienceOrbMixin {
 
         // Scan inventory for Mending items that need repair
         List<EnchantedItemInUse> candidates = new ArrayList<>();
-        int size = MEND_HOTBAR_ONLY ? 9 : serverPlayer.getInventory().getContainerSize();
+        int size = (scope == MendingScope.HOTBAR) ? 9 : serverPlayer.getInventory().getContainerSize();
 
         for (int slot = 0; slot < size; slot++) {
             ItemStack stack = serverPlayer.getInventory().getItem(slot);
@@ -172,8 +187,9 @@ public abstract class ExperienceOrbMixin {
             ServerLevel level, ItemStack stack, int xpAmount,
             Operation<Integer> original) {
 
-        // Delegate to vanilla when multiplier matches default
-        if (XP_TO_DURABILITY_MULTIPLIER == 2.0) {
+        double multiplier = NTServerConfig.CONFIG.mendingEfficiency.get();
+
+        if (multiplier == 2.0) {
             int result = original.call(level, stack, xpAmount);
             if (DEBUG_XP_TRACKING) {
                 neatlybetter$logDurabilityConversion(xpAmount, result, stack.getDamageValue(), "vanilla");

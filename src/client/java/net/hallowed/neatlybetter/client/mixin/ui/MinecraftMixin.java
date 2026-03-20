@@ -1,7 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.ui;
 
-
-import net.hallowed.neatlybetter.client.util.SettingsPrefs;
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.Minecraft;
 
@@ -17,7 +16,7 @@ public class MinecraftClientMixin {
     private static final SettingsPrefs neatlybetter$prefs = SettingsPrefs.get();
     @Inject(method = "allowsTelemetry", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$isTelemetryEnabledByApi(CallbackInfoReturnable<Boolean> cir) {
-        if (!neatlybetter$prefs.telemetryOff) return;
+        if (!NTClientConfig.CONFIG.telemetryOff.get()) return;
         cir.setReturnValue(false);
     }
 }

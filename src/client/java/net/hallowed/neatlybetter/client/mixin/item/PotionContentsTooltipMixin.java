@@ -1,5 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.item;
 
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.alchemy.PotionContents;
 
@@ -19,6 +20,8 @@ public abstract class PotionContentsTooltipMixin {
             ordinal = 0
     )
     private static Consumer<Component> neatlybetter$filterEffectLines(Consumer<Component> consumer) {
+        if (!NTClientConfig.CONFIG.potionEffectIcons.get()) return consumer;
+
         return new Consumer<>() {
             boolean passThrough = false;
 

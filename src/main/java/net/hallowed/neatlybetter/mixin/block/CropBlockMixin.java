@@ -1,5 +1,7 @@
 package net.hallowed.neatlybetter.mixin.block;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -15,6 +17,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class CropBlockMixin {
     @Inject(method = "randomTick", at = @At("RETURN"))
     private void neatlybetter$onCropRandomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo ci) {
+
+        if (!NTServerConfig.CONFIG.rainIncreasesCropGrowth.get()) return;
         if (!world.isRainingAt(pos.above())) return;
 
         CropBlock self = (CropBlock)(Object)this;

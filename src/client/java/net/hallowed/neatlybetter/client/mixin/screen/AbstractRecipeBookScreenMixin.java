@@ -1,8 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.screen;
 
-
-import net.hallowed.neatlybetter.client.util.SettingsPrefs;
-import net.hallowed.neatlybetter.client.util.SettingsPrefs.RecipeBookMode;
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
@@ -31,8 +29,7 @@ public abstract class AbstractRecipeBookScreenMixin {
             cancellable = true
     )
     private void neatlybetter$maybeHideRecipeBookButton(CallbackInfo ci) {
-        RecipeBookMode mode = neatlybetter$prefs.recipeBookMode;
-        if (mode == RecipeBookMode.HIDDEN) {
+        if (NTClientConfig.CONFIG.recipeBookMode.get() == NTClientConfig.RecipeBookMode.HIDDEN) {
             ci.cancel();
         }
     }

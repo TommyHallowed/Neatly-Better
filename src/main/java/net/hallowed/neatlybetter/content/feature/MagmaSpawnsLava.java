@@ -4,6 +4,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -24,6 +26,8 @@ public final class MagmaSpawnsLava {
 
     public static void init() {
         PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {
+
+            if (!NTServerConfig.CONFIG.magmaSpawnsLava.get()) return true;
             if (!(world instanceof ServerLevel serverWorld)) return true;
             if (!state.is(Blocks.MAGMA_BLOCK)) return true;
 

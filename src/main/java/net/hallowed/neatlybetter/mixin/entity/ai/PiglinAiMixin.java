@@ -2,6 +2,7 @@ package net.hallowed.neatlybetter.mixin.entity.ai;
 
 import net.hallowed.neatlybetter.api.NTCompat;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -30,6 +31,7 @@ public abstract class PiglinBrainMixin {
             cancellable = true
     )
     private static void neatlybetter$goldTrimPacifies(LivingEntity entity, CallbackInfoReturnable<Boolean> cir) {
+        if (!NTServerConfig.CONFIG.piglinRespectsTrims.get()) return;
         if (NTCompat.RESPECTMYTRIMS) return;
         if (cir.getReturnValue()) return;
 

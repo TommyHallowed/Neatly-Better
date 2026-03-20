@@ -1,7 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.telemetry;
 
-import net.hallowed.neatlybetter.client.util.SettingsPrefs;
-
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.minecraft.client.telemetry.TelemetryLogManager;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +17,7 @@ public class TelemetryLogManagerMixin {
 
     @Inject(method = "open", at = @At("HEAD"), cancellable = true)
     private static void neatlybetter$stopFolderCreation(Path path, CallbackInfoReturnable<CompletableFuture<Optional<TelemetryLogManager>>> cir) {
-        if (SettingsPrefs.get().telemetryOff) {
+        if (NTClientConfig.CONFIG.telemetryOff.get()) {
             cir.setReturnValue(CompletableFuture.completedFuture(Optional.empty()));
         }
     }

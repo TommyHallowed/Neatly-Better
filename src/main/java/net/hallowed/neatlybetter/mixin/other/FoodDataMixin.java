@@ -1,5 +1,8 @@
 package net.hallowed.neatlybetter.mixin.other;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.food.FoodData;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,6 +18,7 @@ public abstract class HungerManagerMixin {
             require = 0
     )
     private int slowHealStart(int original) {
+        if (!NTServerConfig.CONFIG.hungerMechanics.get()) return original;
         return 10;
     }
 
@@ -23,8 +27,13 @@ public abstract class HungerManagerMixin {
             constant = @Constant(intValue = 10),
             require = 0
     )
-    private int fastHealInterval(int original) {
-        return 40;
+    private int neatlybetter$fastHealInterval(int original, ServerPlayer player) {
+        if (!NTServerConfig.CONFIG.hungerMechanics.get()) return original;
+        return switch (player.level().getDifficulty()) {
+            case HARD -> 40;
+            case NORMAL -> 25;
+            default -> original;
+        };
     }
 
     @ModifyConstant(
@@ -32,7 +41,8 @@ public abstract class HungerManagerMixin {
             constant = @Constant(floatValue = 6.0F),
             require = 0
     )
-    private float exhaustionPerHp(float original) {
+    private float neatlybetter$exhaustionPerHp(float original) {
+        if (!NTServerConfig.CONFIG.hungerMechanics.get()) return original;
         return 3.0F;
     }
 }

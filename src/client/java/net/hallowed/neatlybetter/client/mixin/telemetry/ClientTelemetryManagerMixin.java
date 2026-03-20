@@ -1,7 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.telemetry;
 
-import net.hallowed.neatlybetter.client.util.SettingsPrefs;
-
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.minecraft.client.telemetry.ClientTelemetryManager;
 import net.minecraft.client.telemetry.TelemetryEventSender;
 
@@ -15,7 +14,7 @@ public class ClientTelemetryManagerMixin {
 
     @Inject(method = "createEventSender", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$disableSender(CallbackInfoReturnable<TelemetryEventSender> cir) {
-        if (SettingsPrefs.get().telemetryOff) {
+        if (NTClientConfig.CONFIG.telemetryOff.get()) {
             cir.setReturnValue(TelemetryEventSender.DISABLED);
         }
     }

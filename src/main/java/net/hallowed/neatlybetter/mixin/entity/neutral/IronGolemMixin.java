@@ -1,5 +1,7 @@
 package net.hallowed.neatlybetter.mixin.entity.neutral;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -18,6 +20,7 @@ public abstract class IronGolemEntityMixin {
 
     @Inject(method = "mobInteract", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$replaceRepairItem(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        if (!NTServerConfig.CONFIG.ironGolemRepairUsingBlocks.get()) return;
         ItemStack stack = player.getItemInHand(hand);
         IronGolem self = (IronGolem) (Object) this;
         if (stack.is(Items.IRON_INGOT)) {

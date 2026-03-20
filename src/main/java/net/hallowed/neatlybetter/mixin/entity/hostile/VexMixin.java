@@ -1,5 +1,7 @@
 package net.hallowed.neatlybetter.mixin.entity.hostile;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.entity.monster.illager.Evoker;
@@ -14,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class VexEntityMixin {
     @Inject(method = "tick", at = @At("HEAD"))
     private void neatlybetter$dieWhenEvokerOwnerDies(CallbackInfo ci) {
+        if (!NTServerConfig.CONFIG.vexDiesAfterSummoner.get()) return;
         Vex self = (Vex)(Object)this;
         if (self.level().isClientSide()) return;
 

@@ -1,6 +1,7 @@
 package net.hallowed.neatlybetter.client.mixin.item;
 
-import net.hallowed.neatlybetter.client.util.SettingsPrefs;
+import net.hallowed.neatlybetter.client.config.NTClientConfig;
+
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -16,7 +17,7 @@ public abstract class PotionItemMixin extends Item {
 
     @Override
     public boolean isFoil(@NotNull ItemStack stack) {
-        if (!SettingsPrefs.get().showPotionGlint) return false;
+        if (!NTClientConfig.CONFIG.showPotionGlint.get()) return false;
         PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
         OminousBottleAmplifier ominousContents = stack.get(DataComponents.OMINOUS_BOTTLE_AMPLIFIER);
         return super.isFoil(stack) || (contents != null && contents.hasEffects() || ominousContents != null);

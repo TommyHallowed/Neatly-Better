@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.block;
 
-import net.hallowed.neatlybetter.init.ModGameRules;
+import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -17,8 +17,8 @@ public abstract class SpongeBlockMixin {
 
     @Unique
     private static int neatlybetter$getRadius(Level world) {
-        if (world instanceof ServerLevel sw) {
-            return Math.max(1, sw.getGameRules().get(ModGameRules.SPONGE_BLOCK_ABSORB_RADIUS));
+        if (world instanceof ServerLevel) {
+            return Math.max(1, NTServerConfig.CONFIG.spongeBlockAbsorbRadius.get());
         }
         return 6;
     }
