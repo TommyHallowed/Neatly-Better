@@ -13,13 +13,13 @@ public final class ModItemGroupRegistrar {
     public static void register() {
 
         NTRegistry.addToGroup(CreativeModeTabs.TOOLS_AND_UTILITIES, entries -> {
-                entries.accept(ModItems.MAP_BUILDER);
-                entries.accept(ModItems.CHEST_KEY);
+                entries.addAfter(Items.MAP , ModItems.MAP_BUILDER);
+                entries.addAfter(Items.LEAD , ModItems.CHEST_KEY);
         });
 
         NTRegistry.addToGroup(CreativeModeTabs.BUILDING_BLOCKS, entries -> {
             entries.addAfter(Items.SMOOTH_STONE,   SMOOTH_STONE_STAIRS);
-            entries.addAfter(Items.CALCITE,   CALCITE_STAIRS);
+            entries.addAfter(Items.AMETHYST_BLOCK,   CALCITE_STAIRS);
             entries.addAfter(Items.QUARTZ_BRICKS,   QUARTZ_BRICK_STAIRS);
             entries.addAfter(Items.END_STONE,   END_STONE_STAIRS);
             entries.addAfter(Items.SMOOTH_BASALT,   SMOOTH_BASALT_STAIRS);
