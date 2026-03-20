@@ -12,7 +12,12 @@ public final class NTCompat {
     private static final Set<String> PRECHECK_MODS = Set.of(
             "horseman",
             "respectmytrims",
-            "backpacked"
+            "backpacked",
+            "bettertridents",
+            "enchancement",
+            "doubledoors",
+            "rightclickharvest",
+            "reap"
     );
 
     private static final Map<String, Boolean> CACHE;
@@ -37,7 +42,12 @@ public final class NTCompat {
         return loaded;
     }
 
-    public static final boolean HORSEMAN = isLoaded("horseman");
-    public static final boolean RESPECTMYTRIMS = isLoaded("respectmytrims");
-    public static final boolean BACKPACKED = isLoaded("backpacked");
+    public static final boolean HORSEMAN          = isLoaded("horseman");
+    public static final boolean RESPECTMYTRIMS    = isLoaded("respectmytrims");
+    public static final boolean BACKPACKED        = isLoaded("backpacked");
+    public static final boolean BETTERTRIDENTS    = isLoaded("bettertridents");
+    public static final boolean ENCHANCEMENT      = isLoaded("enchancement");
+    public static final boolean DOUBLEDOORS       = isLoaded("doubledoors");
+    public static final boolean RIGHTCLICKHARVEST = isLoaded("rightclickharvest");
+    public static final boolean REAP              = isLoaded("reap");
 }
