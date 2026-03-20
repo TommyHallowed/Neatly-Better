@@ -13,6 +13,7 @@ import net.hallowed.neatlybetter.init.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -61,6 +62,25 @@ public class ChestLockHandler {
         PlayerBlockBreakEvents.BEFORE.register(ChestLockHandler::onBlockBreak);
     }
 
+    // ── Master Key helpers ─────────────────────────
+
+    private static boolean isMasterKey(ItemStack stack) {
+        if (!stack.is(ModItems.CHEST_KEY)) return false;
+        Component customName = stack.get(DataComponents.CUSTOM_NAME);
+        if (customName == null) return false;
+        String name = customName.getString();
+        return name.contains("Master");
+    }
+
+    private static boolean isHoldingMasterKey(Player player) {
+        for (InteractionHand hand : InteractionHand.values()) {
+            if (isMasterKey(player.getItemInHand(hand))) return true;
+        }
+        return false;
+    }
+
+    // ── Event handlers ─────────────────────────────
+
     private static InteractionResult onUseBlock(Player player, Level world,
                                                 InteractionHand hand, BlockHitResult hitResult) {
         if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
@@ -90,15 +110,20 @@ public class ChestLockHandler {
 
         if (owner.ownerUuid().equals(serverPlayer.getUUID())) {
             return InteractionResult.PASS;
-        } else {
-            serverPlayer.displayClientMessage(
-                    Component.literal("This container is locked by " + owner.name() + "!")
-                            .withStyle(ChatFormatting.RED),
-                    true
-            );
-            level.playSound(null, pos, SoundEvents.CHEST_LOCKED, SoundSource.BLOCKS, 1.0f, 1.0f);
-            return InteractionResult.FAIL;
         }
+
+        // Master key bypasses the lock for opening
+        if (isHoldingMasterKey(serverPlayer)) {
+            return InteractionResult.PASS;
+        }
+
+        serverPlayer.displayClientMessage(
+                Component.literal("This container is locked by " + owner.name() + "!")
+                        .withStyle(ChatFormatting.RED),
+                true
+        );
+        level.playSound(null, pos, SoundEvents.CHEST_LOCKED, SoundSource.BLOCKS, 1.0f, 1.0f);
+        return InteractionResult.FAIL;
     }
 
     private static InteractionResult handleLockToggle(ServerLevel level, BlockPos pos,
@@ -121,6 +146,19 @@ public class ChestLockHandler {
             unlockContainer(level, pos);
             player.displayClientMessage(
                     Component.literal("Container unlocked!").withStyle(ChatFormatting.YELLOW),
+                    true
+            );
+            level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_OPEN, SoundSource.BLOCKS, 1.0f, 1.4f);
+            player.swing(hand, true);
+            return InteractionResult.SUCCESS;
+        }
+
+        // Master key can force-unlock others' containers
+        if (isMasterKey(player.getItemInHand(hand))) {
+            unlockContainer(level, pos);
+            player.displayClientMessage(
+                    Component.literal("Container force-unlocked with Master Key!")
+                            .withStyle(ChatFormatting.GOLD),
                     true
             );
             level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_OPEN, SoundSource.BLOCKS, 1.0f, 1.4f);
@@ -152,6 +190,12 @@ public class ChestLockHandler {
             return true;
         }
 
+        // Master key allows breaking locked chests (removes lock first)
+        if (isHoldingMasterKey(player)) {
+            unlockContainer((ServerLevel) world, pos);
+            return true;
+        }
+
         if (player instanceof ServerPlayer sp) {
             sp.displayClientMessage(
                     Component.literal("This container is locked by " + owner.name() + "!")
@@ -162,23 +206,13 @@ public class ChestLockHandler {
         return false;
     }
 
+    // ── Lock/unlock helpers ────────────────────────
+
     private static void lockContainer(ServerLevel level, BlockPos pos, ServerPlayer player) {
         LockOwner owner = new LockOwner(
                 player.getUUID().toString(),
                 player.getScoreboardName()
         );
-
-        applyLock(level, pos, owner);
-
-        BlockPos otherHalf = getDoubleChestOtherHalf(level, pos);
-        if (otherHalf != null) {
-            applyLock(level, otherHalf, owner);
-        }
-    }
-
-    public static void lockContainerForPlayer(ServerLevel level, BlockPos pos,
-                                              UUID playerUUID, String playerName) {
-        LockOwner owner = new LockOwner(playerUUID.toString(), playerName);
 
         applyLock(level, pos, owner);
 
