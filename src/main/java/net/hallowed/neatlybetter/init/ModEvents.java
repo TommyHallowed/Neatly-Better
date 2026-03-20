@@ -6,7 +6,6 @@ public final class ModEvents {
     private ModEvents() {}
 
     public static void init() {
-        NoSleeping.register();
         ShoulderDropOnUse.register();
         AnvilRestoration.register();
         AddedItemProperties.register();
