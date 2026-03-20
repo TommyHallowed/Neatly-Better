@@ -29,40 +29,37 @@ public class ArmorStandSwapHandler {
                         || !(entity instanceof ArmorStand armorStand)) {
                     return InteractionResult.PASS;
                 }
+                if (armorStand.isMarker() || player.isSpectator()) {return InteractionResult.PASS;}
 
-            if (armorStand.isMarker() || player.isSpectator()) {
-                return InteractionResult.PASS;
-            }
+                if (world.isClientSide()) {
+                    return InteractionResult.SUCCESS;
+                }
 
-            if (world.isClientSide()) {
+                boolean swapped = false;
+
+                for (EquipmentSlot slot : ARMOR_SLOTS) {
+                    if (!armorStand.canUseSlot(slot)) continue;
+
+                    ItemStack standItem = armorStand.getItemBySlot(slot);
+                    ItemStack playerItem = player.getItemBySlot(slot);
+
+                    if (standItem.isEmpty() && playerItem.isEmpty()) continue;
+
+                    ItemStack toPlayer = standItem.copy();
+                    ItemStack toStand = playerItem.copy();
+
+                    armorStand.setItemSlot(slot, toStand);
+                    player.setItemSlot(slot, toPlayer);
+
+                    swapped = true;
+                }
+
+                if (swapped) {
+                    player.swing(InteractionHand.MAIN_HAND, true);
+                    return InteractionResult.SUCCESS;
+                }
+
                 return InteractionResult.SUCCESS;
-            }
-
-            boolean swapped = false;
-
-            for (EquipmentSlot slot : ARMOR_SLOTS) {
-                if (!armorStand.canUseSlot(slot)) continue;
-
-                ItemStack standItem = armorStand.getItemBySlot(slot);
-                ItemStack playerItem = player.getItemBySlot(slot);
-
-                if (standItem.isEmpty() && playerItem.isEmpty()) continue;
-
-                ItemStack toPlayer = standItem.copy();
-                ItemStack toStand = playerItem.copy();
-
-                armorStand.setItemSlot(slot, toStand);
-                player.setItemSlot(slot, toPlayer);
-
-                swapped = true;
-            }
-
-            if (swapped) {
-                player.swing(InteractionHand.MAIN_HAND, true);
-                return InteractionResult.SUCCESS;
-            }
-
-            return InteractionResult.SUCCESS;
-        });
+            });
     }
 }
