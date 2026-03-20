@@ -1,6 +1,13 @@
 package net.hallowed.neatlybetter.client.mixin.screen;
 
 import com.google.common.collect.Ordering;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
+import net.hallowed.neatlybetter.api.NTCompat;
+import net.hallowed.neatlybetter.client.feature.locator.WaypointTracking;
+import net.hallowed.neatlybetter.client.feature.ui.SmallHudOverlay;
 import net.hallowed.neatlybetter.client.render.EffectBarRenderer;
 import net.hallowed.neatlybetter.client.util.BackpackCheckClient;
 import net.hallowed.neatlybetter.client.util.InventoryDeepScan;
@@ -8,18 +15,22 @@ import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.waypoints.ClientWaypointManager;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Collection;
 
@@ -69,6 +80,79 @@ public abstract class GuiMixin {
         if (!NTClientConfig.CONFIG.hideAirBubbles.get()) return;
         if (player.hasEffect(MobEffects.WATER_BREATHING)) {
             ci.cancel();
+        }
+    }
+
+    @Inject(method = "render", at = @At("TAIL"))
+    private void neatlybetter$renderSmallHud(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
+        if ((!NTClientConfig.CONFIG.showCoords.get() && !NTClientConfig.CONFIG.showTime.get()) || this.minecraft.options.hideGui) return;
+        SmallHudOverlay.render(context);
+    }
+
+    @WrapOperation(
+            method = "nextContextualInfoState",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/waypoints/ClientWaypointManager;hasWaypoints()Z")
+    )
+    private boolean neatlybetter$injectClientWaypoints(ClientWaypointManager instance, Operation<Boolean> original) {
+        final boolean vanillaHas = original.call(instance);
+        if (!NTClientConfig.CONFIG.clientWaypoints.get()) return vanillaHas;
+
+        if (minecraft.player == null || minecraft.player.isSpectator()) {
+            return vanillaHas;
+        }
+
+        boolean anyClientWp = !WaypointTracking.update(minecraft.player).isEmpty();
+        if (!anyClientWp
+                && (InventoryDeepScan.hasAnyCompass(minecraft.player) || BackpackCheckClient.backpackHasAnyCompass())
+                && !WaypointTracking.WAYPOINTS.isEmpty()) {
+            anyClientWp = true;
+        }
+        return vanillaHas || anyClientWp;
+    }
+
+    @Inject(method = "willPrioritizeExperienceInfo", at = @At("RETURN"), cancellable = true)
+    private void neatlybetter$alwaysShowXp(CallbackInfoReturnable<Boolean> cir) {
+        cir.setReturnValue(true);
+    }
+
+    @Inject(method = "willPrioritizeJumpInfo", at = @At("RETURN"), cancellable = true)
+    private void neatlybetter$alwaysShowJump(CallbackInfoReturnable<Boolean> cir) {
+        if (NTCompat.HORSEMAN) return;
+        cir.setReturnValue(true);
+    }
+
+    @Inject(method = "renderPlayerHealth", at = @At("TAIL"))
+    private void neatlybetter$alwaysRenderFood(GuiGraphics context, CallbackInfo ci) {
+        if (NTCompat.HORSEMAN) return;
+        Player player = minecraft.player;
+        if (player == null) return;
+
+        Entity vehicle = player.getVehicle();
+        if (vehicle instanceof LivingEntity mount && mount.isAlive()) {
+            int screenWidth = minecraft.getWindow().getGuiScaledWidth();
+            int screenHeight = minecraft.getWindow().getGuiScaledHeight();
+
+            ((Gui)(Object)this).renderFood(context, player, screenHeight - 39, screenWidth / 2 + 91);
+        }
+    }
+
+    @Inject(method = "renderVehicleHealth", at = @At("HEAD"))
+    private void neatlybetter$moveHorseHeartsUp(GuiGraphics context, CallbackInfo ci) {
+        if (NTCompat.HORSEMAN) return;
+        var client = Minecraft.getInstance();
+        if (client.player == null || client.player.getAbilities().instabuild) {
+            return;
+        }
+
+        context.pose().pushMatrix();
+        context.pose().translate(0, -10);
+    }
+
+    @Inject(method = "renderVehicleHealth", at = @At("RETURN"))
+    private void neatlybetter$restoreMatrix(GuiGraphics context, CallbackInfo ci) {
+        if (NTCompat.HORSEMAN) return;
+        if (minecraft.player != null && !minecraft.player.getAbilities().instabuild) {
+            context.pose().popMatrix();
         }
     }
 }
