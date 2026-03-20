@@ -2,7 +2,11 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 
 import com.google.common.collect.Ordering;
 import net.hallowed.neatlybetter.client.render.EffectBarRenderer;
+import net.hallowed.neatlybetter.client.util.BackpackCheckClient;
+import net.hallowed.neatlybetter.client.util.InventoryDeepScan;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
+
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
@@ -62,6 +66,7 @@ public abstract class GuiMixin {
     @Inject(method = "renderAirBubbles", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$hideAirBubblesWithWaterBreathing(
             GuiGraphics guiGraphics, Player player, int i, int j, int k, CallbackInfo ci) {
+        if (!NTClientConfig.CONFIG.hideAirBubbles.get()) return;
         if (player.hasEffect(MobEffects.WATER_BREATHING)) {
             ci.cancel();
         }
