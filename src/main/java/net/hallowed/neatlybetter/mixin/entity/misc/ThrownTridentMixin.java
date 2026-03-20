@@ -1,5 +1,6 @@
 package net.hallowed.neatlybetter.mixin.entity.misc;
 
+import net.hallowed.neatlybetter.api.NTCompat;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +16,7 @@ abstract class ThrownTridentMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void neatlybetter$returnFromVoid(CallbackInfo ci) {
+        if (NTCompat.BETTERTRIDENTS || NTCompat.ENCHANCEMENT) return;
         ThrownTrident self = (ThrownTrident) (Object) this;
         SynchedEntityData tracker = self.getEntityData();
 
