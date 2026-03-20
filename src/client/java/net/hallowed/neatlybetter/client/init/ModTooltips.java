@@ -25,11 +25,11 @@ public final class ModTooltips {
 
     private static final MutableComponent GLOW_SAC_HINT =
             Component.translatable("tooltip.neatly-better.glow_ink_sac_hint")
-                    .withStyle(ChatFormatting.GRAY);
+                    .withStyle(ChatFormatting.YELLOW);
 
     private static final MutableComponent ECHO_SHARD_HINT =
             Component.translatable("tooltip.neatly-better.echo_shard_hint")
-                    .withStyle(ChatFormatting.GRAY);
+                    .withStyle(ChatFormatting.YELLOW);
 
     private static final MutableComponent TOTEM_COOLDOWN_HINT =
             Component.translatable("tooltip.neatly-better.totem_cooldown")
