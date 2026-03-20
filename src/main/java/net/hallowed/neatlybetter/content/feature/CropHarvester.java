@@ -1,6 +1,10 @@
 package net.hallowed.neatlybetter.content.feature;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+
+import net.hallowed.neatlybetter.api.NTCompat;
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -28,6 +32,8 @@ public class CropHarvester {
     }
 
     private static InteractionResult onBlockInteract(Player player, Level level, InteractionHand hand, BlockHitResult hitResult) {
+        if (!NTServerConfig.CONFIG.cropHarvester.get()) return InteractionResult.PASS;
+        if (NTCompat.RIGHTCLICKHARVEST || NTCompat.REAP) return InteractionResult.PASS;
         if (player.isSpectator()) return InteractionResult.PASS;
 
         BlockPos pos = hitResult.getBlockPos();
