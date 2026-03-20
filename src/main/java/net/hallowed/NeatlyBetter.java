@@ -1,9 +1,12 @@
 package net.hallowed;
 
+import fuzs.forgeconfigapiport.fabric.api.v5.ConfigRegistry;
+
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.feature.HostileAttributeTweaks;
 import net.hallowed.neatlybetter.content.item.MapBuilderItem;
 import net.hallowed.neatlybetter.api.NTRegistry;
@@ -21,7 +24,10 @@ public class NeatlyBetter implements ModInitializer {
     @Override
     public void onInitialize() {
 
-        // 1) Register content
+        // 1) Server Config
+        ConfigRegistry.INSTANCE.register(MOD_ID, ModConfig.Type.SERVER, NTServerConfig.CONFIG_SPEC);
+
+        // 2) Register content
         ModBlocks.register();
         ModAiGoals.register();
         ModItems.register();
