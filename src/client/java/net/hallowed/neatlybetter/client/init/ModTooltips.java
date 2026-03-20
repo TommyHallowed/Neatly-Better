@@ -31,9 +31,7 @@ public final class ModTooltips {
             Component.translatable("tooltip.neatly-better.echo_shard_hint")
                     .withStyle(ChatFormatting.YELLOW);
 
-    private static final MutableComponent TOTEM_COOLDOWN_HINT =
-            Component.translatable("tooltip.neatly-better.totem_cooldown")
-                    .withStyle(ChatFormatting.GRAY);
+    private static final String TOTEM_COOLDOWN_KEY = "tooltip.neatly-better.totem_cooldown";
 
     private static final MutableComponent EQUIP_HINT =
             Component.translatable("tooltip.neatly-better.right_click_equip")
