@@ -35,7 +35,8 @@
 		"fabric-api": "*"
 	},
       "suggests": {
-          "elytratrims": "*",
-          "backpacked": "*"
+          "backpacked": "*",
+		  "elytratrims": "*",
+		  "modmenu": "*"
       }
 }
