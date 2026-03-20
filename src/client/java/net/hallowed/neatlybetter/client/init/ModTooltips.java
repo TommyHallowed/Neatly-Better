@@ -73,7 +73,10 @@ public final class ModTooltips {
             addBasicUnderName(lines, ECHO_SHARD_HINT);
         }
         if (stack.is(Items.TOTEM_OF_UNDYING)) {
-            addBasicUnderName(lines, TOTEM_COOLDOWN_HINT);
+            int seconds = NTServerConfig.CONFIG.totemCooldown.get();
+            addBasicUnderName(lines,
+                    Component.translatable(TOTEM_COOLDOWN_KEY, seconds)
+                            .withStyle(ChatFormatting.YELLOW));
         }
         if (stack.getItem() instanceof MapBuilderItem) {
             lines.addAll(MAP_BUILDER_LINES);
