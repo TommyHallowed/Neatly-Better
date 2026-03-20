@@ -2,7 +2,6 @@ package net.hallowed.neatlybetter.client.util;
 
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.asm.mixin.Unique;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -13,9 +12,6 @@ import java.nio.file.Path;
 
 public final class CopyScreenshotHelper {
     private CopyScreenshotHelper() {}
-
-    @Unique
-    private static final SettingsPrefs neatlybetter$prefs = SettingsPrefs.get();
 
     public static void copyFromFile(File file) {
         if (!NTClientConfig.CONFIG.copyScreenshots.get()) return;

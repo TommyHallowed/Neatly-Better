@@ -6,6 +6,8 @@ import java.util.List;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -18,8 +20,6 @@ public final class ItemCooldownHandler {
     private ItemCooldownHandler() {}
 
     private static final List<Runnable> PENDING_COOLDOWNS = new ArrayList<>();
-
-    private static final int TOTEM_COOLDOWN_TICKS = 1200;
 
     private static ItemStack totemStack;
 

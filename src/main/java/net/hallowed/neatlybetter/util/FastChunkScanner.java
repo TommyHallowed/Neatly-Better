@@ -449,7 +449,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
             }
         }
 
-        // Majority colour
+        // Majority color
         MapColor mapColor = Iterables.getFirst(
                 Multisets.copyHighestCountFirst(colorBag), MapColor.NONE);
         colors[col] = mapColor;
@@ -548,7 +548,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
                     if (detectedStructures.contains(pathOnly)) continue;
                     detectedStructures.add(pathOnly);
 
-                    // Use the bounding box centre as the icon position
+                    // Use the bounding box center as the icon position
                     var bb = start.getBoundingBox();
                     int iconX = (bb.minX() + bb.maxX()) / 2;
                     int iconZ = (bb.minZ() + bb.maxZ()) / 2;

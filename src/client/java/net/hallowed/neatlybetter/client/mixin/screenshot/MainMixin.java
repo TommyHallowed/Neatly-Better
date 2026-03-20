@@ -5,7 +5,6 @@ import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.minecraft.client.main.Main;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -14,9 +13,6 @@ import java.util.Locale;
 
 @Mixin(Main.class)
 public class MainMixin {
-
-    @Unique
-    private static final SettingsPrefs neatlybetter$prefs = SettingsPrefs.get();
 
     @Inject(method = "main", at = @At("HEAD"), remap = false)
     private static void neatlybetter$enableAwt(CallbackInfo ci) {

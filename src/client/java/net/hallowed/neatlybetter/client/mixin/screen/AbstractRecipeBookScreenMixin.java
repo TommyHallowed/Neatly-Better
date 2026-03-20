@@ -8,7 +8,6 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.world.inventory.ClickType;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -16,9 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractRecipeBookScreen.class)
 public abstract class AbstractRecipeBookScreenMixin {
-
-    @Unique
-    private static final SettingsPrefs neatlybetter$prefs = SettingsPrefs.get();
 
     @Inject(
             method = "init",

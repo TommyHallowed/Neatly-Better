@@ -2,7 +2,6 @@ package net.hallowed.neatlybetter.client.mixin.entity;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.hallowed.neatlybetter.client.config.NTClientConfig;

@@ -1,5 +1,6 @@
 package net.hallowed.neatlybetter.mixin.entity.generic;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.spider.Spider;
@@ -21,6 +22,7 @@ public abstract class MobMixin {
         if (!NTServerConfig.CONFIG.oldSpiderAttacks.get()) {
             if (self instanceof Spider) {
                 cir.setReturnValue(base.inflate(0.65, 0.65, 0.65));
+            }
         }
 
         if (!NTServerConfig.CONFIG.ironGolemNoSpeedrun.get()) {

@@ -1,6 +1,5 @@
 package net.hallowed.neatlybetter.client.mixin.screen;
 
-
 import net.hallowed.neatlybetter.client.feature.ui.TextureButtonWidget;
 import net.hallowed.neatlybetter.client.util.*;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;

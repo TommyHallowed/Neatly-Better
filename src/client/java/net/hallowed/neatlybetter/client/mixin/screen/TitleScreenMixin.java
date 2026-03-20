@@ -14,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
 import org.jetbrains.annotations.Nullable;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -63,8 +62,6 @@ public abstract class TitleScreenMixin {
             ScreenEvents.AFTER_INIT.addPhaseOrdering(Event.DEFAULT_PHASE, neatlybetter$PHASE);
             ScreenEvents.AFTER_INIT.register(neatlybetter$PHASE, (mc, screen, w, h) -> {
                 if (!(screen instanceof TitleScreen)) return;
-
-                var prefs = SettingsPrefs.get();
 
                 List<AbstractWidget> buttons = Screens.getButtons(screen);
 

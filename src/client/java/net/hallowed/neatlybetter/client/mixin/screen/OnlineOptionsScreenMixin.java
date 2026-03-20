@@ -10,7 +10,6 @@ import net.minecraft.client.gui.screens.options.OnlineOptionsScreen;
 import net.minecraft.network.chat.Component;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -19,9 +18,6 @@ import java.util.List;
 
 @Mixin(OnlineOptionsScreen.class)
 public abstract class OnlineOptionsScreenMixin {
-
-    @Unique
-    private static final SettingsPrefs neatlybetter$prefs = SettingsPrefs.get();
 
     @Inject(method = "init", at = @At("RETURN"))
     private void neatlybetter$hideRealmsNotifications(CallbackInfo ci) {

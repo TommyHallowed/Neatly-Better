@@ -10,12 +10,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.enchantment.Repairable;
+
 import org.jetbrains.annotations.NotNull;
 
 public final class AddedItemProperties {
     private AddedItemProperties() {}
 
-    @SuppressWarnings({"deprecation", "unchecked"})
+    @SuppressWarnings({"unchecked"})
     public static void register() {
         DefaultItemComponentEvents.MODIFY.register(ctx ->
                 ctx.modify(Items.GLISTERING_MELON_SLICE, builder -> {
