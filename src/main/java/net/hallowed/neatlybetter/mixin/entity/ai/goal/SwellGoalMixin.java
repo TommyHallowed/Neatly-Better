@@ -61,8 +61,10 @@ public abstract class SwellGoalMixin {
                 Vec3 toCreeper = this.creeper.position().subtract(player.position()).normalize();
 
                 if (viewVector.dot(toCreeper) > 0.3) {
-                    this.neatlybetter$hasBeenSeen = true; // Spotted!
+                    this.neatlybetter$hasBeenSeen = true;
                 }
+            } else {
+                this.neatlybetter$hasBeenSeen = true;
             }
 
             // 2. SNEAKING LOGIC (Unseen) — gated by creeperSneaky
@@ -73,7 +75,6 @@ public abstract class SwellGoalMixin {
                 }
                 this.creeper.getLookControl().setLookAt(player, 30.0F, 30.0F);
 
-                // Force the fuse to stay completely cold!
                 this.creeper.setSwellDir(-1);
                 ci.cancel();
                 return;
@@ -114,7 +115,7 @@ public abstract class SwellGoalMixin {
                 }
             }
         } else {
-            // Fallback for Golems
+            // Fallback for non-player targets (golems, etc.)
             if (this.creeper.tickCount >= this.neatlybetter$nextRepathTick) {
                 this.creeper.getNavigation().moveTo(this.target, 1.2D);
                 this.neatlybetter$nextRepathTick = this.creeper.tickCount + 5;
@@ -127,7 +128,7 @@ public abstract class SwellGoalMixin {
         } else if (!this.creeper.getSensing().hasLineOfSight(this.target)) {
             this.creeper.setSwellDir(-1);
         } else {
-            this.creeper.setSwellDir(1);  // Ignite only when seen and in range!
+            this.creeper.setSwellDir(1);
         }
 
         ci.cancel();
