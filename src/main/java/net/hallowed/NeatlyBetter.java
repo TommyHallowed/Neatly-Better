@@ -14,12 +14,10 @@ import net.hallowed.neatlybetter.init.*;
 import net.hallowed.neatlybetter.network.NTNetwork;
 import net.hallowed.neatlybetter.util.FastChunkScanner;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.neoforged.fml.config.ModConfig;
 
 public class NeatlyBetter implements ModInitializer {
     public static final String MOD_ID = "neatly-better";
-    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     @Override
     public void onInitialize() {
@@ -33,24 +31,21 @@ public class NeatlyBetter implements ModInitializer {
         ModItems.register();
         ModPotions.registerAll();
         ModBrewing.register();
-        ModGameRules.register();
         ModTickets.init();
         ModEvents.init();
         ModDataComponents.init();
         HostileAttributeTweaks.init();
 
-        // 2) Server Tick Events
+        // 3) Server Tick Events
         ServerLifecycleEvents.SERVER_STARTED.register(FastChunkScanner::restoreAllStructuresIcons);
         ServerTickEvents.END_SERVER_TICK.register(server -> MapBuilderItem.MapGenerationQueue.tick());
         ServerTickEvents.END_SERVER_TICK.register(NTNetwork::flushDirtyBackpacks);
 
-        // 3) Creative tab entries
+        // 4) Creative tab entries
         ModItemGroupRegistrar.register();
         NTRegistry.flushItemGroups();
 
-        // 4) Networking
+        // 5) Networking
         NTNetwork.registerCommon();
-
-        LOGGER.info("Neatly Better Mod Loaded!");
     }
 }
