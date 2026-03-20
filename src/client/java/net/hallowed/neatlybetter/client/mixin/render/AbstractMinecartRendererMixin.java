@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractMinecartRenderer.class)
-public abstract class AbstractMinecartEntityRendererMixin<T extends AbstractMinecart, S extends MinecartRenderState> {
+public abstract class AbstractMinecartRendererMixin<T extends AbstractMinecart, S extends MinecartRenderState> {
 
     @Shadow protected abstract void submitMinecartContents(S state, BlockState blockState, PoseStack matrices, SubmitNodeCollector queue, int light);
 

@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.UUID;
 
 @Mixin(AbstractMinecart.class)
-public abstract class AbstractMinecartEntityMixin implements LinkableMinecart {
+public abstract class AbstractMinecartMixin implements LinkableMinecart {
     @Unique
     private static final EntityDataAccessor<@NotNull Integer> neatlybetter$FOLLOWING_ID = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.INT);
 

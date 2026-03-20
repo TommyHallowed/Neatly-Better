@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(FramerateLimitTracker.class)
-public abstract class InactivityFpsLimiterMixin {
+public abstract class FramerateLimitTrackerMixin {
     @Shadow private int framerateLimit;
     @Shadow public abstract FramerateLimitTracker.FramerateThrottleReason getThrottleReason();
 

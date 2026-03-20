@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ItemStack.class)
-abstract class PotionItemMixin {
+abstract class ItemStackPotionStackMixin {
     @Inject(method = "getMaxStackSize", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$potionsStack16(CallbackInfoReturnable<Integer> cir) {
         ItemStack self = (ItemStack)(Object)this;

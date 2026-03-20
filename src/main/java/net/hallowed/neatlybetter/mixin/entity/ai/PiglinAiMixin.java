@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PiglinAi.class)
-public abstract class PiglinBrainMixin {
+public abstract class PiglinAiMixin {
 
     @Inject(
             method = "isWearingSafeArmor(Lnet/minecraft/world/entity/LivingEntity;)Z",

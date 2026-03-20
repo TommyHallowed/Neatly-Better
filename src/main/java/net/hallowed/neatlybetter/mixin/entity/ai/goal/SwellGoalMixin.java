@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(SwellGoal.class)
-public abstract class CreeperIgniteGoalMixin {
+public abstract class SwellGoalMixin {
 
     @Final
     @Shadow private Creeper creeper;

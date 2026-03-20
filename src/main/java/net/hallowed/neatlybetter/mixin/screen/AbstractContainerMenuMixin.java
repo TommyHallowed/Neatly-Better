@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @SuppressWarnings("ConstantValue")
 @Mixin(AbstractContainerMenu.class)
-public abstract class ScreenHandlerMixin {
+public abstract class AbstractContainerMenuMixin {
 
     @Inject(method = "clicked", at = @At("TAIL"))
     private void neatlybetter$enderSyncAfterClick(int slotIndex, int button, ClickType actionType,

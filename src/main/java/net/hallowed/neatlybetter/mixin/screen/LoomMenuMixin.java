@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 
 @Mixin(LoomMenu.class)
-public abstract class LoomScreenHandlerMixin {
+public abstract class LoomMenuMixin {
 
     @ModifyConstant(
             method = "slotsChanged(Lnet/minecraft/world/Container;)V",

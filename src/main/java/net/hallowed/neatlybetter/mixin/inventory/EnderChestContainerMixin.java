@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** Push ender state when the Ender Chest is opened/closed. */
 @Mixin(PlayerEnderChestContainer.class)
-public abstract class EnderChestInventoryMixin {
+public abstract class EnderChestContainerMixin {
 
     @Inject(method = "startOpen", at = @At("TAIL"))
     private void neatlybetter$pushOnOpen(ContainerUser user, CallbackInfo ci) {

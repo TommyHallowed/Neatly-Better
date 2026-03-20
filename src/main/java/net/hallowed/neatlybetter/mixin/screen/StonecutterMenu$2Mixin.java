@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(targets = "net.minecraft.world.inventory.StonecutterMenu$2")
-public class StonecutterScreenHandlerMixin {
+public class StonecutterMenu$2Mixin {
 
     // This targets the specific anonymous Slot class for the output in StonecutterScreenHandler
     @Inject(method = "onTake", at = @At("HEAD"))

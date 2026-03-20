@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(VillagerGoalPackages.class)
-public abstract class VillagerTaskListProviderMixin {
+public abstract class VillagerGoalPackagesMixin {
 
     @Inject(method = "getWorkPackage", at = @At("HEAD"), cancellable = true)
     private static void neatlybetter$addTillingTask(

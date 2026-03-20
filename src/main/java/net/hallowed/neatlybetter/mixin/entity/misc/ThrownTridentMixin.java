@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ThrownTrident.class)
-abstract class TridentEntityMixin {
+abstract class ThrownTridentMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void neatlybetter$returnFromVoid(CallbackInfo ci) {

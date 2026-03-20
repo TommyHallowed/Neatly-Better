@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BannerPatternLayers.class)
-public abstract class BannerPatternsComponentMixin {
+public abstract class BannerPatternLayersMixin {
 
     @Shadow @Final @Mutable
     public static Codec<BannerPatternLayers> CODEC;

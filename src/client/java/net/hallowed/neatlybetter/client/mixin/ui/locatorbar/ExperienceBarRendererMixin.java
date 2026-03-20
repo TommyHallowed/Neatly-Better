@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ExperienceBarRenderer.class)
-public abstract class ExperienceBarMixin implements ContextualBarRenderer {
+public abstract class ExperienceBarRendererMixin implements ContextualBarRenderer {
     @Shadow @Final private Minecraft minecraft;
 
     @Unique

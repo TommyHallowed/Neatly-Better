@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PortalShape.class)
-public class NetherPortalMixin {
+public class PortalShapeMixin {
     @Shadow
     @Final
     @Mutable

@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.*;
 
 @Environment(EnvType.CLIENT)
 @Mixin(BannerPatternLayers.class)
-public abstract class BannerPatternsComponentMixin {
+public abstract class BannerPatternLayersClientMixin {
 
     @ModifyConstant(
             method = { "addToTooltip" },

@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MapItemSavedData.class)
-public class MapStateMixin {
+public class MapItemSavedDataMixin {
     @Shadow @Final @Mutable
     private boolean unlimitedTracking;
 

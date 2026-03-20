@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(CombatRules.class)
-public abstract class DamageUtilMixin {
+public abstract class CombatRulesMixin {
 
     /* ===================== hard-coded caps =====================
      * Caps are FRACTIONS of vanilla's maximum enchantment reduction (which is 80% at full levels).

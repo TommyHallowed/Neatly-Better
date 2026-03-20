@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @SuppressWarnings("deprecation")
 @Mixin(Vex.class)
-public abstract class VexEntityMixin {
+public abstract class VexMixin {
     @Inject(method = "tick", at = @At("HEAD"))
     private void neatlybetter$dieWhenEvokerOwnerDies(CallbackInfo ci) {
         if (!NTServerConfig.CONFIG.vexDiesAfterSummoner.get()) return;

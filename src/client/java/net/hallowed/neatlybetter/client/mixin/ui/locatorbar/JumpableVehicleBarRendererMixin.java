@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(JumpableVehicleBarRenderer.class)
-public abstract class JumpBarMixin implements ContextualBarRenderer {
+public abstract class JumpableVehicleBarRendererMixin implements ContextualBarRenderer {
     @Shadow @Final private Minecraft minecraft;
     @Shadow @Final private PlayerRideableJumping playerJumpableVehicle;
 

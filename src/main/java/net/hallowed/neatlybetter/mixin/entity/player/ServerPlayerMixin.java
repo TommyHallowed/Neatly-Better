@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
-public abstract class ServerPlayerEntityMixin {
+public abstract class ServerPlayerMixin {
 
     @Inject(
             method = "handleShoulderEntities",

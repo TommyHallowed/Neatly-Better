@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Options.class)
-public abstract class GameOptionsMixin {
+public abstract class OptionsMixin {
 
     @Unique private static final double K  = Math.log(100.0);
     @Unique private static final double EK = Math.expm1(K);   // e^K − 1 = 99

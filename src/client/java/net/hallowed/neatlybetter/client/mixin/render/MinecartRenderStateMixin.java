@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(MinecartRenderState.class)
-public class MinecartEntityRenderStateMixin implements ChainableRenderState {
+public class MinecartRenderStateMixin implements ChainableRenderState {
     @Unique private Vec3 neatlybetter$linkedPos;
     @Unique private double neatlybetter$startOffset;
     @Unique private double neatlybetter$endOffset;

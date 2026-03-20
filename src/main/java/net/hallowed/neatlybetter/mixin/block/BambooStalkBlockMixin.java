@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BambooStalkBlock.class)
-public class BambooBlockMixin {
+public class BambooStalkBlockMixin {
 
     @Inject(method = "randomTick", at = @At("RETURN"))
     private void neatlybetter$onBambooRandomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo ci) {

@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MapItemSavedData.class)
-public class MapStateClientMixin {
+public class MapItemSavedDataClientMixin {
 
     @Shadow @Final
     public ResourceKey<@NotNull Level> dimension;

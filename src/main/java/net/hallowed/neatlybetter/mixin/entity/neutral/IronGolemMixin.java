@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(IronGolem.class)
-public abstract class IronGolemEntityMixin {
+public abstract class IronGolemMixin {
 
     @Inject(method = "mobInteract", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$replaceRepairItem(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {

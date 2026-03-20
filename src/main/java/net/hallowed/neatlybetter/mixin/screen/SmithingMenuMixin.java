@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.function.Predicate;
 
 @Mixin(SmithingMenu.class)
-public abstract class SmithingScreenHandlerMixin {
+public abstract class SmithingMenuMixin {
 
     @ModifyArg(
             method = "createInputSlotDefinitions(Lnet/minecraft/world/item/crafting/RecipeAccess;)Lnet/minecraft/world/inventory/ItemCombinerMenuSlotDefinition;",

@@ -14,7 +14,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.input.MouseButtonEvent;
 
 @Mixin(ContainerEventHandler.class)
-public interface ParentElementMixin {
+public interface ContainerEventHandlerMixin {
 
     @Shadow
     List<? extends GuiEventListener> children();

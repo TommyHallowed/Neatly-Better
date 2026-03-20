@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.WeakHashMap;
 
 @Mixin(ItemModelResolver.class)
-public class ItemModelManagerMixin {
+public class ItemModelResolverMixin {
 
     @Unique
     private static final WeakHashMap<BakedQuad, BakedQuad> neatlybetter$glowCache = new WeakHashMap<>();

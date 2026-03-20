@@ -16,9 +16,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ContainerScreen.class)
-public abstract class GenericContainerScreenMixin extends AbstractContainerScreen<@NotNull ChestMenu> {
+public abstract class ContainerScreenMixin extends AbstractContainerScreen<@NotNull ChestMenu> {
 
-    protected GenericContainerScreenMixin(ChestMenu handler, Inventory inv, Component title) {
+    protected ContainerScreenMixin(ChestMenu handler, Inventory inv, Component title) {
         super(handler, inv, title);
     }
 

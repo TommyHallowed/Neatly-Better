@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 @Mixin(FoodData.class)
-public abstract class HungerManagerMixin {
+public abstract class FoodDataMixin {
 
     @ModifyConstant(
             method = "tick(Lnet/minecraft/server/level/ServerPlayer;)V",

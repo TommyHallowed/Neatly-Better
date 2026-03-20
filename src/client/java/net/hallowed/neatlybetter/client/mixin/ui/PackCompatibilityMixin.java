@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PackCompatibility.class)
-public abstract class ResourcePackCompatibilityMixin {
+public abstract class PackCompatibilityMixin {
 
     @Inject(method = "isCompatible", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$alwaysCompatible(CallbackInfoReturnable<Boolean> cir) {
