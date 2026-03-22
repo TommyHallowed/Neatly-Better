@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.entity.ai.task.FarmerReplantTask;
+import net.hallowed.neatlybetter.content.entity.ai.task.InteractWithFenceGate;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.EntityType;
@@ -36,6 +37,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(VillagerGoalPackages.class)
 public abstract class VillagerGoalPackagesMixin {
+
+    @Inject(method = "getCorePackage", at = @At("RETURN"), cancellable = true)
+    private static void neatlybetter$addFenceGateInteraction(
+            Holder<@NotNull VillagerProfession> holder,
+            float speed,
+            CallbackInfoReturnable<ImmutableList<@NotNull Pair<Integer, ? extends BehaviorControl<? super Villager>>>> cir
+    ) {
+        if (!NTServerConfig.CONFIG.villagerOpensFenceGate.get()) return;
+
+        ImmutableList<@NotNull Pair<Integer, ? extends BehaviorControl<? super Villager>>> original = cir.getReturnValue();
+        cir.setReturnValue(
+                ImmutableList.<Pair<Integer, ? extends BehaviorControl<? super Villager>>>builder()
+                        .addAll(original)
+                        .add(Pair.of(0, InteractWithFenceGate.create()))
+                        .build()
+        );
+    }
 
     @Inject(method = "getWorkPackage", at = @At("HEAD"), cancellable = true)
     private static void neatlybetter$addTillingTask(
