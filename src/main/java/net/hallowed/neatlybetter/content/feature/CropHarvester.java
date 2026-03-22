@@ -102,6 +102,8 @@ public class CropHarvester {
             }
         }
 
+        MoreXpDrops.tryAwardCropXp(level, pos);
+
         level.playSound(null, pos, state.getSoundType().getBreakSound(), net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
 
         level.setBlockAndUpdate(pos, block.defaultBlockState());
