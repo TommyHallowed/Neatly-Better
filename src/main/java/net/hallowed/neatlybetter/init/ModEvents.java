@@ -15,6 +15,7 @@ public final class ModEvents {
         ItemCooldownHandler.register();
         ComposterRegistration.register();
         ArmorStandSwapHandler.register();
+        JockeyAdditions.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();
