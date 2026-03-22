@@ -1,10 +1,16 @@
 package net.hallowed.neatlybetter.mixin.block;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -31,5 +37,18 @@ public class SweetBerryBushBlockMixin {
                 } catch (Throwable ignored) {}
             }
         }
+    }
+
+    @WrapOperation(
+            method = "entityInside",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z")
+    )
+    private boolean neatlybetter$leggingsProtectFromBush(Entity entity, ServerLevel serverLevel, DamageSource damageSource, float amount, Operation<Boolean> original) {
+        if (entity instanceof LivingEntity livingEntity) {
+            if (!livingEntity.getItemBySlot(EquipmentSlot.LEGS).isEmpty()) {
+                return false;
+            }
+        }
+        return original.call(entity, serverLevel, damageSource, amount);
     }
 }
