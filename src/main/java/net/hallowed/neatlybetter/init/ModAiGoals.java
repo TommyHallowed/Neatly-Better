@@ -41,6 +41,7 @@ public final class ModAiGoals {
         if ((type == EntityType.VINDICATOR ||
                         type == EntityType.PIGLIN_BRUTE ||
                         type == EntityType.ZOMBIFIED_PIGLIN ||
+                        type == EntityType.HUSK ||
                         type == EntityType.ZOMBIE)) {
             if (NTServerConfig.CONFIG.mobParkour.get()
                     && world.getDifficulty() == Difficulty.HARD
@@ -49,15 +50,7 @@ public final class ModAiGoals {
             }
         }
 
-        // 3) Open Fence Gate
-        if (type == EntityType.VILLAGER) {
-            if (NTServerConfig.CONFIG.villagerOpensFenceGate.get()
-                    && !hasGoal(goals, OpenFenceGateGoal.class)) {
-                goals.addGoal(2, new OpenFenceGateGoal(mob));
-            }
-        }
-
-        // 4) Follow emerald block
+        // 3) Follow emerald block
         if (type == EntityType.VILLAGER) {
             if (NTServerConfig.CONFIG.villagerEmeraldBlockTempt.get()
                     && mob instanceof PathfinderMob path
@@ -66,7 +59,7 @@ public final class ModAiGoals {
             }
         }
 
-        // 5) Sheep flee from wolves
+        // 4) Sheep flee from wolves
         if (type == EntityType.SHEEP) {
             if (NTServerConfig.CONFIG.sheepRunFromWolves.get()
                     && mob instanceof PathfinderMob path
@@ -75,7 +68,7 @@ public final class ModAiGoals {
             }
         }
 
-        // 6) Ground-item breeding
+        // 5) Ground-item breeding
         if (mob instanceof Animal animal
                 && NTServerConfig.CONFIG.groundItemBreeding.get()
                 && !hasGoal(goals, GroundItemBreedGoal.class)) {
