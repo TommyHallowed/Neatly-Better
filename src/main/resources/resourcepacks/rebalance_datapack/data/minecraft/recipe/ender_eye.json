@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "W": "minecraft:wind_charge",
+    "D": "minecraft:echo_shard",
+    "P": "minecraft:prismarine_shard",
+    "B": "minecraft:blaze_powder",
+    "E": "minecraft:ender_eye"
+  },
+  "pattern": [
+    " W ",
+    "DEP",
+    " B "
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft:recovery_compass"
+  }
+}

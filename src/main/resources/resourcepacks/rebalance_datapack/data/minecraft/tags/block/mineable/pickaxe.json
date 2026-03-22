@@ -1,0 +1,30 @@
+{
+  "replace": false,
+  "values": [
+    "neatly-better:smooth_stone_stairs",
+    "neatly-better:calcite_stairs",
+    "neatly-better:quartz_brick_stairs",
+    "neatly-better:end_stone_stairs",
+    "neatly-better:smooth_basalt_stairs",
+    "neatly-better:calcite_slab",
+    "neatly-better:quartz_brick_slab",
+    "neatly-better:end_stone_slab",
+    "neatly-better:smooth_basalt_slab",
+    "neatly-better:polished_granite_wall",
+    "neatly-better:polished_andesite_wall",
+    "neatly-better:polished_diorite_wall",
+    "neatly-better:stone_wall",
+    "neatly-better:smooth_stone_wall",
+    "neatly-better:calcite_wall",
+    "neatly-better:quartz_wall",
+    "neatly-better:quartz_brick_wall",
+    "neatly-better:smooth_quartz_wall",
+    "neatly-better:end_stone_wall",
+    "neatly-better:purpur_wall",
+    "neatly-better:smooth_basalt_wall",
+    "neatly-better:prismarine_brick_wall",
+    "neatly-better:dark_prismarine_wall",
+    "neatly-better:smooth_sandstone_wall",
+    "neatly-better:smooth_red_sandstone_wall"
+  ]
+}
