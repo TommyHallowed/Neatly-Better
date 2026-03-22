@@ -21,5 +21,6 @@ public final class ModEvents {
         BoneMealExpansion.init();
         //ElytraFlightLimiter.init();
         CauldronCleaning.init();
+        MoreXpDrops.init();
     }
 }
