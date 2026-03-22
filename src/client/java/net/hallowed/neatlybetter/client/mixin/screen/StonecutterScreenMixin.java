@@ -82,12 +82,20 @@ public abstract class StonecutterScreenMixin extends AbstractContainerScreen<@No
         Item lastItem = neatlybetter$getLastCraftedItem();
 
         if (lastItem != null) {
-            int buttonX = this.leftPos + 143;
-            int buttonY = this.topPos + 58;
+            int itemX = this.leftPos + 143;
+            int hitTop = this.topPos + 58;
+            int iconSize = 12;
+            float iconX = itemX - iconSize / 2.0F + 2;
+            float iconY = hitTop + 16 - iconSize / 2.0F -2;
+
+            int hitLeft   = (int) iconX;
+            int hitRight  = itemX + 16;
+            int hitBottom = (int) (iconY + iconSize);
+
             double mouseX = mouseButtonEvent.x();
             double mouseY = mouseButtonEvent.y();
 
-            if (mouseX >= buttonX && mouseX < buttonX + 16 && mouseY >= buttonY && mouseY < buttonY + 16) {
+            if (mouseX >= hitLeft && mouseY >= hitTop && mouseX < hitRight && mouseY < hitBottom) {
                 if (this.minecraft.gameMode == null || this.minecraft.player == null) return;
 
                 boolean isShift = mouseButtonEvent.hasShiftDown();
@@ -182,15 +190,30 @@ public abstract class StonecutterScreenMixin extends AbstractContainerScreen<@No
             }
 
             if (canCraftNow) {
-                int buttonX = this.leftPos + 143;
-                int buttonY = this.topPos + 58;
-                boolean hovered = mouseX >= buttonX && mouseY >= buttonY && mouseX < buttonX + 16 && mouseY < buttonY + 16;
+                int itemX = this.leftPos + 143;
+                int hitTop = this.topPos + 58;
 
-                context.renderItem(new ItemStack(lastItem), buttonX, buttonY);
+                float iconScale = 0.75F;
+                int iconSize = 12;
+                float iconX = itemX - iconSize / 2.0F + 2;
+                float iconY = hitTop + 16 - iconSize / 2.0F - 2;
+
+                int hitLeft   = (int) iconX;
+                int hitRight  = itemX + 16;
+                int hitBottom = (int) (iconY + iconSize);
+                boolean hovered = mouseX >= hitLeft && mouseY >= hitTop
+                        && mouseX < hitRight && mouseY < hitBottom;
+
+                context.renderItem(new ItemStack(lastItem), itemX, hitTop);
 
                 float u = 0.0F;
                 float v = hovered ? 16.0F : 0.0F;
-                context.blit(RenderPipelines.GUI_TEXTURED, ModTextures.RECRAFT_BUTTON, buttonX, buttonY, u, v, 16, 16, 32, 32);
+
+                context.pose().pushMatrix();
+                context.pose().translate(iconX, iconY);
+                context.pose().scale(iconScale, iconScale);
+                context.blit(RenderPipelines.GUI_TEXTURED, ModTextures.RECRAFT_BUTTON, 0, 0, u, v, 16, 16, 32, 32);
+                context.pose().popMatrix();
             }
         }
     }
