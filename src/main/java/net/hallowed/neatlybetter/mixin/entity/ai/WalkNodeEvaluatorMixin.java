@@ -22,7 +22,7 @@ public abstract class WalkNodeEvaluatorMixin {
     @Inject(method = "getPathTypeFromState", at = @At("RETURN"), cancellable = true)
     private static void neatlybetter$fenceGatePathType(BlockGetter level, BlockPos pos,
                                                        CallbackInfoReturnable<PathType> cir) {
-    if (NTServerConfig.CONFIG.villagerOpensFenceGate.get()) {
+    if (NTServerConfig.CONFIG_SPEC.isLoaded() && NTServerConfig.CONFIG.villagerOpensFenceGate.get()) {
         BlockState state = level.getBlockState(pos);
         if (state.getBlock() instanceof FenceGateBlock && !state.getValue(FenceGateBlock.OPEN)) {
             cir.setReturnValue(PathType.DOOR_WOOD_CLOSED);
@@ -32,7 +32,7 @@ public abstract class WalkNodeEvaluatorMixin {
 
     @Inject(method = "prepare", at = @At("TAIL"))
     private void neatlybetter$ensureVillagerDoorFlags(PathNavigationRegion region, Mob mob, CallbackInfo ci) {
-            if (NTServerConfig.CONFIG.villagerOpensFenceGate.get()) {
+            if (NTServerConfig.CONFIG_SPEC.isLoaded() && NTServerConfig.CONFIG.villagerOpensFenceGate.get()) {
             if (mob instanceof Villager) {
                 ((WalkNodeEvaluator)(Object)this).setCanOpenDoors(true);
                 ((WalkNodeEvaluator)(Object)this).setCanPassDoors(true);
