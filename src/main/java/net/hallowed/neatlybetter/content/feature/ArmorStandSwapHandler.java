@@ -24,7 +24,7 @@ public class ArmorStandSwapHandler {
 
             if (!NTServerConfig.CONFIG.armorStandSwap.get()) return InteractionResult.PASS;
 
-                if (hand != InteractionHand.MAIN_HAND
+            if (hand != InteractionHand.MAIN_HAND
                         || !player.isShiftKeyDown()
                         || !(entity instanceof ArmorStand armorStand)) {
                     return InteractionResult.PASS;
