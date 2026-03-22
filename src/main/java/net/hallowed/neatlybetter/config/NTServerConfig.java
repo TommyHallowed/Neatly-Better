@@ -15,22 +15,17 @@ public final class NTServerConfig {
         CONFIG_SPEC = pair.getRight();
     }
 
-    // ── Mob ─────────────────────────────────────────
-    // Creeper
     public final ModConfigSpec.BooleanValue creeperOrbiting;
     public final ModConfigSpec.BooleanValue creeperWalkIgnite;
     public final ModConfigSpec.BooleanValue creeperSneaky;
-    // Villager
     public final ModConfigSpec.BooleanValue villagerOpensFenceGate;
     public final ModConfigSpec.BooleanValue villagerEmeraldBlockTempt;
     public final ModConfigSpec.BooleanValue villagerFarmerReplant;
     public final ModConfigSpec.BooleanValue villagerGlobalCuringPrices;
     public final ModConfigSpec.BooleanValue villagerInfiniteCuringDiscounts;
     public final ModConfigSpec.BooleanValue villagerBookLevelCap;
-    // Iron Golem
     public final ModConfigSpec.BooleanValue ironGolemNoSpeedrun;
     public final ModConfigSpec.BooleanValue ironGolemRepairUsingBlocks;
-    // General
     public final ModConfigSpec.BooleanValue piglinRespectsTrims;
     public final ModConfigSpec.BooleanValue runWhileCharging;
     public final ModConfigSpec.BooleanValue mobParkour;
@@ -39,42 +34,26 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue sheepRunFromWolves;
     public final ModConfigSpec.BooleanValue oldSpiderAttacks;
     public final ModConfigSpec.BooleanValue vexDiesAfterSummoner;
-
-    // ── Block ───────────────────────────────────────
-    // Anvil
     public final ModConfigSpec.BooleanValue anvilNoRenameCost;
     public final ModConfigSpec.BooleanValue anvilNoItalicsRename;
     public final ModConfigSpec.BooleanValue anvilRenameColors;
     public final ModConfigSpec.BooleanValue anvilNoTooExpensive;
     public final ModConfigSpec.BooleanValue anvilEnchantFeather;
-    // Beacon
     public final ModConfigSpec.BooleanValue beaconSoakEffects;
     public final ModConfigSpec.IntValue maxBeaconRange;
-    // General
     public final ModConfigSpec.BooleanValue dispenserCauldronInteraction;
     public final ModConfigSpec.IntValue spongeBlockAbsorbRadius;
     public final ModConfigSpec.BooleanValue rainIncreasesCropGrowth;
     public final ModConfigSpec.BooleanValue harderNetherrack;
     public final ModConfigSpec.BooleanValue magmaSpawnsLava;
-
-    // ── Item ────────────────────────────────────────
     public final ModConfigSpec.IntValue totemCooldown;
     public final ModConfigSpec.IntValue shieldRaiseDelay;
     public final ModConfigSpec.BooleanValue doElytraFireworkBoosting;
     public final ModConfigSpec.BooleanValue featherNoDamage;
-
-    // ── Enchantment ─────────────────────────────────
-    // Mending
     public final ModConfigSpec.EnumValue<MendingScope> mendingInventory;
     public final ModConfigSpec.DoubleValue mendingEfficiency;
-    // General
     public final ModConfigSpec.BooleanValue protectionOverhaul;
-
-    // ── Potion Effect ───────────────────────────────
-    // Resistance
     public final ModConfigSpec.BooleanValue resistanceOverhaul;
-
-    // ── Player ──────────────────────────────────────
     public final ModConfigSpec.EnumValue<SleepMode> allowSleeping;
     public final ModConfigSpec.BooleanValue hungerMechanics;
     public final ModConfigSpec.BooleanValue xpFromMiningNonOre;
@@ -82,8 +61,6 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue stepUpDisabledWhileShifting;
     public final ModConfigSpec.BooleanValue explosionsDisableShield;
     public final ModConfigSpec.BooleanValue throwableKnockbackToPlayers;
-
-    // ── Feature ─────────────────────────────────────
     public final ModConfigSpec.BooleanValue cropHarvester;
     public final ModConfigSpec.BooleanValue armorStandSwap;
 
@@ -410,10 +387,10 @@ public final class NTServerConfig {
         protectionOverhaul = builder
                 .comment("§eAll protection types have lower damage absorption.")
                 .comment("")
-                .comment("§eVanilla: Full set with Protection IV = 64% Damage Reduction.")
-                .comment("         §eFull Set with Fire/Projectile/Blast Protection IV = 80% Damage Reduction.")
-                .comment("    §eMod: Full set with Protection IV = 35% Damage Reduction.")
-                .comment("         §eFull Set with Fire/Projectile/Blast Protection IV = 50% Damage Reduction.")
+                .comment("§eVanilla: Full Protection IV = 64% Damage Reduction.")
+                .comment("         §eFull Fire/Projectile/Blast Protection IV = 80% Damage Reduction.")
+                .comment("    §eMod: Full Protection IV = 35% Damage Reduction.")
+                .comment("         §eFull Fire/Projectile/Blast Protection IV = 50% Damage Reduction.")
                 .translation("neatly-better.config.protection_overhaul")
                 .define("protection_overhaul", true);
 
@@ -428,7 +405,7 @@ public final class NTServerConfig {
                 .define("resistance_overhaul", true);
 
         hungerMechanics = builder
-                .comment("§eModifies the hunger system to make healing at full hp slower.")
+                .comment("§eModifies the hunger system to make healing at full hp slower depending on difficultly.")
                 .translation("neatly-better.config.hunger_mechanics")
                 .define("hunger_mechanics", true);
 
