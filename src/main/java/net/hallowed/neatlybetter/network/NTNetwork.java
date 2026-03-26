@@ -6,6 +6,8 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.hallowed.neatlybetter.compat.BackpackedServerCompat;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
+import net.hallowed.neatlybetter.config.ShieldDelayHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponents;
@@ -145,6 +147,18 @@ public final class NTNetwork {
         @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
     }
 
+    /** S2C: syncs the server's shield raise delay to the client. */
+    public record ShieldDelaySyncPayload(int shieldRaiseDelay) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<@NotNull ShieldDelaySyncPayload> ID =
+                new CustomPacketPayload.Type<>(id("shield_delay_sync"));
+        public static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull ShieldDelaySyncPayload> CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.VAR_INT, ShieldDelaySyncPayload::shieldRaiseDelay,
+                        ShieldDelaySyncPayload::new
+                );
+        @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
+    }
+
     /* ===================== Registration (common/server) ===================== */
 
     /** Call from your common init (TheNeatlyBetter#onInitialize). */
@@ -161,6 +175,9 @@ public final class NTNetwork {
         PayloadTypeRegistry.playS2C().register(BackpackCheckResponse.ID, BackpackCheckResponse.CODEC);
         PayloadTypeRegistry.playS2C().register(BackpackLodestones.ID,    BackpackLodestones.CODEC);
 
+        // Shield delay sync
+        PayloadTypeRegistry.playS2C().register(ShieldDelaySyncPayload.ID, ShieldDelaySyncPayload.CODEC);
+
         // -- Server-side receivers --
         ServerPlayNetworking.registerGlobalReceiver(EnderCheckRequest.ID,
                 (payload, ctx) -> pushEnderChestState(ctx.player()));
@@ -172,7 +189,27 @@ public final class NTNetwork {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             pushEnderChestState(handler.player);
             pushBackpackState(handler.player);
+            pushShieldDelay(handler.player);
         });
+    }
+
+    /* ===================== Shield Delay Sync ===================== */
+
+    /** Push the current shield raise delay to a single player. */
+    private static void pushShieldDelay(ServerPlayer player) {
+        int delay = NTServerConfig.CONFIG.shieldRaiseDelay.get();
+        ShieldDelayHolder.setShieldRaiseDelay(delay);
+        ServerPlayNetworking.send(player, new ShieldDelaySyncPayload(delay));
+    }
+
+    /** Re-sync shield delay to all online players (call after config reload). */
+    public static void syncShieldDelayToAll(MinecraftServer server) {
+        int delay = NTServerConfig.CONFIG.shieldRaiseDelay.get();
+        ShieldDelayHolder.setShieldRaiseDelay(delay);
+        ShieldDelaySyncPayload payload = new ShieldDelaySyncPayload(delay);
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            ServerPlayNetworking.send(player, payload);
+        }
     }
 
     /* ===================== Armor Swap Handler ===================== */
