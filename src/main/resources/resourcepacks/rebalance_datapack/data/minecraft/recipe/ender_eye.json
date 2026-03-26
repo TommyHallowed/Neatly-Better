@@ -6,7 +6,7 @@
     "D": "minecraft:echo_shard",
     "P": "minecraft:prismarine_shard",
     "B": "minecraft:blaze_powder",
-    "E": "minecraft:ender_eye"
+    "E": "minecraft:ender_pearl"
   },
   "pattern": [
     " W ",
@@ -15,6 +15,6 @@
   ],
   "result": {
     "count": 1,
-    "id": "minecraft:recovery_compass"
+    "id": "minecraft:ender_eye"
   }
 }
