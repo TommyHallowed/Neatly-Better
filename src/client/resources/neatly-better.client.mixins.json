@@ -9,6 +9,7 @@
     "entity.ItemEntityRendererMixin",
     "entity.effect.MobEffectInstanceMixin",
     "entity.player.LocalPlayerMixin",
+    "entity.ClientLivingEntityMixin",
     "feature.EquipmentRendererMixin",
     "feature.MultiPlayerGameModeMixin",
     "item.ItemModelResolverMixin",

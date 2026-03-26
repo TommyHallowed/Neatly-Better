@@ -6,7 +6,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
-import net.hallowed.neatlybetter.config.ShieldDelayHolder;
 import net.hallowed.neatlybetter.content.feature.ItemCooldownHandler;
 import net.hallowed.neatlybetter.util.ProtectionContext;
 
@@ -130,17 +129,7 @@ public abstract class LivingEntityMixin {
             )
     )
     private int neatlybetter$customBlockDelay(BlocksAttacks instance, Operation<Integer> original) {
-        LivingEntity self = (LivingEntity) (Object) this;
-
-        int configDelay;
-        if (self.level() instanceof ServerLevel) {
-            // Server: read directly from config (always fresh)
-            configDelay = NTServerConfig.CONFIG.shieldRaiseDelay.get();
-        } else {
-            // Client: read from synced holder (updated via S2C payload)
-            configDelay = ShieldDelayHolder.getShieldRaiseDelay();
-        }
-
+        int configDelay = NTServerConfig.CONFIG.shieldRaiseDelay.get();
         if (configDelay == 5) return original.call(instance);
         return configDelay;
     }
