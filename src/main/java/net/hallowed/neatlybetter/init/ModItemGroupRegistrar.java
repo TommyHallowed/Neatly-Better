@@ -44,5 +44,10 @@ public final class ModItemGroupRegistrar {
             entries.addAfter(Items.SMOOTH_SANDSTONE_SLAB,   SMOOTH_SANDSTONE_WALL);
             entries.addAfter(Items.SMOOTH_RED_SANDSTONE_SLAB,   SMOOTH_RED_SANDSTONE_WALL);
         });
+
+        NTRegistry.addToGroup(CreativeModeTabs.COLORED_BLOCKS, entries -> {
+            entries.addAfter(Items.PINK_WOOL , RAINBOW_WOOL);
+            entries.addAfter(Items.PINK_CARPET , RAINBOW_CARPET);
+        });
     }
 }

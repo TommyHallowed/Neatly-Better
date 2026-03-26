@@ -2,11 +2,7 @@ package net.hallowed.neatlybetter.init;
 
 import net.hallowed.neatlybetter.api.NTRegistry;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.StairBlock;
-import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public final class ModBlocks {
@@ -20,6 +16,8 @@ public final class ModBlocks {
             SMOOTH_STONE_WALL, CALCITE_WALL, QUARTZ_WALL, QUARTZ_BRICK_WALL, SMOOTH_QUARTZ_WALL,
             END_STONE_WALL, PURPUR_WALL, SMOOTH_BASALT_WALL, PRISMARINE_BRICK_WALL, DARK_PRISMARINE_WALL,
             SMOOTH_SANDSTONE_WALL, SMOOTH_RED_SANDSTONE_WALL;
+
+    public static Block RAINBOW_WOOL, RAINBOW_CARPET;
 
     public static void register() {
         // Stairs
@@ -122,5 +120,11 @@ public final class ModBlocks {
 
         SMOOTH_RED_SANDSTONE_WALL = NTRegistry.registerBlockWithItem("smooth_red_sandstone_wall",
                 new WallBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SMOOTH_RED_SANDSTONE).requiresCorrectToolForDrops().setId(NTRegistry.blockKey("smooth_red_sandstone_wall"))));
+
+        RAINBOW_WOOL = NTRegistry.registerBlockWithItem("rainbow_wool",
+                new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL).setId(NTRegistry.blockKey("rainbow_wool"))));
+
+        RAINBOW_CARPET = NTRegistry.registerBlockWithItem("rainbow_carpet",
+                new CarpetBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_CARPET).setId(NTRegistry.blockKey("rainbow_carpet"))));
     }
 }
