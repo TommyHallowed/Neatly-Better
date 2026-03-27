@@ -17,6 +17,7 @@ import net.hallowed.neatlybetter.client.tooltip.EffectTooltipRenderer;
 import net.hallowed.neatlybetter.client.util.BackpackCheckClient;
 import net.hallowed.neatlybetter.client.util.EnderCheckClient;
 import net.hallowed.neatlybetter.tooltip.MapPreviewTooltip;
+
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 

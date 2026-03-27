@@ -5,7 +5,6 @@ import fuzs.forgeconfigapiport.fabric.api.v5.ConfigRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -20,6 +19,7 @@ import net.hallowed.neatlybetter.util.FastChunkScanner;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+
 import net.neoforged.fml.config.ModConfig;
 
 public class NeatlyBetter implements ModInitializer {
@@ -33,8 +33,8 @@ public class NeatlyBetter implements ModInitializer {
 
         // 2) Register content
         ModBlocks.register();
-        ModAiGoals.register();
         ModItems.register();
+        ModAiGoals.register();
         ModPotions.registerAll();
         ModBrewing.register();
         ModTickets.init();
