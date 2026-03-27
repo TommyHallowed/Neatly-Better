@@ -5,6 +5,7 @@
   "refmap": "neatly-better-refmap.json",
   "client": [
     "component.BannerPatternLayersClientMixin",
+    "compat.BBEBedMixin",
     "entity.ClientEffectSyncMixin",
     "entity.ClientLivingEntityMixin",
     "entity.ItemEntityRendererMixin",
