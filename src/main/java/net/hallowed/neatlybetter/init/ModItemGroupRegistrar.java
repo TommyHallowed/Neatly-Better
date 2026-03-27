@@ -48,6 +48,7 @@ public final class ModItemGroupRegistrar {
         NTRegistry.addToGroup(CreativeModeTabs.COLORED_BLOCKS, entries -> {
             entries.addAfter(Items.PINK_WOOL , RAINBOW_WOOL);
             entries.addAfter(Items.PINK_CARPET , RAINBOW_CARPET);
+            entries.addAfter(Items.PINK_BED , RAINBOW_BED);
         });
     }
 }

@@ -2,7 +2,9 @@ package net.hallowed.neatlybetter.init;
 
 import net.hallowed.neatlybetter.api.NTRegistry;
 
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public final class ModBlocks {
@@ -17,7 +19,7 @@ public final class ModBlocks {
             END_STONE_WALL, PURPUR_WALL, SMOOTH_BASALT_WALL, PRISMARINE_BRICK_WALL, DARK_PRISMARINE_WALL,
             SMOOTH_SANDSTONE_WALL, SMOOTH_RED_SANDSTONE_WALL;
 
-    public static Block RAINBOW_WOOL, RAINBOW_CARPET;
+    public static Block RAINBOW_WOOL, RAINBOW_CARPET, RAINBOW_BED;
 
     public static void register() {
         // Stairs
@@ -126,5 +128,11 @@ public final class ModBlocks {
 
         RAINBOW_CARPET = NTRegistry.registerBlockWithItem("rainbow_carpet",
                 new CarpetBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_CARPET).setId(NTRegistry.blockKey("rainbow_carpet"))));
+
+        RAINBOW_BED = NTRegistry.registerBlock("rainbow_bed",
+                new BedBlock(DyeColor.WHITE,
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_BED)
+                                .setId(NTRegistry.blockKey("rainbow_bed"))));
+        BlockEntityType.BED.addSupportedBlock(RAINBOW_BED);
     }
 }

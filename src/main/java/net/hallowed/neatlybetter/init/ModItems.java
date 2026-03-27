@@ -6,8 +6,11 @@ import net.hallowed.neatlybetter.api.NTRegistry;
 
 import net.hallowed.neatlybetter.content.item.MapBuilderItem;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.BedItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import static net.hallowed.neatlybetter.init.ModBlocks.RAINBOW_BED;
 
 public final class ModItems {
     private ModItems() {}
@@ -25,6 +28,11 @@ public final class ModItems {
                 new Item(new Item.Properties()
                         .stacksTo(1)
                         .setId(NTRegistry.itemKey("chest_key"))));
+
+        NTRegistry.registerItem("rainbow_bed",
+                new BedItem(RAINBOW_BED, new Item.Properties()
+                        .stacksTo(1)
+                        .setId(NTRegistry.itemKey("rainbow_bed"))));
 
         AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
             if (!world.isClientSide() && !player.isSpectator()) {
