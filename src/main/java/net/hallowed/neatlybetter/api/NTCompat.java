@@ -17,7 +17,8 @@ public final class NTCompat {
             "enchancement",
             "doubledoors",
             "rightclickharvest",
-            "reap"
+            "reap",
+            "betterblockentities"
     );
 
     private static final Map<String, Boolean> CACHE;
@@ -50,4 +51,5 @@ public final class NTCompat {
     public static final boolean DOUBLEDOORS       = isLoaded("doubledoors");
     public static final boolean RIGHTCLICKHARVEST = isLoaded("rightclickharvest");
     public static final boolean REAP              = isLoaded("reap");
+    public static final boolean BETTER_BLOCK_ENTITIES  = isLoaded("betterblockentities");
 }

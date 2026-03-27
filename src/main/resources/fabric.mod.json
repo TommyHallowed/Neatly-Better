@@ -37,6 +37,7 @@
       "suggests": {
           "backpacked": "*",
 		  "elytratrims": "*",
-		  "modmenu": "*"
+		  "modmenu": "*",
+		  "betterblockentities": "*"
       }
 }

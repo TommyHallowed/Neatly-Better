@@ -60,6 +60,7 @@ dependencies {
 
     // Integrations
     modCompileOnly "maven.modrinth:elytra-trims:blIGhB35"
+    modCompileOnly "maven.modrinth:better-block-entities:POqeY8nL"
     modCompileOnly files("libs/framework-fabric-1.21.11-0.13.11.jar")
     modCompileOnly files("libs/backpacked-fabric-1.21.11-3.0.3.jar")
 

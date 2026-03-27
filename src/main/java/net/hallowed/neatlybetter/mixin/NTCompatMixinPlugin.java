@@ -19,6 +19,9 @@ public class NTCompatMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.contains("BackpackInventory")) {
             return NTCompat.BACKPACKED;
         }
+        if (mixinClassName.contains("BBEBed")) {
+            return NTCompat.BETTER_BLOCK_ENTITIES;
+        }
         return true;
     }
 
