@@ -15,6 +15,7 @@ repositories {
     maven { url = "https://api.modrinth.com/maven" }
     maven { url = "https://maven.terraformersmc.com/releases/" }
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"}
+    maven { url = "https://cursemaven.com"}
 }
 
 loom {
@@ -61,8 +62,8 @@ dependencies {
     // Integrations
     modCompileOnly "maven.modrinth:elytra-trims:blIGhB35"
     modCompileOnly "maven.modrinth:better-block-entities:POqeY8nL"
-    modCompileOnly files("libs/framework-fabric-1.21.11-0.13.11.jar")
-    modCompileOnly files("libs/backpacked-fabric-1.21.11-3.0.3.jar")
+    modCompileOnly "curse.maven:framework-549225:${project.framework_version}"
+    modCompileOnly "curse.maven:backpacked-352835:${project.backpacked_version}"
 
     //  Config
     modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
