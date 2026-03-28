@@ -6,6 +6,7 @@ import net.hallowed.neatlybetter.client.tooltip.EffectTooltipData;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.tooltip.MapPreviewTooltip;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -13,6 +14,7 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.MapItem;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.OminousBottleAmplifier;
@@ -21,6 +23,7 @@ import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.consume_effects.ConsumeEffect;
 import net.minecraft.world.level.saveddata.maps.MapId;
 
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -46,7 +49,13 @@ public abstract class ItemTooltipsMixin {
         if (stack.is(Items.FILLED_MAP)) {
             MapId mapId = stack.get(DataComponents.MAP_ID);
             if (mapId != null && NTClientConfig.CONFIG.mapTooltip.get()) {
-                return Optional.of(new MapPreviewTooltip(mapId));
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.level != null) {
+                    MapItemSavedData mapData = MapItem.getSavedData(mapId, mc.level);
+                    if (mapData != null) {
+                        return Optional.of(new MapPreviewTooltip(mapId));
+                    }
+                }
             }
         }
 
