@@ -5,6 +5,7 @@
   "mixins": [
     "block.BambooStalkBlockMixin",
     "block.BlockBehaviourMixin",
+    "block.BlockMixin",
     "block.BlockStateBaseMixin",
     "block.CocoaBlockMixin",
     "block.CropBlockMixin",
