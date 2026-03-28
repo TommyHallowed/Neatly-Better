@@ -18,6 +18,7 @@ public final class ModPotions {
     public static Holder<@NotNull Potion> LONG_HASTE;
     public static Holder<@NotNull Potion> STRONG_HASTE;
     public static Holder<@NotNull Potion> STRONG_LONG_HASTE;
+    public static Holder<@NotNull Potion> SHORT_POISON;
 
     private static Holder<@NotNull Potion> register(String name, Potion potion) {
         return Registry.registerForHolder(BuiltInRegistries.POTION, NTRegistry.id(name), potion);
@@ -39,5 +40,8 @@ public final class ModPotions {
         // 8:00 Haste II
         STRONG_LONG_HASTE = register("strong_long_haste",
                 new Potion("haste", new MobEffectInstance(MobEffects.HASTE, 20 * 480, 1)));
+
+        SHORT_POISON = register("poison",
+                new Potion("poison", new MobEffectInstance(MobEffects.POISON, 20 * 25, 0)));
     }
 }
