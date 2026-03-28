@@ -16,6 +16,7 @@ public final class ModEvents {
         ComposterRegistration.register();
         ArmorStandSwapHandler.register();
         JockeyAdditions.register();
+        SleepModeHandler.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();
