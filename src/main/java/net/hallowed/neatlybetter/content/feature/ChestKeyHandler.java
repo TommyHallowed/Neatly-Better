@@ -39,16 +39,27 @@ import java.util.UUID;
 @SuppressWarnings("UnstableApiUsage")
 public class ChestKeyHandler {
 
-    public record LockOwner(String uuid, String name) {
+    public record LockOwner(String uuid, String name, String secondUuid, String secondName) {
         public static final Codec<LockOwner> CODEC = RecordCodecBuilder.create(instance ->
                 instance.group(
                         Codec.STRING.fieldOf("uuid").forGetter(LockOwner::uuid),
-                        Codec.STRING.fieldOf("name").forGetter(LockOwner::name)
+                        Codec.STRING.fieldOf("name").forGetter(LockOwner::name),
+                        Codec.STRING.optionalFieldOf("secondUuid", "").forGetter(LockOwner::secondUuid),
+                        Codec.STRING.optionalFieldOf("secondName", "").forGetter(LockOwner::secondName)
                 ).apply(instance, LockOwner::new)
         );
 
-        public UUID ownerUuid() {
-            return UUID.fromString(uuid);
+        public boolean isOwner(UUID playerUuid) {
+            if (UUID.fromString(uuid).equals(playerUuid)) return true;
+            return !secondUuid.isEmpty() && UUID.fromString(secondUuid).equals(playerUuid);
+        }
+
+        public boolean hasSecondOwner() {
+            return !secondUuid.isEmpty();
+        }
+
+        public String displayNames() {
+            return hasSecondOwner() ? name + " & " + secondName : name;
         }
     }
 
@@ -58,11 +69,9 @@ public class ChestKeyHandler {
     );
 
     public static void register() {
-        UseBlockCallback.EVENT.register(ChestLockHandler::onUseBlock);
-        PlayerBlockBreakEvents.BEFORE.register(ChestLockHandler::onBlockBreak);
+        UseBlockCallback.EVENT.register(ChestKeyHandler::onUseBlock);
+        PlayerBlockBreakEvents.BEFORE.register(ChestKeyHandler::onBlockBreak);
     }
-
-    // ── Master Key helpers ─────────────────────────
 
     private static boolean isMasterKey(ItemStack stack) {
         if (!stack.is(ModItems.CHEST_KEY)) return false;
@@ -78,8 +87,6 @@ public class ChestKeyHandler {
         }
         return false;
     }
-
-    // ── Event handlers ─────────────────────────────
 
     private static InteractionResult onUseBlock(Player player, Level world,
                                                 InteractionHand hand, BlockHitResult hitResult) {
@@ -108,17 +115,16 @@ public class ChestKeyHandler {
             return InteractionResult.PASS;
         }
 
-        if (owner.ownerUuid().equals(serverPlayer.getUUID())) {
+        if (owner.isOwner(serverPlayer.getUUID())) {
             return InteractionResult.PASS;
         }
 
-        // Master key bypasses the lock for opening
         if (isHoldingMasterKey(serverPlayer)) {
             return InteractionResult.PASS;
         }
 
         serverPlayer.displayClientMessage(
-                Component.literal("This container is locked by " + owner.name() + "!")
+                Component.literal("This container is locked by " + owner.displayNames() + "!")
                         .withStyle(ChatFormatting.RED),
                 true
         );
@@ -132,7 +138,8 @@ public class ChestKeyHandler {
         LockOwner owner = getOwnerChecked(level, pos);
 
         if (owner == null) {
-            lockContainer(level, pos, player);
+            ItemStack keyStack = player.getItemInHand(hand);
+            lockContainer(level, pos, player, keyStack);
             player.displayClientMessage(
                     Component.literal("Container locked!").withStyle(ChatFormatting.GREEN),
                     true
@@ -142,7 +149,7 @@ public class ChestKeyHandler {
             return InteractionResult.SUCCESS;
         }
 
-        if (owner.ownerUuid().equals(player.getUUID())) {
+        if (owner.isOwner(player.getUUID())) {
             unlockContainer(level, pos);
             player.displayClientMessage(
                     Component.literal("Container unlocked!").withStyle(ChatFormatting.YELLOW),
@@ -153,7 +160,6 @@ public class ChestKeyHandler {
             return InteractionResult.SUCCESS;
         }
 
-        // Master key can force-unlock others' containers
         if (isMasterKey(player.getItemInHand(hand))) {
             unlockContainer(level, pos);
             player.displayClientMessage(
@@ -167,7 +173,7 @@ public class ChestKeyHandler {
         }
 
         player.displayClientMessage(
-                Component.literal("This container is locked by " + owner.name() + "!")
+                Component.literal("This container is locked by " + owner.displayNames() + "!")
                         .withStyle(ChatFormatting.RED),
                 true
         );
@@ -185,12 +191,11 @@ public class ChestKeyHandler {
             return true;
         }
 
-        if (owner.ownerUuid().equals(player.getUUID())) {
+        if (owner.isOwner(player.getUUID())) {
             unlockContainer((ServerLevel) world, pos);
             return true;
         }
 
-        // Master key allows breaking locked chests (removes lock first)
         if (isHoldingMasterKey(player)) {
             unlockContainer((ServerLevel) world, pos);
             return true;
@@ -198,7 +203,7 @@ public class ChestKeyHandler {
 
         if (player instanceof ServerPlayer sp) {
             sp.displayClientMessage(
-                    Component.literal("This container is locked by " + owner.name() + "!")
+                    Component.literal("This container is locked by " + owner.displayNames() + "!")
                             .withStyle(ChatFormatting.RED),
                     true
             );
@@ -206,12 +211,28 @@ public class ChestKeyHandler {
         return false;
     }
 
-    // ── Lock/unlock helpers ────────────────────────
+    private static void lockContainer(ServerLevel level, BlockPos pos, ServerPlayer player, ItemStack keyStack) {
+        String secondUuid = "";
+        String secondName = "";
 
-    private static void lockContainer(ServerLevel level, BlockPos pos, ServerPlayer player) {
+        Component customName = keyStack.get(DataComponents.CUSTOM_NAME);
+        if (customName != null) {
+            String keyName = customName.getString();
+            for (ServerPlayer online : level.getServer().getPlayerList().getPlayers()) {
+                if (online.equals(player)) continue;
+                if (keyName.contains(online.getScoreboardName())) {
+                    secondUuid = online.getUUID().toString();
+                    secondName = online.getScoreboardName();
+                    break;
+                }
+            }
+        }
+
         LockOwner owner = new LockOwner(
                 player.getUUID().toString(),
-                player.getScoreboardName()
+                player.getScoreboardName(),
+                secondUuid,
+                secondName
         );
 
         applyLock(level, pos, owner);
