@@ -11,7 +11,7 @@ public final class ModEvents {
         AddedItemProperties.register();
         MinecartChainHandler.register();
         CropHarvester.register();
-        ChestLockHandler.register();
+        ChestKeyHandler.register();
         ItemCooldownHandler.register();
         ComposterRegistration.register();
         ArmorStandSwapHandler.register();

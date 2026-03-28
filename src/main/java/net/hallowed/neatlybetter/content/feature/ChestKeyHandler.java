@@ -37,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 @SuppressWarnings("UnstableApiUsage")
-public class ChestLockHandler {
+public class ChestKeyHandler {
 
     public record LockOwner(String uuid, String name) {
         public static final Codec<LockOwner> CODEC = RecordCodecBuilder.create(instance ->
