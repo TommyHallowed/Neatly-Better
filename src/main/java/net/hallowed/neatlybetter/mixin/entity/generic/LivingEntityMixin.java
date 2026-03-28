@@ -1,7 +1,6 @@
 package net.hallowed.neatlybetter.mixin.entity.generic;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -13,7 +12,10 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -21,17 +23,29 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BlocksAttacks;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+@SuppressWarnings("ConstantValue")
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin {
+public abstract class LivingEntityMixin extends Entity {
+
+    protected LivingEntityMixin(EntityType<?> entityType, Level level) {
+        super(entityType, level);
+    }
+
+    @Shadow
+    public abstract boolean onClimbable();
 
     @Unique
     private static final Identifier neatlybetter$STEP_UP_ID =
@@ -150,5 +164,103 @@ public abstract class LivingEntityMixin {
         if (mod == null) return original;
 
         return original - (float) mod.amount();
+    }
+
+    /* ===================== 7) Faster climbing ===================== */
+
+    @Unique private int neatlybetter$climbUpTicks = 0;
+    @Unique private int neatlybetter$climbDownTicks = 0;
+    @Unique private boolean neatlybetter$climbingUpThisTick = false;
+
+    @WrapOperation(
+            method = "handleOnClimbable",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/util/Mth;clamp(DDD)D"
+            )
+    )
+    private double neatlybetter$removeHorizontalClamp(
+            double speed, double min, double max, Operation<Double> original
+    ) {
+        if (!((Object) this instanceof Player) || !this.onGround()) {
+            return original.call(speed, min, max);
+        }
+        return speed;
+    }
+
+    @WrapOperation(
+            method = "handleOnClimbable",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/lang/Math;max(DD)D"
+            )
+    )
+    private double neatlybetter$modifyDownwardClimbSpeed(
+            double currentY, double vanillaMin, Operation<Double> original
+    ) {
+        if (!((Object) this instanceof Player)) {
+            return original.call(currentY, vanillaMin);
+        }
+
+        double maxDown = Mth.clampedMap(getXRot(), 20, 90, vanillaMin, -0.4);
+        if (maxDown < vanillaMin) {
+            maxDown = Mth.clampedMap(
+                    neatlybetter$climbDownTicks, 0, 60,
+                    maxDown, maxDown * 1.5
+            );
+        }
+        return original.call(currentY, maxDown);
+    }
+
+    @ModifyArg(
+            method = "handleRelativeFrictionAndCalculateMovement",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/phys/Vec3;<init>(DDD)V"
+            ),
+            index = 1
+    )
+    private double neatlybetter$speedUpClimbingUp(double vanillaClimbSpeed) {
+        if (!((Object) this instanceof Player)) {
+            return vanillaClimbSpeed;
+        }
+
+        if (this.getXRot() > -20) {
+            return vanillaClimbSpeed;
+        }
+
+        neatlybetter$climbingUpThisTick = true;
+
+        double boosted = vanillaClimbSpeed * 1.25;
+        double ramped = Mth.clampedMap(
+                neatlybetter$climbUpTicks, 0, 60,
+                boosted, boosted * 2.5
+        );
+        return Math.max(this.getDeltaMovement().y, ramped);
+    }
+
+    @Inject(
+            method = "handleRelativeFrictionAndCalculateMovement",
+            at = @At("RETURN")
+    )
+    private void neatlybetter$updateClimbTimers(
+            Vec3 vec3, float f, CallbackInfoReturnable<Vec3> cir
+    ) {
+        if (!((Object) this instanceof Player)) return;
+
+        Vec3 movement = cir.getReturnValue();
+
+        if (onClimbable() && movement.y < 0 && getXRot() > 20) {
+            neatlybetter$climbDownTicks++;
+        } else {
+            neatlybetter$climbDownTicks = 0;
+        }
+
+        if (neatlybetter$climbingUpThisTick) {
+            neatlybetter$climbUpTicks++;
+            neatlybetter$climbingUpThisTick = false;
+        } else {
+            neatlybetter$climbUpTicks = 0;
+        }
     }
 }
