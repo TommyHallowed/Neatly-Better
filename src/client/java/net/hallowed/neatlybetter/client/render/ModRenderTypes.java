@@ -15,20 +15,7 @@ import java.util.Map;
 
 @Environment(EnvType.CLIENT)
 public class ModRenderTypes {
-    private static final Map<Identifier, RenderType> CACHE = new Object2ObjectOpenHashMap<>();
     private static final Map<Identifier, RenderType> EMISSIVE_BANNER_CACHE = new Object2ObjectOpenHashMap<>();
-
-    public static RenderType getEmissiveTrim(Identifier texture) {
-        return CACHE.computeIfAbsent(texture, tex ->
-                RenderType.create(
-                        "neatlybetter_emissive_trim_" + tex.getPath(),
-                        RenderSetup.builder(RenderPipelines.EYES)
-                                .withTexture("Sampler0", tex)
-                                .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
-                                .createRenderSetup()
-                )
-        );
-    }
 
     public static RenderType getEmissiveBanner(Identifier texture) {
         return EMISSIVE_BANNER_CACHE.computeIfAbsent(texture, tex ->
