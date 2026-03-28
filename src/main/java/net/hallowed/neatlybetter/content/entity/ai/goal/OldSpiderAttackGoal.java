@@ -54,7 +54,7 @@ public class OldSpiderAttackGoal extends Goal {
         this.spider.getLookControl().setLookAt(target, 30.0F, 30.0F);
 
         if (--this.pathUpdateDelay <= 0) {
-            this.spider.getNavigation().moveTo(target, 1.0D); // Base speed
+            this.spider.getNavigation().moveTo(target, 1.0D);
             this.pathUpdateDelay = 4;
         }
 
@@ -69,6 +69,18 @@ public class OldSpiderAttackGoal extends Goal {
                 double dX = target.getX() - this.spider.getX();
                 double dZ = target.getZ() - this.spider.getZ();
                 float f = Mth.sqrt((float) (dX * dX + dZ * dZ));
+
+                this.spider.getNavigation().stop();
+
+                float targetYaw = (float) (Mth.atan2(dZ, dX) * (180.0 / Math.PI)) - 90.0F;
+
+                this.spider.setYRot(targetYaw);
+                this.spider.yBodyRot = targetYaw;
+                this.spider.yHeadRot = targetYaw;
+
+                this.spider.yRotO = targetYaw;
+                this.spider.yBodyRotO = targetYaw;
+                this.spider.yHeadRotO = targetYaw;
 
                 Vec3 currentMotion = this.spider.getDeltaMovement();
                 double motionX = (dX / f) * 0.5D * 0.8D + currentMotion.x * 0.2D;
