@@ -86,7 +86,6 @@ public abstract class SmithingMenuMixin {
 
         ItemStack add = addSlot.getItem();
 
-        // --- Emissive & Pulsing Effects ---
         boolean emissive = base.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
         boolean pulsing = base.getOrDefault(ModDataComponents.PULSING_TRIM, false);
         boolean isArmor = base.is(ItemTags.TRIMMABLE_ARMOR);
