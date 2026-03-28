@@ -67,7 +67,7 @@ dependencies {
 
     //  Config
     modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
-    modImplementation include ("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${property("forgeconfigapiport_version")}")
+    modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${project.forgeconfigapiport_version}"
 }
 
 processResources {
