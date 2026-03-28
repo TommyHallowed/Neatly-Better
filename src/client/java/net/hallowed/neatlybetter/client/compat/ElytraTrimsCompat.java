@@ -6,10 +6,9 @@ import dev.kikugie.elytratrims.api.render.ETRenderParameters;
 import dev.kikugie.elytratrims.api.render.ETRendererID;
 import dev.kikugie.elytratrims.api.render.ETRenderingAPI;
 
-import net.hallowed.neatlybetter.client.render.ModRenderTypes;
 import net.hallowed.neatlybetter.init.ModDataComponents;
 
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
@@ -34,11 +33,7 @@ public class ElytraTrimsCompat implements ETClientInitializer {
             if (!emissive && !pulsing) return parameters;
             if (parameters.sprite() == null)  return parameters;
 
-            RenderType emissiveType = ModRenderTypes.getEmissiveTrim(
-                    parameters.sprite().atlasLocation()
-            );
-
-            int light = 0xF000F0;
+            int light = LightTexture.FULL_BRIGHT;
             int color = parameters.color();
 
             if (pulsing) {
@@ -50,7 +45,7 @@ public class ElytraTrimsCompat implements ETClientInitializer {
                     parameters.object(),
                     parameters.stack(),
                     parameters.matrices(),
-                    emissiveType,
+                    parameters.render(),
                     parameters.sprite(),
                     parameters.texture(),
                     light,
@@ -63,13 +58,13 @@ public class ElytraTrimsCompat implements ETClientInitializer {
     }
 
     private static int getPulseColor(int color) {
-        float sine = (Mth.sin(Util.getMillis() / 500f) + 1f) * 0.5f;
+        long period = 4000L;
+        float phase = (Util.getMillis() % period) / (float) period * Mth.TWO_PI;
+        float sine = (Mth.sin(phase) + 1f) * 0.5f;
         float multiplier = 0.4f + (sine * 0.6f);
-
         int r = (int) (ARGB.red(color)   * multiplier);
         int g = (int) (ARGB.green(color) * multiplier);
         int b = (int) (ARGB.blue(color)  * multiplier);
-
         return ARGB.color(ARGB.alpha(color), r, g, b);
     }
 }

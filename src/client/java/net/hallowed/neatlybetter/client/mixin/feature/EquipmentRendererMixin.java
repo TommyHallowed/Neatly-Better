@@ -6,10 +6,10 @@ import com.llamalad7.mixinextras.sugar.Local;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.hallowed.neatlybetter.client.render.ModRenderTypes;
 import net.hallowed.neatlybetter.init.ModDataComponents;
 
 import net.minecraft.client.model.Model;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
 import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
@@ -29,13 +29,13 @@ public abstract class EquipmentRendererMixin {
 
     @Unique
     private static int neatlybetter$getPulseColor(int color) {
-        float sine = (Mth.sin(Util.getMillis() / 500f) + 1f) * 0.5f;
+        long period = 4000L;
+        float phase = (Util.getMillis() % period) / (float) period * Mth.TWO_PI;
+        float sine = (Mth.sin(phase) + 1f) * 0.5f;
         float multiplier = 0.4f + (sine * 0.6f);
-
         int r = (int) (ARGB.red(color) * multiplier);
         int g = (int) (ARGB.green(color) * multiplier);
         int b = (int) (ARGB.blue(color) * multiplier);
-
         return ARGB.color(ARGB.alpha(color), r, g, b);
     }
 
@@ -55,32 +55,28 @@ public abstract class EquipmentRendererMixin {
             RenderType renderType,
             int light,
             int overlay,
-            int color,
+            int finalColor,
             TextureAtlasSprite sprite,
             int outline,
             ModelFeatureRenderer.CrumblingOverlay crumble,
             Operation<Void> original,
             @Local(argsOnly = true) ItemStack stack
     ) {
-        RenderType finalType = renderType;
         int finalLight = light;
-        int finalColor = color;
 
         if (sprite != null && sprite.atlasLocation().getPath().contains("trims")) {
             boolean emissive = stack.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
             boolean pulsing = stack.getOrDefault(ModDataComponents.PULSING_TRIM, false);
 
-            if (emissive || pulsing) {
-                finalType = ModRenderTypes.getEmissiveTrim(sprite.atlasLocation());
-                finalLight = 0xF000F0;
-
-                if (pulsing) {
-                    finalColor = neatlybetter$getPulseColor(color);
-                }
+            if (pulsing) {
+                finalLight = LightTexture.FULL_BRIGHT;
+                finalColor = neatlybetter$getPulseColor(finalColor);
+            } else if (emissive) {
+                finalLight = LightTexture.FULL_BRIGHT;
             }
         }
 
-        original.call(instance, model, stateObj, matrices, finalType,
+        original.call(instance, model, stateObj, matrices, renderType,
                 finalLight, overlay, finalColor, sprite, outline, crumble);
     }
 }
