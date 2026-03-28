@@ -9,12 +9,16 @@ import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.inventory.RecipeBookType;
+import net.minecraft.world.level.Level;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,9 +26,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LocalPlayer.class)
-public abstract class LocalPlayerMixin {
+public abstract class LocalPlayerMixin extends LivingEntity {
+
+    protected LocalPlayerMixin(EntityType<? extends LivingEntity> entityType, Level level) {
+        super(entityType, level);
+    }
 
     @Shadow @Final private ClientRecipeBook recipeBook;
     @Shadow @Final public ClientPacketListener connection;
@@ -59,6 +68,17 @@ public abstract class LocalPlayerMixin {
             RecipeBookMenu handler = recipeBookWidget.menu;
             RecipeBookType category = handler.getRecipeBookType();
             RecipeBookUtil.closeRecipeBook(this.recipeBook, this.connection, category);
+        }
+    }
+
+    @Inject(
+            method = "isShiftKeyDown",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private void neatlybetter$forceShiftOnClimbableWithContainer(CallbackInfoReturnable<Boolean> cir) {
+        if (this.onClimbable() && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?>) {
+            cir.setReturnValue(true);
         }
     }
 }
