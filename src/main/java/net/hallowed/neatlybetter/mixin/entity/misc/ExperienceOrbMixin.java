@@ -44,7 +44,7 @@ import java.util.Optional;
 public abstract class ExperienceOrbMixin {
 
     @Unique private static final int     MAX_BURST_ORBS              = 50;
-    @Unique private static final boolean DEBUG_XP_TRACKING           = true;
+    @Unique private static final boolean DEBUG_XP_TRACKING           = false;
 
     @Unique private static final Logger LOGGER = LoggerFactory.getLogger("neatly-better");
 
