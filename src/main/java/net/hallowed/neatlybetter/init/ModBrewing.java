@@ -27,7 +27,7 @@ public final class ModBrewing {
             // Strong Haste
             builder.addMix(
                     ModPotions.HASTE,
-                    Items.GOLDEN_CARROT,
+                    Items.GOLD_BLOCK,
                     ModPotions.STRONG_HASTE
             );
 
@@ -40,7 +40,7 @@ public final class ModBrewing {
 
             builder.addMix(
                     ModPotions.LONG_HASTE,
-                    Items.GOLDEN_CARROT,
+                    Items.GOLD_BLOCK,
                     ModPotions.STRONG_LONG_HASTE
             );
         });
