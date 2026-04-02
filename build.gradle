@@ -60,8 +60,8 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
     // Integrations
-    modCompileOnly "maven.modrinth:elytra-trims:blIGhB35"
-    modCompileOnly "maven.modrinth:better-block-entities:POqeY8nL"
+    modCompileOnly "maven.modrinth:elytra-trims:${project.elytratrims_version}"
+    modCompileOnly "maven.modrinth:better-block-entities:${project.bbe_version}"
     modCompileOnly "curse.maven:framework-549225:${project.framework_version}"
     modCompileOnly "curse.maven:backpacked-352835:${project.backpacked_version}"
 
