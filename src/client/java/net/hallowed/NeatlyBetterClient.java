@@ -9,8 +9,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.client.feature.AutoRefill;
 import net.hallowed.neatlybetter.client.feature.ClientMapPreviewTooltip;
-import net.hallowed.neatlybetter.client.feature.locator.BackpackWaypointsClient;
-import net.hallowed.neatlybetter.client.feature.locator.EnderWaypointsClient;
 import net.hallowed.neatlybetter.client.init.ModTooltips;
 import net.hallowed.neatlybetter.client.tooltip.EffectTooltipData;
 import net.hallowed.neatlybetter.client.tooltip.EffectTooltipRenderer;
@@ -30,9 +28,7 @@ public class NeatlyBetterClient implements ClientModInitializer {
         ConfigRegistry.INSTANCE.register(MOD_ID, ModConfig.Type.CLIENT, NTClientConfig.CONFIG_SPEC);
         ConfigScreenFactoryRegistry.INSTANCE.register(MOD_ID, ConfigurationScreen::new);
         EnderCheckClient.register();
-        EnderWaypointsClient.register();
         BackpackCheckClient.register();
-        BackpackWaypointsClient.register();
         AutoRefill.register();
 
         TooltipComponentCallback.EVENT.register(data -> {

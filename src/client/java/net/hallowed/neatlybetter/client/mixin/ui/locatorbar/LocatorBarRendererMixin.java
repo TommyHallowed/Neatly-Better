@@ -3,9 +3,6 @@ package net.hallowed.neatlybetter.client.mixin.ui.locatorbar;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-import net.hallowed.neatlybetter.client.feature.locator.WaypointRendering;
-
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.contextualbar.ContextualBarRenderer;
@@ -16,8 +13,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 
@@ -45,10 +40,5 @@ public abstract class LocatorBarRendererMixin implements ContextualBarRenderer {
         if (!isLocatorBackground || isCreative) {
             original.call(ctx, pipeline, id, x, y, w, h);
         }
-    }
-
-    @Inject(method = "render", at = @At("RETURN"))
-    private void neatlybetter$renderClientWaypoints_RETURN(GuiGraphics ctx, DeltaTracker ticks, CallbackInfo ci) {
-        WaypointRendering.renderWaypoints(this.minecraft, ctx, this.top(this.minecraft.getWindow()));
     }
 }

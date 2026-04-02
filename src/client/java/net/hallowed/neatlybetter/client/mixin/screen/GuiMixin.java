@@ -2,22 +2,15 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 
 import com.google.common.collect.Ordering;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-
 import net.hallowed.neatlybetter.api.NTCompat;
-import net.hallowed.neatlybetter.client.feature.locator.WaypointTracking;
 import net.hallowed.neatlybetter.client.feature.ui.SmallHudOverlay;
 import net.hallowed.neatlybetter.client.render.EffectBarRenderer;
-import net.hallowed.neatlybetter.client.util.BackpackCheckClient;
-import net.hallowed.neatlybetter.client.util.InventoryDeepScan;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.waypoints.ClientWaypointManager;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -87,27 +80,6 @@ public abstract class GuiMixin {
     private void neatlybetter$renderSmallHud(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
         if ((!NTClientConfig.CONFIG.showCoords.get() && !NTClientConfig.CONFIG.showTime.get()) || this.minecraft.options.hideGui) return;
         SmallHudOverlay.render(context);
-    }
-
-    @WrapOperation(
-            method = "nextContextualInfoState",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/waypoints/ClientWaypointManager;hasWaypoints()Z")
-    )
-    private boolean neatlybetter$injectClientWaypoints(ClientWaypointManager instance, Operation<Boolean> original) {
-        final boolean vanillaHas = original.call(instance);
-        if (!NTClientConfig.CONFIG.clientWaypoints.get()) return vanillaHas;
-
-        if (minecraft.player == null || minecraft.player.isSpectator()) {
-            return vanillaHas;
-        }
-
-        boolean anyClientWp = !WaypointTracking.update(minecraft.player).isEmpty();
-        if (!anyClientWp
-                && (InventoryDeepScan.hasAnyCompass(minecraft.player) || BackpackCheckClient.backpackHasAnyCompass())
-                && !WaypointTracking.WAYPOINTS.isEmpty()) {
-            anyClientWp = true;
-        }
-        return vanillaHas || anyClientWp;
     }
 
     @Inject(method = "willPrioritizeExperienceInfo", at = @At("RETURN"), cancellable = true)

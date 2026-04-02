@@ -41,10 +41,6 @@ public final class NTClientConfig {
     //  HUD
     // ═══════════════════════════════════════════
 
-    // -- Locator Bar --
-    public final ModConfigSpec.BooleanValue clientWaypoints;
-    public final ModConfigSpec.BooleanValue tabShowsNames;
-
     // -- Effects --
     public final ModConfigSpec.BooleanValue effectBars;
     public final ModConfigSpec.BooleanValue hideAirBubbles;
@@ -131,17 +127,6 @@ public final class NTClientConfig {
 
         // ── HUD ─────────────────────────────────
         builder.push("hud");
-
-        builder.push("locator_bar");
-        clientWaypoints = builder
-                .comment("§eShow lodestone waypoints on the locator bar.")
-                .translation("neatly-better.config.client_waypoints")
-                .define("client_waypoints", true);
-        tabShowsNames = builder
-                .comment("§eShow lodestone waypoint names on locator bar when holding tab.")
-                .translation("neatly-better.config.tab_shows_names")
-                .define("tab_shows_names", true);
-        builder.pop();
 
         builder.push("effects");
         effectBars = builder

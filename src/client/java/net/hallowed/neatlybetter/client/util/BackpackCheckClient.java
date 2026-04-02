@@ -11,28 +11,24 @@ import net.hallowed.neatlybetter.network.NTNetwork;
 public final class BackpackCheckClient {
     private static volatile boolean hasCompass = false;
     private static volatile boolean hasClock = false;
-    private static volatile boolean hasRecoveryCompass = false;
 
     public static void register() {
         ClientPlayNetworking.registerGlobalReceiver(NTNetwork.BackpackCheckResponse.ID,
                 (payload, ctx) -> ctx.client().execute(() -> {
                     hasCompass = payload.hasCompass();
                     hasClock = payload.hasClock();
-                    hasRecoveryCompass = payload.hasRecoveryCompass();
                 }));
 
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             hasCompass = false;
             hasClock = false;
-            hasRecoveryCompass = false;
         });
     }
 
     public static boolean backpackHasCompass()         { return hasCompass; }
     public static boolean backpackHasClock()           { return hasClock; }
     @SuppressWarnings("unused")
-    public static boolean backpackHasRecoveryCompass() { return hasRecoveryCompass; }
-    public static boolean backpackHasAnyCompass()      { return hasCompass || hasRecoveryCompass; }
+    public static boolean backpackHasAnyCompass()      { return hasCompass; }
 
     private BackpackCheckClient() {}
 }

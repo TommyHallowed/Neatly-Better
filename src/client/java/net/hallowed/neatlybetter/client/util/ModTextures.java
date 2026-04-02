@@ -14,8 +14,4 @@ public class ModTextures {
     public static final Identifier COMPASS_HIDDEN  = id("textures/gui/overlay/compass_icon_hidden.png");
     public static final Identifier CLOCK_SHOWN     = id("textures/gui/overlay/clock_icon_shown.png");
     public static final Identifier CLOCK_HIDDEN    = id("textures/gui/overlay/clock_icon_hidden.png");
-
-    // ---- Waypoint styles ----
-    public static final Identifier STYLE_DEATH     = id("death");
-    public static final Identifier STYLE_LODESTONE = id("lodestone");
 }
