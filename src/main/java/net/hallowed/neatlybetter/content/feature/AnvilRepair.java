@@ -2,6 +2,8 @@ package net.hallowed.neatlybetter.content.feature;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 
+import net.hallowed.neatlybetter.api.NTCompat;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -15,11 +17,11 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-public final class AnvilRestoration {
-    private AnvilRestoration() {}
+public final class AnvilRepair {
+    private AnvilRepair() {}
 
     public static void register() {
-        UseBlockCallback.EVENT.register(AnvilRestoration::onUseBlock);
+        UseBlockCallback.EVENT.register(AnvilRepair::onUseBlock);
     }
 
     private static InteractionResult onUseBlock(Player player, Level world, InteractionHand hand, BlockHitResult hit) {
