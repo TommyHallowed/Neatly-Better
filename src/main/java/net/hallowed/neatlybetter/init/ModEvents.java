@@ -17,6 +17,8 @@ public final class ModEvents {
         ArmorStandSwapHandler.register();
         JockeyAdditions.register();
         SleepModeHandler.register();
+        WolfDamageByOwnerBypass.register();
+        WolfSpawnsCollarOnDeath.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();

@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "neatly-better:item/wolf_collar",
+    "tints": [
+      {
+        "type": "minecraft:dye",
+        "default": 16701501
+      }
+    ]
+  }
+}

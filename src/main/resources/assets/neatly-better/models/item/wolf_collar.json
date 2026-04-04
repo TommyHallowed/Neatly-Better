@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "neatly-better:item/wolf_collar",
+    "layer1": "neatly-better:item/wolf_collar_overlay"
+  }
+}

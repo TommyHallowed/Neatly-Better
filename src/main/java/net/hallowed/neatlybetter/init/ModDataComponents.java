@@ -9,6 +9,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 
+import net.minecraft.world.item.component.CustomData;
 import org.jetbrains.annotations.NotNull;
 
 public final class ModDataComponents {
@@ -38,6 +39,16 @@ public final class ModDataComponents {
             DataComponentType.<Boolean>builder()
                     .persistent(Codec.BOOL)
                     .networkSynchronized(ByteBufCodecs.BOOL)
+                    .build()
+    );
+
+    @SuppressWarnings("deprecation")
+    public static final DataComponentType<@NotNull CustomData> WOLF_DATA = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            NTRegistry.id("wolf_data"),
+            DataComponentType.<CustomData>builder()
+                    .persistent(CustomData.CODEC)
+                    .networkSynchronized(CustomData.STREAM_CODEC)
                     .build()
     );
 

@@ -15,7 +15,7 @@ import static net.hallowed.neatlybetter.init.ModBlocks.RAINBOW_BED;
 public final class ModItems {
     private ModItems() {}
 
-    public static Item MAP_BUILDER, CHEST_KEY;
+    public static Item MAP_BUILDER, CHEST_KEY, WOLF_COLLAR;
 
     public static void register() {
 
@@ -33,6 +33,12 @@ public final class ModItems {
                 new BedItem(RAINBOW_BED, new Item.Properties()
                         .stacksTo(1)
                         .setId(NTRegistry.itemKey("rainbow_bed"))));
+
+        WOLF_COLLAR = NTRegistry.registerItem("wolf_collar",
+                new Item(new Item.Properties()
+                        .stacksTo(1)
+                        .fireResistant()
+                        .setId(NTRegistry.itemKey("wolf_collar"))));
 
         AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
             if (!world.isClientSide() && !player.isSpectator()) {
