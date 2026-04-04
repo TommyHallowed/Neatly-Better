@@ -39,10 +39,10 @@ public final class ModAiGoals {
 
         // 2) Parkour Goal
         if ((type == EntityType.VINDICATOR ||
-                        type == EntityType.PIGLIN_BRUTE ||
-                        type == EntityType.ZOMBIFIED_PIGLIN ||
-                        type == EntityType.HUSK ||
-                        type == EntityType.ZOMBIE)) {
+                type == EntityType.PIGLIN_BRUTE ||
+                type == EntityType.ZOMBIFIED_PIGLIN ||
+                type == EntityType.HUSK ||
+                type == EntityType.ZOMBIE)) {
             if (NTServerConfig.CONFIG.mobParkour.get()
                     && world.getDifficulty() == Difficulty.HARD
                     && !hasGoal(goals, ParkourGoal.class) ) {
