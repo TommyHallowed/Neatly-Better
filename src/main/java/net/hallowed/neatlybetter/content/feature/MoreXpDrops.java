@@ -59,7 +59,7 @@ public class MoreXpDrops {
                 if (placed
                         && !p.player.isCreative()
                         && NTServerConfig.CONFIG.xpFromPlacingBlocks.get()) {
-                    double chance = 0.02;
+                    double chance = 0.01;
                     if (p.level.random.nextDouble() < chance) {
                         int xp = 1;
                         ExperienceOrb.award(p.level, p.player.position(), xp);
@@ -87,13 +87,13 @@ public class MoreXpDrops {
             float hardness = state.getDestroySpeed(world, pos);
             if (hardness <= 0) return;
 
-            double baseChance = 0.02;
+            double baseChance = 0.01;
             double maxChance  = 0.4;
             double chance = Math.min(baseChance + hardness * 0.01, maxChance);
 
             if (serverLevel.random.nextDouble() >= chance) return;
 
-            double multiplier = 0.3;
+            double multiplier = 0.15;
             int xp = Math.max(1, (int) (multiplier * hardness));
 
             ExperienceOrb.award(serverLevel, Vec3.atCenterOf(pos), xp);
@@ -102,7 +102,7 @@ public class MoreXpDrops {
 
     public static void tryAwardCropXp(ServerLevel level, BlockPos pos) {
 
-        double chance = 0.05;
+        double chance = 0.2;
         if (level.random.nextDouble() >= chance) return;
 
         int xp = 2;
