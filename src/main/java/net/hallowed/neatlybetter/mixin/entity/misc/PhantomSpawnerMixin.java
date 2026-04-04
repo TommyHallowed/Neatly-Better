@@ -50,7 +50,7 @@ public class PhantomSpawnerMixin {
 
             if (serverLevel.dimensionType().hasSkyLight()) {
                 // Altitude check replaces insomnia
-                if (playerY < 200 || playerY > 319) continue;
+                if (playerY < 160 || playerY > 319) continue;
                 // Player must be under open sky
                 if (!serverLevel.canSeeSky(blockPos)) continue;
             }
