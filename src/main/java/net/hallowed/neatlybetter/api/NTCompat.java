@@ -18,7 +18,14 @@ public final class NTCompat {
             "doubledoors",
             "rightclickharvest",
             "reap",
-            "betterblockentities"
+            "betterblockentities",
+            "combatnouveau",
+            "goldenagecombat",
+            "extendedbonememeal",
+            "universalbonemeal",
+            "anvilrestoration",
+            "easyanvils",
+            "grassseeds"
     );
 
     private static final Map<String, Boolean> CACHE;
@@ -52,4 +59,11 @@ public final class NTCompat {
     public static final boolean RIGHTCLICKHARVEST = isLoaded("rightclickharvest");
     public static final boolean REAP              = isLoaded("reap");
     public static final boolean BETTER_BLOCK_ENTITIES  = isLoaded("betterblockentities");
+    public static final boolean COMBATNOUVEAU     = isLoaded("combatnouveau");
+    public static final boolean GOLDENAGECOMBAT    = isLoaded("goldenagecombat");
+    public static final boolean EXTENDEDBONEMEAL = isLoaded("extendedbonememeal");
+    public static final boolean UNIVERSALBONEMEAL    = isLoaded("universalbonemeal");
+    public static final boolean ANVILRESTORATION = isLoaded("anvilrestoration");
+    public static final boolean EASYANVILS        = isLoaded("easyanvils");
+    public static final boolean GRASSSEEDS        = isLoaded("grassseeds");
 }

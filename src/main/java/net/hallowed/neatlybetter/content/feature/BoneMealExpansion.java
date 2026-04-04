@@ -2,6 +2,7 @@ package net.hallowed.neatlybetter.content.feature;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 
+import net.hallowed.neatlybetter.api.NTCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -32,6 +33,7 @@ public final class BoneMealExpansion {
 
     private static InteractionResult onUseBlockWithBoneMeal(Player player, Level world, InteractionHand hand, BlockHitResult hit) {
         ItemStack stack = player.getItemInHand(hand);
+        if (NTCompat.EXTENDEDBONEMEAL || NTCompat.UNIVERSALBONEMEAL) return InteractionResult.PASS;
         if (stack.isEmpty() || stack.getItem() != Items.BONE_MEAL) return InteractionResult.PASS;
 
         BlockPos pos = hit.getBlockPos();

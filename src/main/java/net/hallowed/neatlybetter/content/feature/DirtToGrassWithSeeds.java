@@ -2,6 +2,7 @@ package net.hallowed.neatlybetter.content.feature;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 
+import net.hallowed.neatlybetter.api.NTCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -16,6 +17,7 @@ public final class DirtToGrassWithSeeds {
 
     public static void init() {
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
+            if (NTCompat.GRASSSEEDS) return InteractionResult.PASS;
             if (world.isClientSide()) return InteractionResult.PASS;
 
             ItemStack stack = player.getItemInHand(hand);

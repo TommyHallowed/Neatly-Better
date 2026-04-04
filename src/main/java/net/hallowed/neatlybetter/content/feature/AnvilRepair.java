@@ -23,6 +23,7 @@ public final class AnvilRestoration {
     }
 
     private static InteractionResult onUseBlock(Player player, Level world, InteractionHand hand, BlockHitResult hit) {
+        if (NTCompat.ANVILRESTORATION || NTCompat.EASYANVILS) return InteractionResult.PASS;
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
         if (!player.isCrouching()) return InteractionResult.PASS;
         if (!player.getItemInHand(hand).is(Items.IRON_BLOCK)) return InteractionResult.PASS;
