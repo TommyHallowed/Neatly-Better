@@ -7,7 +7,7 @@ public final class ModEvents {
 
     public static void init() {
         ShoulderDropOnUse.register();
-        AnvilRestoration.register();
+        AnvilRepair.register();
         AddedItemProperties.register();
         MinecartChainHandler.register();
         CropHarvester.register();
