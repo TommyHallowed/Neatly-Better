@@ -11,9 +11,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.wolf.Wolf;
+
+import java.util.ArrayList;
 
 public final class ModAiGoals {
     private ModAiGoals() {}
@@ -74,6 +79,26 @@ public final class ModAiGoals {
                 && !hasGoal(goals, GroundItemBreedGoal.class)) {
             goals.addGoal(4, new GroundItemBreedGoal(animal));
         }
+
+        // 6) Tamed wolf improvements
+        if (type == EntityType.WOLF && mob instanceof Wolf wolf && wolf.isTame()) {
+            if (NTServerConfig.CONFIG.wolfImprovements.get()) {
+                if (!hasGoal(goals, TamedWolfMeleeAttackGoal.class)) {
+                    removeExactGoal(goals, MeleeAttackGoal.class);
+                    goals.addGoal(5, new TamedWolfMeleeAttackGoal(wolf, 1.2, true));
+                }
+
+                if (!hasGoal(goals, FastFollowOwnerGoal.class)) {
+                    removeExactGoal(goals, FollowOwnerGoal.class);
+                    goals.addGoal(6, new FastFollowOwnerGoal(wolf, 1.2, 10.0F, 2.0F));
+                }
+
+                final GoalSelector targets = wolf.targetSelector;
+                if (!hasGoal(targets, DefendOwnerGoal.class)) {
+                    targets.addGoal(3, new DefendOwnerGoal(wolf));
+                }
+            }
+        }
     }
 
     private static boolean hasGoal(GoalSelector goals, Class<? extends Goal> goalClass) {
@@ -81,5 +106,13 @@ public final class ModAiGoals {
             if (goalClass.isInstance(entry.getGoal())) return true;
         }
         return false;
+    }
+
+    private static void removeExactGoal(GoalSelector goals, Class<? extends Goal> goalClass) {
+        for (var entry : new ArrayList<>(goals.getAvailableGoals())) {
+            if (entry.getGoal().getClass() == goalClass) {
+                goals.removeGoal(entry.getGoal());
+            }
+        }
     }
 }

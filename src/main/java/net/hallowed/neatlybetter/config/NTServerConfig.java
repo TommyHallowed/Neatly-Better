@@ -34,6 +34,7 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue sheepRunFromWolves;
     public final ModConfigSpec.BooleanValue oldSpiderAttacks;
     public final ModConfigSpec.BooleanValue vexDiesAfterSummoner;
+    public final ModConfigSpec.BooleanValue wolfImprovements;
     public final ModConfigSpec.BooleanValue anvilNoRenameCost;
     public final ModConfigSpec.BooleanValue anvilNoItalicsRename;
     public final ModConfigSpec.BooleanValue anvilRenameColors;
@@ -210,6 +211,19 @@ public final class NTServerConfig {
                 .define("vex_dies_after_summoner", true);
 
         builder.pop(); // vex
+
+        builder.push("wolf");
+
+        wolfImprovements = builder
+                .comment("§eTamed wolves are improved with:")
+                .comment("§e- 20% faster chase & follow speed")
+                .comment("§e- 50% reduced attack cooldown")
+                .comment("§e- Defend owner from entities targeting them")
+                .comment("§e- Natural regen while sitting (1 HP per 3 seconds)")
+                .translation("neatly-better.config.wolf_improvements")
+                .define("wolf_improvements", true);
+
+        builder.pop(); // wolf
 
         builder.pop(); // mob
 
