@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 public class TelemetryLogManagerMixin {
 
     @Inject(method = "open", at = @At("HEAD"), cancellable = true)
-    private static void neatlybetter$stopFolderCreation(Path path, CallbackInfoReturnable<CompletableFuture<Optional<TelemetryLogManager>>> cir) {
+    private static void neatlybetter$stopFolderCreation(Path root, CallbackInfoReturnable<CompletableFuture<Optional<TelemetryLogManager>>> cir) {
         if (NTClientConfig.CONFIG.telemetryOff.get()) {
             cir.setReturnValue(CompletableFuture.completedFuture(Optional.empty()));
         }

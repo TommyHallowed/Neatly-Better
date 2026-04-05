@@ -11,7 +11,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.ItemStack;
@@ -145,14 +145,14 @@ public class AutoRefill {
         if (!current.isEmpty()) {
             int handSlot = hand == InteractionHand.MAIN_HAND
                     ? 36 + inv.getSelectedSlot() : 45;
-            client.gameMode.handleInventoryMouseClick(
-                    syncId, handSlot, 0, ClickType.QUICK_MOVE, player);
+            client.gameMode.handleContainerInput(
+                    syncId, handSlot, 0, ContainerInput.QUICK_MOVE, player);
         }
 
         int hotbarButton = hand == InteractionHand.MAIN_HAND
                 ? inv.getSelectedSlot() : 40;
-        client.gameMode.handleInventoryMouseClick(
-                syncId, slotToRefillFrom, hotbarButton, ClickType.SWAP, player);
+        client.gameMode.handleContainerInput(
+                syncId, slotToRefillFrom, hotbarButton, ContainerInput.SWAP, player);
 
         tickDelay = 3;
         return true;
@@ -164,7 +164,7 @@ public class AutoRefill {
         if (current.getCount() == 1 && !current.is(last.getItem())) {
 
             UseRemainder remainder = last.get(DataComponents.USE_REMAINDER);
-            if (remainder != null && current.is(remainder.convertInto().getItem())) {
+            if (remainder != null && remainder.convertInto().is(current.getItem())) {
                 return true;
             }
 

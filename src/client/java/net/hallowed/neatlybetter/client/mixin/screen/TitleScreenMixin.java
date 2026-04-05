@@ -63,7 +63,7 @@ public abstract class TitleScreenMixin {
             ScreenEvents.AFTER_INIT.register(neatlybetter$PHASE, (mc, screen, w, h) -> {
                 if (!(screen instanceof TitleScreen)) return;
 
-                List<AbstractWidget> buttons = Screens.getButtons(screen);
+                List<AbstractWidget> buttons = Screens.getWidgets(screen);
 
                 if (!NTClientConfig.CONFIG.accessibilityButton.get()) {
                     for (Iterator<AbstractWidget> it = buttons.iterator(); it.hasNext();) {

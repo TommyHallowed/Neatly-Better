@@ -2,7 +2,7 @@ package net.hallowed.neatlybetter.client.feature.ui;
 
 import java.util.function.BooleanSupplier;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
@@ -27,7 +27,7 @@ public class TextureButtonWidget extends Button {
     }
 
     @Override
-    protected void renderContents(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
+    protected void extractContents(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
         int x = this.getX();
         int y = this.getY();
         int w = this.getWidth();

@@ -24,10 +24,10 @@ public abstract class AbstractContainerScreenMixin {
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$onRightClickArmorSwap(
-            MouseButtonEvent mouseButtonEvent, boolean bl,
+            MouseButtonEvent event, boolean doubleClick,
             CallbackInfoReturnable<Boolean> cir) {
 
-        if (mouseButtonEvent.button() != 1) return;
+        if (event.button() != 1) return;
         if (this.hoveredSlot == null || !this.hoveredSlot.hasItem()) return;
 
         Minecraft mc = Minecraft.getInstance();

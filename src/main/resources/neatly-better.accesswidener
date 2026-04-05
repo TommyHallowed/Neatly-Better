@@ -19,3 +19,4 @@ accessible field net/minecraft/world/level/block/entity/BaseContainerBlockEntity
 accessible method net/minecraft/world/level/saveddata/maps/MapItemSavedData addDecoration (Lnet/minecraft/core/Holder;Lnet/minecraft/world/level/LevelAccessor;Ljava/lang/String;DDDLnet/minecraft/network/chat/Component;)V
 accessible method net/minecraft/server/level/ServerChunkCache runDistanceManagerUpdates ()Z
 accessible method net/minecraft/world/entity/Mob populateDefaultEquipmentEnchantments (Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/DifficultyInstance;)V
+accessible field net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState blockState Lnet/minecraft/world/level/block/state/BlockState;

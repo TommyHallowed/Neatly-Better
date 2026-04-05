@@ -42,12 +42,12 @@ public abstract class ItemTooltipsMixin {
     )
     private Optional<TooltipComponent> neatlybetter$tooltipImage(
             Optional<TooltipComponent> original,
-            ItemStack stack
+            ItemStack itemStack
     ) {
         if (original.isPresent()) return original;
 
-        if (stack.is(Items.FILLED_MAP)) {
-            MapId mapId = stack.get(DataComponents.MAP_ID);
+        if (itemStack.is(Items.FILLED_MAP)) {
+            MapId mapId = itemStack.get(DataComponents.MAP_ID);
             if (mapId != null && NTClientConfig.CONFIG.mapTooltip.get()) {
                 Minecraft mc = Minecraft.getInstance();
                 if (mc.level != null) {
@@ -59,9 +59,9 @@ public abstract class ItemTooltipsMixin {
             }
         }
 
-        PotionContents potionContents = stack.get(DataComponents.POTION_CONTENTS);
+        PotionContents potionContents = itemStack.get(DataComponents.POTION_CONTENTS);
         if (potionContents != null && potionContents.hasEffects() && NTClientConfig.CONFIG.potionEffectIcons.get()) {
-            float scale = stack.getOrDefault(DataComponents.POTION_DURATION_SCALE, 1.0F);
+            float scale = itemStack.getOrDefault(DataComponents.POTION_DURATION_SCALE, 1.0F);
             List<MobEffectInstance> effects = new ArrayList<>();
             potionContents.forEachEffect(effects::add, 1.0F);
             return Optional.of(new EffectTooltipData(
@@ -69,7 +69,7 @@ public abstract class ItemTooltipsMixin {
             ));
         }
 
-        SuspiciousStewEffects stewEffects = stack.get(DataComponents.SUSPICIOUS_STEW_EFFECTS);
+        SuspiciousStewEffects stewEffects = itemStack.get(DataComponents.SUSPICIOUS_STEW_EFFECTS);
         if (stewEffects != null && !stewEffects.effects().isEmpty() && NTClientConfig.CONFIG.susStewEffectIcons.get() && NTClientConfig.CONFIG.potionEffectIcons.get()) {
             List<MobEffectInstance> effects = stewEffects.effects()
                     .stream()
@@ -80,7 +80,7 @@ public abstract class ItemTooltipsMixin {
             ));
         }
 
-        OminousBottleAmplifier ominous = stack.get(DataComponents.OMINOUS_BOTTLE_AMPLIFIER);
+        OminousBottleAmplifier ominous = itemStack.get(DataComponents.OMINOUS_BOTTLE_AMPLIFIER);
         if (ominous != null && NTClientConfig.CONFIG.potionEffectIcons.get()) {
             List<MobEffectInstance> effects = List.of(
                     new MobEffectInstance(MobEffects.BAD_OMEN, 120000, ominous.value(), false, false, true)
@@ -88,7 +88,7 @@ public abstract class ItemTooltipsMixin {
             return Optional.of(new EffectTooltipData(effects, 1.0F, neatlybetter$nCopies(1)));
         }
 
-        Consumable consumable = stack.get(DataComponents.CONSUMABLE);
+        Consumable consumable = itemStack.get(DataComponents.CONSUMABLE);
         if (consumable != null && NTClientConfig.CONFIG.potionEffectIcons.get()) {
             List<MobEffectInstance> effects = new ArrayList<>();
             List<Float> chances = new ArrayList<>();

@@ -8,9 +8,10 @@ import dev.kikugie.elytratrims.api.render.ETRenderingAPI;
 
 import net.hallowed.neatlybetter.init.ModDataComponents;
 
-import net.minecraft.client.renderer.LightTexture;
+
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
@@ -33,7 +34,7 @@ public class ElytraTrimsCompat implements ETClientInitializer {
             if (!emissive && !pulsing) return parameters;
             if (parameters.sprite() == null)  return parameters;
 
-            int light = LightTexture.FULL_BRIGHT;
+            int light = LightCoordsUtil.FULL_BRIGHT;
             int color = parameters.color();
 
             if (pulsing) {

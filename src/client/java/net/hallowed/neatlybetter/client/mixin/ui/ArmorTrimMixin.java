@@ -37,16 +37,16 @@ public class ArmorTrimMixin {
     private void neatlybetter$appendSpecialTrimTooltip(
             Item.TooltipContext context,
             Consumer<Component> consumer,
-            TooltipFlag tooltipFlag,
-            DataComponentGetter getter,
+            TooltipFlag flag,
+            DataComponentGetter components,
             CallbackInfo ci
     ) {
-        boolean pulsing  = getter.getOrDefault(ModDataComponents.PULSING_TRIM, false);
-        boolean emissive = getter.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
+        boolean pulsing  = components.getOrDefault(ModDataComponents.PULSING_TRIM, false);
+        boolean emissive = components.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
 
         if (pulsing) {
             consumer.accept(PULSING_ECHO_LINE);
-        } else if (emissive && !neatlybetter$hasElytraTrimsGlow(getter)) {
+        } else if (emissive && !neatlybetter$hasElytraTrimsGlow(components)) {
             consumer.accept(EMISSIVE_GLOW_LINE);
         }
     }

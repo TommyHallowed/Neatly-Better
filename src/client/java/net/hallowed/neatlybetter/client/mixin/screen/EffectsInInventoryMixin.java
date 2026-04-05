@@ -5,7 +5,7 @@ import com.google.common.collect.Ordering;
 import net.hallowed.neatlybetter.client.render.EffectBarRenderer;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.EffectsInInventory;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -25,7 +25,7 @@ public abstract class EffectsInInventoryMixin {
     @Shadow @Final private AbstractContainerScreen<?> screen;
 
     @Inject(method = "renderEffects", at = @At("TAIL"))
-    private void neatlybetter$renderEffectBars(GuiGraphics guiGraphics, Collection<MobEffectInstance> collection, int x, int rowHeight, int mouseX, int mouseY, int maxWidth, CallbackInfo ci) {
+    private void neatlybetter$renderEffectBars(GuiGraphicsExtractor GuiGraphicsExtractor, Collection<MobEffectInstance> collection, int x, int rowHeight, int mouseX, int mouseY, int maxWidth, CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.effectBars.get()) return;
 
         Iterable<MobEffectInstance> sortedEffects = Ordering.natural().sortedCopy(collection);
@@ -33,7 +33,7 @@ public abstract class EffectsInInventoryMixin {
         boolean isWide = maxWidth > 32;
 
         for (MobEffectInstance effect : sortedEffects) {
-            EffectBarRenderer.renderInventory(guiGraphics, effect, x, currentY, maxWidth, isWide);
+            EffectBarRenderer.renderInventory(GuiGraphicsExtractor, effect, x, currentY, maxWidth, isWide);
             currentY += rowHeight;
         }
     }

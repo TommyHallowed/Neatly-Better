@@ -4,7 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Holder;
@@ -66,9 +66,9 @@ public final class EffectTooltipRenderer implements ClientTooltipComponent {
     }
 
     @Override
-    public void renderImage(@NotNull Font font, int x, int y,
+    public void extractImage(@NotNull Font font, int x, int y,
                             int width, int height,
-                            @NotNull GuiGraphics gfx) {
+                            @NotNull GuiGraphicsExtractor gfx) {
         int rowOffset = -1;
 
         for (RenderedEffect effect : effects) {
@@ -85,10 +85,10 @@ public final class EffectTooltipRenderer implements ClientTooltipComponent {
                     0xFFFFFFFF
             );
 
-            gfx.drawString(font, buildNameText(effect),
+            gfx.text(font, buildNameText(effect),
                     textX, iconY, 0xFFFFFFFF, false);
 
-            gfx.drawString(font, buildDurationText(effect),
+            gfx.text(font, buildDurationText(effect),
                     textX, iconY + font.lineHeight, 0xFFFFFFFF, false);
 
             rowOffset += ROW_HEIGHT;

@@ -22,7 +22,7 @@ public abstract class OptionsScreenMixin {
 
         final Component TELEMETRY = Component.translatable("options.telemetry");
 
-        for (AbstractWidget widget : Screens.getButtons((OptionsScreen)(Object)this)) {
+        for (AbstractWidget widget : Screens.getWidgets((OptionsScreen)(Object)this)) {
             if (widget.getMessage().equals(TELEMETRY)) {
                 widget.active = false;
                 break;

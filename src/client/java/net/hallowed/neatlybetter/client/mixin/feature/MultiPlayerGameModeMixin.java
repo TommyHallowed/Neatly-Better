@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public class MultiPlayerGameModeMixin {
     @Shadow private ItemStack destroyingItem;
 
-    @ModifyVariable(method = "sameDestroyTarget", at = @At("STORE"))
-    private ItemStack neatlybetter$useSelectedStack(ItemStack stack) {
+    @ModifyVariable(method = "sameDestroyTarget", at = @At("STORE"), name = "selected")
+    private ItemStack neatlybetter$useSelectedStack(ItemStack selected) {
         return this.destroyingItem;
     }
 }

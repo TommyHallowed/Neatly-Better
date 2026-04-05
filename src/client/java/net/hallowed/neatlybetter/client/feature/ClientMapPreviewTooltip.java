@@ -4,7 +4,7 @@ import net.hallowed.neatlybetter.tooltip.MapPreviewTooltip;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.MapRenderer;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -47,7 +47,7 @@ public final class ClientMapPreviewTooltip implements ClientTooltipComponent {
     }
 
     @Override
-    public void renderImage(@NotNull Font font, int x, int y, int width, int height, @NotNull GuiGraphics guiGraphics) {
+    public void extractImage(@NotNull Font font, int x, int y, int width, int height, @NotNull GuiGraphicsExtractor guiGraphics) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
 
@@ -81,7 +81,7 @@ public final class ClientMapPreviewTooltip implements ClientTooltipComponent {
         pose.pushMatrix();
         pose.translate(x + offset, y + offset);
         pose.scale(mapScale, mapScale);
-        guiGraphics.submitMapRenderState(RENDER_STATE);
+        guiGraphics.map(RENDER_STATE);
         pose.popMatrix();
     }
 }

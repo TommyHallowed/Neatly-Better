@@ -19,12 +19,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ClientEffectSyncMixin {
 
     @Inject(method = "addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z", at = @At("HEAD"))
-    private void neatlybetter$preserveMaxDurationClient(MobEffectInstance effect, @Nullable Entity source, CallbackInfoReturnable<Boolean> cir) {
+    private void neatlybetter$preserveMaxDurationClient(MobEffectInstance newEffect, @Nullable Entity source, CallbackInfoReturnable<Boolean> cir) {
         if ((Object) this instanceof LocalPlayer self) {
-            MobEffectInstance oldEffect = self.getEffect(effect.getEffect());
+            MobEffectInstance oldEffect = self.getEffect(newEffect.getEffect());
 
-            if (oldEffect != null && oldEffect.getAmplifier() == effect.getAmplifier()) {
-                NTEffectInstance newDuck = (NTEffectInstance) effect;
+            if (oldEffect != null && oldEffect.getAmplifier() == newEffect.getAmplifier()) {
+                NTEffectInstance newDuck = (NTEffectInstance) newEffect;
                 NTEffectInstance oldDuck = (NTEffectInstance) oldEffect;
 
                 if (newDuck.neatlybetter$getMaxDuration() < oldDuck.neatlybetter$getMaxDuration()) {
@@ -35,12 +35,12 @@ public abstract class ClientEffectSyncMixin {
     }
 
     @Inject(method = "forceAddEffect", at = @At("HEAD"))
-    private void neatlybetter$preserveMaxDurationClientSync(MobEffectInstance effect, @Nullable Entity source, CallbackInfo ci) {
+    private void neatlybetter$preserveMaxDurationClientSync(MobEffectInstance newEffect, @Nullable Entity source, CallbackInfo ci) {
         if ((Object) this instanceof LocalPlayer self) {
-            MobEffectInstance oldEffect = self.getEffect(effect.getEffect());
+            MobEffectInstance oldEffect = self.getEffect(newEffect.getEffect());
 
-            if (oldEffect != null && oldEffect.getAmplifier() == effect.getAmplifier()) {
-                NTEffectInstance newDuck = (NTEffectInstance) effect;
+            if (oldEffect != null && oldEffect.getAmplifier() == newEffect.getAmplifier()) {
+                NTEffectInstance newDuck = (NTEffectInstance) newEffect;
                 NTEffectInstance oldDuck = (NTEffectInstance) oldEffect;
 
                 if (newDuck.neatlybetter$getMaxDuration() < oldDuck.neatlybetter$getMaxDuration()) {

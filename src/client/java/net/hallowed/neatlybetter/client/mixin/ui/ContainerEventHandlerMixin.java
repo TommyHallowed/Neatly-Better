@@ -20,7 +20,7 @@ public interface ContainerEventHandlerMixin {
     List<? extends GuiEventListener> children();
 
     @Inject(method = "mouseClicked", at = @At(value = "RETURN", ordinal = 1))
-    default void neatlybetter$forceUnfocus(MouseButtonEvent click, boolean doubled, CallbackInfoReturnable<Boolean> cir) {
+    default void neatlybetter$forceUnfocus(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
         this.children().forEach(element -> {
             if (!(element instanceof EditBox) && !(element instanceof AbstractScrollArea)) {
                 element.setFocused(false);
@@ -29,7 +29,7 @@ public interface ContainerEventHandlerMixin {
     }
 
     @Inject(method = "mouseReleased", at = @At("RETURN"))
-    default void neatlybetter$unfocusOnRelease(MouseButtonEvent click, CallbackInfoReturnable<Boolean> cir) {
+    default void neatlybetter$unfocusOnRelease(MouseButtonEvent event, CallbackInfoReturnable<Boolean> cir) {
         this.children().forEach(element -> {
             if (!(element instanceof EditBox) && !(element instanceof AbstractScrollArea)) {
                 element.setFocused(false);

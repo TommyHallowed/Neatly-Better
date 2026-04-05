@@ -23,8 +23,8 @@ public abstract class ContainerScreenMixin extends AbstractContainerScreen<@NotN
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void neatlybetter$onConstruct(ChestMenu handler,
-                                     Inventory inv,
+    private void neatlybetter$onConstruct(ChestMenu menu,
+                                     Inventory inventory,
                                      Component title,
                                      CallbackInfo ci) {
         boolean isEnderChest =

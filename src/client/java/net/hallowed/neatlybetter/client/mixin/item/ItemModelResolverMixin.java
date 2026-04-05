@@ -1,7 +1,7 @@
 package net.hallowed.neatlybetter.client.mixin.item;
 
 import net.hallowed.neatlybetter.init.ModDataComponents;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.world.entity.ItemOwner;
@@ -25,15 +25,15 @@ public class ItemModelResolverMixin {
 
     @Inject(method = "appendItemLayers", at = @At("RETURN"))
     private void neatlybetter$applyEmissiveTrims(
-            ItemStackRenderState renderState, ItemStack stack,
-            ItemDisplayContext displayContext, Level world,
-            ItemOwner heldItemContext, int seed, CallbackInfo ci
+            ItemStackRenderState output, ItemStack item,
+            ItemDisplayContext displayContext, Level level,
+            ItemOwner owner, int seed, CallbackInfo ci
     ) {
-        if (!stack.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false)) {
+        if (!item.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false)) {
             return;
         }
 
-        for (ItemStackRenderState.LayerRenderState layer : renderState.layers) {
+        for (ItemStackRenderState.LayerRenderState layer : output.layers) {
             List<BakedQuad> quads = layer.prepareQuadList();
 
             for (int i = 0; i < quads.size(); i++) {

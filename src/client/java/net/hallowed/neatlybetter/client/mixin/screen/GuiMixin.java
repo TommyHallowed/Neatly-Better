@@ -10,7 +10,7 @@ import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -34,7 +34,7 @@ public abstract class GuiMixin {
     private Minecraft minecraft;
 
     @Inject(method = "renderEffects", at = @At("TAIL"))
-    private void neatlybetter$renderHUDEffectBars(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+    private void neatlybetter$renderHUDEffectBars(GuiGraphicsExtractor GuiGraphicsExtractor, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.effectBars.get()) return;
 
         Collection<MobEffectInstance> collection = this.minecraft.player.getActiveEffects();
@@ -47,7 +47,7 @@ public abstract class GuiMixin {
             if (!effect.showIcon()) continue;
 
             boolean isBeneficial = effect.getEffect().value().isBeneficial();
-            int x = guiGraphics.guiWidth();
+            int x = GuiGraphicsExtractor.guiWidth();
             int y = 1;
 
             if (this.minecraft.isDemo()) {
@@ -63,13 +63,13 @@ public abstract class GuiMixin {
                 y += 26;
             }
 
-            EffectBarRenderer.renderHUD(guiGraphics, effect, x, y);
+            EffectBarRenderer.renderHUD(GuiGraphicsExtractor, effect, x, y);
         }
     }
 
     @Inject(method = "renderAirBubbles", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$hideAirBubblesWithWaterBreathing(
-            GuiGraphics guiGraphics, Player player, int i, int j, int k, CallbackInfo ci) {
+            GuiGraphicsExtractor GuiGraphicsExtractor, Player player, int i, int j, int k, CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.hideAirBubbles.get()) return;
         if (player.hasEffect(MobEffects.WATER_BREATHING)) {
             ci.cancel();
@@ -77,7 +77,7 @@ public abstract class GuiMixin {
     }
 
     @Inject(method = "render", at = @At("TAIL"))
-    private void neatlybetter$renderSmallHud(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
+    private void neatlybetter$renderSmallHud(GuiGraphicsExtractor context, DeltaTracker tickCounter, CallbackInfo ci) {
         if ((!NTClientConfig.CONFIG.showCoords.get() && !NTClientConfig.CONFIG.showTime.get()) || this.minecraft.options.hideGui) return;
         SmallHudOverlay.render(context);
     }
@@ -94,7 +94,7 @@ public abstract class GuiMixin {
     }
 
     @Inject(method = "renderPlayerHealth", at = @At("TAIL"))
-    private void neatlybetter$alwaysRenderFood(GuiGraphics context, CallbackInfo ci) {
+    private void neatlybetter$alwaysRenderFood(GuiGraphicsExtractor context, CallbackInfo ci) {
         if (NTCompat.HORSEMAN) return;
         Player player = minecraft.player;
         if (player == null) return;
@@ -109,7 +109,7 @@ public abstract class GuiMixin {
     }
 
     @Inject(method = "renderVehicleHealth", at = @At("HEAD"))
-    private void neatlybetter$moveHorseHeartsUp(GuiGraphics context, CallbackInfo ci) {
+    private void neatlybetter$moveHorseHeartsUp(GuiGraphicsExtractor context, CallbackInfo ci) {
         if (NTCompat.HORSEMAN) return;
         var client = Minecraft.getInstance();
         if (client.player == null || client.player.getAbilities().instabuild) {
@@ -121,7 +121,7 @@ public abstract class GuiMixin {
     }
 
     @Inject(method = "renderVehicleHealth", at = @At("RETURN"))
-    private void neatlybetter$restoreMatrix(GuiGraphics context, CallbackInfo ci) {
+    private void neatlybetter$restoreMatrix(GuiGraphicsExtractor context, CallbackInfo ci) {
         if (NTCompat.HORSEMAN) return;
         if (minecraft.player != null && !minecraft.player.getAbilities().instabuild) {
             context.pose().popMatrix();

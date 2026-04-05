@@ -9,7 +9,7 @@ import net.hallowed.neatlybetter.client.util.ChainableRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.AbstractMinecartRenderer;
 import net.minecraft.client.renderer.entity.state.MinecartRenderState;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -61,7 +61,7 @@ public abstract class AbstractMinecartRendererMixin<T extends AbstractMinecart, 
     }
 
     @Inject(method = "extractRenderState*", at = @At("TAIL"))
-    private void neatlybetter$updateChainState(T entity, S state, float tickDelta, CallbackInfo ci) {
+    private void neatlybetter$updateChainState(T entity, S state, float partialTicks, CallbackInfo ci) {
         int linkedId = ((LinkableMinecart) entity).neatlybetter$getFollowingId();
         AbstractMinecart linked = null;
 
@@ -73,8 +73,8 @@ public abstract class AbstractMinecartRendererMixin<T extends AbstractMinecart, 
         }
 
         if (linked != null) {
-            Vec3 visualMyPos = neatlybetter$getVisualPos(entity, tickDelta);
-            Vec3 visualTargetPos = neatlybetter$getVisualPos(linked, tickDelta);
+            Vec3 visualMyPos = neatlybetter$getVisualPos(entity, partialTicks);
+            Vec3 visualTargetPos = neatlybetter$getVisualPos(linked, partialTicks);
 
             Vec3 rawPos = new Vec3(state.x, state.y, state.z);
             ((ChainableRenderState) state).neatlybetter$setVisualOffset(visualMyPos.subtract(rawPos));
@@ -86,14 +86,14 @@ public abstract class AbstractMinecartRendererMixin<T extends AbstractMinecart, 
     }
 
     @Inject(method = "submit*", at = @At("TAIL"))
-    private void neatlybetter$renderChainVisuals(S state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraRenderState, CallbackInfo ci) {
+    private void neatlybetter$renderChainVisuals(S state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera, CallbackInfo ci) {
         Vec3 offset = ((ChainableRenderState) state).neatlybetter$getLinkedPos();
         if (offset == null) return;
 
         Vec3 visualOffset = ((ChainableRenderState) state).neatlybetter$getVisualOffset();
 
-        matrices.pushPose();
-        matrices.translate(visualOffset.x, visualOffset.y + 0.375, visualOffset.z);
+        poseStack.pushPose();
+        poseStack.translate(visualOffset.x, visualOffset.y + 0.375, visualOffset.z);
 
         double dx = offset.x;
         double dy = offset.y;
@@ -102,8 +102,8 @@ public abstract class AbstractMinecartRendererMixin<T extends AbstractMinecart, 
         float yaw = (float) (Mth.atan2(dx, dz) * 180.0F / Math.PI);
         float pitch = (float) -(Mth.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * 180.0F / Math.PI);
 
-        matrices.mulPose(Axis.YP.rotationDegrees(yaw));
-        matrices.mulPose(Axis.XP.rotationDegrees(pitch));
+        poseStack.mulPose(Axis.YP.rotationDegrees(yaw));
+        poseStack.mulPose(Axis.XP.rotationDegrees(pitch));
 
         BlockState chainState = Blocks.IRON_CHAIN.defaultBlockState().setValue(BlockStateProperties.AXIS, Direction.Axis.Z);
 
@@ -122,15 +122,15 @@ public abstract class AbstractMinecartRendererMixin<T extends AbstractMinecart, 
             for (int i = 0; i < linkCount; i++) {
                 double d = anchorOffset + (i * actualStep) + (actualStep / 2.0);
 
-                matrices.pushPose();
-                matrices.translate(0.0, 0.0, d);
-                matrices.scale((float) idealScale, (float) idealScale, (float) idealScale);
-                matrices.translate(-0.5, -0.5, -0.5);
-                this.submitMinecartContents(state, chainState, matrices, queue, state.lightCoords);
-                matrices.popPose();
+                poseStack.pushPose();
+                poseStack.translate(0.0, 0.0, d);
+                poseStack.scale((float) idealScale, (float) idealScale, (float) idealScale);
+                poseStack.translate(-0.5, -0.5, -0.5);
+                this.submitMinecartContents(state, chainState, poseStack, submitNodeCollector, state.lightCoords);
+                poseStack.popPose();
             }
         }
 
-        matrices.popPose();
+        poseStack.popPose();
     }
 }

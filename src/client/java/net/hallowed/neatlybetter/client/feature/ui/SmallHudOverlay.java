@@ -6,7 +6,7 @@ import net.fabricmc.api.Environment;
 import net.hallowed.neatlybetter.client.util.HudFormatting;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.player.Player;
 
@@ -15,7 +15,7 @@ public final class SmallHudOverlay {
     private static final Minecraft MC = Minecraft.getInstance();
     private SmallHudOverlay() {}
 
-    public static void render(GuiGraphics ctx) {
+    public static void render(GuiGraphicsExtractor ctx) {
         if (MC.player == null || MC.level == null) return;
         if (MC.getDebugOverlay().showDebugScreen()) return;
 
@@ -58,12 +58,12 @@ public final class SmallHudOverlay {
 
         if (coordsLine != null) {
             assert coordsXY != null;
-            ctx.drawString(tr, coordsLine.text(),
+            ctx.text(tr, coordsLine.text(),
                     (int)(coordsXY[0] / scale), (int)(coordsXY[1] / scale),
                     coordsLine.argb());
         }
         if (timeLine != null) {
-            ctx.drawString(tr, timeLine.text(),
+            ctx.text(tr, timeLine.text(),
                     (int)(timeX / scale), (int)(timeY / scale),
                     timeLine.argb());
         }

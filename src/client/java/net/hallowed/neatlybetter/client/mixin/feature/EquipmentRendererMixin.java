@@ -9,13 +9,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.hallowed.neatlybetter.init.ModDataComponents;
 
 import net.minecraft.client.model.Model;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
 import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
@@ -60,19 +60,19 @@ public abstract class EquipmentRendererMixin {
             int outline,
             ModelFeatureRenderer.CrumblingOverlay crumble,
             Operation<Void> original,
-            @Local(argsOnly = true) ItemStack stack
+            @Local(argsOnly = true, name = "itemStack") ItemStack itemStack
     ) {
         int finalLight = light;
 
         if (sprite != null && sprite.atlasLocation().getPath().contains("trims")) {
-            boolean emissive = stack.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
-            boolean pulsing = stack.getOrDefault(ModDataComponents.PULSING_TRIM, false);
+            boolean emissive = itemStack.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
+            boolean pulsing = itemStack.getOrDefault(ModDataComponents.PULSING_TRIM, false);
 
             if (pulsing) {
-                finalLight = LightTexture.FULL_BRIGHT;
+                finalLight = LightCoordsUtil.FULL_BRIGHT;
                 finalColor = neatlybetter$getPulseColor(finalColor);
             } else if (emissive) {
-                finalLight = LightTexture.FULL_BRIGHT;
+                finalLight = LightCoordsUtil.FULL_BRIGHT;
             }
         }
 

@@ -17,10 +17,9 @@ public abstract class PotionContentsTooltipMixin {
             method = "addPotionTooltip",
             at = @At("HEAD"),
             argsOnly = true,
-            ordinal = 0
-    )
-    private static Consumer<Component> neatlybetter$filterEffectLines(Consumer<Component> consumer) {
-        if (!NTClientConfig.CONFIG.potionEffectIcons.get()) return consumer;
+            name = "lines")
+    private static Consumer<Component> neatlybetter$filterEffectLines(Consumer<Component> lines) {
+        if (!NTClientConfig.CONFIG.potionEffectIcons.get()) return lines;
 
         return new Consumer<>() {
             boolean passThrough = false;
@@ -31,7 +30,7 @@ public abstract class PotionContentsTooltipMixin {
                     passThrough = true;
                 }
                 if (passThrough) {
-                    consumer.accept(component);
+                    lines.accept(component);
                 }
             }
         };

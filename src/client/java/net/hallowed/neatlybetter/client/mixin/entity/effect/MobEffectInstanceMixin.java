@@ -31,9 +31,9 @@ public abstract class MobEffectInstanceMixin implements NTEffectInstance {
     }
 
     @Inject(method = "setDetailsFrom", at = @At("RETURN"))
-    private void neatlybetter$onCopyFrom(MobEffectInstance effect, CallbackInfo ci) {
+    private void neatlybetter$onCopyFrom(MobEffectInstance copy, CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.effectBars.get()) return;
-        int incomingMax = ((NTEffectInstance) effect).neatlybetter$getMaxDuration();
+        int incomingMax = ((NTEffectInstance) copy).neatlybetter$getMaxDuration();
 
         if (incomingMax > this.neatlybetter$maxDuration) {
             this.neatlybetter$maxDuration = incomingMax;
@@ -41,9 +41,9 @@ public abstract class MobEffectInstanceMixin implements NTEffectInstance {
     }
 
     @Inject(method = "update", at = @At("RETURN"))
-    private void neatlybetter$onUpdate(MobEffectInstance effect, CallbackInfoReturnable<Boolean> cir) {
+    private void neatlybetter$onUpdate(MobEffectInstance takeOver, CallbackInfoReturnable<Boolean> cir) {
         if (!NTClientConfig.CONFIG.effectBars.get()) return;
-        int incomingMax = ((NTEffectInstance) effect).neatlybetter$getMaxDuration();
+        int incomingMax = ((NTEffectInstance) takeOver).neatlybetter$getMaxDuration();
         if (incomingMax > this.neatlybetter$maxDuration) {
             this.neatlybetter$maxDuration = incomingMax;
         }

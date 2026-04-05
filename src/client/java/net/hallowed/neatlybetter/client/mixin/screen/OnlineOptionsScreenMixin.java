@@ -23,7 +23,7 @@ public abstract class OnlineOptionsScreenMixin {
     private void neatlybetter$hideRealmsNotifications(CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.realmsButtons.get()) return;
         Screen self = (Screen)(Object)this;
-        List<AbstractWidget> buttons = Screens.getButtons(self);
+        List<AbstractWidget> buttons = Screens.getWidgets(self);
 
         final Component REALMS_NOTIF = Component.translatable("options.realmsNotifications");
         final Component REALMS_NOTIF_TITLE = Component.translatable("options.realmsNotifications");

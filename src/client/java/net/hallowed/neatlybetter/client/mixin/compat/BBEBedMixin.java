@@ -3,7 +3,7 @@ package net.hallowed.neatlybetter.client.mixin.compat;
 import net.hallowed.neatlybetter.init.ModBlocks;
 
 import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.BedBlock;
@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public abstract class BBEBedMixin {
 
     @Unique
-    private static final ThreadLocal<Boolean> NEATLY$IS_RAINBOW = ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<Boolean> NEATLYBETTER$IS_RAINBOW = ThreadLocal.withInitial(() -> false);
 
     @Unique
     private static Material neatlybetter$rainbowMaterial;
@@ -43,7 +43,7 @@ public abstract class BBEBedMixin {
     )
     private static DyeColor neatlybetter$checkRainbow(BedBlock bed) {
         if (bed == ModBlocks.RAINBOW_BED) {
-            NEATLY$IS_RAINBOW.set(true);
+            NEATLYBETTER$IS_RAINBOW.set(true);
         }
         return bed.getColor();
     }
@@ -61,8 +61,8 @@ public abstract class BBEBedMixin {
             )
     )
     private static Material neatlybetter$swapBBEBedMaterial(DyeColor color) {
-        if (NEATLY$IS_RAINBOW.get()) {
-            NEATLY$IS_RAINBOW.set(false);
+        if (NEATLYBETTER$IS_RAINBOW.get()) {
+            NEATLYBETTER$IS_RAINBOW.set(false);
             if (neatlybetter$rainbowMaterial == null) {
                 neatlybetter$rainbowMaterial = new Material(
                         Sheets.BED_SHEET,
@@ -71,6 +71,6 @@ public abstract class BBEBedMixin {
             }
             return neatlybetter$rainbowMaterial;
         }
-        return Sheets.getBedMaterial(color);
+        return Sheets.getBedSprite(color);
     }
 }

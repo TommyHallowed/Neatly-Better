@@ -5,8 +5,8 @@ import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.world.inventory.ClickType;
 
+import net.minecraft.world.inventory.ContainerInput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -31,18 +31,18 @@ public abstract class AbstractRecipeBookScreenMixin {
     }
 
     @Inject(method = "mouseClicked", at = @At("RETURN"))
-    private void neatlybetter$quickCraftOnCtrl(MouseButtonEvent event, boolean bl, CallbackInfoReturnable<Boolean> cir) {
+    private void neatlybetter$quickCraftOnCtrl(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
         if (cir.getReturnValue() && event.hasControlDown()) {
             Minecraft mc = Minecraft.getInstance();
 
             if (mc.gameMode != null && mc.player != null) {
                 AbstractRecipeBookScreen<?> screen = (AbstractRecipeBookScreen<?>) (Object) this;
 
-                mc.gameMode.handleInventoryMouseClick(
+                mc.gameMode.handleContainerInput(
                         screen.getMenu().containerId,
                         0,
                         0,
-                        ClickType.QUICK_MOVE,
+                        ContainerInput.QUICK_MOVE,
                         mc.player
                 );
             }

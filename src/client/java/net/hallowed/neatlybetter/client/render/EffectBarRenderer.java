@@ -4,7 +4,7 @@ import net.hallowed.neatlybetter.util.NTEffectInstance;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -13,7 +13,7 @@ import net.minecraft.world.effect.MobEffectUtil;
 
 public class EffectBarRenderer {
 
-    public static void renderHUD(GuiGraphics context, MobEffectInstance effect, int x, int y) {
+    public static void renderHUD(GuiGraphicsExtractor context, MobEffectInstance effect, int x, int y) {
         int maxDuration = ((NTEffectInstance) effect).neatlybetter$getMaxDuration();
 
         if (!shouldRenderBar(effect, maxDuration)) return;
@@ -28,7 +28,7 @@ public class EffectBarRenderer {
         drawBar(context, effect, barX, barY, barWidth, barHeight, progress);
     }
 
-    public static void renderInventory(GuiGraphics context, MobEffectInstance effect, int x, int y, int maxWidth, boolean isWide) {
+    public static void renderInventory(GuiGraphicsExtractor context, MobEffectInstance effect, int x, int y, int maxWidth, boolean isWide) {
         int maxDuration = ((NTEffectInstance) effect).neatlybetter$getMaxDuration();
 
         if (!shouldRenderBar(effect, maxDuration)) return;
@@ -74,7 +74,7 @@ public class EffectBarRenderer {
         return Math.min(1.0F, Math.max(0.0F, progress));
     }
 
-    private static void drawBar(GuiGraphics context, MobEffectInstance effect, int x, int y, int width, int height, float progress) {
+    private static void drawBar(GuiGraphicsExtractor context, MobEffectInstance effect, int x, int y, int width, int height, float progress) {
         context.fill(x, y, x + width, y + height, 0x66000000);
 
         int filledWidth = Math.round(width * progress);
