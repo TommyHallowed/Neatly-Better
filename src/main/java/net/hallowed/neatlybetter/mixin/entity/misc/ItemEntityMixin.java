@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ItemEntityMixin {
 
     @Inject(method = "thunderHit", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$collarRevival(ServerLevel level, LightningBolt bolt, CallbackInfo ci) {
+    private void neatlybetter$collarRevival(ServerLevel level, LightningBolt lightningBolt, CallbackInfo ci) {
         if (!NTServerConfig.CONFIG.wolfImprovements.get()) return;
 
         Entity self = (Entity) (Object) this;
@@ -50,7 +50,7 @@ public abstract class ItemEntityMixin {
         wolf.setHealth(wolf.getMaxHealth());
 
         wolf.snapTo(itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(),
-                level.random.nextFloat() * 360.0F, 0.0F);
+                level.getRandom().nextFloat() * 360.0F, 0.0F);
         wolf.setOrderedToSit(false);
 
         level.addFreshEntity(wolf);

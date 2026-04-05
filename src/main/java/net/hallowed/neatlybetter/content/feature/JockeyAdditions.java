@@ -24,7 +24,7 @@ public final class JockeyAdditions {
 
     public static void register() {
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
-            if (entity.getTags().contains(PROCESSED_TAG)) return;
+            if (entity.entityTags().contains(PROCESSED_TAG)) return;
             entity.addTag(PROCESSED_TAG);
 
             switch (entity) {

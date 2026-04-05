@@ -31,7 +31,7 @@ public class BlockBehaviourMixin {
         IntProvider xpRange = neatlybetter$getOreXpRange(state.getBlock());
         if (xpRange == null) return;
 
-        int xp = EnchantmentHelper.processBlockExperience(level, tool, xpRange.sample(level.random));
+        int xp = EnchantmentHelper.processBlockExperience(level, tool, xpRange.sample(level.getRandom()));
 
         if (xp > 0 && level.getGameRules().get(GameRules.BLOCK_DROPS)) {
             ExperienceOrb.award(level, Vec3.atCenterOf(pos), xp);

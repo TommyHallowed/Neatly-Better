@@ -17,16 +17,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class BambooStalkBlockMixin {
 
     @Inject(method = "randomTick", at = @At("RETURN"))
-    private void neatlybetter$onBambooRandomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo ci) {
+    private void neatlybetter$onBambooRandomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random, CallbackInfo ci) {
 
         if (!NTServerConfig.CONFIG.rainIncreasesCropGrowth.get()) return;
-        if (!world.isRainingAt(pos.above())) return;
+        if (!level.isRainingAt(pos.above())) return;
 
         BambooStalkBlock self = (BambooStalkBlock)(Object)this;
 
         if (random.nextInt(3) == 0) {
             try {
-                self.performBonemeal(world, random, pos, state);
+                self.performBonemeal(level, random, pos, state);
             } catch (Throwable ignored) {}
         }
     }

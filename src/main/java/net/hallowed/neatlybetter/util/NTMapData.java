@@ -2,6 +2,7 @@ package net.hallowed.neatlybetter.util;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -11,7 +12,7 @@ import java.util.*;
 
 public class NTMapData extends SavedData {
 
-    private static final String DATA_NAME = "neatlybetter_structures";
+    private static final Identifier DATA_NAME = Identifier.parse("neatlybetter_structures");
 
     // ══════════════════════════════════════════════════════════════════════
     //  Persistent structure entry

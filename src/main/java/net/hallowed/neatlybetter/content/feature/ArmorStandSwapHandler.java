@@ -20,7 +20,7 @@ public class ArmorStandSwapHandler {
     };
 
     public static void register() {
-        UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+        UseEntityCallback.EVENT.register((player, world, hand, entity, _) -> {
 
             if (!NTServerConfig.CONFIG.armorStandSwap.get()) return InteractionResult.PASS;
 

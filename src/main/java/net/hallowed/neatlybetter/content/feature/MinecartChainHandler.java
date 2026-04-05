@@ -21,7 +21,7 @@ import java.util.UUID;
 public class MinecartChainHandler {
 
     public static void register() {
-        UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+        UseEntityCallback.EVENT.register((player, world, hand, entity, _) -> {
             ItemStack stack = player.getItemInHand(hand);
 
             if (player.isShiftKeyDown() && stack.is(Items.IRON_CHAIN) && entity instanceof AbstractMinecart cart) {

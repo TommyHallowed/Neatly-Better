@@ -111,7 +111,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
     private final int        maxChunkX;
     private final boolean    hasCeiling;
 
-    /** Local chunk cache — keyed by {@link ChunkPos#asLong}. */
+    /** Local chunk cache — keyed by {@link ChunkPos}. */
     private final Map<Long, ChunkAccess> chunkCache = new HashMap<>();
 
     /** Chunk positions with currently active MAP_SCAN tickets. */
@@ -224,7 +224,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
 
             for (int cx = minChunkX; cx <= maxChunkX; cx++) {
                 for (int cz = minCZ; cz <= maxCZ; cz++) {
-                    long key = ChunkPos.asLong(cx, cz);
+                    long key = ChunkPos.pack(cx, cz);
 
                     if (chunkCache.containsKey(key) || ticketedPositions.contains(key)) continue;
 
@@ -297,7 +297,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
             boolean allReady = true;
             for (int cx = minChunkX; cx <= maxChunkX && allReady; cx++) {
                 for (int cz = minCZ; cz <= maxCZ; cz++) {
-                    if (!chunkCache.containsKey(ChunkPos.asLong(cx, cz))) {
+                    if (!chunkCache.containsKey(ChunkPos.pack(cx, cz))) {
                         allReady = false;
                         break;
                     }
@@ -409,7 +409,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
                 int chunkX = blockX >> 4;
                 int chunkZ_ = blockZ >> 4;
 
-                ChunkAccess chunk = chunkCache.get(ChunkPos.asLong(chunkX, chunkZ_));
+                ChunkAccess chunk = chunkCache.get(ChunkPos.pack(chunkX, chunkZ_));
                 if (chunk == null) {
                     colorBag.add(MapColor.NONE);
                     continue;
@@ -524,7 +524,7 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
     private void scanStructuresInRow(int minCZ, int maxCZ) {
         for (int cx = minChunkX; cx <= maxChunkX; cx++) {
             for (int cz = minCZ; cz <= maxCZ; cz++) {
-                ChunkAccess chunk = chunkCache.get(ChunkPos.asLong(cx, cz));
+                ChunkAccess chunk = chunkCache.get(ChunkPos.pack(cx, cz));
                 if (chunk == null) continue;
 
                 Map<Structure, StructureStart> starts = chunk.getAllStarts();

@@ -41,7 +41,7 @@
     "entity.misc.ThrownTridentMixin",
     "entity.neutral.IronGolemMixin",
     "entity.neutral.WolfMixin",
-    "entity.passive.EnchantBookForEmeraldsMixin",
+    "entity.passive.VillagerTradeMixin",
     "entity.passive.SheepMixin",
     "entity.passive.VillagerMixin",
     "entity.player.PlayerMixin",

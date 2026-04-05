@@ -16,15 +16,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class EnderChestContainerMixin {
 
     @Inject(method = "startOpen", at = @At("TAIL"))
-    private void neatlybetter$pushOnOpen(ContainerUser user, CallbackInfo ci) {
-        if (user instanceof ServerPlayer sp) {
+    private void neatlybetter$pushOnOpen(ContainerUser containerUser, CallbackInfo ci) {
+        if (containerUser instanceof ServerPlayer sp) {
             NTNetwork.pushEnderChestState(sp);
         }
     }
 
     @Inject(method = "stopOpen", at = @At("TAIL"))
-    private void neatlybetter$pushOnClose(ContainerUser user, CallbackInfo ci) {
-        if (user instanceof ServerPlayer sp) {
+    private void neatlybetter$pushOnClose(ContainerUser containerUser, CallbackInfo ci) {
+        if (containerUser instanceof ServerPlayer sp) {
             NTNetwork.pushEnderChestState(sp);
         }
     }

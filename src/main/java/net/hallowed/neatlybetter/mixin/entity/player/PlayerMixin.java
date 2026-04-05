@@ -33,10 +33,10 @@ public abstract class PlayerMixin implements StonecutterMemory {
 
     /* ------------------ (1) Infinity fix: virtual arrow when bow has Infinity ------------------ */
     @Inject(method = "getProjectile", at = @At("RETURN"), cancellable = true)
-    private void neatlybetter$virtualArrowForInfinity(ItemStack weapon, CallbackInfoReturnable<ItemStack> cir) {
+    private void neatlybetter$virtualArrowForInfinity(ItemStack heldWeapon, CallbackInfoReturnable<ItemStack> cir) {
         if (!cir.getReturnValue().isEmpty()) return;
 
-        if (!(weapon.getItem() instanceof ProjectileWeaponItem)) return;
+        if (!(heldWeapon.getItem() instanceof ProjectileWeaponItem)) return;
 
         Player self = (Player)(Object)this;
         if (self.getAbilities().instabuild) return;
@@ -44,18 +44,18 @@ public abstract class PlayerMixin implements StonecutterMemory {
         var enchLookup = self.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
         Holder<@NotNull Enchantment> infinity = enchLookup.getOrThrow(Enchantments.INFINITY);
 
-        if (EnchantmentHelper.getItemEnchantmentLevel(infinity, weapon) <= 0) return;
+        if (EnchantmentHelper.getItemEnchantmentLevel(infinity, heldWeapon) <= 0) return;
 
         cir.setReturnValue(new ItemStack(Items.ARROW));
     }
 
     /* ------------------ (2) Feather not dealing damage ------------------ */
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$featherPush(Entity target, CallbackInfo ci) {
+    private void neatlybetter$featherPush(Entity entity, CallbackInfo ci) {
         if (!NTServerConfig.CONFIG.featherNoDamage.get()) return;
         Player self = (Player)(Object)this;
         if (self.getMainHandItem().is(Items.FEATHER)
-                && target instanceof LivingEntity living
+                && entity instanceof LivingEntity living
                 && !self.level().isClientSide()) {
 
             float base = 0.4F + (self.isSprinting() ? 0.5F : 0.0F);
@@ -100,15 +100,15 @@ public abstract class PlayerMixin implements StonecutterMemory {
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
-    private void neatlybetter$writeStonecutterMemory(ValueOutput view, CallbackInfo ci) {
+    private void neatlybetter$writeStonecutterMemory(ValueOutput output, CallbackInfo ci) {
         if (!this.neatlybetter$lastCraftedStonecutterItem.isEmpty()) {
-            view.putString("neatlybetter_last_stonecutter_item", this.neatlybetter$lastCraftedStonecutterItem);
+            output.putString("neatlybetter_last_stonecutter_item", this.neatlybetter$lastCraftedStonecutterItem);
         }
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
-    private void neatlybetter$readStonecutterMemory(ValueInput view, CallbackInfo ci) {
-        this.neatlybetter$lastCraftedStonecutterItem = view.getStringOr("neatlybetter_last_stonecutter_item", "");
+    private void neatlybetter$readStonecutterMemory(ValueInput input, CallbackInfo ci) {
+        this.neatlybetter$lastCraftedStonecutterItem = input.getStringOr("neatlybetter_last_stonecutter_item", "");
     }
 
     /* ------------------ (4) No Equip Cooldown ------------------ */

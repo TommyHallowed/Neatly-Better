@@ -18,9 +18,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.BundleContents;
 import net.minecraft.world.item.component.ItemContainerContents;
@@ -116,27 +117,27 @@ public final class NTNetwork {
     /** Call from your common init (TheNeatlyBetter#onInitialize). */
     public static void registerCommon() {
         // Ender Chest packets
-        PayloadTypeRegistry.playC2S().register(EnderCheckRequest.ID, EnderCheckRequest.CODEC);
-        PayloadTypeRegistry.playS2C().register(EnderCheckResponse.ID, EnderCheckResponse.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(EnderCheckRequest.ID, EnderCheckRequest.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(EnderCheckResponse.ID, EnderCheckResponse.CODEC);
 
         // ArmorSwap packets
-        PayloadTypeRegistry.playC2S().register(ArmorSwapRequest.ID, ArmorSwapRequest.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ArmorSwapRequest.ID, ArmorSwapRequest.CODEC);
 
         // Backpack packets
-        PayloadTypeRegistry.playS2C().register(BackpackCheckResponse.ID, BackpackCheckResponse.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(BackpackCheckResponse.ID, BackpackCheckResponse.CODEC);
 
         // Shield delay sync
-        PayloadTypeRegistry.playS2C().register(ShieldDelaySyncPayload.ID, ShieldDelaySyncPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ShieldDelaySyncPayload.ID, ShieldDelaySyncPayload.CODEC);
 
         // -- Server-side receivers --
         ServerPlayNetworking.registerGlobalReceiver(EnderCheckRequest.ID,
-                (payload, ctx) -> pushEnderChestState(ctx.player()));
+                (_, ctx) -> pushEnderChestState(ctx.player()));
 
         ServerPlayNetworking.registerGlobalReceiver(ArmorSwapRequest.ID,
                 (payload, ctx) -> handleArmorSwap(ctx.player(), payload));
 
         // -- push ender chest and backpack state on join --
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+        ServerPlayConnectionEvents.JOIN.register((handler, _, _) -> {
             pushEnderChestState(handler.player);
             pushBackpackState(handler.player);
             pushShieldDelay(handler.player);
@@ -204,10 +205,10 @@ public final class NTNetwork {
         if (menuArmorSlot.isPresent()) {
             int armorMenuIdx = menuArmorSlot.getAsInt();
             menu.suppressRemoteUpdates();
-            menu.clicked(srcIdx, 0, ClickType.PICKUP, player);
-            menu.clicked(armorMenuIdx, 0, ClickType.PICKUP, player);
+            menu.clicked(srcIdx, 0, ContainerInput.PICKUP, player);
+            menu.clicked(armorMenuIdx, 0, ContainerInput.PICKUP, player);
             if (!menu.getCarried().isEmpty()) {
-                menu.clicked(srcIdx, 0, ClickType.PICKUP, player);
+                menu.clicked(srcIdx, 0, ContainerInput.PICKUP, player);
             }
             menu.resumeRemoteUpdates();
             menu.broadcastFullState();
@@ -283,11 +284,17 @@ public final class NTNetwork {
 
     private static Iterable<ItemStack> iterateBundle(ItemStack stack) {
         BundleContents bundle = stack.get(DataComponents.BUNDLE_CONTENTS);
-        return (bundle == null) ? List.of() : bundle.items();
+        if (bundle == null) return List.of();
+        return bundle.items().stream().map(ItemStackTemplate::create).toList();
     }
 
     private static Iterable<ItemStack> iterateContainer(ItemStack stack) {
         ItemContainerContents container = stack.get(DataComponents.CONTAINER);
-        return (container == null) ? List.of() : container.nonEmptyItems();
+        if (container == null) return List.of();
+        List<ItemStack> result = new java.util.ArrayList<>();
+        for (ItemStackTemplate template : container.nonEmptyItems()) {
+            result.add(template.create());
+        }
+        return result;
     }
 }

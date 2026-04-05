@@ -36,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ChestKeyHandler {
 
     public record LockOwner(String uuid, String name, String secondUuid, String secondName) {
@@ -123,7 +122,7 @@ public class ChestKeyHandler {
             return InteractionResult.PASS;
         }
 
-        serverPlayer.displayClientMessage(
+        serverPlayer.sendSystemMessage(
                 Component.literal("This container is locked by " + owner.displayNames() + "!")
                         .withStyle(ChatFormatting.RED),
                 true
@@ -140,7 +139,7 @@ public class ChestKeyHandler {
         if (owner == null) {
             ItemStack keyStack = player.getItemInHand(hand);
             lockContainer(level, pos, player, keyStack);
-            player.displayClientMessage(
+            player.sendSystemMessage(
                     Component.literal("Container locked!").withStyle(ChatFormatting.GREEN),
                     true
             );
@@ -151,7 +150,7 @@ public class ChestKeyHandler {
 
         if (owner.isOwner(player.getUUID())) {
             unlockContainer(level, pos);
-            player.displayClientMessage(
+            player.sendSystemMessage(
                     Component.literal("Container unlocked!").withStyle(ChatFormatting.YELLOW),
                     true
             );
@@ -162,7 +161,7 @@ public class ChestKeyHandler {
 
         if (isMasterKey(player.getItemInHand(hand))) {
             unlockContainer(level, pos);
-            player.displayClientMessage(
+            player.sendSystemMessage(
                     Component.literal("Container force-unlocked with Master Key!")
                             .withStyle(ChatFormatting.GOLD),
                     true
@@ -172,7 +171,7 @@ public class ChestKeyHandler {
             return InteractionResult.SUCCESS;
         }
 
-        player.displayClientMessage(
+        player.sendSystemMessage(
                 Component.literal("This container is locked by " + owner.displayNames() + "!")
                         .withStyle(ChatFormatting.RED),
                 true
@@ -202,7 +201,7 @@ public class ChestKeyHandler {
         }
 
         if (player instanceof ServerPlayer sp) {
-            sp.displayClientMessage(
+            sp.sendSystemMessage(
                     Component.literal("This container is locked by " + owner.displayNames() + "!")
                             .withStyle(ChatFormatting.RED),
                     true

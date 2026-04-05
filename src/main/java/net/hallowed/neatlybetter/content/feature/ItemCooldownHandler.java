@@ -63,7 +63,7 @@ public final class ItemCooldownHandler {
             return InteractionResult.PASS;
         });
 
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
+        ServerTickEvents.END_SERVER_TICK.register(_ -> {
             if (!PENDING_COOLDOWNS.isEmpty()) {
                 PENDING_COOLDOWNS.forEach(Runnable::run);
                 PENDING_COOLDOWNS.clear();

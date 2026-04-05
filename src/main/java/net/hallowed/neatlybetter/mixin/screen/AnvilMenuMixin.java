@@ -54,10 +54,10 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
 
     // ── anvilRenameColors ──
     @Inject(method = "validateName", at = @At("HEAD"), cancellable = true)
-    private static void neatlybetter$allowColorsAndFormat(String string, CallbackInfoReturnable<String> cir) {
+    private static void neatlybetter$allowColorsAndFormat(String name, CallbackInfoReturnable<String> cir) {
         if (!NTServerConfig.CONFIG.anvilRenameColors.get()) return;
 
-        String translated = string.replaceAll("&([0-9a-fA-Fk-oK-OrR])", "§$1");
+        String translated = name.replaceAll("&([0-9a-fA-Fk-oK-OrR])", "§$1");
 
         StringBuilder builder = new StringBuilder();
         for (char c : translated.toCharArray()) {
@@ -96,7 +96,7 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
             int lvl = neatlybetter$getKnockbackLevelFromBook(right);
             if (lvl <= 0) return;
             int target = Math.min(2, lvl);
-            this.access.execute((world, pos) -> {
+            this.access.execute((world, _) -> {
                 Holder<@NotNull Enchantment> kb = world.registryAccess().get(Enchantments.KNOCKBACK).orElseThrow();
                 ItemEnchantments.Mutable b = new ItemEnchantments.Mutable(existing);
                 b.set(kb, target);
@@ -116,7 +116,7 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
             int r = neatlybetter$getKnockbackLevelFromItem(right);
             if (l == 0 && r == 0) return;
             int target = (l == r && l > 0) ? Math.min(2, l + 1) : Math.max(l, r);
-            this.access.execute((world, pos) -> {
+            this.access.execute((world, _) -> {
                 Holder<@NotNull Enchantment> kb = world.registryAccess().get(Enchantments.KNOCKBACK).orElseThrow();
                 ItemEnchantments.Mutable b = new ItemEnchantments.Mutable(existing);
                 b.set(kb, target);
@@ -146,7 +146,7 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
 
     @Inject(method = "onTake(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;)V",
             at = @At("HEAD"))
-    private void neatlybetter$preTake(Player player, ItemStack taken, CallbackInfo ci) {
+    private void neatlybetter$preTake(Player player, ItemStack carried, CallbackInfo ci) {
         neatlybetter$costAtTake = this.cost.get();
         neatlybetter$deltaSeen = 0;
         if (!neatlybetter$consumeRightOnTake) return;
@@ -172,7 +172,7 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
             method = "onTake(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;)V",
             at = @At("TAIL")
     )
-    private void neatlybetter$chargeIfSkipped(Player player, ItemStack taken, CallbackInfo ci) {
+    private void neatlybetter$chargeIfSkipped(Player player, ItemStack carried, CallbackInfo ci) {
         if (!player.getAbilities().instabuild && neatlybetter$deltaSeen == 0 && neatlybetter$costAtTake > 0 && player.experienceLevel >= neatlybetter$costAtTake) {
             player.giveExperienceLevels(-neatlybetter$costAtTake);
         }
@@ -190,10 +190,10 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
     }
 
     @Inject(method = "mayPickup", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$allowTakeWhenZeroCost(Player player, boolean present, CallbackInfoReturnable<Boolean> cir) {
+    private void neatlybetter$allowTakeWhenZeroCost(Player player, boolean hasItem, CallbackInfoReturnable<Boolean> cir) {
         if (!NTServerConfig.CONFIG.anvilNoRenameCost.get()) return;
         if (neatlybetter$isPureRename()) {
-            cir.setReturnValue(present);
+            cir.setReturnValue(hasItem);
         }
     }
 

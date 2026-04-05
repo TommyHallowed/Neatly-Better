@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.api;
 
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 
 import net.hallowed.NeatlyBetter;
 
@@ -65,9 +65,9 @@ public final class NTRegistry {
     }
 
     /* ----------------- ItemGroup batching -----------------*/
-    private static final Map<ResourceKey<@NotNull CreativeModeTab>, List<ItemGroupEvents.ModifyEntries>> PENDING = new HashMap<>();
+    private static final Map<ResourceKey<@NotNull CreativeModeTab>, List<CreativeModeTabEvents.ModifyOutput>> PENDING = new HashMap<>();
 
-    public static void addToGroup(ResourceKey<@NotNull CreativeModeTab> group, ItemGroupEvents.ModifyEntries handler) {
+    public static void addToGroup(ResourceKey<@NotNull CreativeModeTab> group, CreativeModeTabEvents.ModifyOutput handler) {
         PENDING.computeIfAbsent(group, g -> new ArrayList<>()).add(handler);
     }
 
@@ -75,11 +75,11 @@ public final class NTRegistry {
         if (PENDING.isEmpty()) return;
 
         PENDING.forEach((group, handlers) -> {
-            ItemGroupEvents
-                    .modifyEntriesEvent(group)
+            CreativeModeTabEvents
+                    .modifyOutputEvent(group)
                     .register(entries -> {
-                        for (ItemGroupEvents.ModifyEntries h : handlers) {
-                            h.modifyEntries(entries);
+                        for (CreativeModeTabEvents.ModifyOutput h : handlers) {
+                            h.modifyOutput(entries);
                         }
                     });
         });

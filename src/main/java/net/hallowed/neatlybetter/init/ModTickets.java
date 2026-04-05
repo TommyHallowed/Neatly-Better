@@ -9,7 +9,7 @@ public class ModTickets {
 
     /**
      * Ticket for map chunk scanning.  Keeps chunks loaded just long enough
-     * for the scanner to read their colour data, then is explicitly removed.
+     * for the scanner to read their color data, then is explicitly removed.
      */
     public static final TicketType MAP_SCAN = Registry.register(
             BuiltInRegistries.TICKET_TYPE,

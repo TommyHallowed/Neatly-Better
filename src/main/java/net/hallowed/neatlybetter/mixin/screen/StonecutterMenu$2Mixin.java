@@ -13,11 +13,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(targets = "net.minecraft.world.inventory.StonecutterMenu$2")
 public class StonecutterMenu$2Mixin {
 
-    // This targets the specific anonymous Slot class for the output in StonecutterScreenHandler
     @Inject(method = "onTake", at = @At("HEAD"))
-    private void neatlybetter$recordCraftedItem(Player player, ItemStack stack, CallbackInfo ci) {
-        if (!stack.isEmpty() && player instanceof StonecutterMemory memory) {
-            String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+    private void neatlybetter$recordCraftedItem(Player player, ItemStack carried, CallbackInfo ci) {
+        if (!carried.isEmpty() && player instanceof StonecutterMemory memory) {
+            String itemId = BuiltInRegistries.ITEM.getKey(carried.getItem()).toString();
             memory.neatlybetter$setLastCraftedItem(itemId);
         }
     }

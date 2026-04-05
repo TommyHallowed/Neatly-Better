@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.init;
 
-import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
+import net.fabricmc.fabric.api.registry.FabricPotionBrewingBuilder;
 
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potions;
@@ -9,7 +9,7 @@ public final class ModBrewing {
     private ModBrewing() {}
 
     public static void register() {
-        FabricBrewingRecipeRegistryBuilder.BUILD.register(builder -> {
+        FabricPotionBrewingBuilder.BUILD.register(builder -> {
             // Haste
             builder.addMix(
                     Potions.AWKWARD,

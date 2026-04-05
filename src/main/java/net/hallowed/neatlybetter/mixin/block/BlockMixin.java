@@ -24,7 +24,7 @@ public abstract class BlockMixin {
             cancellable = true
     )
     private static void neatlybetter$constrainScaffoldingDrop(
-            Level level, BlockPos blockPos, ItemStack itemStack, CallbackInfo ci
+            Level level, BlockPos pos, ItemStack itemStack, CallbackInfo ci
     ) {
         if (!itemStack.is(Items.SCAFFOLDING)) return;
         if (!(level instanceof ServerLevel serverLevel)) return;
@@ -33,9 +33,9 @@ public abstract class BlockMixin {
 
         double halfHeight = EntityType.ITEM.getHeight() / 2.0;
 
-        double x = blockPos.getX() + 0.5 + Mth.nextDouble(level.random, -1.5, 1.5);
-        double y = blockPos.getY() + 0.5 + Mth.nextDouble(level.random, -0.25, 0.25) - halfHeight;
-        double z = blockPos.getZ() + 0.5 + Mth.nextDouble(level.random, -1.5, 1.5);
+        double x = pos.getX() + 0.5 + Mth.nextDouble(level.getRandom(), -1.5, 1.5);
+        double y = pos.getY() + 0.5 + Mth.nextDouble(level.getRandom(), -0.25, 0.25) - halfHeight;
+        double z = pos.getZ() + 0.5 + Mth.nextDouble(level.getRandom(), -1.5, 1.5);
 
         ItemEntity itemEntity = new ItemEntity(level, x, y, z, itemStack, 0.0, 0.0, 0.0);
         itemEntity.setDefaultPickUpDelay();

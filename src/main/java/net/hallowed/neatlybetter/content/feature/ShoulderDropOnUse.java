@@ -14,7 +14,7 @@ public final class ShoulderDropOnUse {
     private ShoulderDropOnUse() {}
 
     public static void register() {
-        UseBlockCallback.EVENT.register((Player player, Level world, InteractionHand hand, BlockHitResult hit) -> {
+        UseBlockCallback.EVENT.register((Player player, Level world, InteractionHand hand, BlockHitResult _) -> {
             if (!(world instanceof ServerLevel)) return InteractionResult.PASS;
             if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
             if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;

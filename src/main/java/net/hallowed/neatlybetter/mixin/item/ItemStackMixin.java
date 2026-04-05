@@ -14,12 +14,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin {
     @Inject(method = "finishUsingItem", at = @At("TAIL"))
-    private void neatlybetter$foodAddEffects(Level world, LivingEntity user, CallbackInfoReturnable<ItemStack> cir) {
+    private void neatlybetter$foodAddEffects(Level level, LivingEntity livingEntity, CallbackInfoReturnable<ItemStack> cir) {
         ItemStack self = (ItemStack)(Object) this;
-        if (user instanceof Player) {
+        if (livingEntity instanceof Player) {
             if (self.is(Items.GLISTERING_MELON_SLICE)
-                    && user.getHealth() < 20.0F) {
-                user.heal(1.0F);
+                    && livingEntity.getHealth() < 20.0F) {
+                livingEntity.heal(1.0F);
             }
         }
     }

@@ -40,7 +40,7 @@ public final class ModItems {
                         .fireResistant()
                         .setId(NTRegistry.itemKey("wolf_collar"))));
 
-        AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
+        AttackBlockCallback.EVENT.register((player, world, hand, pos, _) -> {
             if (!world.isClientSide() && !player.isSpectator()) {
                 ItemStack stack = player.getItemInHand(hand);
                 if (stack.getItem() instanceof MapBuilderItem builder) {

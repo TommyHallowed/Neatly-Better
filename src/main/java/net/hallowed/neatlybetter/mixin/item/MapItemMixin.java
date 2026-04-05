@@ -32,10 +32,10 @@ public class MapItemMixin {
             method = "update",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/saveddata/maps/MapItemSavedData;getHoldingPlayer(Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/world/level/saveddata/maps/MapItemSavedData$HoldingPlayer;")
     )
-    private void neatlybetter$captureFirstHeight(Level world, Entity entity, MapItemSavedData state, CallbackInfo ci) {
+    private void neatlybetter$captureFirstHeight(Level level, Entity player, MapItemSavedData data, CallbackInfo ci) {
         // FIX 1: Translated from Yarn to Mojang mappings for checking the dimension
-        if (world.dimension() == Level.NETHER) {
-            NEATLYBETTER_FIXED_HEIGHT.putIfAbsent(state, (int) Math.floor(entity.getY()));
+        if (level.dimension() == Level.NETHER) {
+            NEATLYBETTER_FIXED_HEIGHT.putIfAbsent(data, (int) Math.floor(player.getY()));
         }
     }
 
@@ -44,8 +44,8 @@ public class MapItemMixin {
             // FIX 2: 'sampleHeightmap' translates to 'getHeight' in Mojang mappings
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunk;getHeight(Lnet/minecraft/world/level/levelgen/Heightmap$Types;II)I")
     )
-    private int neatlybetter$useFixedStartHeight(int original, Level world, Entity entity, MapItemSavedData state) {
-        Integer fixed = NEATLYBETTER_FIXED_HEIGHT.get(state);
+    private int neatlybetter$useFixedStartHeight(int original, Level level, Entity player, MapItemSavedData data) {
+        Integer fixed = NEATLYBETTER_FIXED_HEIGHT.get(data);
         return fixed != null ? fixed : original;
     }
 }

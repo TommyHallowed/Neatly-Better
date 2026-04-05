@@ -28,7 +28,7 @@ public class SleepModeHandler {
                         && sp.getAdvancements().getOrStartProgress(advancement).isDone()) {
                     return null;
                 }
-                sp.displayClientMessage(
+                sp.sendSystemMessage(
                         Component.literal("You cannot sleep until Ender Dragon is Defeated"), true);
             }
 

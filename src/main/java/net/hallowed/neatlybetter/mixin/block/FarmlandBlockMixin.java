@@ -13,7 +13,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.NotNull;
@@ -24,13 +24,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(FarmBlock.class)
+@Mixin(FarmlandBlock.class)
 public abstract class FarmlandBlockMixin {
 
     @Inject(method = "turnToDirt", at = @At("HEAD"), cancellable = true, require = 0)
-    private static void neatlybetter$skipTrampleA(Entity entity, BlockState state, Level world, BlockPos pos, CallbackInfo ci) {
-        if (!(world instanceof ServerLevel)) return;
-        if (shouldSkipTrample(entity)) ci.cancel();
+    private static void neatlybetter$skipTrampleA(Entity sourceEntity, BlockState state, Level level, BlockPos pos, CallbackInfo ci) {
+        if (!(level instanceof ServerLevel)) return;
+        if (shouldSkipTrample(sourceEntity)) ci.cancel();
     }
 
     @Unique

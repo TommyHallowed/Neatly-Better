@@ -51,7 +51,7 @@ public class MoreXpDrops {
             return InteractionResult.PASS;
         });
 
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
+        ServerTickEvents.END_SERVER_TICK.register(_ -> {
             for (PendingPlacement p : PENDING) {
                 boolean placed = processPosition(p.level, p.pos1, p.state1)
                         || processPosition(p.level, p.pos2, p.state2);
@@ -60,7 +60,7 @@ public class MoreXpDrops {
                         && !p.player.isCreative()
                         && NTServerConfig.CONFIG.xpFromPlacingBlocks.get()) {
                     double chance = 0.01;
-                    if (p.level.random.nextDouble() < chance) {
+                    if (p.level.getRandom().nextDouble() < chance) {
                         int xp = 1;
                         ExperienceOrb.award(p.level, p.player.position(), xp);
                     }
@@ -69,7 +69,7 @@ public class MoreXpDrops {
             PENDING.clear();
         });
 
-        PlayerBlockBreakEvents.AFTER.register((world, player, pos, state, blockEntity) -> {
+        PlayerBlockBreakEvents.AFTER.register((world, player, pos, state, _) -> {
             if (!(world instanceof ServerLevel serverLevel)) return;
             if (player.isCreative()) return;
 
@@ -91,7 +91,7 @@ public class MoreXpDrops {
             double maxChance  = 0.4;
             double chance = Math.min(baseChance + hardness * 0.01, maxChance);
 
-            if (serverLevel.random.nextDouble() >= chance) return;
+            if (serverLevel.getRandom().nextDouble() >= chance) return;
 
             double multiplier = 0.15;
             int xp = Math.max(1, (int) (multiplier * hardness));
@@ -103,7 +103,7 @@ public class MoreXpDrops {
     public static void tryAwardCropXp(ServerLevel level, BlockPos pos) {
 
         double chance = 0.2;
-        if (level.random.nextDouble() >= chance) return;
+        if (level.getRandom().nextDouble() >= chance) return;
 
         int xp = 2;
         ExperienceOrb.award(level, Vec3.atCenterOf(pos), xp);

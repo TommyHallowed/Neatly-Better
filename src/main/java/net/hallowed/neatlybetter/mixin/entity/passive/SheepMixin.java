@@ -17,16 +17,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class SheepMixin {
 
     @Inject(method = "shear", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$shearJebSheep(ServerLevel serverLevel, SoundSource soundSource, ItemStack itemStack, CallbackInfo ci) {
+    private void neatlybetter$shearJebSheep(ServerLevel level, SoundSource soundSource, ItemStack tool, CallbackInfo ci) {
         Sheep self = (Sheep) (Object) this;
         Component customName = self.getCustomName();
 
         if (customName != null && "jeb_".equals(customName.getString())) {
-            serverLevel.playSound(null, self, SoundEvents.SHEEP_SHEAR, soundSource, 1.0F, 1.0F);
+            level.playSound(null, self, SoundEvents.SHEEP_SHEAR, soundSource, 1.0F, 1.0F);
 
             int count = 1 + self.getRandom().nextInt(3);
             for (int i = 0; i < count; i++) {
-                ItemEntity itemEntity = self.spawnAtLocation(serverLevel, new ItemStack(ModBlocks.RAINBOW_WOOL), 1.0F);
+                ItemEntity itemEntity = self.spawnAtLocation(level, new ItemStack(ModBlocks.RAINBOW_WOOL), 1.0F);
                 if (itemEntity != null) {
                     itemEntity.setDeltaMovement(
                             itemEntity.getDeltaMovement().add(

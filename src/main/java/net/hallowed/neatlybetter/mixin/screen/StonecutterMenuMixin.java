@@ -20,8 +20,8 @@ public class StonecutterMenuMixin {
     @Shadow @Final Slot resultSlot;
 
     @Inject(method = "quickMoveStack", at = @At("HEAD"))
-    private void neatlybetter$recordQuickMoved(Player player, int index, CallbackInfoReturnable<ItemStack> cir) {
-        if (index == 1 && player instanceof StonecutterMemory memory) {
+    private void neatlybetter$recordQuickMoved(Player player, int slotIndex, CallbackInfoReturnable<ItemStack> cir) {
+        if (slotIndex == 1 && player instanceof StonecutterMemory memory) {
             ItemStack stack = this.resultSlot.getItem();
             if (!stack.isEmpty()) {
                 String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();

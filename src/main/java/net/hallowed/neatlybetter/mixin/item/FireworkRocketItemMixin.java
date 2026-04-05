@@ -18,10 +18,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class FireworkRocketItemMixin {
 
     @Inject(method = "use", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$onlyDragonBurstBoosts(Level world, Player user, InteractionHand hand,
+    private void neatlybetter$onlyDragonBurstBoosts(Level level, Player player, InteractionHand hand,
                                                     CallbackInfoReturnable<InteractionResult> cir) {
-        if (!user.isFallFlying()) return;
-        MinecraftServer server = world.getServer();
+        if (!player.isFallFlying()) return;
+        MinecraftServer server = level.getServer();
         if (server == null) return;
 
         if (NTServerConfig.CONFIG.doElytraFireworkBoosting.get()) return;

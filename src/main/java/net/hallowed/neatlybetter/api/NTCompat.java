@@ -50,20 +50,20 @@ public final class NTCompat {
         return loaded;
     }
 
-    public static final boolean HORSEMAN          = isLoaded("horseman");
-    public static final boolean RESPECTMYTRIMS    = isLoaded("respectmytrims");
-    public static final boolean BACKPACKED        = isLoaded("backpacked");
-    public static final boolean BETTERTRIDENTS    = isLoaded("bettertridents");
-    public static final boolean ENCHANCEMENT      = isLoaded("enchancement");
-    public static final boolean DOUBLEDOORS       = isLoaded("doubledoors");
-    public static final boolean RIGHTCLICKHARVEST = isLoaded("rightclickharvest");
-    public static final boolean REAP              = isLoaded("reap");
-    public static final boolean BETTER_BLOCK_ENTITIES  = isLoaded("betterblockentities");
-    public static final boolean COMBATNOUVEAU     = isLoaded("combatnouveau");
-    public static final boolean GOLDENAGECOMBAT    = isLoaded("goldenagecombat");
-    public static final boolean EXTENDEDBONEMEAL = isLoaded("extendedbonememeal");
-    public static final boolean UNIVERSALBONEMEAL    = isLoaded("universalbonemeal");
-    public static final boolean ANVILRESTORATION = isLoaded("anvilrestoration");
-    public static final boolean EASYANVILS        = isLoaded("easyanvils");
-    public static final boolean GRASSSEEDS        = isLoaded("grassseeds");
+    public static final boolean HORSEMAN                = isLoaded("horseman");
+    public static final boolean RESPECTMYTRIMS          = isLoaded("respectmytrims");
+    public static final boolean BACKPACKED              = isLoaded("backpacked");
+    public static final boolean BETTERTRIDENTS          = isLoaded("bettertridents");
+    public static final boolean ENCHANCEMENT            = isLoaded("enchancement");
+    public static final boolean DOUBLEDOORS             = isLoaded("doubledoors");
+    public static final boolean RIGHTCLICKHARVEST       = isLoaded("rightclickharvest");
+    public static final boolean REAP                    = isLoaded("reap");
+    public static final boolean BETTER_BLOCK_ENTITIES   = isLoaded("betterblockentities");
+    public static final boolean COMBATNOUVEAU           = isLoaded("combatnouveau");
+    public static final boolean GOLDENAGECOMBAT         = isLoaded("goldenagecombat");
+    public static final boolean EXTENDEDBONEMEAL        = isLoaded("extendedbonememeal");
+    public static final boolean UNIVERSALBONEMEAL       = isLoaded("universalbonemeal");
+    public static final boolean ANVILRESTORATION        = isLoaded("anvilrestoration");
+    public static final boolean EASYANVILS              = isLoaded("easyanvils");
+    public static final boolean GRASSSEEDS              = isLoaded("grassseeds");
 }

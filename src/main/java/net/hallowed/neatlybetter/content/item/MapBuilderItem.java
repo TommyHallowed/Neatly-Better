@@ -28,10 +28,7 @@ import net.minecraft.world.level.Level;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 public class MapBuilderItem extends Item {
 
@@ -94,7 +91,7 @@ public class MapBuilderItem extends Item {
                 this.queuedTasks = new LinkedList<>(tasks);
                 this.totalTasks = tasks.size();
                 this.bossBar = (ServerBossEvent) new ServerBossEvent(
-                        Component.literal("Mapping Area (0%)"), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS
+                        UUID.randomUUID(), Component.literal("Mapping Area (0%)"), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS
                 ).setDarkenScreen(false);
                 this.bossBar.addPlayer(player);
             }
@@ -142,7 +139,7 @@ public class MapBuilderItem extends Item {
 
             public void finish() {
                 bossBar.removePlayer(player);
-                player.displayClientMessage(Component.literal("Map generation complete!").withStyle(ChatFormatting.GREEN), false);
+                player.sendSystemMessage(Component.literal("Map generation complete!").withStyle(ChatFormatting.GREEN), false);
             }
         }
     }
@@ -202,7 +199,7 @@ public class MapBuilderItem extends Item {
                 int newZoom = (currentZoom + 1) % 5;
                 nbt.putInt(NBT_ZOOM, newZoom);
                 saveCustomData(stack, nbt);
-                user.displayClientMessage(Component.literal("Map Zoom Level: " + newZoom).withStyle(ChatFormatting.YELLOW), true);
+                user.sendSystemMessage(Component.literal("Map Zoom Level: " + newZoom).withStyle(ChatFormatting.YELLOW));
                 return InteractionResult.SUCCESS;
             }
 
@@ -326,7 +323,7 @@ public class MapBuilderItem extends Item {
             int glowFrames = player.getInventory().countItem(Items.GLOW_ITEM_FRAME);
 
             if (emptyMaps < requiredItems || (normalFrames + glowFrames) < requiredItems) {
-                player.displayClientMessage(Component.literal("Not enough materials! Need " + requiredItems + "x Empty Map and Item Frames.").withStyle(ChatFormatting.RED), false);
+                player.sendSystemMessage(Component.literal("Not enough materials! Need " + requiredItems + "x Empty Map and Item Frames.").withStyle(ChatFormatting.RED));
                 return false;
             }
 

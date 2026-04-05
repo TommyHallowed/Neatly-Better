@@ -1,4 +1,4 @@
-accessWidener v2 named
+accessWidener v2 official
 accessible field net/minecraft/client/renderer/item/ItemStackRenderState layers [Lnet/minecraft/client/renderer/item/ItemStackRenderState$LayerRenderState;
 accessible field net/minecraft/client/gui/screens/inventory/AbstractRecipeBookScreen recipeBookComponent Lnet/minecraft/client/gui/screens/recipebook/RecipeBookComponent;
 accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen leftPos I

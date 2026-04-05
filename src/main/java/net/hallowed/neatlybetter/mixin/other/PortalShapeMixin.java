@@ -21,7 +21,7 @@ public class PortalShapeMixin {
 
     @Inject(method = "<clinit>", at = @At("RETURN"))
     private static void onClassInit(CallbackInfo ci) {
-        FRAME = (state, world, pos) ->
+        FRAME = (state, _, _) ->
                 state.is(Blocks.OBSIDIAN) || state.is(Blocks.CRYING_OBSIDIAN);
     }
 }

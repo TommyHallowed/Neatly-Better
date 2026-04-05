@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -17,7 +18,7 @@ import java.util.List;
 
 public class PlayerPlacedBlockData extends SavedData {
 
-    private static final String DATA_NAME = "neatlybetter_placed_blocks";
+    private static final Identifier DATA_NAME = Identifier.parse("neatlybetter_placed_blocks");
 
     private final LongOpenHashSet placedPositions;
 

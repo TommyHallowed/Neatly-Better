@@ -34,13 +34,13 @@ public abstract class VillagerMixin {
     private static final int INFINITE_CURE_SOFT_CAP = 1000;
 
     @Inject(method = "onReputationEventFrom", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$infiniteCuringDiscounts(ReputationEventType type, Entity entity, CallbackInfo ci) {
+    private void neatlybetter$infiniteCuringDiscounts(ReputationEventType type, Entity source, CallbackInfo ci) {
         if (type != ReputationEventType.ZOMBIE_VILLAGER_CURED) return;
         Villager self = (Villager) (Object) this;
         if (!(self.level() instanceof ServerLevel)) return;
         if (!NTServerConfig.CONFIG.villagerInfiniteCuringDiscounts.get()) return;
 
-        UUID uuid = entity.getUUID();
+        UUID uuid = source.getUUID();
 
         Object2IntMap<GossipType> existing = this.gossips.getGossipEntries().get(uuid);
         int prevMajor = existing != null ? existing.getOrDefault(GossipType.MAJOR_POSITIVE, 0) : 0;

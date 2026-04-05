@@ -133,6 +133,6 @@ public final class ModBlocks {
                 new BedBlock(DyeColor.WHITE,
                         BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_BED)
                                 .setId(NTRegistry.blockKey("rainbow_bed"))));
-        BlockEntityType.BED.addSupportedBlock(RAINBOW_BED);
+        BlockEntityType.BED.addValidBlock(RAINBOW_BED);
     }
 }

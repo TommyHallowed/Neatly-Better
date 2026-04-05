@@ -7,8 +7,8 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ChestMenu;
-import net.minecraft.world.inventory.ClickType;
 
+import net.minecraft.world.inventory.ContainerInput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,8 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class AbstractContainerMenuMixin {
 
     @Inject(method = "clicked", at = @At("TAIL"))
-    private void neatlybetter$enderSyncAfterClick(int slotIndex, int button, ClickType actionType,
-                                             Player player, CallbackInfo ci) {
+    private void neatlybetter$enderSyncAfterClick(int slotIndex, int buttonNum, ContainerInput containerInput, Player player, CallbackInfo ci) {
         if (!(player instanceof ServerPlayer sp)) return;
         if (!((Object) this instanceof ChestMenu g)) return;
 

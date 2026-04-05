@@ -25,7 +25,7 @@ public final class MagmaSpawnsLava {
     private MagmaSpawnsLava() {}
 
     public static void init() {
-        PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {
+        PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, _) -> {
 
             if (!NTServerConfig.CONFIG.magmaSpawnsLava.get()) return true;
             if (!(world instanceof ServerLevel serverWorld)) return true;
