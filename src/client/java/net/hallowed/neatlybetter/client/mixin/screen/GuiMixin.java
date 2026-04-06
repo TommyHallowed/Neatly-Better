@@ -36,6 +36,7 @@ public abstract class GuiMixin {
     private void neatlybetter$renderHUDEffectBars(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.effectBars.get()) return;
 
+        assert this.minecraft.player != null;
         Collection<MobEffectInstance> collection = this.minecraft.player.getActiveEffects();
         if (collection.isEmpty()) return;
 
@@ -70,7 +71,7 @@ public abstract class GuiMixin {
     private void neatlybetter$hideAirBubblesWithWaterBreathing(
             GuiGraphicsExtractor graphics, Player player, int vehicleHearts, int yLineAir, int xRight, CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.hideAirBubbles.get()) return;
-        if (player.hasEffect(MobEffects.WATER_BREATHING)) {
+        if ((player.hasEffect(MobEffects.WATER_BREATHING) || (player.hasEffect(MobEffects.BREATH_OF_THE_NAUTILUS)))) {
             ci.cancel();
         }
     }
