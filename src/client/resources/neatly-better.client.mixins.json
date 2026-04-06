@@ -4,8 +4,8 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "neatly-better-refmap.json",
   "client": [
-    "component.BannerPatternLayersClientMixin",
     "compat.BBEBedMixin",
+    "component.BannerPatternLayersClientMixin",
     "entity.ClientEffectSyncMixin",
     "entity.ClientLivingEntityMixin",
     "entity.ItemEntityRendererMixin",
@@ -46,6 +46,7 @@
     "ui.ChatComponentMixin",
     "ui.ContainerEventHandlerMixin",
     "ui.MinecraftMixin",
+    "ui.MusicManagerMixin",
     "ui.PackCompatibilityMixin",
     "ui.locatorbar.ExperienceBarRendererMixin",
     "ui.locatorbar.JumpableVehicleBarRendererMixin",
