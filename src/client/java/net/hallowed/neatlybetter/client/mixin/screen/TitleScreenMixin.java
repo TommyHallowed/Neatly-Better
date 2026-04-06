@@ -37,10 +37,10 @@ public abstract class TitleScreenMixin {
     @Unique private static boolean neatlybetter$afterInitHooked = false;
 
     @ModifyArg(
-            method = "render",
+            method = "extractRenderState",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Ljava/lang/String;III)V"
+                    target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;text(Lnet/minecraft/client/gui/Font;Ljava/lang/String;III)V"
             ),
             index = 1
     )
@@ -60,7 +60,7 @@ public abstract class TitleScreenMixin {
         if (!neatlybetter$afterInitHooked) {
             neatlybetter$afterInitHooked = true;
             ScreenEvents.AFTER_INIT.addPhaseOrdering(Event.DEFAULT_PHASE, neatlybetter$PHASE);
-            ScreenEvents.AFTER_INIT.register(neatlybetter$PHASE, (mc, screen, w, h) -> {
+            ScreenEvents.AFTER_INIT.register(neatlybetter$PHASE, (_, screen, _, _) -> {
                 if (!(screen instanceof TitleScreen)) return;
 
                 List<AbstractWidget> buttons = Screens.getWidgets(screen);

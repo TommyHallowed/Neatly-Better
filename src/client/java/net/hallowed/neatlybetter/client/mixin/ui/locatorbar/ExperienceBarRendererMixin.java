@@ -2,7 +2,7 @@ package net.hallowed.neatlybetter.client.mixin.ui.locatorbar;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.contextualbar.ContextualBarRenderer;
 import net.minecraft.client.gui.contextualbar.ExperienceBarRenderer;
 import net.minecraft.client.gui.contextualbar.LocatorBarRenderer;
@@ -22,11 +22,11 @@ public abstract class ExperienceBarRendererMixin implements ContextualBarRendere
     @Unique
     private LocatorBarRenderer neatlybetter$locator;
 
-    @Inject(method = "renderBackground", at = @At("TAIL"))
-    private void neatlybetter$appendLocatorBar(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
+    @Inject(method = "extractBackground", at = @At("TAIL"))
+    private void neatlybetter$appendLocatorBar(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (neatlybetter$locator == null) {
             neatlybetter$locator = new LocatorBarRenderer(this.minecraft);
         }
-        neatlybetter$locator.render(context, tickCounter);
+        neatlybetter$locator.extractRenderState(graphics, deltaTracker);
     }
 }

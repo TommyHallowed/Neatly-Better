@@ -33,8 +33,8 @@ public abstract class GuiMixin {
     @Shadow @Final
     private Minecraft minecraft;
 
-    @Inject(method = "renderEffects", at = @At("TAIL"))
-    private void neatlybetter$renderHUDEffectBars(GuiGraphicsExtractor GuiGraphicsExtractor, DeltaTracker deltaTracker, CallbackInfo ci) {
+    @Inject(method = "extractEffects", at = @At("TAIL"))
+    private void neatlybetter$renderHUDEffectBars(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.effectBars.get()) return;
 
         Collection<MobEffectInstance> collection = this.minecraft.player.getActiveEffects();
@@ -47,7 +47,7 @@ public abstract class GuiMixin {
             if (!effect.showIcon()) continue;
 
             boolean isBeneficial = effect.getEffect().value().isBeneficial();
-            int x = GuiGraphicsExtractor.guiWidth();
+            int x = graphics.guiWidth();
             int y = 1;
 
             if (this.minecraft.isDemo()) {
@@ -63,23 +63,23 @@ public abstract class GuiMixin {
                 y += 26;
             }
 
-            EffectBarRenderer.renderHUD(GuiGraphicsExtractor, effect, x, y);
+            EffectBarRenderer.renderHUD(graphics, effect, x, y);
         }
     }
 
-    @Inject(method = "renderAirBubbles", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "extractAirBubbles", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$hideAirBubblesWithWaterBreathing(
-            GuiGraphicsExtractor GuiGraphicsExtractor, Player player, int i, int j, int k, CallbackInfo ci) {
+            GuiGraphicsExtractor graphics, Player player, int vehicleHearts, int yLineAir, int xRight, CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.hideAirBubbles.get()) return;
         if (player.hasEffect(MobEffects.WATER_BREATHING)) {
             ci.cancel();
         }
     }
 
-    @Inject(method = "render", at = @At("TAIL"))
-    private void neatlybetter$renderSmallHud(GuiGraphicsExtractor context, DeltaTracker tickCounter, CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At("TAIL"))
+    private void neatlybetter$renderSmallHud(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if ((!NTClientConfig.CONFIG.showCoords.get() && !NTClientConfig.CONFIG.showTime.get()) || this.minecraft.options.hideGui) return;
-        SmallHudOverlay.render(context);
+        SmallHudOverlay.render(graphics);
     }
 
     @Inject(method = "willPrioritizeExperienceInfo", at = @At("RETURN"), cancellable = true)
@@ -93,38 +93,40 @@ public abstract class GuiMixin {
         cir.setReturnValue(true);
     }
 
-    @Inject(method = "renderPlayerHealth", at = @At("TAIL"))
-    private void neatlybetter$alwaysRenderFood(GuiGraphicsExtractor context, CallbackInfo ci) {
+    @Shadow
+    private void extractFood(GuiGraphicsExtractor graphics, Player player, int yLineBase, int xRight) {}
+
+    @Inject(method = "extractPlayerHealth", at = @At("TAIL"))
+    private void neatlybetter$alwaysRenderFood(GuiGraphicsExtractor graphics, CallbackInfo ci) {
         if (NTCompat.HORSEMAN) return;
         Player player = minecraft.player;
         if (player == null) return;
 
         Entity vehicle = player.getVehicle();
         if (vehicle instanceof LivingEntity mount && mount.isAlive()) {
-            int screenWidth = minecraft.getWindow().getGuiScaledWidth();
-            int screenHeight = minecraft.getWindow().getGuiScaledHeight();
-
-            ((Gui)(Object)this).renderFood(context, player, screenHeight - 39, screenWidth / 2 + 91);
+            int xRight    = graphics.guiWidth()  / 2 + 91;
+            int yLineBase = graphics.guiHeight() - 39;
+            this.extractFood(graphics, player, yLineBase, xRight);
         }
     }
 
-    @Inject(method = "renderVehicleHealth", at = @At("HEAD"))
-    private void neatlybetter$moveHorseHeartsUp(GuiGraphicsExtractor context, CallbackInfo ci) {
+    @Inject(method = "extractVehicleHealth", at = @At("HEAD"))
+    private void neatlybetter$moveHorseHeartsUp(GuiGraphicsExtractor graphics, CallbackInfo ci) {
         if (NTCompat.HORSEMAN) return;
         var client = Minecraft.getInstance();
         if (client.player == null || client.player.getAbilities().instabuild) {
             return;
         }
 
-        context.pose().pushMatrix();
-        context.pose().translate(0, -10);
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(0, -10);
     }
 
-    @Inject(method = "renderVehicleHealth", at = @At("RETURN"))
-    private void neatlybetter$restoreMatrix(GuiGraphicsExtractor context, CallbackInfo ci) {
+    @Inject(method = "extractVehicleHealth", at = @At("RETURN"))
+    private void neatlybetter$restoreMatrix(GuiGraphicsExtractor graphics, CallbackInfo ci) {
         if (NTCompat.HORSEMAN) return;
         if (minecraft.player != null && !minecraft.player.getAbilities().instabuild) {
-            context.pose().popMatrix();
+            graphics.pose().popMatrix();
         }
     }
 }

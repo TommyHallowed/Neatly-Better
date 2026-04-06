@@ -21,7 +21,6 @@
     "options.OptionsMixin",
     "render.AbstractMinecartRendererMixin",
     "render.BedRendererMixin",
-    "render.GameRendererMixin",
     "render.MinecartRenderStateMixin",
     "screen.AbstractContainerScreenMixin",
     "screen.AbstractRecipeBookScreenMixin",

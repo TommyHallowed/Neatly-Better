@@ -35,7 +35,7 @@ public final class CopyScreenshotHelper {
 
     public static void copyLatestScreenshot(Path dir) {
         File folder = dir.toFile();
-        File[] files = folder.listFiles((d, name) -> name.toLowerCase().endsWith(".png"));
+        File[] files = folder.listFiles((_, name) -> name.toLowerCase().endsWith(".png"));
         if (files == null || files.length == 0) return;
         File newest = files[0];
         for (int i = 1; i < files.length; i++) {

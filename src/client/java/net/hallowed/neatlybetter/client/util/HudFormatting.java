@@ -47,7 +47,7 @@ public final class HudFormatting {
     public static Line coordsLine(Player p) {
         final double x = p.getX(), y = p.getY(), z = p.getZ();
         final ClientLevel w = MC.level;
-        final int colorBucket = (w != null) ? secondBucket(w.getDayTime()) : 0;
+        final int colorBucket = (w != null) ? secondBucket(w.getDefaultClockTime()) : 0;
         final String currentFormat = NTClientConfig.CONFIG.coordsFormat.get();
 
         if (cachedCoords == null
@@ -63,9 +63,9 @@ public final class HudFormatting {
     }
 
     public static Line timeLine(ClientLevel w) {
-        String hhmm = ticksToHHMM(w.getDayTime());
+        String hhmm = ticksToHHMM(w.getDefaultClockTime());
         int    day  = (int)(w.getGameTime() / 24000L);
-        int    bucket = secondBucket(w.getDayTime());
+        int    bucket = secondBucket(w.getDefaultClockTime());
         String currentFormat = NTClientConfig.CONFIG.timeDayFormat.get();
         String key = hhmm + "|" + day + "|" + bucket;
 

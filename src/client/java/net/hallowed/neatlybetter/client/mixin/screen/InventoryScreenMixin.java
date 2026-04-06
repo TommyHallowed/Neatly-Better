@@ -5,7 +5,7 @@ import net.hallowed.neatlybetter.client.util.*;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -59,7 +59,7 @@ public abstract class InventoryScreenMixin extends Screen {
                 ModTextures.COMPASS_SHOWN,
                 ModTextures.COMPASS_HIDDEN,
                 NTClientConfig.CONFIG.showCoords::get,
-                b -> NTClientConfig.CONFIG.showCoords.set(!NTClientConfig.CONFIG.showCoords.get())
+                _ -> NTClientConfig.CONFIG.showCoords.set(!NTClientConfig.CONFIG.showCoords.get())
         );
 
         timeBtn = new TextureButtonWidget(
@@ -67,7 +67,7 @@ public abstract class InventoryScreenMixin extends Screen {
                 ModTextures.CLOCK_SHOWN,
                 ModTextures.CLOCK_HIDDEN,
                 NTClientConfig.CONFIG.showTime::get,
-                b -> NTClientConfig.CONFIG.showTime.set(!NTClientConfig.CONFIG.showTime.get())
+                _ -> NTClientConfig.CONFIG.showTime.set(!NTClientConfig.CONFIG.showTime.get())
         );
 
         var player = Minecraft.getInstance().player;
@@ -80,8 +80,8 @@ public abstract class InventoryScreenMixin extends Screen {
         this.addRenderableWidget(timeBtn);
     }
 
-    @Inject(method = "render", at = @At("HEAD"))
-    private void hallowed$shiftButtonsWithRecipeBook(GuiGraphics ctx, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    @Inject(method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V", at = @At("HEAD"))
+    private void hallowed$shiftButtonsWithRecipeBook(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
         if (coordsBtn == null || timeBtn == null) return;
 
         int shift = 0;

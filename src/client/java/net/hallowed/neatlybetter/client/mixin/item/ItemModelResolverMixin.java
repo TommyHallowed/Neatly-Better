@@ -39,15 +39,25 @@ public class ItemModelResolverMixin {
             for (int i = 0; i < quads.size(); i++) {
                 BakedQuad quad = quads.get(i);
 
-                if (quad.sprite().contents().name().getPath().contains("trims/items/")) {
-                    BakedQuad glowing = neatlybetter$glowCache.computeIfAbsent(quad, q ->
-                            new BakedQuad(
-                                    q.position0(), q.position1(), q.position2(), q.position3(),
-                                    q.packedUV0(), q.packedUV1(), q.packedUV2(), q.packedUV3(),
-                                    q.tintIndex(), q.direction(), q.sprite(), q.shade(),
-                                    15
-                            )
-                    );
+                // sprite is now accessed via materialInfo()
+                if (quad.materialInfo().sprite().contents().name().getPath().contains("trims/items/")) {
+                    BakedQuad glowing = neatlybetter$glowCache.computeIfAbsent(quad, q -> {
+                        BakedQuad.MaterialInfo oldInfo = q.materialInfo();
+                        // Rebuild MaterialInfo with lightEmission = 15
+                        BakedQuad.MaterialInfo emissiveInfo = new BakedQuad.MaterialInfo(
+                                oldInfo.sprite(),
+                                oldInfo.layer(),
+                                oldInfo.itemRenderType(),
+                                oldInfo.tintIndex(),
+                                oldInfo.shade(),
+                                15
+                        );
+                        return new BakedQuad(
+                                q.position0(), q.position1(), q.position2(), q.position3(),
+                                q.packedUV0(), q.packedUV1(), q.packedUV2(), q.packedUV3(),
+                                q.direction(), emissiveInfo
+                        );
+                    });
                     quads.set(i, glowing);
                 }
             }

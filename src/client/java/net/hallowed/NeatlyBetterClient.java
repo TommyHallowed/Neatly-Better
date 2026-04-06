@@ -4,7 +4,7 @@ import fuzs.forgeconfigapiport.fabric.api.v5.ConfigRegistry;
 import fuzs.forgeconfigapiport.fabric.api.v5.client.ConfigScreenFactoryRegistry;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback;
 
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.client.feature.AutoRefill;
@@ -31,7 +31,7 @@ public class NeatlyBetterClient implements ClientModInitializer {
         BackpackCheckClient.register();
         AutoRefill.register();
 
-        TooltipComponentCallback.EVENT.register(data -> {
+        ClientTooltipComponentCallback.EVENT.register(data -> {
             if (data instanceof MapPreviewTooltip mapData) {
                 return new ClientMapPreviewTooltip(mapData);
             }

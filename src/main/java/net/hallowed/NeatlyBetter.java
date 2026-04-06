@@ -44,7 +44,7 @@ public class NeatlyBetter implements ModInitializer {
 
         // 3) Server Tick Events
         ServerLifecycleEvents.SERVER_STARTED.register(FastChunkScanner::restoreAllStructuresIcons);
-        ServerTickEvents.END_SERVER_TICK.register(server -> MapBuilderItem.MapGenerationQueue.tick());
+        ServerTickEvents.END_SERVER_TICK.register(_ -> MapBuilderItem.MapGenerationQueue.tick());
         ServerTickEvents.END_SERVER_TICK.register(NTNetwork::flushDirtyBackpacks);
 
         // 4) Creative tab entries

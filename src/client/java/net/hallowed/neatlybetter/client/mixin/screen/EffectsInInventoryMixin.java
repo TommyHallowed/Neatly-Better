@@ -24,17 +24,17 @@ public abstract class EffectsInInventoryMixin {
 
     @Shadow @Final private AbstractContainerScreen<?> screen;
 
-    @Inject(method = "renderEffects", at = @At("TAIL"))
-    private void neatlybetter$renderEffectBars(GuiGraphicsExtractor GuiGraphicsExtractor, Collection<MobEffectInstance> collection, int x, int rowHeight, int mouseX, int mouseY, int maxWidth, CallbackInfo ci) {
+    @Inject(method = "extractEffects", at = @At("TAIL"))
+    private void neatlybetter$renderEffectBars(GuiGraphicsExtractor graphics, Collection<MobEffectInstance> activeEffects, int x0, int yStep, int mouseX, int mouseY, int maxWidth, CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.effectBars.get()) return;
 
-        Iterable<MobEffectInstance> sortedEffects = Ordering.natural().sortedCopy(collection);
+        Iterable<MobEffectInstance> sortedEffects = Ordering.natural().sortedCopy(activeEffects);
         int currentY = this.screen.topPos;
         boolean isWide = maxWidth > 32;
 
         for (MobEffectInstance effect : sortedEffects) {
-            EffectBarRenderer.renderInventory(GuiGraphicsExtractor, effect, x, currentY, maxWidth, isWide);
-            currentY += rowHeight;
+            EffectBarRenderer.renderInventory(graphics, effect, x0, currentY, maxWidth, isWide);
+            currentY += yStep;
         }
     }
 }

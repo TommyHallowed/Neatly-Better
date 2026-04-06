@@ -19,7 +19,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<@NotNull Anvil
         super(handler, inventory, title, null);
     }
 
-    @ModifyConstant(method = "renderLabels", constant = @Constant(intValue = 40))
+    @ModifyConstant(method = "extractLabels", constant = @Constant(intValue = 40))
     private int neatlybetter$neverShowTooExpensive(int original) {
         return Integer.MAX_VALUE;
     }

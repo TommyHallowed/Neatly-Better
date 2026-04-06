@@ -27,7 +27,8 @@ import java.util.concurrent.Executors;
 @Mixin(ChatComponent.class)
 public abstract class ChatComponentMixin {
 
-    @Shadow @Final Minecraft minecraft;
+    @Shadow @Final
+    private Minecraft minecraft;
 
     @Unique private static final Executor NEATLYBETTER_SHOT_EXEC = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "NeatlyBetter-ScreenshotCopy");
@@ -37,7 +38,7 @@ public abstract class ChatComponentMixin {
 
     @Unique private static volatile String NEATLYBETTER_LAST_FILE = null;
 
-    @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("TAIL"))
+    @Inject(method = "addClientSystemMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("TAIL"))
     private void neatlybetter$copyScreenshotIfVanillaSaved(Component message, CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.copyScreenshots.get()) return;
         if (!(message.getContents() instanceof TranslatableContents tc)) return;
@@ -47,7 +48,7 @@ public abstract class ChatComponentMixin {
 
         NEATLYBETTER_SHOT_EXEC.execute(() -> {
             File dir = shotsDir.toFile();
-            File[] pngs = dir.listFiles((d, name) -> {
+            File[] pngs = dir.listFiles((_, name) -> {
                 int n = name.length();
                 return n >= 4 && (name.regionMatches(true, n - 4, ".png", 0, 4));
             });

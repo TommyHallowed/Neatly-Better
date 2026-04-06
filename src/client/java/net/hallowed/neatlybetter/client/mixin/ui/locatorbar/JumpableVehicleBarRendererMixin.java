@@ -2,7 +2,7 @@ package net.hallowed.neatlybetter.client.mixin.ui.locatorbar;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.contextualbar.ContextualBarRenderer;
 import net.minecraft.client.gui.contextualbar.JumpableVehicleBarRenderer;
 import net.minecraft.client.gui.contextualbar.LocatorBarRenderer;
@@ -32,7 +32,7 @@ public abstract class JumpableVehicleBarRendererMixin implements ContextualBarRe
      * @reason Overwrites the Jump bar render to include locator icons.
      */
     @Overwrite
-    public void renderBackground(@NotNull GuiGraphics context, @NotNull DeltaTracker tickCounter) {
+    public void extractBackground(@NotNull GuiGraphicsExtractor context, @NotNull DeltaTracker tickCounter) {
         if (this.minecraft == null || this.minecraft.player == null) return;
 
         int centerX = this.left(this.minecraft.getWindow());
@@ -51,6 +51,6 @@ public abstract class JumpableVehicleBarRendererMixin implements ContextualBarRe
         }
 
         LocatorBarRenderer locator = new LocatorBarRenderer(this.minecraft);
-        locator.render(context, tickCounter);
+        locator.extractRenderState(context, tickCounter);
     }
 }

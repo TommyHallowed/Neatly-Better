@@ -12,8 +12,8 @@ public abstract class LoomScreenMixin {
     @ModifyConstant(
             method = {
                     "containerChanged",
-                    "renderBg",
-                    "render"
+                    "extractBackground",
+                    "extractBannerOnButton"
             },
             constant = @Constant(intValue = 6),
             require = 0

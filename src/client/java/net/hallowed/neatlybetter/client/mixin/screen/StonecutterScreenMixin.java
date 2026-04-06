@@ -4,7 +4,7 @@ import net.hallowed.neatlybetter.client.util.ModTextures;
 import net.hallowed.neatlybetter.util.StonecutterMemory;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -14,7 +14,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.context.ContextMap;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.StonecutterMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -78,7 +78,7 @@ public abstract class StonecutterScreenMixin extends AbstractContainerScreen<@No
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$handleRecraftClick(MouseButtonEvent mouseButtonEvent, boolean bl, CallbackInfoReturnable<Boolean> cir) {
+    private void neatlybetter$handleRecraftClick(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
         Item lastItem = neatlybetter$getLastCraftedItem();
 
         if (lastItem != null) {
@@ -92,21 +92,21 @@ public abstract class StonecutterScreenMixin extends AbstractContainerScreen<@No
             int hitRight  = itemX + 16;
             int hitBottom = (int) (iconY + iconSize);
 
-            double mouseX = mouseButtonEvent.x();
-            double mouseY = mouseButtonEvent.y();
+            double mouseX = event.x();
+            double mouseY = event.y();
 
             if (mouseX >= hitLeft && mouseY >= hitTop && mouseX < hitRight && mouseY < hitBottom) {
                 if (this.minecraft.gameMode == null || this.minecraft.player == null) return;
 
-                boolean isShift = mouseButtonEvent.hasShiftDown();
+                boolean isShift = event.hasShiftDown();
                 ItemStack inputStack = this.menu.getSlot(StonecutterMenu.INPUT_SLOT).getItem();
 
                 if (!inputStack.isEmpty()) {
                     int currentIndex = neatlybetter$findRecipeIndex(lastItem);
                     if (currentIndex != -1) {
                         this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, currentIndex);
-                        ClickType clickType = isShift ? ClickType.QUICK_MOVE : ClickType.PICKUP;
-                        this.minecraft.gameMode.handleInventoryMouseClick(this.menu.containerId, StonecutterMenu.RESULT_SLOT, 0, clickType, this.minecraft.player);
+                        ContainerInput ContainerInput = isShift ? net.minecraft.world.inventory.ContainerInput.QUICK_MOVE : net.minecraft.world.inventory.ContainerInput.PICKUP;
+                        this.minecraft.gameMode.handleContainerInput(this.menu.containerId, StonecutterMenu.RESULT_SLOT, 0, ContainerInput, this.minecraft.player);
                         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_TAKE_RESULT, 1.0F));
                         cir.setReturnValue(true);
                         return;
@@ -126,15 +126,15 @@ public abstract class StonecutterScreenMixin extends AbstractContainerScreen<@No
 
                         if (actualIngredientSlot != -1) {
                             if (isShift) {
-                                this.minecraft.gameMode.handleInventoryMouseClick(this.menu.containerId, actualIngredientSlot, 0, ClickType.QUICK_MOVE, this.minecraft.player);
+                                this.minecraft.gameMode.handleContainerInput(this.menu.containerId, actualIngredientSlot, 0, ContainerInput.QUICK_MOVE, this.minecraft.player);
                             } else {
-                                this.minecraft.gameMode.handleInventoryMouseClick(this.menu.containerId, actualIngredientSlot, 0, ClickType.PICKUP, this.minecraft.player);
-                                this.minecraft.gameMode.handleInventoryMouseClick(this.menu.containerId, StonecutterMenu.INPUT_SLOT, 1, ClickType.PICKUP, this.minecraft.player);
-                                this.minecraft.gameMode.handleInventoryMouseClick(this.menu.containerId, actualIngredientSlot, 0, ClickType.PICKUP, this.minecraft.player);
+                                this.minecraft.gameMode.handleContainerInput(this.menu.containerId, actualIngredientSlot, 0, ContainerInput.PICKUP, this.minecraft.player);
+                                this.minecraft.gameMode.handleContainerInput(this.menu.containerId, StonecutterMenu.INPUT_SLOT, 1, ContainerInput.PICKUP, this.minecraft.player);
+                                this.minecraft.gameMode.handleContainerInput(this.menu.containerId, actualIngredientSlot, 0, ContainerInput.PICKUP, this.minecraft.player);
                             }
 
                             this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, cachedIndex);
-                            this.minecraft.gameMode.handleInventoryMouseClick(this.menu.containerId, StonecutterMenu.RESULT_SLOT, 0, ClickType.QUICK_MOVE, this.minecraft.player);
+                            this.minecraft.gameMode.handleContainerInput(this.menu.containerId, StonecutterMenu.RESULT_SLOT, 0, ContainerInput.QUICK_MOVE, this.minecraft.player);
 
                             Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_TAKE_RESULT, 1.0F));
                         }
@@ -145,8 +145,8 @@ public abstract class StonecutterScreenMixin extends AbstractContainerScreen<@No
         }
     }
 
-    @Inject(method = "renderBg", at = @At("TAIL"))
-    private void neatlybetter$renderRecraftIcon(GuiGraphics context, float tickDelta, int mouseX, int mouseY, CallbackInfo ci) {
+    @Inject(method = "extractBackground", at = @At("TAIL"))
+    private void neatlybetter$renderRecraftIcon(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
         if (this.minecraft.level == null) return;
 
         ItemStack inputStack = this.menu.getSlot(StonecutterMenu.INPUT_SLOT).getItem();
@@ -204,16 +204,16 @@ public abstract class StonecutterScreenMixin extends AbstractContainerScreen<@No
                 boolean hovered = mouseX >= hitLeft && mouseY >= hitTop
                         && mouseX < hitRight && mouseY < hitBottom;
 
-                context.renderItem(new ItemStack(lastItem), itemX, hitTop);
+                graphics.item(new ItemStack(lastItem), itemX, hitTop);
 
                 float u = 0.0F;
                 float v = hovered ? 16.0F : 0.0F;
 
-                context.pose().pushMatrix();
-                context.pose().translate(iconX, iconY);
-                context.pose().scale(iconScale, iconScale);
-                context.blit(RenderPipelines.GUI_TEXTURED, ModTextures.RECRAFT_BUTTON, 0, 0, u, v, 16, 16, 32, 32);
-                context.pose().popMatrix();
+                graphics.pose().pushMatrix();
+                graphics.pose().translate(iconX, iconY);
+                graphics.pose().scale(iconScale, iconScale);
+                graphics.blit(RenderPipelines.GUI_TEXTURED, ModTextures.RECRAFT_BUTTON, 0, 0, u, v, 16, 16, 32, 32);
+                graphics.pose().popMatrix();
             }
         }
     }

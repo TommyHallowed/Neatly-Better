@@ -5,6 +5,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.BundleContents;
 import net.minecraft.world.item.component.ItemContainerContents;
@@ -61,27 +62,23 @@ public final class InventoryDeepScan {
         for (int i = 0; i < inv.getContainerSize(); i++)
             if (matchesDeep(inv.getItem(i), target, 0)) return true;
         return matchesDeep(p.getOffhandItem(), target, 0);
-
-        // NOTE: Backpacked backpack contents are NOT available on the client
-        // (SyncMode.NONE). Backpack item detection is handled server-side
-        // and pushed via BackpackCheckResponse packets. See BackpackCheckClient.
     }
 
     private static boolean matchesDeep(ItemStack stack, Item target, int depth) {
         if (stack == null || stack.isEmpty()) return false;
         if (stack.is(target)) return true;
-        if (depth >= MAX_DEPTH) return false; // ← prevents StackOverflow
+        if (depth >= MAX_DEPTH) return false;
 
         BundleContents bundle = stack.get(DataComponents.BUNDLE_CONTENTS);
         if (bundle != null) {
-            for (ItemStack child : bundle.items()) {
-                if (!child.isEmpty() && matchesDeep(child, target, depth + 1)) return true;
+            for (ItemStackTemplate child : bundle.items()) {
+                if (matchesDeep(child.create(), target, depth + 1)) return true;
             }
         }
         ItemContainerContents container = stack.get(DataComponents.CONTAINER);
         if (container != null) {
-            for (ItemStack child : container.nonEmptyItems()) {
-                if (matchesDeep(child, target, depth + 1)) return true;
+            for (ItemStackTemplate child : container.nonEmptyItems()) {
+                if (matchesDeep(child.create(), target, depth + 1)) return true;
             }
         }
         return false;

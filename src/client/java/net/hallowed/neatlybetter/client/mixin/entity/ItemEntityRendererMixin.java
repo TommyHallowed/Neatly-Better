@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.ItemEntityRenderer;
 import net.minecraft.client.renderer.entity.state.ItemClusterRenderState;
 import net.minecraft.client.renderer.entity.state.ItemEntityRenderState;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
@@ -47,12 +47,12 @@ public abstract class ItemEntityRendererMixin {
             method = "submit(Lnet/minecraft/client/renderer/entity/state/ItemEntityRenderState;"
                     + "Lcom/mojang/blaze3d/vertex/PoseStack;"
                     + "Lnet/minecraft/client/renderer/SubmitNodeCollector;"
-                    + "Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+                    + "Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
             at = @At("HEAD")
     )
     private void neatlybetter$detectFlatItem(
-            ItemEntityRenderState state, PoseStack matrices,
-            SubmitNodeCollector queue, CameraRenderState camera, CallbackInfo ci) {
+            ItemEntityRenderState state, PoseStack poseStack,
+            SubmitNodeCollector submitNodeCollector, CameraRenderState camera, CallbackInfo ci) {
 
         if (!NTClientConfig.CONFIG.render2DItems.get()
                 || state.item.isEmpty()
@@ -71,7 +71,7 @@ public abstract class ItemEntityRendererMixin {
             method = "submit(Lnet/minecraft/client/renderer/entity/state/ItemEntityRenderState;"
                     + "Lcom/mojang/blaze3d/vertex/PoseStack;"
                     + "Lnet/minecraft/client/renderer/SubmitNodeCollector;"
-                    + "Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+                    + "Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
             at = @At(value = "INVOKE",
                     target = "Lcom/mojang/math/Axis;rotation(F)Lorg/joml/Quaternionf;"),
             index = 0
@@ -88,7 +88,7 @@ public abstract class ItemEntityRendererMixin {
             method = "submit(Lnet/minecraft/client/renderer/entity/state/ItemEntityRenderState;"
                     + "Lcom/mojang/blaze3d/vertex/PoseStack;"
                     + "Lnet/minecraft/client/renderer/SubmitNodeCollector;"
-                    + "Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+                    + "Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/entity/ItemEntityRenderer;"
                             + "submitMultipleFromCount("
@@ -99,39 +99,39 @@ public abstract class ItemEntityRendererMixin {
                             + "Lnet/minecraft/world/phys/AABB;)V")
     )
     private void neatlybetter$submitFlat(
-            PoseStack matrices, SubmitNodeCollector queue, int light,
-            ItemClusterRenderState cluster, RandomSource random, AABB box,
+            PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords,
+            ItemClusterRenderState state, RandomSource random, AABB modelBoundingBox,
             Operation<Void> original) {
 
         if (!neatlybetter$isFlat.get()) {
-            original.call(matrices, queue, light, cluster, random, box);
+            original.call(poseStack, submitNodeCollector, lightCoords, state, random, modelBoundingBox);
             return;
         }
 
-        int count = cluster.count;
+        int count = state.count;
         if (count == 0) return;
 
-        random.setSeed(cluster.seed);
+        random.setSeed(state.seed);
 
-        matrices.translate(0.0f, 0.0f, -(PAPER_STACK_SPACING * (float) (count - 1) / 2.0f));
+        poseStack.translate(0.0f, 0.0f, -(PAPER_STACK_SPACING * (float) (count - 1) / 2.0f));
 
-        matrices.pushPose();
-        matrices.scale(1.0f, 1.0f, PAPER_Z_SCALE);
-        cluster.item.submit(matrices, queue, light,
-                OverlayTexture.NO_OVERLAY, cluster.outlineColor);
-        matrices.popPose();
-        matrices.translate(0.0f, 0.0f, PAPER_STACK_SPACING);
+        poseStack.pushPose();
+        poseStack.scale(1.0f, 1.0f, PAPER_Z_SCALE);
+        state.item.submit(poseStack, submitNodeCollector, lightCoords,
+                OverlayTexture.NO_OVERLAY, state.outlineColor);
+        poseStack.popPose();
+        poseStack.translate(0.0f, 0.0f, PAPER_STACK_SPACING);
 
         for (int i = 1; i < count; i++) {
-            matrices.pushPose();
+            poseStack.pushPose();
             float jitterX = (random.nextFloat() * 2.0f - 1.0f) * PAPER_STACK_JITTER;
             float jitterY = (random.nextFloat() * 2.0f - 1.0f) * PAPER_STACK_JITTER;
-            matrices.translate(jitterX, jitterY, 0.0f);
-            matrices.scale(1.0f, 1.0f, PAPER_Z_SCALE);
-            cluster.item.submit(matrices, queue, light,
-                    OverlayTexture.NO_OVERLAY, cluster.outlineColor);
-            matrices.popPose();
-            matrices.translate(0.0f, 0.0f, PAPER_STACK_SPACING);
+            poseStack.translate(jitterX, jitterY, 0.0f);
+            poseStack.scale(1.0f, 1.0f, PAPER_Z_SCALE);
+            state.item.submit(poseStack, submitNodeCollector, lightCoords,
+                    OverlayTexture.NO_OVERLAY, state.outlineColor);
+            poseStack.popPose();
+            poseStack.translate(0.0f, 0.0f, PAPER_STACK_SPACING);
         }
     }
 }
