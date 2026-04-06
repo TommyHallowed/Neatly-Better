@@ -11,12 +11,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
-import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.ai.goal.GoalSelector;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.wolf.Wolf;
+import net.minecraft.world.entity.monster.spider.Spider;
 
 import java.util.ArrayList;
 
@@ -33,7 +31,19 @@ public final class ModAiGoals {
         final GoalSelector goals = mob.goalSelector;
         final EntityType<?> type = mob.getType();
 
-        // 1) Run while charging crossbow
+        // 1) Responsive spider attacks + Leap goal
+        if (type == EntityType.SPIDER) {
+            if (NTServerConfig.CONFIG.oldSpiderAttacks.get()) {
+                removeExactGoal(goals, MeleeAttackGoal.class);
+                removeExactGoal(goals, LeapAtTargetGoal.class);
+
+                if (!hasGoal(goals, OldSpiderAttackGoal.class)) {
+                    goals.addGoal(3, new OldSpiderAttackGoal((Spider) mob));
+                }
+            }
+        }
+
+        // 2) Run while charging crossbow
         if (type == EntityType.PILLAGER || type == EntityType.PIGLIN) {
             if (NTServerConfig.CONFIG.runWhileCharging.get()
                     && mob instanceof PathfinderMob path
@@ -42,7 +52,7 @@ public final class ModAiGoals {
             }
         }
 
-        // 2) Parkour Goal
+        // 3) Parkour Goal
         if ((type == EntityType.VINDICATOR ||
                 type == EntityType.PIGLIN_BRUTE ||
                 type == EntityType.ZOMBIFIED_PIGLIN ||
@@ -55,7 +65,7 @@ public final class ModAiGoals {
             }
         }
 
-        // 3) Follow emerald block
+        // 4) Follow emerald block
         if (type == EntityType.VILLAGER) {
             if (NTServerConfig.CONFIG.villagerEmeraldBlockTempt.get()
                     && mob instanceof PathfinderMob path
@@ -64,7 +74,7 @@ public final class ModAiGoals {
             }
         }
 
-        // 4) Sheep flee from wolves
+        // 5) Sheep flee from wolves
         if (type == EntityType.SHEEP) {
             if (NTServerConfig.CONFIG.sheepRunFromWolves.get()
                     && mob instanceof PathfinderMob path
@@ -73,14 +83,14 @@ public final class ModAiGoals {
             }
         }
 
-        // 5) Ground-item breeding
+        // 6) Ground-item breeding
         if (mob instanceof Animal animal
                 && NTServerConfig.CONFIG.groundItemBreeding.get()
                 && !hasGoal(goals, GroundItemBreedGoal.class)) {
             goals.addGoal(4, new GroundItemBreedGoal(animal));
         }
 
-        // 6) Tamed wolf improvements
+        // 7) Tamed wolf improvements
         if (type == EntityType.WOLF && mob instanceof Wolf wolf && wolf.isTame()) {
             if (NTServerConfig.CONFIG.wolfImprovements.get()) {
                 if (!hasGoal(goals, TamedWolfMeleeAttackGoal.class)) {

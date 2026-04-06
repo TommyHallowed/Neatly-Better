@@ -30,7 +30,6 @@
     "entity.generic.EntityMixin",
     "entity.generic.LivingEntityMixin",
     "entity.generic.MobMixin",
-    "entity.hostile.SpiderMixin",
     "entity.hostile.VexMixin",
     "entity.hostile.WitchMixin",
     "entity.misc.AbstractMinecartMixin",
