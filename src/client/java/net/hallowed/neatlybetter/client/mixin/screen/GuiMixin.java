@@ -23,7 +23,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Collection;
 
@@ -80,17 +79,6 @@ public abstract class GuiMixin {
     private void neatlybetter$renderSmallHud(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if ((!NTClientConfig.CONFIG.showCoords.get() && !NTClientConfig.CONFIG.showTime.get()) || this.minecraft.options.hideGui) return;
         SmallHudOverlay.render(graphics);
-    }
-
-    @Inject(method = "willPrioritizeExperienceInfo", at = @At("RETURN"), cancellable = true)
-    private void neatlybetter$alwaysShowXp(CallbackInfoReturnable<Boolean> cir) {
-        cir.setReturnValue(true);
-    }
-
-    @Inject(method = "willPrioritizeJumpInfo", at = @At("RETURN"), cancellable = true)
-    private void neatlybetter$alwaysShowJump(CallbackInfoReturnable<Boolean> cir) {
-        if (NTCompat.HORSEMAN) return;
-        cir.setReturnValue(true);
     }
 
     @Shadow
