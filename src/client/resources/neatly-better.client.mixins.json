@@ -45,6 +45,7 @@
     "ui.ChatComponentMixin",
     "ui.ContainerEventHandlerMixin",
     "ui.MinecraftMixin",
+    "ui.MusicManagerMixin",
     "ui.PackCompatibilityMixin",
     "ui.locatorbar.ExperienceBarRendererMixin",
     "ui.locatorbar.JumpableVehicleBarRendererMixin",
