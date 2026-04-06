@@ -44,6 +44,7 @@
     "ui.ArmorTrimMixin",
     "ui.ChatComponentMixin",
     "ui.ContainerEventHandlerMixin",
+    "ui.MusicManagerMixin",
     "ui.MinecraftMixin",
     "ui.PackCompatibilityMixin",
     "ui.locatorbar.ExperienceBarRendererMixin",
