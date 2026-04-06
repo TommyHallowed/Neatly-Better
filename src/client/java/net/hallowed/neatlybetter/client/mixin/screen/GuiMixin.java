@@ -36,6 +36,7 @@ public abstract class GuiMixin {
     private void neatlybetter$renderHUDEffectBars(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.effectBars.get()) return;
 
+        assert this.minecraft.player != null;
         Collection<MobEffectInstance> collection = this.minecraft.player.getActiveEffects();
         if (collection.isEmpty()) return;
 
@@ -67,10 +68,10 @@ public abstract class GuiMixin {
     }
 
     @Inject(method = "renderAirBubbles", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$hideAirBubblesWithWaterBreathing(
+    private void neatlybetter$hideAirBubbles(
             GuiGraphics guiGraphics, Player player, int i, int j, int k, CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.hideAirBubbles.get()) return;
-        if (player.hasEffect(MobEffects.WATER_BREATHING)) {
+        if ((player.hasEffect(MobEffects.WATER_BREATHING) || (player.hasEffect(MobEffects.BREATH_OF_THE_NAUTILUS)))) {
             ci.cancel();
         }
     }
