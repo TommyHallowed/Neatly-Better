@@ -20,6 +20,8 @@ import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.level.Level;
 
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -78,6 +80,10 @@ public abstract class LocalPlayerMixin extends LivingEntity {
     )
     private void neatlybetter$forceShiftOnClimbableWithContainer(CallbackInfoReturnable<Boolean> cir) {
         if (this.onClimbable() && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?>) {
+            BlockState state = this.level().getBlockState(this.blockPosition());
+            if (state.is(Blocks.SCAFFOLDING)) {
+                return;
+            }
             cir.setReturnValue(true);
         }
     }
