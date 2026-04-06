@@ -33,16 +33,6 @@ public final class ModDataComponents {
                     .build()
     );
 
-    public static final DataComponentType<@NotNull Boolean> EMISSIVE_BANNER = Registry.register(
-            BuiltInRegistries.DATA_COMPONENT_TYPE,
-            NTRegistry.id("emissive_banner"),
-            DataComponentType.<Boolean>builder()
-                    .persistent(Codec.BOOL)
-                    .networkSynchronized(ByteBufCodecs.BOOL)
-                    .build()
-    );
-
-    @SuppressWarnings("deprecation")
     public static final DataComponentType<@NotNull CustomData> WOLF_DATA = Registry.register(
             BuiltInRegistries.DATA_COMPONENT_TYPE,
             NTRegistry.id("wolf_data"),
