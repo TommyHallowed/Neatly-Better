@@ -14,6 +14,7 @@ base {
 repositories {
     maven { url = "https://api.modrinth.com/maven" }
     maven { url = "https://maven.terraformersmc.com/releases/" }
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"}
     maven { url = "https://cursemaven.com"}
 }
 
@@ -66,7 +67,7 @@ dependencies {
 
     //  Config
     modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
-    modImplementation "maven.modrinth:forge-config-api-port:${project.forgeconfigapiport_version}"
+    modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${project.forgeconfigapiport_version}"
 }
 
 processResources {
