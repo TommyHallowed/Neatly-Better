@@ -1,4 +1,4 @@
-package net.hallowed.neatlybetter.config;
+package net.hallowed.neatlybetter.util;
 
 public final class ShieldDelayHolder {
     private static volatile int shieldRaiseDelay = 5;

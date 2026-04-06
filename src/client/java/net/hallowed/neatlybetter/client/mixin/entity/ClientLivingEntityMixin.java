@@ -2,7 +2,7 @@ package net.hallowed.neatlybetter.client.mixin.entity;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.hallowed.neatlybetter.config.ShieldDelayHolder;
+import net.hallowed.neatlybetter.util.ShieldDelayHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.component.BlocksAttacks;
 import org.spongepowered.asm.mixin.Mixin;
