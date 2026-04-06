@@ -46,10 +46,7 @@
     "ui.ContainerEventHandlerMixin",
     "ui.MinecraftMixin",
     "ui.MusicManagerMixin",
-    "ui.PackCompatibilityMixin",
-    "ui.locatorbar.ExperienceBarRendererMixin",
-    "ui.locatorbar.JumpableVehicleBarRendererMixin",
-    "ui.locatorbar.LocatorBarRendererMixin"
+    "ui.PackCompatibilityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
