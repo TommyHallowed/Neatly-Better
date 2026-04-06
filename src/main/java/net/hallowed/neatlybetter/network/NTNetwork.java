@@ -5,9 +5,9 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.hallowed.neatlybetter.compat.BackpackedServerCompat;
-
 import net.hallowed.neatlybetter.config.NTServerConfig;
-import net.hallowed.neatlybetter.config.ShieldDelayHolder;
+import net.hallowed.neatlybetter.util.ShieldDelayHolder;
+
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

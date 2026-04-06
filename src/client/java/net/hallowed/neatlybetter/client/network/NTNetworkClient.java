@@ -4,7 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
-import net.hallowed.neatlybetter.config.ShieldDelayHolder;
+import net.hallowed.neatlybetter.util.ShieldDelayHolder;
 import net.hallowed.neatlybetter.network.NTNetwork;
 
 import java.util.function.Consumer;
