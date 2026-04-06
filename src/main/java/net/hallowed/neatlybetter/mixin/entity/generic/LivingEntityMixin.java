@@ -57,7 +57,7 @@ public abstract class LivingEntityMixin extends Entity {
             at = @At("HEAD"),
             cancellable = true
     )
-    private void neatlybetter$blockIfTotemCooling(DamageSource source,
+    private void neatlybetter$blockIfTotemCooling(DamageSource killingDamage,
                                                   CallbackInfoReturnable<Boolean> cir) {
         //noinspection ConstantValue
         if ((Object) this instanceof Player player
@@ -70,7 +70,7 @@ public abstract class LivingEntityMixin extends Entity {
             method = "checkTotemDeathProtection(Lnet/minecraft/world/damagesource/DamageSource;)Z",
             at = @At("RETURN")
     )
-    private void neatlybetter$onTotemUsed(DamageSource source,
+    private void neatlybetter$onTotemUsed(DamageSource killingDamage,
                                           CallbackInfoReturnable<Boolean> cir) {
         if (!Boolean.TRUE.equals(cir.getReturnValue())) return;
 
@@ -81,14 +81,14 @@ public abstract class LivingEntityMixin extends Entity {
 
     /* ===================== 2) Protection context ===================== */
     @Inject(method = "getDamageAfterMagicAbsorb", at = @At("HEAD"))
-    private void neatlybetter$setProtContext(DamageSource source, float amount,
+    private void neatlybetter$setProtContext(DamageSource damageSource, float damage,
                                              CallbackInfoReturnable<Float> cir) {
         if (!NTServerConfig.CONFIG.protectionOverhaul.get()) return;
-        ProtectionContext.set((LivingEntity) (Object) this, source);
+        ProtectionContext.set((LivingEntity) (Object) this, damageSource);
     }
 
     @Inject(method = "getDamageAfterMagicAbsorb", at = @At("RETURN"))
-    private void neatlybetter$clearProtContext(DamageSource source, float amount,
+    private void neatlybetter$clearProtContext(DamageSource damageSource, float damage,
                                                CallbackInfoReturnable<Float> cir) {
         if (!NTServerConfig.CONFIG.protectionOverhaul.get()) return;
         ProtectionContext.clear();
@@ -112,9 +112,9 @@ public abstract class LivingEntityMixin extends Entity {
             method = "applyItemBlocking(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)F",
             at = @At("RETURN")
     )
-    private void neatlybetter$explosionDisablesShield(ServerLevel world,
+    private void neatlybetter$explosionDisablesShield(ServerLevel level,
                                                       DamageSource source,
-                                                      float amount,
+                                                      float damage,
                                                       CallbackInfoReturnable<Float> cir) {
 
         if (!NTServerConfig.CONFIG.explosionsDisableShield.get()) return;
@@ -130,7 +130,7 @@ public abstract class LivingEntityMixin extends Entity {
         BlocksAttacks blocks = blocking.get(DataComponents.BLOCKS_ATTACKS);
         if (blocks == null) return;
 
-        blocks.disable(world, player, 5.0F, blocking);
+        blocks.disable(level, player, 5.0F, blocking);
         self.releaseUsingItem();
     }
 
@@ -180,12 +180,12 @@ public abstract class LivingEntityMixin extends Entity {
             )
     )
     private double neatlybetter$removeHorizontalClamp(
-            double speed, double min, double max, Operation<Double> original
+            double value, double min, double max, Operation<Double> original
     ) {
         if (!((Object) this instanceof Player) || !this.onGround()) {
-            return original.call(speed, min, max);
+            return original.call(value, min, max);
         }
-        return speed;
+        return value;
     }
 
     @WrapOperation(
@@ -196,20 +196,20 @@ public abstract class LivingEntityMixin extends Entity {
             )
     )
     private double neatlybetter$modifyDownwardClimbSpeed(
-            double currentY, double vanillaMin, Operation<Double> original
+            double a, double b, Operation<Double> original
     ) {
         if (!((Object) this instanceof Player)) {
-            return original.call(currentY, vanillaMin);
+            return original.call(a, b);
         }
 
-        double maxDown = Mth.clampedMap(getXRot(), 20, 90, vanillaMin, -0.4);
-        if (maxDown < vanillaMin) {
+        double maxDown = Mth.clampedMap(getXRot(), 20, 90, b, -0.4);
+        if (maxDown < b) {
             maxDown = Mth.clampedMap(
                     neatlybetter$climbDownTicks, 0, 60,
-                    maxDown, maxDown * 1.5
+                    maxDown, maxDown * 1.25
             );
         }
-        return original.call(currentY, maxDown);
+        return original.call(a, maxDown);
     }
 
     @ModifyArg(
@@ -244,7 +244,7 @@ public abstract class LivingEntityMixin extends Entity {
             at = @At("RETURN")
     )
     private void neatlybetter$updateClimbTimers(
-            Vec3 vec3, float f, CallbackInfoReturnable<Vec3> cir
+            Vec3 input, float friction, CallbackInfoReturnable<Vec3> cir
     ) {
         if (!((Object) this instanceof Player)) return;
 
