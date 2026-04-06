@@ -145,12 +145,14 @@ public class AutoRefill {
         if (!current.isEmpty()) {
             int handSlot = hand == InteractionHand.MAIN_HAND
                     ? 36 + inv.getSelectedSlot() : 45;
+            assert client.gameMode != null;
             client.gameMode.handleContainerInput(
                     syncId, handSlot, 0, ContainerInput.QUICK_MOVE, player);
         }
 
         int hotbarButton = hand == InteractionHand.MAIN_HAND
                 ? inv.getSelectedSlot() : 40;
+        assert client.gameMode != null;
         client.gameMode.handleContainerInput(
                 syncId, slotToRefillFrom, hotbarButton, ContainerInput.SWAP, player);
 
