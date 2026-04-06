@@ -3,7 +3,6 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 import com.google.common.collect.Ordering;
 
 import net.hallowed.neatlybetter.api.NTCompat;
-import net.hallowed.neatlybetter.client.feature.ui.SmallHudOverlay;
 import net.hallowed.neatlybetter.client.render.EffectBarRenderer;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
@@ -74,12 +73,6 @@ public abstract class GuiMixin {
         if ((player.hasEffect(MobEffects.WATER_BREATHING) || (player.hasEffect(MobEffects.BREATH_OF_THE_NAUTILUS)))) {
             ci.cancel();
         }
-    }
-
-    @Inject(method = "extractRenderState", at = @At("TAIL"))
-    private void neatlybetter$renderSmallHud(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-        if ((!NTClientConfig.CONFIG.showCoords.get() && !NTClientConfig.CONFIG.showTime.get()) || this.minecraft.options.hideGui) return;
-        SmallHudOverlay.render(graphics);
     }
 
     @Shadow
