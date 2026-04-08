@@ -19,7 +19,7 @@ public abstract class ItemStackMixin {
         if (livingEntity instanceof Player) {
             if (self.is(Items.GLISTERING_MELON_SLICE)
                     && livingEntity.getHealth() < 20.0F) {
-                livingEntity.heal(1.0F);
+                livingEntity.heal(2.0F);
             }
         }
     }
