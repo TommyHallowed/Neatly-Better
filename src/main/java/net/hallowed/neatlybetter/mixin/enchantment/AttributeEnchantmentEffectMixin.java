@@ -32,8 +32,8 @@ public abstract class AttributeEnchantmentEffectMixin {
             at = @At("RETURN"),
             cancellable = true
     )
-    private void neatlybetter$weakerProtectionViaGamerule(int level, StringRepresentable suffix,
-                                                     CallbackInfoReturnable<AttributeModifier> cir) {
+    private void neatlybetter$weakerProtection(int level, StringRepresentable suffix,
+                                               CallbackInfoReturnable<AttributeModifier> cir) {
 
         if (!NTServerConfig.CONFIG.protectionOverhaul.get()) return;
         if (!isBurningTime(attribute())) return;
