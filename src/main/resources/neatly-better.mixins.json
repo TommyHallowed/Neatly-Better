@@ -12,6 +12,7 @@
     "block.DispenserBlockMixin",
     "block.DoorBlockMixin",
     "block.FarmlandBlockMixin",
+    "block.LadderBlockMixin",
     "block.MagmaBlockMixin",
     "block.SpongeBlockMixin",
     "block.SugarCaneBlockMixin",
