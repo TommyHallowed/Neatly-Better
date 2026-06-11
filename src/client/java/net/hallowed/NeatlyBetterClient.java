@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.client.feature.AutoRefill;
 import net.hallowed.neatlybetter.client.feature.ClientMapPreviewTooltip;
+import net.hallowed.neatlybetter.client.feature.VoidFog;
 import net.hallowed.neatlybetter.client.feature.ui.SmallHudOverlay;
 import net.hallowed.neatlybetter.client.init.ModTooltips;
 import net.hallowed.neatlybetter.client.tooltip.EffectTooltipData;
@@ -34,6 +35,7 @@ public class NeatlyBetterClient implements ClientModInitializer {
         EnderCheckClient.register();
         BackpackCheckClient.register();
         AutoRefill.register();
+        VoidFog.register();
 
         HudElementRegistry.attachElementAfter(
                 VanillaHudElements.MOB_EFFECTS,
