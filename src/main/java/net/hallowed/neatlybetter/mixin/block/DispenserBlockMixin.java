@@ -23,12 +23,12 @@ public abstract class DispenserBlockMixin {
             at = @At("RETURN")
     )
     private DispenseItemBehavior neatlybetter$wrapCauldronBehavior(
-            DispenseItemBehavior original, Level level, ItemStack stack) {
+            DispenseItemBehavior original, Level level, ItemStack itemStack) {
 
         if (!NTServerConfig.CONFIG.dispenserCauldronInteraction.get()) return original;
 
-        if (stack.getItem() instanceof BucketItem
-                || stack.getItem() instanceof SolidBucketItem) {
+        if (itemStack.getItem() instanceof BucketItem
+                || itemStack.getItem() instanceof SolidBucketItem) {
             return new CauldronDispenseBehavior(original);
         }
         return original;

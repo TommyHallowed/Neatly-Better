@@ -44,6 +44,7 @@ public class EffectBarRenderer {
             Minecraft mc = Minecraft.getInstance();
             Font font = mc.font;
             Component name = getEffectName(effect);
+            assert mc.level != null;
             Component duration = MobEffectUtil.formatDuration(effect, 1.0F, mc.level.tickRateManager().tickrate());
 
             int nameWidth = 32 + font.width(name) + 7;

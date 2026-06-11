@@ -30,6 +30,7 @@ public final class MagmaSpawnsLava {
             if (!NTServerConfig.CONFIG.magmaSpawnsLava.get()) return true;
             if (!(world instanceof ServerLevel serverWorld)) return true;
             if (!state.is(Blocks.MAGMA_BLOCK)) return true;
+            if (player.isCreative()) return true;
 
             ItemStack stack = player.getMainHandItem();
             if (!hasSilkTouch(stack)) {

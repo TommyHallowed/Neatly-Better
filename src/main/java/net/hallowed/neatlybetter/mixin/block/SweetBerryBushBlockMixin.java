@@ -23,17 +23,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class SweetBerryBushBlockMixin {
 
     @Inject(method = "randomTick", at = @At("RETURN"))
-    private void neatlybetter$onSweetBerryRandomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo ci) {
+    private void neatlybetter$onSweetBerryRandomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random, CallbackInfo ci) {
 
         if (!NTServerConfig.CONFIG.rainIncreasesCropGrowth.get()) return;
-        if (!world.isRainingAt(pos.above())) return;
+        if (!level.isRainingAt(pos.above())) return;
 
         SweetBerryBushBlock self = (SweetBerryBushBlock)(Object)this;
 
         for (int i = 0; i < 2; i++) {
             if (random.nextInt(5) == 0) {
                 try {
-                    self.performBonemeal(world, random, pos, state);
+                    self.performBonemeal(level, random, pos, state);
                 } catch (Throwable ignored) {}
             }
         }
