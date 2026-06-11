@@ -67,6 +67,18 @@ public final class NTClientConfig {
     public final ModConfigSpec.BooleanValue showStuckProjectiles;
     public final ModConfigSpec.BooleanValue showPotionGlint;
     public final ModConfigSpec.BooleanValue render2DItems;
+    public final ModConfigSpec.BooleanValue showDurability;
+
+    // -- Void Fog --
+    public final ModConfigSpec.IntValue MaxHeight;
+    public final ModConfigSpec.DoubleValue TransitionDistance;
+    public final ModConfigSpec.DoubleValue Density;
+    public final ModConfigSpec.IntValue ParticleDensity;
+    public final ModConfigSpec.BooleanValue RespectTorches;
+    public final ModConfigSpec.BooleanValue ScaleWithDifficulty;
+    public final ModConfigSpec.BooleanValue DisableInCreative;
+    public final ModConfigSpec.DoubleValue TransitionTicks;
+    public final ModConfigSpec.DoubleValue DissipationDelayTicks;
 
     private NTClientConfig(ModConfigSpec.Builder builder) {
 
@@ -190,6 +202,11 @@ public final class NTClientConfig {
                 .comment("§eDisable Mojang's telemetry systems.")
                 .translation("neatly-better.config.telemetry_off")
                 .define("telemetry_off", true);
+
+        showDurability = builder
+                .comment("§eShow remaining durability as a small number in the top-right of item slots.")
+                .translation("neatly-better.config.show_durability")
+                .define("show_durability", true);
         builder.pop();
 
         builder.push("render");
@@ -206,7 +223,48 @@ public final class NTClientConfig {
                 .comment("§eRender items as flat 2D sprites instead of 3D models.")
                 .translation("neatly-better.config.render_2d_items")
                 .define("render_2d_items", false);
-        builder.pop();
+        builder.push("void_fog");
+
+        MaxHeight = builder
+                .comment("§eMaximum height in blocks above world bottom that void fog reaches.")
+                .translation("neatly-better.config.void_fog_max_height")
+                .defineInRange("void_fog_max_height", 20, 1, 256);
+        TransitionDistance = builder
+                .comment("§eDistance in blocks below the max fog height at which fog starts blending in.")
+                .translation("neatly-better.config.void_fog_transition_distance")
+                .defineInRange("void_fog_transition_distance", 1.0, 0.1, 32.0);
+        Density = builder
+                .comment("§eFog density as a 0–1 fraction. Lower values widen the gap between fog start and end.")
+                .translation("neatly-better.config.void_fog_density")
+                .defineInRange("void_fog_density", 1.0, 0.0, 1.0);
+        ParticleDensity = builder
+                .comment("§eNumber of void particles spawned per tick near the void.")
+                .translation("neatly-better.config.void_fog_particle_density")
+                .defineInRange("void_fog_particle_density", 200, 0, 1000);
+        RespectTorches = builder
+                .comment("§eWhether block/torch light reduces void fog distance.")
+                .translation("neatly-better.config.void_fog_respect_torches")
+                .define("void_fog_respect_torches", true);
+        ScaleWithDifficulty = builder
+                .comment("§eWhether difficulty level multiplies the effective fog height.")
+                .translation("neatly-better.config.void_fog_scale_with_difficulty")
+                .define("void_fog_scale_with_difficulty", true);
+        DisableInCreative = builder
+                .comment("§eWhether creative-mode players are exempt from void fog.")
+                .translation("neatly-better.config.void_fog_disable_in_creative")
+                .define("void_fog_disable_in_creative", true);
+        TransitionTicks = builder
+                .comment("§eTicks for fog and darkness to fully fade in or out (20 ticks = 1 second).")
+                .translation("neatly-better.config.void_fog_transition_ticks")
+                .defineInRange("void_fog_transition_ticks", 10.0, 1.0, 200.0);
+        DissipationDelayTicks = builder
+                .comment("§eTicks to wait after the player moves above the fog zone before dissipation begins.")
+                .comment("§eSet to 0 for no delay. (20 ticks = 1 second)")
+                .translation("neatly-better.config.void_fog_dissipation_delay_ticks")
+                .defineInRange("void_fog_dissipation_delay_ticks", 30.0, 0.0, 600.0);
+        builder.pop(); // void_fog
+
+        builder.pop(); // render
 
         builder.pop(); // misc
     }

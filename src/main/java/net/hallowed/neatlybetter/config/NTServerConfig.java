@@ -41,6 +41,7 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue anvilNoTooExpensive;
     public final ModConfigSpec.BooleanValue anvilEnchantFeather;
     public final ModConfigSpec.BooleanValue beaconSoakEffects;
+    public final ModConfigSpec.BooleanValue beaconSaturationEffect;
     public final ModConfigSpec.IntValue maxBeaconRange;
     public final ModConfigSpec.BooleanValue dispenserCauldronInteraction;
     public final ModConfigSpec.IntValue spongeBlockAbsorbRadius;
@@ -60,6 +61,7 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue xpFromMiningNonOre;
     public final ModConfigSpec.BooleanValue xpFromPlacingBlocks;
     public final ModConfigSpec.BooleanValue stepUpDisabledWhileShifting;
+    public final ModConfigSpec.BooleanValue lapisStaysInEnchanting;
     public final ModConfigSpec.BooleanValue explosionsDisableShield;
     public final ModConfigSpec.BooleanValue throwableKnockbackToPlayers;
     public final ModConfigSpec.BooleanValue cropHarvester;
@@ -291,6 +293,12 @@ public final class NTServerConfig {
                 .translation("neatly-better.config.beacon_soak_effects")
                 .define("beacon_soak_effects", true);
 
+        beaconSaturationEffect = builder
+                .comment("§eSaturation effect is added to the secondary effect list.")
+                .comment("§cRequires full Diamond/Netherite beacon base to work.")
+                .translation("neatly-better.config.beacon_saturation_effect")
+                .define("beacon_saturation_effect", true);
+
         maxBeaconRange = builder
                 .comment("§eMaximum range of a beacon at max tier in blocks.")
                 .comment("")
@@ -369,6 +377,11 @@ public final class NTServerConfig {
                 .comment("§eDisable step up enchantment when sneaking.")
                 .translation("neatly-better.config.step_up")
                 .define("step_up", true);
+
+        lapisStaysInEnchanting = builder
+                .comment("§eLapis Lazuli placed in an enchanting table stays stored when the GUI is closed.")
+                .translation("neatly-better.config.lapis_stays_in_enchanting")
+                .define("lapis_stays_in_enchanting", true);
 
         builder.pop(); // general
 
