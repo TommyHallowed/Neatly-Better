@@ -1,0 +1,14 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "__"
+    ],
+    "key": {
+        "_": "neatly-better:smooth_basalt_slab"
+    },
+    "result": {
+        "id": "minecraft:smooth_basalt",
+        "count": 1
+    },
+    "group": "slabs to block"
+}

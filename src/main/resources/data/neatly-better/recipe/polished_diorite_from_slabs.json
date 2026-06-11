@@ -1,0 +1,14 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "__"
+    ],
+    "key": {
+        "_": "minecraft:polished_diorite_slab"
+    },
+    "result": {
+        "id": "minecraft:polished_diorite",
+        "count": 1
+    },
+    "group": "slabs to block"
+}

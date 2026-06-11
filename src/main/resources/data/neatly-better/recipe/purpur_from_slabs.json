@@ -1,0 +1,14 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "__"
+    ],
+    "key": {
+        "_": "minecraft:purpur_slab"
+    },
+    "result": {
+        "id": "minecraft:purpur_block",
+        "count": 1
+    },
+    "group": "slabs to block"
+}

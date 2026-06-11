@@ -1,0 +1,14 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "__"
+    ],
+    "key": {
+        "_": "minecraft:mud_brick_slab"
+    },
+    "result": {
+        "id": "minecraft:mud_bricks",
+        "count": 1
+    },
+    "group": "slabs to block"
+}

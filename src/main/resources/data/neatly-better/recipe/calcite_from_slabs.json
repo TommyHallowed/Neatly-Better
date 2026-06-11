@@ -1,0 +1,14 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "__"
+    ],
+    "key": {
+        "_": "neatly-better:calcite_slab"
+    },
+    "result": {
+        "id": "minecraft:calcite",
+        "count": 1
+    },
+    "group": "slabs to block"
+}
