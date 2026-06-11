@@ -1,0 +1,14 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "__"
+    ],
+    "key": {
+        "_": "minecraft:red_sandstone_slab"
+    },
+    "result": {
+        "id": "minecraft:red_sandstone",
+        "count": 1
+    },
+    "group": "slabs to block"
+}

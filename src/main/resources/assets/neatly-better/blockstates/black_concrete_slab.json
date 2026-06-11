@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "neatly-better:block/black_concrete_slab"
+    },
+    "type=double": {
+      "model": "minecraft:block/black_concrete"
+    },
+    "type=top": {
+      "model": "neatly-better:block/black_concrete_slab_top"
+    }
+  }
+}
