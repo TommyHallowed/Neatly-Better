@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
+import net.hallowed.neatlybetter.client.util.LapisClientUtil;
 import net.hallowed.neatlybetter.config.ShieldDelayHolder;
 import net.hallowed.neatlybetter.network.NTNetwork;
 
@@ -20,6 +21,10 @@ public final class NTNetworkClient {
         ClientPlayNetworking.registerGlobalReceiver(NTNetwork.ShieldDelaySyncPayload.ID,
                 (payload, ctx) -> ctx.client().execute(() ->
                         ShieldDelayHolder.setShieldRaiseDelay(payload.shieldRaiseDelay())));
+
+        ClientPlayNetworking.registerGlobalReceiver(NTNetwork.LapisCountPayload.ID,
+                (payload, ctx) -> ctx.client().execute(() ->
+                        LapisClientUtil.syncLapisToClient(payload.lapisCount(), payload.pos())));
     }
 
     public static void sendEnderCheck() {

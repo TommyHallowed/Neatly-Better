@@ -8,6 +8,7 @@ import net.hallowed.neatlybetter.compat.BackpackedServerCompat;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.config.ShieldDelayHolder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -112,6 +113,33 @@ public final class NTNetwork {
         @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
     }
 
+    /**
+     * S2C: syncs the stored lapis count for a specific enchanting table to
+     * all clients in the level, so players sharing a table stay in sync.
+     */
+    public record LapisCountPayload(int lapisCount, int x, int y, int z) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<@NotNull LapisCountPayload> ID =
+                new CustomPacketPayload.Type<>(id("lapis_count_sync"));
+        public static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull LapisCountPayload> CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.VAR_INT, LapisCountPayload::lapisCount,
+                        ByteBufCodecs.VAR_INT, LapisCountPayload::x,
+                        ByteBufCodecs.VAR_INT, LapisCountPayload::y,
+                        ByteBufCodecs.VAR_INT, LapisCountPayload::z,
+                        LapisCountPayload::new
+                );
+        @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
+
+        /** Convenience constructor from a {@link BlockPos}. */
+        public LapisCountPayload(int lapisCount, BlockPos pos) {
+            this(lapisCount, pos.getX(), pos.getY(), pos.getZ());
+        }
+
+        public BlockPos pos() {
+            return new BlockPos(x, y, z);
+        }
+    }
+
     /* ===================== Registration (common/server) ===================== */
 
     /** Call from your common init (TheNeatlyBetter#onInitialize). */
@@ -128,6 +156,9 @@ public final class NTNetwork {
 
         // Shield delay sync
         PayloadTypeRegistry.clientboundPlay().register(ShieldDelaySyncPayload.ID, ShieldDelaySyncPayload.CODEC);
+
+        // Lapis count sync
+        PayloadTypeRegistry.clientboundPlay().register(LapisCountPayload.ID, LapisCountPayload.CODEC);
 
         // -- Server-side receivers --
         ServerPlayNetworking.registerGlobalReceiver(EnderCheckRequest.ID,
