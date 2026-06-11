@@ -19,11 +19,14 @@ public final class ModEvents {
         SleepModeHandler.register();
         WolfDamageByOwnerBypass.register();
         WolfSpawnsCollarOnDeath.register();
+        DyeWoolFeature.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();
         //ElytraFlightLimiter.init();
         CauldronCleaning.init();
         MoreXpDrops.init();
+        SaplingAutoPlanter.init();
+        TorchIgnite.init();
     }
 }
