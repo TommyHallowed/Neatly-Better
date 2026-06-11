@@ -20,10 +20,12 @@ import net.hallowed.neatlybetter.util.FastChunkScanner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.neoforged.fml.config.ModConfig;
 
 public class NeatlyBetter implements ModInitializer {
     public static final String MOD_ID = "neatly-better";
+    public static final BooleanProperty SHEARED = BooleanProperty.create("sheared");
 
     @Override
     public void onInitialize() {
