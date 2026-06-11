@@ -2,14 +2,17 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 
 import com.google.common.collect.Ordering;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.hallowed.neatlybetter.api.NTCompat;
 import net.hallowed.neatlybetter.client.render.EffectBarRenderer;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
+import net.hallowed.neatlybetter.client.util.FloatBlitSprite;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -21,6 +24,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Collection;
@@ -110,5 +114,26 @@ public abstract class GuiMixin {
         if (minecraft.player != null && !minecraft.player.getAbilities().instabuild) {
             graphics.pose().popMatrix();
         }
+    }
+
+    @Redirect(
+            method = "extractCrosshair",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V",
+                    ordinal = 0
+            )
+    )
+    private void neatlybetter$centerCrosshair(GuiGraphicsExtractor graphics,
+                                              RenderPipeline renderPipeline, Identifier location,
+                                              int x, int y, int width, int height) {
+        float scale      = (float) Minecraft.getInstance().getWindow().getGuiScale();
+        float scaledCenterX = (Minecraft.getInstance().getWindow().getWidth()  / scale) / 2f;
+        float scaledCenterY = (Minecraft.getInstance().getWindow().getHeight() / scale) / 2f;
+
+        float fx = Math.round((scaledCenterX - 7.5f) * 4) / 4f;
+        float fy = Math.round((scaledCenterY - 7.5f) * 4) / 4f;
+
+        ((FloatBlitSprite) graphics).neatlybetter$blitSpriteFloat(renderPipeline, location, fx, fy, 15, 15);
     }
 }
