@@ -47,6 +47,7 @@
     "entity.misc.ExperienceOrbMixin",
     "entity.misc.ItemEntityMixin",
     "entity.misc.PhantomSpawnerMixin",
+    "entity.misc.ShulkerBulletMixin",
     "entity.misc.ThrownTridentMixin",
     "entity.misc.WolfCollarMixin",
     "entity.neutral.IronGolemMixin",
