@@ -26,6 +26,7 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue villagerBookLevelCap;
     public final ModConfigSpec.BooleanValue ironGolemNoSpeedrun;
     public final ModConfigSpec.BooleanValue ironGolemRepairUsingBlocks;
+    public final ModConfigSpec.BooleanValue shulkerBulletDespawnsAfterOwner;
     public final ModConfigSpec.BooleanValue piglinRespectsTrims;
     public final ModConfigSpec.BooleanValue runWhileCharging;
     public final ModConfigSpec.BooleanValue mobParkour;
@@ -147,6 +148,11 @@ public final class NTServerConfig {
 
         builder.push("generic");
 
+        shulkerBulletDespawnsAfterOwner = builder
+                .comment("§eShulker Bullets despawn after their Shulker is killed.")
+                .translation("neatly-better.config.shulker_bullet_despawn_after_owner")
+                .define("shulker_bullet_despawn_after_owner", true);
+
         runWhileCharging = builder
                 .comment("§ePiglins & Pillagers run away while charging their crossbow.")
                 .comment("")
@@ -170,7 +176,7 @@ public final class NTServerConfig {
                 .define("ground_item_breeding", true);
 
         rangedMobShieldHoldoff = builder
-                .comment("§eMobs that use bows will holdoff from shooting if the player is using a shield.")
+                .comment("§eMobs that use bows will holdoff from shooting if the player is actively blocking.")
                 .translation("neatly-better.config.ranged_mob_shield_holdoff")
                 .define("ranged_mob_shield_holdoff", true);
 
