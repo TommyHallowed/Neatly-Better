@@ -43,6 +43,20 @@ public final class ModBrewing {
                     Items.GOLD_BLOCK,
                     ModPotions.STRONG_LONG_HASTE
             );
+
+            // Glowing
+            builder.addMix(
+                    Potions.AWKWARD,
+                    Items.GLOW_BERRIES,
+                    ModPotions.GLOWING
+            );
+
+            // Long Glowing
+            builder.addMix(
+                    ModPotions.GLOWING,
+                    Items.REDSTONE,
+                    ModPotions.LONG_GLOWING
+            );
         });
     }
 }

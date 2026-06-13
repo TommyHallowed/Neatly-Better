@@ -123,6 +123,18 @@
   "item.minecraft.tipped_arrow.effect.haste": "Arrow of Haste",
   "item.minecraft.tipped_arrow.effect.long_haste": "Arrow of Haste",
   "item.minecraft.tipped_arrow.effect.strong_haste": "Arrow of Haste",
+  "item.minecraft.potion.effect.glowing": "Potion of Glowing",
+  "item.minecraft.potion.effect.long_glowing": "Potion of Glowing",
+  "item.minecraft.potion.effect.strong_glowing": "Potion of Glowing",
+  "item.minecraft.splash_potion.effect.glowing": "Splash Potion of Glowing",
+  "item.minecraft.splash_potion.effect.long_glowing": "Splash Potion of Glowing",
+  "item.minecraft.splash_potion.effect.strong_glowing": "Splash Potion of Glowing",
+  "item.minecraft.lingering_potion.effect.glowing": "Lingering Potion of Glowing",
+  "item.minecraft.lingering_potion.effect.long_glowing": "Lingering Potion of Glowing",
+  "item.minecraft.lingering_potion.effect.strong_glowing": "Lingering Potion of Glowing",
+  "item.minecraft.tipped_arrow.effect.glowing": "Arrow of Glowing",
+  "item.minecraft.tipped_arrow.effect.long_glowing": "Arrow of Glowing",
+  "item.minecraft.tipped_arrow.effect.strong_glowing": "Arrow of Glowing",
 
   "enchantment.neatly-better.step_up": "Step up",
 
