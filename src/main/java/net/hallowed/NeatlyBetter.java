@@ -5,6 +5,7 @@ import fuzs.forgeconfigapiport.fabric.api.v5.ConfigRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -36,6 +37,11 @@ public class NeatlyBetter implements ModInitializer {
         // 2) Register content
         ModBlocks.register();
         ModItems.register();
+
+        FuelValueEvents.BUILD.register((builder, _) -> {
+            builder.add(ModBlocks.CHARCOAL_BLOCK.asItem(), 16000);
+        });
+
         ModAiGoals.register();
         ModPotions.registerAll();
         ModBrewing.register();

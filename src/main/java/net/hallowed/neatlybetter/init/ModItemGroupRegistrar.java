@@ -44,6 +44,7 @@ public final class ModItemGroupRegistrar {
             entries.insertAfter(Items.DARK_PRISMARINE_SLAB,   DARK_PRISMARINE_WALL);
             entries.insertAfter(Items.SMOOTH_SANDSTONE_SLAB,   SMOOTH_SANDSTONE_WALL);
             entries.insertAfter(Items.SMOOTH_RED_SANDSTONE_SLAB,   SMOOTH_RED_SANDSTONE_WALL);
+            entries.insertAfter(Items.COAL_BLOCK,   CHARCOAL_BLOCK);
         });
 
         NTRegistry.addToGroup(CreativeModeTabs.COLORED_BLOCKS, entries -> {

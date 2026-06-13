@@ -36,7 +36,7 @@ public final class ModBlocks {
             END_STONE_WALL, PURPUR_WALL, SMOOTH_BASALT_WALL, PRISMARINE_BRICK_WALL, DARK_PRISMARINE_WALL,
             SMOOTH_SANDSTONE_WALL, SMOOTH_RED_SANDSTONE_WALL;
 
-    public static Block RAINBOW_WOOL, RAINBOW_CARPET, RAINBOW_BED;
+    public static Block RAINBOW_WOOL, RAINBOW_CARPET, RAINBOW_BED, CHARCOAL_BLOCK;
 
     public static void register() {
         // Stairs
@@ -515,5 +515,8 @@ public final class ModBlocks {
                         BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_BED)
                                 .setId(NTRegistry.blockKey("rainbow_bed"))));
         BlockEntityType.BED.addValidBlock(RAINBOW_BED);
+
+        CHARCOAL_BLOCK = NTRegistry.registerBlockWithItem("charcoal_block",
+                new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.COAL_BLOCK).setId(NTRegistry.blockKey("charcoal_block"))));
     }
 }
