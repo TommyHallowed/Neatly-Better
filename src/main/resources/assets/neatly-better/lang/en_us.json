@@ -109,6 +109,7 @@
 
   "item.neatly-better.rainbow_wool": "Rainbow Wool",
   "item.neatly-better.rainbow_carpet": "Rainbow Carpet",
+  "item.neatly-better.charcoal_block": "Block of Charcoal",
 
   "item.minecraft.potion.effect.haste": "Potion of Haste",
   "item.minecraft.potion.effect.long_haste": "Potion of Haste",
@@ -218,6 +219,7 @@
   "neatly-better.config.iron_golem_no_speedrun": "No Speedrun Strat",
   "neatly-better.config.iron_golem_repair_using_blocks": "Repair Using Blocks",
   "neatly-better.config.piglin_respects_trims": "Respect Gold Trims",
+  "neatly-better.config.shulker_bullet_despawn_after_owner": "Shulker Bullets Despawn",
   "neatly-better.config.run_while_charging": "Run While Reloading",
   "neatly-better.config.mob_parkour": "Mob Parkour",
   "neatly-better.config.ground_item_breeding": "Dropped Item Breeding",
