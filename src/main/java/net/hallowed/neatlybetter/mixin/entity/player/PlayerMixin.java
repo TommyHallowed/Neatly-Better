@@ -1,13 +1,23 @@
 package net.hallowed.neatlybetter.mixin.entity.player;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
 import net.hallowed.neatlybetter.api.NTCompat;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.util.StonecutterMemory;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -15,23 +25,35 @@ import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jetbrains.annotations.NotNull;
 
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
-public abstract class PlayerMixin implements StonecutterMemory {
+public abstract class PlayerMixin extends LivingEntity implements StonecutterMemory {
 
-    /* ------------------ (1) Infinity fix: virtual arrow when bow has Infinity ------------------ */
+    protected PlayerMixin(EntityType<? extends LivingEntity> entityType, Level level) {
+        super(entityType, level);
+    }
+
+    @Shadow
+    public abstract @NonNull ItemStack getWeaponItem();
+
+    // ===================== (1) Infinity fix =====================
+
     @Inject(method = "getProjectile", at = @At("RETURN"), cancellable = true)
     private void neatlybetter$virtualArrowForInfinity(ItemStack heldWeapon, CallbackInfoReturnable<ItemStack> cir) {
         if (!cir.getReturnValue().isEmpty()) return;
@@ -114,12 +136,79 @@ public abstract class PlayerMixin implements StonecutterMemory {
     /* ------------------ (4) No Equip Cooldown ------------------ */
     @Redirect(
             method = "tick",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/player/Player;resetAttackStrengthTicker()V"
-            )
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;resetAttackStrengthTicker()V")
     )
     private void neatlybetter$skipEquipCooldown(Player player) {
-        if (NTCompat.COMBATNOUVEAU || NTCompat.GOLDENAGECOMBAT) return; {}
+        if (NTCompat.COMBATNOUVEAU || NTCompat.GOLDENAGECOMBAT || NTServerConfig.CONFIG.legacyCombat.get()) return; {}
+    }
+
+    // ===================== (5) Remove Attack Cooldown =====================
+
+    @Inject(
+            method = {"getAttackStrengthScale", "getItemSwapScale"},
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private void removeAttackCooldown(float a, CallbackInfoReturnable<Float> cir) {
+        if (NTServerConfig.CONFIG.legacyCombat.get()) {
+            cir.setReturnValue(1.0F);
+        }
+    }
+
+    // ===================== (6) Critical Hits While Sprinting =====================
+
+    @ModifyExpressionValue(
+            method = "canCriticalAttack",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;isSprinting()Z")
+    )
+    private boolean allowCriticalHitsWhileSprinting(boolean isSprinting, Entity entity) {
+        if (NTServerConfig.CONFIG.legacyCombat.get()) {
+            return false;
+        }
+        return isSprinting;
+    }
+
+    // ===================== (7) Sprint Attacks (Don't Stop Sprinting) =====================
+
+    @WrapOperation(
+            method = "causeExtraKnockback",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;setSprinting(Z)V")
+    )
+    private void preventSprintStopOnAttack(Player player, boolean sprinting, Operation<Void> original) {
+        if (NTServerConfig.CONFIG.legacyCombat.get()) {
+            return;
+        }
+        original.call(player, sprinting);
+    }
+
+    // ===================== (8) Require Sweeping Edge =====================
+
+    @ModifyReturnValue(
+            method = "isSweepAttack",
+            at = @At(value = "RETURN", ordinal = 0)
+    )
+    private boolean requireSweepingEdgeForSweep(boolean original) {
+        if (NTServerConfig.CONFIG.legacyCombat.get()) {
+            return original && this.getAttributeValue(Attributes.SWEEPING_DAMAGE_RATIO) > 0.0;
+        }
+        return original;
+    }
+
+    // ===================== (9) 0 DMG Attack Knockback =====================
+
+    @ModifyReturnValue(
+            method = "hurtServer",
+            at = @At("RETURN"),
+            slice = @Slice(from = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/player/Player;removeEntitiesOnShoulder()V"
+            ))
+    )
+    private boolean allowZeroDamageKnockback(boolean hurtServer, ServerLevel level, DamageSource source, float damage) {
+
+        if (!hurtServer && damage == 0.0F && this.level().getDifficulty() != Difficulty.PEACEFUL) {
+            return super.hurtServer(level, source, damage);
+        }
+        return hurtServer;
     }
 }

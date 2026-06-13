@@ -41,9 +41,89 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
 
+    @Shadow @Final private static Logger LOGGER;
+    @Shadow @Final public Options options;
+    @Shadow public MultiPlayerGameMode gameMode;
     @Shadow public HitResult hitResult;
     @Shadow public LocalPlayer player;
     @Shadow public ClientLevel level;
+    @Shadow public int missTime;
+
+    @Shadow protected abstract void startUseItem();
+
+    // =========================================================================
+    // Legacy Combat — attack while using item
+    // =========================================================================
+
+    /**
+     * Allows the attack key to work while using an item (e.g., sword blocking).
+     */
+    @ModifyExpressionValue(
+            method = "continueAttack",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isUsingItem()Z")
+    )
+    private boolean allowAttackWhileUsing(boolean isUsingItem) {
+        if (NTServerConfig.CONFIG.legacyCombat.get()) {
+            return false;
+        }
+        return isUsingItem;
+    }
+
+    /**
+     * Allows starting to use an item (e.g., sword block) while destroying a block.
+     */
+    @ModifyExpressionValue(
+            method = "startUseItem",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;isDestroying()Z")
+    )
+    private boolean allowUseWhileDestroying(boolean isDestroying) {
+        if (NTServerConfig.CONFIG.legacyCombat.get()) {
+            return false;
+        }
+        return isDestroying;
+    }
+
+    /**
+     * Enables proper block attack handling while using an item.
+     */
+    @Inject(
+            method = "handleKeybinds",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isUsingItem()Z", ordinal = 0)
+    )
+    private void handleAttackWhileUsing(CallbackInfo ci) {
+        if (!NTServerConfig.CONFIG.legacyCombat.get() || !this.player.isUsingItem()) {
+            return;
+        }
+        while (this.options.keyAttack.consumeClick()) {
+            this.neatlybetter$startBlockAttack();
+        }
+    }
+
+    @Unique
+    private void neatlybetter$startBlockAttack() {
+        if (this.missTime <= 0) {
+            if (this.hitResult == null) {
+                LOGGER.error("Null returned as 'hitResult', this shouldn't happen!");
+                if (this.gameMode.hasMissTime()) {
+                    this.missTime = 10;
+                }
+            } else if (!this.player.isHandsBusy()) {
+                if (this.hitResult.getType() == HitResult.Type.BLOCK) {
+                    BlockHitResult blockHitResult = (BlockHitResult) this.hitResult;
+                    BlockPos blockPos = blockHitResult.getBlockPos();
+                    if (!this.level.isEmptyBlock(blockPos)) {
+                        this.gameMode.startDestroyBlock(blockPos, blockHitResult.getDirection());
+                        return;
+                    }
+                    this.player.swing(InteractionHand.MAIN_HAND);
+                }
+            }
+        }
+    }
+
+    // =========================================================================
+    // Swing-through feature
+    // =========================================================================
 
     @Unique
     private boolean neatlybetter$attackHeld = false;

@@ -255,5 +255,6 @@
   "neatly-better.config.explosions_disable_shield": "Explosions Disable Shield",
   "neatly-better.config.throwable_knockpack_player": "Throwable Items Knockback",
   "neatly-better.config.crop_harvester": "Easy Crop Harvesting",
-  "neatly-better.config.armor_stand_swap": "Armor Swap"
+  "neatly-better.config.armor_stand_swap": "Armor Swap",
+  "neatly-better.config.legacy_combat": "Legacy Combat"
 }

@@ -20,6 +20,7 @@ public final class ModEvents {
         WolfDamageByOwnerBypass.register();
         WolfSpawnsCollarOnDeath.register();
         DyeWoolFeature.register();
+        LegacyAttackValues.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();

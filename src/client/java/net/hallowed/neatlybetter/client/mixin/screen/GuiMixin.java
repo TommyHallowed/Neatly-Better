@@ -6,10 +6,13 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.hallowed.neatlybetter.api.NTCompat;
 import net.hallowed.neatlybetter.client.render.EffectBarRenderer;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
+import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.hallowed.neatlybetter.client.util.FloatBlitSprite;
+import net.minecraft.client.AttackIndicatorStatus;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.OptionInstance;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
@@ -135,5 +138,27 @@ public abstract class GuiMixin {
         float fy = Math.round((scaledCenterY - 7.5f) * 4) / 4f;
 
         ((FloatBlitSprite) graphics).neatlybetter$blitSpriteFloat(renderPipeline, location, fx, fy, 15, 15);
+    }
+
+    @Redirect(
+            method = "extractCrosshair",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/OptionInstance;get()Ljava/lang/Object;"
+            )
+    )
+    private Object neatlybetter$suppressCrosshairAttackIndicator(OptionInstance<?> instance) {
+        return NTServerConfig.CONFIG.legacyCombat.get() ? AttackIndicatorStatus.OFF : instance.get();
+    }
+
+    @Redirect(
+            method = "extractItemHotbar",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/OptionInstance;get()Ljava/lang/Object;"
+            )
+    )
+    private Object neatlybetter$suppressHotbarAttackIndicator(OptionInstance<?> instance) {
+        return NTServerConfig.CONFIG.legacyCombat.get() ? AttackIndicatorStatus.OFF : instance.get();
     }
 }

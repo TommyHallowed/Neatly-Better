@@ -66,6 +66,7 @@
     "item.MapItemSavedDataMixin",
     "item.ShearsItemMixin",
     "other.FoodDataMixin",
+    "other.LevelMixin",
     "other.LevelStorageSourceMixin",
     "other.PortalShapeMixin",
     "screen.AbstractContainerMenuMixin",

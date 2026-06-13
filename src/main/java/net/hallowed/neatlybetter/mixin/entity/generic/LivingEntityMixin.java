@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.feature.ItemCooldownHandler;
+import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
 import net.hallowed.neatlybetter.util.ProtectionContext;
 
 import net.minecraft.core.component.DataComponents;
@@ -29,11 +30,8 @@ import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @SuppressWarnings("ConstantValue")
@@ -46,6 +44,18 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Shadow
     public abstract boolean onClimbable();
+
+    @Shadow
+    public abstract boolean isUsingItem();
+
+    @Shadow
+    public abstract ItemStack getUseItem();
+
+    @Shadow
+    protected abstract void blockUsingItem(ServerLevel level, LivingEntity attacker);
+
+    @Shadow
+    public abstract ItemStack getItemBlockingWith();
 
     @Unique
     private static final Identifier neatlybetter$STEP_UP_ID =
@@ -262,5 +272,58 @@ public abstract class LivingEntityMixin extends Entity {
         } else {
             neatlybetter$climbUpTicks = 0;
         }
+    }
+
+    /* ===================== 8) Sword Blocking ===================== */
+
+    @ModifyReturnValue(method = "isBlocking", at = @At("RETURN"))
+    private boolean isSwordBlocking(boolean original) {
+        if (!NTServerConfig.CONFIG.legacyCombat.get()) {
+            return original;
+        }
+        if (!original && this.isUsingItem() && LegacyCombatHandler.isSword(this.getUseItem())) {
+            return true;
+        }
+        return original;
+    }
+
+    @ModifyReturnValue(method = "getItemBlockingWith", at = @At("RETURN"))
+    private ItemStack getSwordBlockingItem(ItemStack original) {
+        if (!NTServerConfig.CONFIG.legacyCombat.get()) {
+            return original;
+        }
+        if (((original == null || original.isEmpty()) && this.isUsingItem() && LegacyCombatHandler.isSword(this.getUseItem()))) {
+            return this.getUseItem();
+        }
+        return original;
+    }
+
+    @ModifyVariable(
+            method = "hurtServer",
+            at = @At("HEAD"),
+            argsOnly = true,
+            name = "damage")
+    private float applySwordBlockingReduction(float damage, ServerLevel level, DamageSource source) {
+        return LegacyCombatHandler.applySwordBlockingReduction((LivingEntity) (Object) this, source, damage);
+    }
+
+    @Inject(method = "hurtServer", at = @At("RETURN"))
+    private void damageSwordOnBlock(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
+        if (!NTServerConfig.CONFIG.legacyCombat.get() || damage <= 0.0F) {
+            return;
+        }
+
+        if (cir.getReturnValue() && LegacyCombatHandler.isSwordBlocking((LivingEntity) (Object) this)) {
+            LegacyCombatHandler.damageSwordOnBlock((LivingEntity) (Object) this, damage);
+        }
+    }
+
+    @Inject(
+            method = "knockback",
+            at = @At("TAIL")
+    )
+    private void applyUpwardsKnockback(double power, double xd, double zd, CallbackInfo ci) {
+        LivingEntity self = (LivingEntity) (Object) this;
+        LegacyCombatHandler.applyUpwardsKnockback(self, power, xd, zd);
     }
 }
