@@ -1,34 +1,39 @@
-package net.hallowed.neatlybetter.client.mixin.ui;
+package net.hallowed.neatlybetter.client.mixin.other;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
-
 import net.hallowed.neatlybetter.client.util.ClickThroughState;
 import net.hallowed.neatlybetter.client.util.GameRendererPickHelper;
+import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WallBannerBlock;
 import net.minecraft.world.level.block.WallSignBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 
+import org.slf4j.Logger;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -142,7 +147,6 @@ public abstract class MinecraftMixin {
         final double entityRange = minecraft.player.entityInteractionRange();
 
         final HitResult vanillaFront = minecraft.player.raycastHitResult(partialTicks, camera);
-
         final HitResult behindResult = GameRendererPickHelper.pickIgnoringOutlineOnly(camera, blockRange, entityRange, partialTicks);
 
         if (!(behindResult instanceof EntityHitResult ehr)) {
@@ -164,7 +168,7 @@ public abstract class MinecraftMixin {
         neatlybetter$attackHeld = pressing;
 
         minecraft.hitResult = behindResult;
-        minecraft.crosshairPickEntity  = ehr.getEntity();
+        minecraft.crosshairPickEntity = ehr.getEntity();
 
         ci.cancel();
     }
@@ -184,11 +188,19 @@ public abstract class MinecraftMixin {
         }
     }
 
+    // =========================================================================
+    // Telemetry opt-out
+    // =========================================================================
+
     @Inject(method = "allowsTelemetry", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$isTelemetryEnabledByApi(CallbackInfoReturnable<Boolean> cir) {
         if (!NTClientConfig.CONFIG.telemetryOff.get()) return;
         cir.setReturnValue(false);
     }
+
+    // =========================================================================
+    // Music / sound source stop redirect
+    // =========================================================================
 
     @Unique
     private static final SoundSource[] SOURCES_TO_STOP = {
@@ -206,6 +218,10 @@ public abstract class MinecraftMixin {
             instance.stop(null, source);
         }
     }
+
+    // =========================================================================
+    // Click-through: item frames, wall signs, wall banners
+    // =========================================================================
 
     @Inject(method = "startUseItem", at = @At("HEAD"))
     private void neatlybetter$redirectHitResult(CallbackInfo ci) {
@@ -235,7 +251,6 @@ public abstract class MinecraftMixin {
     @Unique
     private void handleItemFrame(ItemFrame frame) {
         BlockPos attachedPos = frame.getPos().relative(frame.getDirection().getOpposite());
-
         if (!this.player.isSecondaryUseActive() && isClickableBlockAt(attachedPos)) {
             this.hitResult = new BlockHitResult(
                     this.hitResult.getLocation(),
@@ -258,12 +273,12 @@ public abstract class MinecraftMixin {
 
         ItemStack heldMain = this.player.getItemInHand(InteractionHand.MAIN_HAND);
         if (heldMain.getItem() instanceof DyeItem) {
-                if (this.player.isSecondaryUseActive()) {
-                    ClickThroughState.isDyeOnSign = true;
-                } else {
-                    this.hitResult = new BlockHitResult(
-                            blockHit.getLocation(), blockHit.getDirection(), attachedPos, false);
-                }
+            if (this.player.isSecondaryUseActive()) {
+                ClickThroughState.isDyeOnSign = true;
+            } else {
+                this.hitResult = new BlockHitResult(
+                        blockHit.getLocation(), blockHit.getDirection(), attachedPos, false);
+            }
         } else if (!this.player.isSecondaryUseActive()) {
             this.hitResult = new BlockHitResult(
                     blockHit.getLocation(), blockHit.getDirection(), attachedPos, false);

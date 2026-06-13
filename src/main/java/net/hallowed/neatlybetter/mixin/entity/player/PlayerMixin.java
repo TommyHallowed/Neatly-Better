@@ -57,7 +57,6 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
     @Inject(method = "getProjectile", at = @At("RETURN"), cancellable = true)
     private void neatlybetter$virtualArrowForInfinity(ItemStack heldWeapon, CallbackInfoReturnable<ItemStack> cir) {
         if (!cir.getReturnValue().isEmpty()) return;
-
         if (!(heldWeapon.getItem() instanceof ProjectileWeaponItem)) return;
 
         Player self = (Player)(Object)this;
@@ -71,7 +70,8 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
         cir.setReturnValue(new ItemStack(Items.ARROW));
     }
 
-    /* ------------------ (2) Feather not dealing damage ------------------ */
+    // ===================== (2) Feather not dealing damage =====================
+
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$featherPush(Entity entity, CallbackInfo ci) {
         if (!NTServerConfig.CONFIG.featherNoDamage.get()) return;
@@ -107,7 +107,8 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
         }
     }
 
-    /* ------------------ (3) Stonecutter Memory ------------------ */
+    // ===================== (3) Stonecutter Memory =====================
+
     @Unique
     private String neatlybetter$lastCraftedStonecutterItem = "";
 
@@ -133,7 +134,8 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
         this.neatlybetter$lastCraftedStonecutterItem = input.getStringOr("neatlybetter_last_stonecutter_item", "");
     }
 
-    /* ------------------ (4) No Equip Cooldown ------------------ */
+    // ===================== (4) No Equip Cooldown =====================
+
     @Redirect(
             method = "tick",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;resetAttackStrengthTicker()V")

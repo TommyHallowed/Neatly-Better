@@ -64,7 +64,6 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue stepUpDisabledWhileShifting;
     public final ModConfigSpec.BooleanValue lapisStaysInEnchanting;
     public final ModConfigSpec.BooleanValue explosionsDisableShield;
-    public final ModConfigSpec.BooleanValue throwableKnockbackToPlayers;
     public final ModConfigSpec.BooleanValue cropHarvester;
     public final ModConfigSpec.BooleanValue armorStandSwap;
 
@@ -491,11 +490,6 @@ public final class NTServerConfig {
                 .comment("§e(SHIFT + RightClick)")
                 .translation("neatly-better.config.armor_stand_swap")
                 .define("armor_stand_swap", true);
-
-        throwableKnockbackToPlayers = builder
-                .comment("§eThrown items like snowballs/eggs now applies knockback to players.")
-                .translation("neatly-better.config.throwable_knockpack_player")
-                .define("throwable_knockpack_player", true);
 
         builder.pop(); // player
 
