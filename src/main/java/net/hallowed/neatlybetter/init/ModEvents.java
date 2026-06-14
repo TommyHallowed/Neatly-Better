@@ -21,6 +21,7 @@ public final class ModEvents {
         WolfSpawnsCollarOnDeath.register();
         DyeWoolFeature.register();
         LegacyAttackValues.register();
+        InvisibleSign.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();
