@@ -18,3 +18,4 @@ accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScr
 accessible field net/minecraft/client/gui/screens/inventory/AbstractRecipeBookScreen recipeBookComponent Lnet/minecraft/client/gui/screens/recipebook/RecipeBookComponent;
 accessible field net/minecraft/world/inventory/EnchantmentMenu enchantSlots Lnet/minecraft/world/Container;
 accessible field net/minecraft/client/renderer/fog/FogRenderer FOG_ENVIRONMENTS Ljava/util/List;
+accessible method net/minecraft/client/renderer/blockentity/AbstractSignRenderer submitSign (Lcom/mojang/blaze3d/vertex/PoseStack;ILnet/minecraft/world/level/block/state/properties/WoodType;Lnet/minecraft/client/model/Model$Simple;Lnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;Lnet/minecraft/client/renderer/SubmitNodeCollector;)V
