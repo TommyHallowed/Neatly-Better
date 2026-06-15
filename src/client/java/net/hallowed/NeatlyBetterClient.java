@@ -16,6 +16,8 @@ import net.hallowed.neatlybetter.client.feature.ui.SmallHudOverlay;
 import net.hallowed.neatlybetter.client.init.ModTooltips;
 import net.hallowed.neatlybetter.client.tooltip.EffectTooltipData;
 import net.hallowed.neatlybetter.client.tooltip.EffectTooltipRenderer;
+import net.hallowed.neatlybetter.client.tooltip.ShulkerBoxTooltipData;
+import net.hallowed.neatlybetter.client.tooltip.ShulkerBoxTooltipRenderer;
 import net.hallowed.neatlybetter.client.util.BackpackCheckClient;
 import net.hallowed.neatlybetter.client.util.EnderCheckClient;
 import net.hallowed.neatlybetter.tooltip.MapPreviewTooltip;
@@ -50,6 +52,9 @@ public class NeatlyBetterClient implements ClientModInitializer {
             }
             if (data instanceof EffectTooltipData effectData) {
                 return new EffectTooltipRenderer(effectData);
+            }
+            if (data instanceof ShulkerBoxTooltipData shulkerBoxTooltip) {
+                return new ShulkerBoxTooltipRenderer(shulkerBoxTooltip.items(), shulkerBoxTooltip.color());
             }
             return null;
         });

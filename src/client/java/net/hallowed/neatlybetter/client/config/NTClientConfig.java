@@ -36,6 +36,7 @@ public final class NTClientConfig {
     public final ModConfigSpec.BooleanValue potionEffectIcons;
     public final ModConfigSpec.BooleanValue susStewEffectIcons;
     public final ModConfigSpec.BooleanValue mapTooltip;
+    public final ModConfigSpec.BooleanValue shulkerBoxTooltip;
 
     // ═══════════════════════════════════════════
     //  HUD
@@ -133,6 +134,10 @@ public final class NTClientConfig {
                 .comment("§eShow a map preview in the tooltip.")
                 .translation("neatly-better.config.map_tooltip")
                 .define("map_tooltip", true);
+        shulkerBoxTooltip = builder
+                .comment("§eShow a preview of items in shulker boxes.")
+                .translation("neatly-better.config.shulkerbox_tooltip")
+                .define("shulkerbox_tooltip", true);
         builder.pop();
 
         builder.pop(); // ui

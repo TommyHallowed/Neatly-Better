@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
 import net.hallowed.neatlybetter.client.tooltip.EffectTooltipData;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
+import net.hallowed.neatlybetter.client.tooltip.ShulkerBoxTooltipData;
 import net.hallowed.neatlybetter.tooltip.MapPreviewTooltip;
 
 import net.minecraft.client.Minecraft;
@@ -11,16 +12,15 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.MapItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.component.OminousBottleAmplifier;
 import net.minecraft.world.item.component.SuspiciousStewEffects;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.consume_effects.ConsumeEffect;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.saveddata.maps.MapId;
 
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -107,6 +107,26 @@ public abstract class ItemTooltipsMixin {
             if (!effects.isEmpty()) {
                 return Optional.of(new EffectTooltipData(effects, 1.0F, chances));
             }
+        }
+
+        ItemContainerContents containerContents = itemStack.get(DataComponents.CONTAINER);
+        if (containerContents != null
+                && NTClientConfig.CONFIG.shulkerBoxTooltip.get()
+                && itemStack.getItem() instanceof BlockItem blockItem
+                && blockItem.getBlock() instanceof ShulkerBoxBlock shulkerBoxBlock) {
+
+            List<ItemStack> items = new ArrayList<>(containerContents.allItemsCopyStream().toList());
+
+            // Don't show a tooltip for an empty shulker box — there's nothing useful to preview.
+            if (items.stream().noneMatch(stack -> !stack.isEmpty())) {
+                return original;
+            }
+
+            while (items.size() < 27) {
+                items.add(ItemStack.EMPTY);
+            }
+
+            return Optional.of(new ShulkerBoxTooltipData(items, shulkerBoxBlock.getColor()));
         }
 
         return original;
