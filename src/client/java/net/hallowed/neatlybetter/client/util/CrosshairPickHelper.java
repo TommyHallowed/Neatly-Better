@@ -14,8 +14,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 
-public final class GameRendererPickHelper {
-    private GameRendererPickHelper() {}
+public final class CrosshairPickHelper {
+    private CrosshairPickHelper() {}
 
     public static HitResult pickIgnoringOutlineOnly(Entity camera, double blockRange, double entityRange, float tickProgress) {
         Level world = camera.level();

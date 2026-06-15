@@ -14,7 +14,7 @@ public final class ModEvents {
         ChestKeyHandler.register();
         ItemCooldownHandler.register();
         ComposterRegistration.register();
-        ArmorStandSwapHandler.register();
+        ArmorStandSwap.register();
         JockeyAdditions.register();
         SleepModeHandler.register();
         WolfDamageByOwnerBypass.register();

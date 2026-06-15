@@ -3,7 +3,7 @@ package net.hallowed.neatlybetter.client.mixin.other;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.client.util.ClickThroughState;
-import net.hallowed.neatlybetter.client.util.GameRendererPickHelper;
+import net.hallowed.neatlybetter.client.util.CrosshairPickHelper;
 import net.hallowed.neatlybetter.config.NTCommonConfig;
 
 import net.minecraft.client.Minecraft;
@@ -147,7 +147,7 @@ public abstract class MinecraftMixin {
         final double entityRange = minecraft.player.entityInteractionRange();
 
         final HitResult vanillaFront = minecraft.player.raycastHitResult(partialTicks, camera);
-        final HitResult behindResult = GameRendererPickHelper.pickIgnoringOutlineOnly(camera, blockRange, entityRange, partialTicks);
+        final HitResult behindResult = CrosshairPickHelper.pickIgnoringOutlineOnly(camera, blockRange, entityRange, partialTicks);
 
         if (!(behindResult instanceof EntityHitResult ehr)) {
             return;
