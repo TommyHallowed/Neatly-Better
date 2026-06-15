@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 
+import net.hallowed.neatlybetter.config.NTCommonConfig;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.feature.HostileAttributeTweaks;
 import net.hallowed.neatlybetter.content.item.MapBuilderItem;
@@ -33,6 +34,7 @@ public class NeatlyBetter implements ModInitializer {
 
         // 1) Server Config
         ConfigRegistry.INSTANCE.register(MOD_ID, ModConfig.Type.SERVER, NTServerConfig.CONFIG_SPEC);
+        ConfigRegistry.INSTANCE.register(MOD_ID, ModConfig.Type.COMMON, NTCommonConfig.CONFIG_SPEC);
 
         // 2) Register content
         ModBlocks.register();
