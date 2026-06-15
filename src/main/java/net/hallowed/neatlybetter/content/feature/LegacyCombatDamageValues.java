@@ -57,7 +57,7 @@ public final class LegacyCombatDamageValues {
             apply(context, Items.DIAMOND_AXE,   5.0);
             apply(context, Items.NETHERITE_AXE, 6.0);
 
-            hideAttackSpeedEverywhere(context);
+            hideAttackSpeedTooltips(context);
         });
     }
 
@@ -89,7 +89,7 @@ public final class LegacyCombatDamageValues {
         });
     }
 
-    private static void hideAttackSpeedEverywhere(DefaultItemComponentEvents.ModifyContext context) {
+    private static void hideAttackSpeedTooltips(DefaultItemComponentEvents.ModifyContext context) {
         context.modify(_ -> true, (builder, _, _) -> {
             if (!builder.contains(DataComponents.ATTRIBUTE_MODIFIERS)) {
                 return;
