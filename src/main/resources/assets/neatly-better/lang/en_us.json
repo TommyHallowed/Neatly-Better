@@ -6,6 +6,7 @@
 
   "tooltip.neatly-better.glow_ink_sac_hint": "Can be used on trimmed items",
   "tooltip.neatly-better.echo_shard_hint": "Can be used on trimmed armor",
+  "tooltip.neatly-better.phantom_membrane_hint": "Can be used on signs",
   "tooltip.neatly-better.totem_cooldown": "Cooldown after use: %ds",
   "tooltip.neatly-better.right_click_equip": "Right Click To Equip",
   "tooltip.neatly-better.map_builder.right_click": " Right-Click: Set Top-Left Corner",
