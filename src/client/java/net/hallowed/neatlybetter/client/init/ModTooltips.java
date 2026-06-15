@@ -31,6 +31,10 @@ public final class ModTooltips {
             Component.translatable("tooltip.neatly-better.echo_shard_hint")
                     .withStyle(ChatFormatting.YELLOW);
 
+    private static final MutableComponent PHANTOM_MEMBRANE_HINT =
+            Component.translatable("tooltip.neatly-better.phantom_membrane_hint")
+                    .withStyle(ChatFormatting.YELLOW);
+
     private static final String TOTEM_COOLDOWN_KEY = "tooltip.neatly-better.totem_cooldown";
 
     private static final MutableComponent EQUIP_HINT =
@@ -69,6 +73,9 @@ public final class ModTooltips {
         }
         if (stack.is(Items.ECHO_SHARD)) {
             addBasicUnderName(lines, ECHO_SHARD_HINT);
+        }
+        if (stack.is(Items.PHANTOM_MEMBRANE)) {
+            addBasicUnderName(lines, PHANTOM_MEMBRANE_HINT);
         }
         if (stack.is(Items.TOTEM_OF_UNDYING)) {
             int seconds = NTServerConfig.CONFIG.totemCooldown.get();
