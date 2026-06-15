@@ -5,9 +5,9 @@ import fuzs.forgeconfigapiport.fabric.api.v5.client.ConfigScreenFactoryRegistry;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback;
-
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.client.feature.AutoRefill;
 import net.hallowed.neatlybetter.client.feature.ClientMapPreviewTooltip;
@@ -21,6 +21,7 @@ import net.hallowed.neatlybetter.client.util.EnderCheckClient;
 import net.hallowed.neatlybetter.tooltip.MapPreviewTooltip;
 
 import net.minecraft.resources.Identifier;
+
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 
