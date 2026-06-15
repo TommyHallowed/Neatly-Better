@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.item;
 
-import net.hallowed.neatlybetter.config.NTServerConfig;
+import net.hallowed.neatlybetter.config.NTCommonConfig;
 import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
 
 import net.minecraft.world.InteractionHand;
@@ -37,7 +37,7 @@ public abstract class ItemStackMixin {
             at = @At("STORE"),
             name = "weapon")
     private Weapon removeWeaponDurabilityPenalty(Weapon weapon) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get() || weapon == null) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get() || weapon == null) {
             return weapon;
         }
         if (weapon.itemDamagePerAttack() == 2) {
@@ -48,7 +48,7 @@ public abstract class ItemStackMixin {
 
     @Inject(method = "use", at = @At("HEAD"))
     private void neatlybetter$startSwordBlock(Level level, Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
             return;
         }
         ItemStack self = (ItemStack) (Object) this;
@@ -59,7 +59,7 @@ public abstract class ItemStackMixin {
 
     @Inject(method = "getUseDuration", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$swordBlockUseDuration(LivingEntity user, CallbackInfoReturnable<Integer> cir) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
             return;
         }
         ItemStack self = (ItemStack) (Object) this;
@@ -70,7 +70,7 @@ public abstract class ItemStackMixin {
 
     @Inject(method = "getUseAnimation", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$swordBlockUseAnimation(CallbackInfoReturnable<ItemUseAnimation> cir) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
             return;
         }
         ItemStack self = (ItemStack) (Object) this;

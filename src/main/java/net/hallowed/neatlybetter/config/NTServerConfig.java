@@ -61,7 +61,6 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue hungerMechanics;
     public final ModConfigSpec.BooleanValue xpFromMiningNonOre;
     public final ModConfigSpec.BooleanValue xpFromPlacingBlocks;
-    public final ModConfigSpec.BooleanValue legacyCombat;
     public final ModConfigSpec.BooleanValue stepUpDisabledWhileShifting;
     public final ModConfigSpec.BooleanValue lapisStaysInEnchanting;
     public final ModConfigSpec.BooleanValue explosionsDisableShield;
@@ -477,12 +476,6 @@ public final class NTServerConfig {
                 .define("xp_from_placing_blocks", true);
 
         builder.pop(); // experience
-
-        legacyCombat = builder
-                .comment("Enables legacy pre-1.9 combat mechanics including no attack cooldown, sword blocking,")
-                .comment("legacy attack damage values, critical hits while sprinting, and more.")
-                .translation("neatly-better.config.legacy_combat")
-                .define("legacy_combat", false);
 
         cropHarvester = builder
                 .comment("§eHarvest fully grown crops by Right-Clicking.")

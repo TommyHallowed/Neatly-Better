@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.other;
 
-import net.hallowed.neatlybetter.config.NTServerConfig;
+import net.hallowed.neatlybetter.config.NTCommonConfig;
 import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
 
 import net.minecraft.client.particle.Particle;
@@ -19,7 +19,7 @@ public class ParticleEngineMixin {
     private <T extends ParticleOptions> void cancelSweepParticles(T options, double x, double y, double z,
                                                                   double xa, double ya, double za,
                                                                   CallbackInfoReturnable<Particle> callback) {
-        if (NTServerConfig.CONFIG.legacyCombat.get() && LegacyCombatHandler.shouldCancelParticle(options)) {
+        if (NTCommonConfig.CONFIG.legacyCombat.get() && LegacyCombatHandler.shouldCancelParticle(options)) {
             callback.setReturnValue(null);
         }
     }

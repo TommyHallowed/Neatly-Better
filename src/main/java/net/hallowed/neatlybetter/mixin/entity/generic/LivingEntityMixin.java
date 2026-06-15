@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
+import net.hallowed.neatlybetter.config.NTCommonConfig;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.feature.ItemCooldownHandler;
 import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
@@ -278,7 +279,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @ModifyReturnValue(method = "isBlocking", at = @At("RETURN"))
     private boolean isSwordBlocking(boolean original) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
             return original;
         }
         if (!original && this.isUsingItem() && LegacyCombatHandler.isSword(this.getUseItem())) {
@@ -289,7 +290,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @ModifyReturnValue(method = "getItemBlockingWith", at = @At("RETURN"))
     private ItemStack getSwordBlockingItem(ItemStack original) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
             return original;
         }
         if (((original == null || original.isEmpty()) && this.isUsingItem() && LegacyCombatHandler.isSword(this.getUseItem()))) {
@@ -309,7 +310,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "hurtServer", at = @At("RETURN"))
     private void damageSwordOnBlock(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get() || damage <= 0.0F) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get() || damage <= 0.0F) {
             return;
         }
 

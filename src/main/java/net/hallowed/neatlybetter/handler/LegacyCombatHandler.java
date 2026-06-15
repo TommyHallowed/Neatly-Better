@@ -1,6 +1,7 @@
 package net.hallowed.neatlybetter.handler;
 
-import net.hallowed.neatlybetter.config.NTServerConfig;
+import net.hallowed.neatlybetter.config.NTCommonConfig;
+
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -38,24 +39,24 @@ public final class LegacyCombatHandler {
     );
 
     public static boolean shouldCancelAttackSound(SoundEvent soundEvent) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
             return false;
         }
         return CANCELED_ATTACK_SOUNDS.contains(soundEvent);
     }
 
     public static boolean shouldCancelParticle(net.minecraft.core.particles.ParticleOptions particleOptions) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
             return false;
         }
         return CANCELED_PARTICLES.contains(particleOptions.getType());
     }
 
     public static void applyUpwardsKnockback(LivingEntity entity, double strength, double ratioX, double ratioZ) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
             return;
         }
-        if (!entity.onGround() && !entity.isInWater()) {
+        if (!entity.onGround() && !entity.isInLiquid()) {
             double kbResistance = entity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
             double adjustedStrength = strength * (1.0 - kbResistance);
             Vec3 deltaMovement = entity.getDeltaMovement();
@@ -89,14 +90,14 @@ public final class LegacyCombatHandler {
     }
 
     public static boolean isSwordBlocking(LivingEntity entity) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
             return false;
         }
         return entity.isUsingItem() && isSword(entity.getUseItem());
     }
 
     public static float applySwordBlockingReduction(LivingEntity entity, DamageSource source, float amount) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get() || amount <= 0.0F) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get() || amount <= 0.0F) {
             return amount;
         }
         if (isSwordBlocking(entity)) {
@@ -110,7 +111,7 @@ public final class LegacyCombatHandler {
     }
 
     public static void damageSwordOnBlock(LivingEntity entity, float blockedDamage) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
             return;
         }
         if (!(entity instanceof Player player)) {

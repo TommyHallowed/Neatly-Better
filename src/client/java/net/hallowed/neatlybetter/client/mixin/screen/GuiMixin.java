@@ -6,7 +6,7 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.hallowed.neatlybetter.api.NTCompat;
 import net.hallowed.neatlybetter.client.render.EffectBarRenderer;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
-import net.hallowed.neatlybetter.config.NTServerConfig;
+import net.hallowed.neatlybetter.config.NTCommonConfig;
 
 import net.hallowed.neatlybetter.client.util.FloatBlitSprite;
 import net.minecraft.client.AttackIndicatorStatus;
@@ -148,7 +148,7 @@ public abstract class GuiMixin {
             )
     )
     private Object neatlybetter$suppressCrosshairAttackIndicator(OptionInstance<?> instance) {
-        return NTServerConfig.CONFIG.legacyCombat.get() ? AttackIndicatorStatus.OFF : instance.get();
+        return NTCommonConfig.CONFIG.legacyCombat.get() ? AttackIndicatorStatus.OFF : instance.get();
     }
 
     @Redirect(
@@ -159,6 +159,6 @@ public abstract class GuiMixin {
             )
     )
     private Object neatlybetter$suppressHotbarAttackIndicator(OptionInstance<?> instance) {
-        return NTServerConfig.CONFIG.legacyCombat.get() ? AttackIndicatorStatus.OFF : instance.get();
+        return NTCommonConfig.CONFIG.legacyCombat.get() ? AttackIndicatorStatus.OFF : instance.get();
     }
 }

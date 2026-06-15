@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.client.util.ClickThroughState;
 import net.hallowed.neatlybetter.client.util.GameRendererPickHelper;
-import net.hallowed.neatlybetter.config.NTServerConfig;
+import net.hallowed.neatlybetter.config.NTCommonConfig;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -68,7 +68,7 @@ public abstract class MinecraftMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isUsingItem()Z")
     )
     private boolean allowAttackWhileUsing(boolean isUsingItem) {
-        if (NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (NTCommonConfig.CONFIG.legacyCombat.get()) {
             return false;
         }
         return isUsingItem;
@@ -82,7 +82,7 @@ public abstract class MinecraftMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;isDestroying()Z")
     )
     private boolean allowUseWhileDestroying(boolean isDestroying) {
-        if (NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (NTCommonConfig.CONFIG.legacyCombat.get()) {
             return false;
         }
         return isDestroying;
@@ -96,7 +96,7 @@ public abstract class MinecraftMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isUsingItem()Z", ordinal = 0)
     )
     private void handleAttackWhileUsing(CallbackInfo ci) {
-        if (!NTServerConfig.CONFIG.legacyCombat.get() || !this.player.isUsingItem()) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get() || !this.player.isUsingItem()) {
             return;
         }
         while (this.options.keyAttack.consumeClick()) {

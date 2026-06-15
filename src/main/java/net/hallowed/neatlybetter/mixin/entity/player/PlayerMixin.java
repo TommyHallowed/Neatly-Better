@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import net.hallowed.neatlybetter.api.NTCompat;
+import net.hallowed.neatlybetter.config.NTCommonConfig;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.util.StonecutterMemory;
 
@@ -141,7 +142,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;resetAttackStrengthTicker()V")
     )
     private void neatlybetter$skipEquipCooldown(Player player) {
-        if (NTCompat.COMBATNOUVEAU || NTCompat.GOLDENAGECOMBAT || NTServerConfig.CONFIG.legacyCombat.get()) return; {}
+        if (NTCompat.COMBATNOUVEAU || NTCompat.GOLDENAGECOMBAT || NTCommonConfig.CONFIG.legacyCombat.get()) return; {}
     }
 
     // ===================== (5) Remove Attack Cooldown =====================
@@ -152,7 +153,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
             cancellable = true
     )
     private void removeAttackCooldown(float a, CallbackInfoReturnable<Float> cir) {
-        if (NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (NTCommonConfig.CONFIG.legacyCombat.get()) {
             cir.setReturnValue(1.0F);
         }
     }
@@ -164,7 +165,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;isSprinting()Z")
     )
     private boolean allowCriticalHitsWhileSprinting(boolean isSprinting, Entity entity) {
-        if (NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (NTCommonConfig.CONFIG.legacyCombat.get()) {
             return false;
         }
         return isSprinting;
@@ -177,7 +178,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;setSprinting(Z)V")
     )
     private void preventSprintStopOnAttack(Player player, boolean sprinting, Operation<Void> original) {
-        if (NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (NTCommonConfig.CONFIG.legacyCombat.get()) {
             return;
         }
         original.call(player, sprinting);
@@ -190,7 +191,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
             at = @At(value = "RETURN", ordinal = 0)
     )
     private boolean requireSweepingEdgeForSweep(boolean original) {
-        if (NTServerConfig.CONFIG.legacyCombat.get()) {
+        if (NTCommonConfig.CONFIG.legacyCombat.get()) {
             return original && this.getAttributeValue(Attributes.SWEEPING_DAMAGE_RATIO) > 0.0;
         }
         return original;
