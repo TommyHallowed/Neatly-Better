@@ -19,8 +19,8 @@ import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ItemFrame;
-import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SignApplicator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WallBannerBlock;
@@ -273,7 +273,7 @@ public abstract class MinecraftMixin {
         if (!(be instanceof SignBlockEntity)) return;
 
         ItemStack heldMain = this.player.getItemInHand(InteractionHand.MAIN_HAND);
-        if (heldMain.getItem() instanceof DyeItem) {
+        if (heldMain.getItem() instanceof SignApplicator) {
             if (this.player.isSecondaryUseActive()) {
                 ClickThroughState.isDyeOnSign = true;
             } else {
