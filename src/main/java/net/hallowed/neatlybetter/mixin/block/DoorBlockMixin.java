@@ -33,14 +33,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class DoorBlockMixin {
 
     @Inject(method = "useWithoutItem", at = @At("RETURN"))
-    private void neatlybetter$syncDoubleDoors(BlockState originalState, Level world, BlockPos pos, Player player, BlockHitResult hit, CallbackInfoReturnable<InteractionResult> cir) {
+    private void neatlybetter$syncDoubleDoors(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
         if (NTCompat.DOUBLEDOORS || player.isShiftKeyDown()) return;
 
-        if (!cir.getReturnValue().consumesAction()) {
-            return;
-        }
+        if (!cir.getReturnValue().consumesAction()) return;
 
-        BlockState newState = world.getBlockState(pos);
+        BlockState newState = level.getBlockState(pos);
         if (!(newState.getBlock() instanceof DoorBlock)) return;
 
         boolean isNowOpen = newState.getValue(BlockStateProperties.OPEN);
@@ -49,7 +47,7 @@ public abstract class DoorBlockMixin {
 
         Direction neighborDir = (hinge == DoorHingeSide.RIGHT) ? facing.getCounterClockWise() : facing.getClockWise();
         BlockPos neighborPos = pos.relative(neighborDir);
-        BlockState neighborState = world.getBlockState(neighborPos);
+        BlockState neighborState = level.getBlockState(neighborPos);
 
         if (neighborState.is(newState.getBlock())
                 && neighborState.getValue(BlockStateProperties.HORIZONTAL_FACING) == facing
