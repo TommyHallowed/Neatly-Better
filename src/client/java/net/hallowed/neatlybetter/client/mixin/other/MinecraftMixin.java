@@ -225,6 +225,7 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "startUseItem", at = @At("HEAD"))
     private void neatlybetter$redirectHitResult(CallbackInfo ci) {
+        if (!NTCommonConfig.CONFIG.clickThrough.get()) return;
         ClickThroughState.isDyeOnSign = false;
 
         if (this.hitResult == null || this.player == null || this.level == null) return;

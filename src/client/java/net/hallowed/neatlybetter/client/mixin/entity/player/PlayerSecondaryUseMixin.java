@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import net.hallowed.neatlybetter.client.util.ClickThroughState;
+import net.hallowed.neatlybetter.config.NTCommonConfig;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -20,6 +21,7 @@ public class PlayerSecondaryUseMixin {
     @Inject(method = "isSecondaryUseActive", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$noCancelWhenDyeingSign(CallbackInfoReturnable<Boolean> cir) {
         if (((Object) this) instanceof LocalPlayer) {
+            if (!NTCommonConfig.CONFIG.clickThrough.get()) return;
             if (ClickThroughState.isDyeOnSign) {
                 cir.setReturnValue(false);
                 cir.cancel();

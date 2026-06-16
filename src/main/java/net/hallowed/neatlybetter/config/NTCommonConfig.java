@@ -16,6 +16,7 @@ public final class NTCommonConfig {
     }
 
     public final ModConfigSpec.BooleanValue legacyCombat;
+    public final ModConfigSpec.BooleanValue clickThrough;
 
     private NTCommonConfig(ModConfigSpec.Builder builder) {
 
@@ -24,8 +25,15 @@ public final class NTCommonConfig {
                 .comment("§elegacy attack damage values, critical hits while sprinting, and more.")
                 .comment("")
                 .comment("§4⚠Requires Restart for attack damage values change!")
-                .translation("neatly-better.config.legacy_combat")
+                .translation("neatly-better.config.common.legacy_combat")
                 .define("legacy_combat", false);
+
+        clickThrough = builder
+                .comment("§eAllows accessing containers through wall signs, wall banners & item frames.")
+                .comment("")
+                .comment("§4⚠Sign dyeing does not work on servers that do not have this mod installed!")
+                .translation("neatly-better.config.common.click_through")
+                .define("click_through", true);
 
     }
 }
