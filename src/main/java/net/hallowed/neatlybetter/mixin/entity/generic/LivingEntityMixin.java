@@ -245,7 +245,7 @@ public abstract class LivingEntityMixin extends Entity {
         double boosted = vanillaClimbSpeed * 1.25;
         double ramped = Mth.clampedMap(
                 neatlybetter$climbUpTicks, 0, 60,
-                boosted, boosted * 2.5
+                boosted, boosted * 1.75
         );
         return Math.max(this.getDeltaMovement().y, ramped);
     }
