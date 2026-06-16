@@ -36,7 +36,6 @@
 		"forgeconfigapiport": "*"
 	},
       "suggests": {
-          "backpacked": "*",
 		  "elytratrims": "*",
 		  "modmenu": "*"
       }
