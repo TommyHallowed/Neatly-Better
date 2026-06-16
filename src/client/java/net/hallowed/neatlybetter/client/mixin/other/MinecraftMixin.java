@@ -61,9 +61,6 @@ public abstract class MinecraftMixin {
     // Legacy Combat — attack while using item
     // =========================================================================
 
-    /**
-     * Allows the attack key to work while using an item (e.g., sword blocking).
-     */
     @ModifyExpressionValue(
             method = "continueAttack",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isUsingItem()Z")
@@ -75,9 +72,6 @@ public abstract class MinecraftMixin {
         return isUsingItem;
     }
 
-    /**
-     * Allows starting to use an item (e.g., sword block) while destroying a block.
-     */
     @ModifyExpressionValue(
             method = "startUseItem",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;isDestroying()Z")
@@ -89,9 +83,6 @@ public abstract class MinecraftMixin {
         return isDestroying;
     }
 
-    /**
-     * Enables proper block attack handling while using an item.
-     */
     @Inject(
             method = "handleKeybinds",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isUsingItem()Z", ordinal = 0)
