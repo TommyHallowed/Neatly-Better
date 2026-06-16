@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "terracotta slabs",
+  "category": "building",
+  "key": {
+    "#": "minecraft:orange_terracotta"
+  },
+  "pattern": [
+    "###"
+  ],
+  "result": {
+    "count": 6,
+    "id": "neatly-better:orange_terracotta_slab"
+  }
+}

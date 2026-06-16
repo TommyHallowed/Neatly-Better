@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "terracotta stairs",
+  "category": "building",
+  "key": {
+    "#": "minecraft:pink_terracotta"
+  },
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "result": {
+    "count": 4,
+    "id": "neatly-better:pink_terracotta_stairs"
+  }
+}

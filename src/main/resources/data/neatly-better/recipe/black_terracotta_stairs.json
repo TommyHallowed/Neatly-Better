@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "terracotta stairs",
+  "category": "building",
+  "key": {
+    "#": "minecraft:black_terracotta"
+  },
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "result": {
+    "count": 4,
+    "id": "neatly-better:black_terracotta_stairs"
+  }
+}
