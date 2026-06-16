@@ -46,17 +46,11 @@ public class NeatlyBetterClient implements ClientModInitializer {
                 SmallHudOverlay.getInstance()
         );
 
-        ClientTooltipComponentCallback.EVENT.register(data -> {
-            if (data instanceof MapPreviewTooltip mapData) {
-                return new ClientMapPreviewTooltip(mapData);
-            }
-            if (data instanceof EffectTooltipData effectData) {
-                return new EffectTooltipRenderer(effectData);
-            }
-            if (data instanceof ShulkerBoxTooltipData shulkerBoxTooltip) {
-                return new ShulkerBoxTooltipRenderer(shulkerBoxTooltip.items(), shulkerBoxTooltip.color());
-            }
-            return null;
+        ClientTooltipComponentCallback.EVENT.register(data -> switch (data) {
+            case MapPreviewTooltip mapData -> new ClientMapPreviewTooltip(mapData);
+            case EffectTooltipData effectData -> new EffectTooltipRenderer(effectData);
+            case ShulkerBoxTooltipData shulkerBoxTooltip -> new ShulkerBoxTooltipRenderer(shulkerBoxTooltip.items(), shulkerBoxTooltip.color());
+            default -> null;
         });
 
         ModTooltips.init();

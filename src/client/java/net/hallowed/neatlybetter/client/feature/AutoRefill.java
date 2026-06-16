@@ -84,16 +84,16 @@ public class AutoRefill {
         ItemStack liveMain = player.getMainHandItem();
         ItemStack liveOff  = player.getOffhandItem();
 
-        if (!stacksMatch(lastMainHand, liveMain)) lastMainHand = liveMain.copy();
-        if (!stacksMatch(lastOffHand, liveOff))   lastOffHand  = liveOff.copy();
+        if (stacksDontMatch(lastMainHand, liveMain)) lastMainHand = liveMain.copy();
+        if (stacksDontMatch(lastOffHand, liveOff))   lastOffHand  = liveOff.copy();
         lastSelectedSlot = player.getInventory().getSelectedSlot();
     }
 
-    private static boolean stacksMatch(ItemStack stored, ItemStack live) {
-        if (stored.isEmpty() && live.isEmpty()) return true;
-        if (stored.isEmpty() || live.isEmpty()) return false;
-        return stored.getCount() == live.getCount()
-                && ItemStack.isSameItemSameComponents(stored, live);
+    private static boolean stacksDontMatch(ItemStack stored, ItemStack live) {
+        if (stored.isEmpty() && live.isEmpty()) return false;
+        if (stored.isEmpty() || live.isEmpty()) return true;
+        return stored.getCount() != live.getCount()
+                || !ItemStack.isSameItemSameComponents(stored, live);
     }
 
     private static boolean isHandSwap(ItemStack lastMain, ItemStack lastOff,
