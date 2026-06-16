@@ -1,0 +1,14 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "__"
+    ],
+    "key": {
+        "_": "neatly-better:purple_concrete_slab"
+    },
+    "result": {
+        "id": "minecraft:purple_concrete",
+        "count": 1
+    },
+    "group": "slabs to block"
+}

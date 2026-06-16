@@ -1,0 +1,14 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "__"
+    ],
+    "key": {
+        "_": "neatly-better:black_terracotta_slab"
+    },
+    "result": {
+        "id": "minecraft:black_terracotta",
+        "count": 1
+    },
+    "group": "slabs to block"
+}

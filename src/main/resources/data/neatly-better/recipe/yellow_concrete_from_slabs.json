@@ -1,0 +1,14 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "__"
+    ],
+    "key": {
+        "_": "neatly-better:yellow_concrete_slab"
+    },
+    "result": {
+        "id": "minecraft:yellow_concrete",
+        "count": 1
+    },
+    "group": "slabs to block"
+}

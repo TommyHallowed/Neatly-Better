@@ -1,0 +1,14 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "__"
+    ],
+    "key": {
+        "_": "neatly-better:light_blue_concrete_slab"
+    },
+    "result": {
+        "id": "minecraft:light_blue_concrete",
+        "count": 1
+    },
+    "group": "slabs to block"
+}
