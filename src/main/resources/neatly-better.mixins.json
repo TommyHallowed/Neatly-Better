@@ -56,6 +56,7 @@
     "entity.passive.VillagerMixin",
     "entity.passive.VillagerTradeMixin",
     "entity.player.PlayerMixin",
+    "entity.player.ServerPlayerGameModeMixin",
     "entity.player.ServerPlayerMixin",
     "inventory.EnchantmentMenuMixin",
     "inventory.EnderChestContainerMixin",
