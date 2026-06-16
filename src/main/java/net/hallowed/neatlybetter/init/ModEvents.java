@@ -30,5 +30,6 @@ public final class ModEvents {
         MoreXpDrops.init();
         SaplingAutoPlanter.init();
         TorchIgnite.init();
+        BlockGluing.init();
     }
 }

@@ -6,6 +6,8 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
+import net.hallowed.NeatlyBetter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -54,7 +56,7 @@ public class InteractWithFenceGate {
                     for (int i = start; i <= end; i++) {
                         BlockPos pos = path.getNode(i).asBlockPos();
                         BlockState state = serverLevel.getBlockState(pos);
-                        if (state.getBlock() instanceof FenceGateBlock && !state.getValue(FenceGateBlock.OPEN)) {
+                        if (state.getBlock() instanceof FenceGateBlock && !state.getValue(FenceGateBlock.OPEN) && !(state.hasProperty(NeatlyBetter.GLUED) && state.getValue(NeatlyBetter.GLUED))) {
                             if (!openedGates.contains(pos)) {
                                 pendingGates.add(pos.immutable());
                             }
@@ -80,7 +82,7 @@ public class InteractWithFenceGate {
     private static void openGate(ServerLevel level, LivingEntity entity,
                                  BlockPos pos, Set<BlockPos> openedGates) {
         BlockState state = level.getBlockState(pos);
-        if (state.getBlock() instanceof FenceGateBlock && !state.getValue(FenceGateBlock.OPEN)) {
+        if (state.getBlock() instanceof FenceGateBlock && !state.getValue(FenceGateBlock.OPEN) && !(state.hasProperty(NeatlyBetter.GLUED) && state.getValue(NeatlyBetter.GLUED))) {
             level.setBlock(pos, state.setValue(FenceGateBlock.OPEN, true), 3);
             level.playSound(null, pos, SoundEvents.FENCE_GATE_OPEN, SoundSource.BLOCKS, 1.0F, 1.0F);
             level.gameEvent(entity, GameEvent.BLOCK_OPEN, pos);
@@ -96,7 +98,7 @@ public class InteractWithFenceGate {
             double dz = pos.getZ() + 0.5 - entity.getZ();
             if (dx * dx + dz * dz > CLOSE_DISTANCE_SQ) {
                 BlockState state = level.getBlockState(pos);
-                if (state.getBlock() instanceof FenceGateBlock && state.getValue(FenceGateBlock.OPEN)) {
+                if (state.getBlock() instanceof FenceGateBlock && state.getValue(FenceGateBlock.OPEN) && !(state.hasProperty(NeatlyBetter.GLUED) && state.getValue(NeatlyBetter.GLUED))) {
                     level.setBlock(pos, state.setValue(FenceGateBlock.OPEN, false), 3);
                     level.playSound(null, pos, SoundEvents.FENCE_GATE_CLOSE, SoundSource.BLOCKS, 1.0F, 1.0F);
                     level.gameEvent(entity, GameEvent.BLOCK_CLOSE, pos);

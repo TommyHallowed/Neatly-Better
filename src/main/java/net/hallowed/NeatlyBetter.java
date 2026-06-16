@@ -28,6 +28,7 @@ import net.neoforged.fml.config.ModConfig;
 public class NeatlyBetter implements ModInitializer {
     public static final String MOD_ID = "neatly-better";
     public static final BooleanProperty SHEARED = BooleanProperty.create("sheared");
+    public static final BooleanProperty GLUED = BooleanProperty.create("glued");
 
     @Override
     public void onInitialize() {
