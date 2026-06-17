@@ -182,7 +182,9 @@ public final class VoidFog {
 
             if (targetBlend < 1f) {
                 dissipationDelayRemaining = dissipationDelay;
-                smoothedBlend = Mth.lerp(tickDelta / transitionTicks, smoothedBlend, targetBlend);
+                if (targetBlend < smoothedBlend) {
+                    smoothedBlend = Mth.lerp(tickDelta / transitionTicks, smoothedBlend, targetBlend);
+                }
                 float distance = computeFogDistance(world, camera.entity(), tickDelta, transitionTicks, false);
                 data.environmentalStart = Mth.lerp(smoothedBlend, fogStart(distance), viewDistance - 1f);
                 data.environmentalEnd   = Mth.lerp(smoothedBlend, fogEnd(distance),   viewDistance);
@@ -194,7 +196,7 @@ public final class VoidFog {
                     data.environmentalEnd   = Mth.lerp(smoothedBlend, fogEnd(distance),   viewDistance);
                 } else {
                     smoothedBlend = Mth.lerp(tickDelta / transitionTicks, smoothedBlend, 1f);
-                    float distance = computeFogDistance(world, camera.entity(), tickDelta, transitionTicks, true);
+                    float distance = lastFogDistance; // keep distance frozen; only smoothedBlend drives the fade
                     data.environmentalStart = Mth.lerp(smoothedBlend, fogStart(distance), viewDistance - 1f);
                     data.environmentalEnd   = Mth.lerp(smoothedBlend, fogEnd(distance),   viewDistance);
                 }
