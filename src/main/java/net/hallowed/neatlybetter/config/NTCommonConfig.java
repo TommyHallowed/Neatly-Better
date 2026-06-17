@@ -26,7 +26,7 @@ public final class NTCommonConfig {
                 .comment("")
                 .comment("§4⚠Requires Restart for attack damage values change!")
                 .translation("neatly-better.config.common.legacy_combat")
-                .define("legacy_combat", false);
+                .define("legacy_combat", true);
 
         clickThrough = builder
                 .comment("§eAllows accessing containers through wall signs, wall banners & item frames.")
