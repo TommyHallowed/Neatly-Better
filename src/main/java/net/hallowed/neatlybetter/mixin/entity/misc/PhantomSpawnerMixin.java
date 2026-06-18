@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.level.NaturalSpawner;
@@ -72,14 +72,14 @@ public class PhantomSpawnerMixin {
             // Valid empty block check (vanilla)
             BlockState blockState = level.getBlockState(spawnPos);
             FluidState fluidState = level.getFluidState(spawnPos);
-            if (!NaturalSpawner.isValidEmptySpawnBlock(level, spawnPos, blockState, fluidState, EntityType.PHANTOM)) continue;
+            if (!NaturalSpawner.isValidEmptySpawnBlock(level, spawnPos, blockState, fluidState, EntityTypes.PHANTOM)) continue;
 
             // Spawn phantoms (vanilla)
             SpawnGroupData spawnGroupData = null;
             int count = 1 + randomSource.nextInt(difficultyInstance.getDifficulty().getId() + 1);
 
             for (int l = 0; l < count; l++) {
-                Phantom phantom = EntityType.PHANTOM.create(level, EntitySpawnReason.NATURAL);
+                Phantom phantom = EntityTypes.PHANTOM.create(level, EntitySpawnReason.NATURAL);
                 if (phantom != null) {
                     phantom.snapTo(spawnPos, 0.0F, 0.0F);
                     spawnGroupData = phantom.finalizeSpawn(

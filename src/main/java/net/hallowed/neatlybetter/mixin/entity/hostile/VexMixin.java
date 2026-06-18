@@ -19,7 +19,7 @@ public abstract class VexMixin {
         Vex self = (Vex)(Object)this;
         if (self.level().isClientSide()) return;
 
-        Mob owner = self.getOwner();
+        Mob owner = (Mob) self.getRootOwner();
         if (owner instanceof Evoker && !owner.isAlive()) {
             self.hurt(self.damageSources().magic(), Float.MAX_VALUE);
         }

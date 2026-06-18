@@ -53,7 +53,8 @@ public abstract class LivingEntityMixin extends Entity {
     public abstract ItemStack getUseItem();
 
     @Shadow
-    protected abstract void blockUsingItem(ServerLevel level, LivingEntity attacker);
+    protected abstract void blockUsingItem(ServerLevel level, LivingEntity attacker,
+                                           DamageSource source, float damage);
 
     @Shadow
     public abstract ItemStack getItemBlockingWith();
@@ -320,10 +321,12 @@ public abstract class LivingEntityMixin extends Entity {
     }
 
     @Inject(
-            method = "knockback",
+            method = "knockback(DDDLnet/minecraft/world/damagesource/DamageSource;F)V",
             at = @At("TAIL")
     )
-    private void applyUpwardsKnockback(double power, double xd, double zd, CallbackInfo ci) {
+    private void applyUpwardsKnockback(double power, double xd, double zd,
+                                       DamageSource source, float damage,
+                                       CallbackInfo ci) {
         LivingEntity self = (LivingEntity) (Object) this;
         LegacyCombatHandler.applyUpwardsKnockback(self, power, xd, zd);
     }

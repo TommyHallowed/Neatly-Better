@@ -63,9 +63,9 @@ public abstract class LocalPlayerMixin extends LivingEntity {
         if (NTClientConfig.CONFIG.recipeBookMode.get() == NTClientConfig.RecipeBookMode.SHOWN) return;
 
         Minecraft client = Minecraft.getInstance();
-        if (client.screen == null) return;
+        if (client.gui.screen() == null) return;
 
-        if (client.screen instanceof AbstractRecipeBookScreen<?> recipeScreen) {
+        if (client.gui.screen() instanceof AbstractRecipeBookScreen<?> recipeScreen) {
             RecipeBookComponent<?> recipeBookWidget = recipeScreen.recipeBookComponent;
             RecipeBookMenu handler = recipeBookWidget.menu;
             RecipeBookType category = handler.getRecipeBookType();
@@ -79,7 +79,7 @@ public abstract class LocalPlayerMixin extends LivingEntity {
             cancellable = true
     )
     private void neatlybetter$forceShiftOnClimbableWithContainer(CallbackInfoReturnable<Boolean> cir) {
-        if (this.onClimbable() && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?>) {
+        if (this.onClimbable() && Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?>) {
             BlockState state = this.level().getBlockState(this.blockPosition());
             if (state.is(Blocks.SCAFFOLDING)) {
                 return;

@@ -170,7 +170,7 @@ public final class NTNetwork {
         // -- push ender chest and backpack state on join --
         ServerPlayConnectionEvents.JOIN.register((handler, _, _) -> {
             pushEnderChestState(handler.player);
-            pushBackpackState(handler.player);
+//            pushBackpackState(handler.player);
             pushShieldDelay(handler.player);
         });
     }
@@ -272,35 +272,35 @@ public final class NTNetwork {
 
     /* ===================== Backpack Helpers ===================== */
 
-    private static final Set<UUID> DIRTY_BACKPACK_PLAYERS = new HashSet<>();
+//    private static final Set<UUID> DIRTY_BACKPACK_PLAYERS = new HashSet<>();
 
-    public static void markBackpackDirty(ServerPlayer player) {
-        DIRTY_BACKPACK_PLAYERS.add(player.getUUID());
-    }
+//    public static void markBackpackDirty(ServerPlayer player) {
+//        DIRTY_BACKPACK_PLAYERS.add(player.getUUID());
+//    }
 
-    public static void flushDirtyBackpacks(MinecraftServer server) {
-        if (DIRTY_BACKPACK_PLAYERS.isEmpty()) return;
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            if (DIRTY_BACKPACK_PLAYERS.remove(player.getUUID())) {
-                pushBackpackState(player);
-            }
-        }
-        DIRTY_BACKPACK_PLAYERS.clear();
-    }
+//    public static void flushDirtyBackpacks(MinecraftServer server) {
+//        if (DIRTY_BACKPACK_PLAYERS.isEmpty()) return;
+//        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+//            if (DIRTY_BACKPACK_PLAYERS.remove(player.getUUID())) {
+//                pushBackpackState(player);
+//            }
+//        }
+//        DIRTY_BACKPACK_PLAYERS.clear();
+//    }
 
-    public static void pushBackpackState(ServerPlayer player) {
-        List<ItemStack> backpacks = BackpackedServerCompat.getBackpackStacks(player);
+//    public static void pushBackpackState(ServerPlayer player) {
+//        List<ItemStack> backpacks = BackpackedServerCompat.getBackpackStacks(player);
 
-        boolean compass = false, clock = false;
+//        boolean compass = false, clock = false;
 
-        for (ItemStack bp : backpacks) {
-            if (bp.isEmpty()) continue;
-            if (!compass) compass = matchesDeep(bp, s -> s.is(Items.COMPASS), 0);
-            if (!clock)   clock   = matchesDeep(bp, s -> s.is(Items.CLOCK), 0);
-        }
+//        for (ItemStack bp : backpacks) {
+//            if (bp.isEmpty()) continue;
+//            if (!compass) compass = matchesDeep(bp, s -> s.is(Items.COMPASS), 0);
+//            if (!clock)   clock   = matchesDeep(bp, s -> s.is(Items.CLOCK), 0);
+//        }
 
-        ServerPlayNetworking.send(player, new BackpackCheckResponse(compass, clock));
-    }
+//        ServerPlayNetworking.send(player, new BackpackCheckResponse(compass, clock));
+//    }
 
     /* ===================== Shared Deep-Scan Helpers ===================== */
 

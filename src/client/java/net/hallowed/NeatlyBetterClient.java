@@ -4,6 +4,7 @@ import fuzs.forgeconfigapiport.fabric.api.v5.ConfigRegistry;
 import fuzs.forgeconfigapiport.fabric.api.v5.client.ConfigScreenFactoryRegistry;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
@@ -14,6 +15,7 @@ import net.hallowed.neatlybetter.client.feature.ClientMapPreviewTooltip;
 import net.hallowed.neatlybetter.client.feature.VoidFog;
 import net.hallowed.neatlybetter.client.feature.ui.SmallHudOverlay;
 import net.hallowed.neatlybetter.client.init.ModTooltips;
+import net.hallowed.neatlybetter.client.render.InvisibleSignModelPlugin;
 import net.hallowed.neatlybetter.client.tooltip.EffectTooltipData;
 import net.hallowed.neatlybetter.client.tooltip.EffectTooltipRenderer;
 import net.hallowed.neatlybetter.client.tooltip.ShulkerBoxTooltipData;
@@ -39,6 +41,8 @@ public class NeatlyBetterClient implements ClientModInitializer {
         BackpackCheckClient.register();
         AutoRefill.register();
         VoidFog.register();
+
+        ModelLoadingPlugin.register(new InvisibleSignModelPlugin());
 
         HudElementRegistry.attachElementAfter(
                 VanillaHudElements.MOB_EFFECTS,

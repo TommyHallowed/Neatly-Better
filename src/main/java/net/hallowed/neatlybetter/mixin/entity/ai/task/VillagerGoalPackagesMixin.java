@@ -8,7 +8,7 @@ import net.hallowed.neatlybetter.content.entity.ai.task.FarmerReplantTask;
 import net.hallowed.neatlybetter.content.entity.ai.task.InteractWithFenceGate;
 
 import net.minecraft.core.Holder;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.entity.ai.behavior.GiveGiftToHero;
@@ -40,8 +40,8 @@ public abstract class VillagerGoalPackagesMixin {
 
     @Inject(method = "getCorePackage", at = @At("RETURN"), cancellable = true)
     private static void neatlybetter$addFenceGateInteraction(
-            Holder<@NotNull VillagerProfession> holder,
-            float speed,
+            Holder<@NotNull VillagerProfession> profession,
+            float speedModifier,
             CallbackInfoReturnable<ImmutableList<@NotNull Pair<Integer, ? extends BehaviorControl<? super Villager>>>> cir
     ) {
         if (!NTServerConfig.CONFIG.villagerOpensFenceGate.get()) return;
@@ -58,7 +58,7 @@ public abstract class VillagerGoalPackagesMixin {
     @Inject(method = "getWorkPackage", at = @At("HEAD"), cancellable = true)
     private static void neatlybetter$addTillingTask(
             Holder<@NotNull VillagerProfession> profession,
-            float speed,
+            float speedModifier,
             CallbackInfoReturnable<ImmutableList<@NotNull Pair<Integer, ? extends BehaviorControl<? super Villager>>>> cir
     ) {
         if (!NTServerConfig.CONFIG.villagerFarmerReplant.get()) return;
@@ -70,7 +70,7 @@ public abstract class VillagerGoalPackagesMixin {
                 Pair.of(farmerWork, 7),
                 Pair.of(StrollAroundPoi.create(MemoryModuleType.JOB_SITE, 0.4F, 4), 2),
                 Pair.of(StrollToPoi.create(MemoryModuleType.JOB_SITE, 0.4F, 1, 10), 5),
-                Pair.of(StrollToPoiList.create(MemoryModuleType.SECONDARY_JOB_SITE, speed, 1, 6, MemoryModuleType.JOB_SITE), 5),
+                Pair.of(StrollToPoiList.create(MemoryModuleType.SECONDARY_JOB_SITE, speedModifier, 1, 6, MemoryModuleType.JOB_SITE), 5),
                 Pair.of(new HarvestFarmland(), 2),
                 Pair.of(new FarmerReplantTask(), 3),
                 Pair.of(new UseBonemeal(), 4)
@@ -83,8 +83,8 @@ public abstract class VillagerGoalPackagesMixin {
                         .add(busyFollow)
                         .add(Pair.of(5, bundled))
                         .add(Pair.of(10, new ShowTradesToPlayer(400, 1600)))
-                        .add(Pair.of(10, SetLookAndInteract.create(EntityType.PLAYER, 4)))
-                        .add(Pair.of(2, SetWalkTargetFromBlockMemory.create(MemoryModuleType.JOB_SITE, speed, 9, 100, 1200)))
+                        .add(Pair.of(10, SetLookAndInteract.create(EntityTypes.PLAYER, 4)))
+                        .add(Pair.of(2, SetWalkTargetFromBlockMemory.create(MemoryModuleType.JOB_SITE, speedModifier, 9, 100, 1200)))
                         .add(Pair.of(3, new GiveGiftToHero(100)))
                         .add(Pair.of(99, UpdateActivityFromSchedule.create()))
                         .build();

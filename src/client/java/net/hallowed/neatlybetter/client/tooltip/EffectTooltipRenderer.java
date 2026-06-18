@@ -3,8 +3,8 @@ package net.hallowed.neatlybetter.client.tooltip;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Holder;
@@ -118,7 +118,7 @@ public final class EffectTooltipRenderer implements ClientTooltipComponent {
     }
 
     private static Identifier getEffectSprite(Holder<MobEffect> effect) {
-        return Gui.getMobEffectSprite(effect);
+        return Hud.getMobEffectSprite(effect);
     }
 
     private record RenderedEffect(

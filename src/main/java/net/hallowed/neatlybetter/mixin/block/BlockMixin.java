@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -38,7 +38,7 @@ public abstract class BlockMixin {
         if (itemStack.isEmpty()) return;
         if (!serverLevel.getGameRules().get(GameRules.BLOCK_DROPS)) return;
 
-        double halfHeight = EntityType.ITEM.getHeight() / 2.0;
+        double halfHeight = EntityTypes.ITEM.getHeight() / 2.0;
 
         double x = pos.getX() + 0.5 + Mth.nextDouble(level.getRandom(), -1.5, 1.5);
         double y = pos.getY() + 0.5 + Mth.nextDouble(level.getRandom(), -0.25, 0.25) - halfHeight;

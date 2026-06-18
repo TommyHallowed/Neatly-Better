@@ -80,7 +80,7 @@ public abstract class ItemEntityRendererMixin {
         if (!neatlybetter$isFlat.get()) return spinAngle;
 
         double[] pos = neatlybetter$entityPos.get();
-        var cam = Minecraft.getInstance().gameRenderer.getMainCamera().position();
+        var cam = Minecraft.getInstance().gameRenderer.mainCamera().position();
         return (float) Math.atan2(cam.x - pos[0], cam.z - pos[1]);
     }
 

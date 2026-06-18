@@ -57,7 +57,7 @@ public class AutoRefill {
             ItemStack currentOff  = player.getOffhandItem();
             int       currentSlot = player.getInventory().getSelectedSlot();
 
-            if (client.screen == null && lastSelectedSlot != -1 && !player.isDeadOrDying()) {
+            if (client.gui.screen() == null && lastSelectedSlot != -1 && !player.isDeadOrDying()) {
                 if (currentSlot == lastSelectedSlot && player.containerMenu.getCarried().isEmpty()) {
                     if (!isHandSwap(lastMainHand, lastOffHand, currentMain, currentOff)) {
                         boolean refilledMain = checkAndRefill(

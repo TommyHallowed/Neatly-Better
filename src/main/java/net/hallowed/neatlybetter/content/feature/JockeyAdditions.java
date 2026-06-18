@@ -4,10 +4,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.polarbear.PolarBear;
 import net.minecraft.world.entity.monster.Zoglin;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
@@ -50,7 +47,7 @@ public final class JockeyAdditions {
     }
 
     private static void spawnPiglinJockey(ServerLevel level, Hoglin hoglin) {
-        Piglin piglin = EntityType.PIGLIN.create(level, EntitySpawnReason.JOCKEY);
+        Piglin piglin = EntityTypes.PIGLIN.create(level, EntitySpawnReason.JOCKEY);
         if (piglin == null) return;
 
         setupRider(level, piglin, hoglin);
@@ -65,7 +62,7 @@ public final class JockeyAdditions {
     }
 
     private static void spawnStrayJockey(ServerLevel level, PolarBear bear) {
-        Stray stray = EntityType.STRAY.create(level, EntitySpawnReason.JOCKEY);
+        Stray stray = EntityTypes.STRAY.create(level, EntitySpawnReason.JOCKEY);
         if (stray == null) return;
 
         setupRider(level, stray, bear);
@@ -74,7 +71,7 @@ public final class JockeyAdditions {
     }
 
     private static void spawnZombifiedPiglinJockey(ServerLevel level, Zoglin zoglin) {
-        ZombifiedPiglin zpiglin = EntityType.ZOMBIFIED_PIGLIN.create(level, EntitySpawnReason.JOCKEY);
+        ZombifiedPiglin zpiglin = EntityTypes.ZOMBIFIED_PIGLIN.create(level, EntitySpawnReason.JOCKEY);
         if (zpiglin == null) return;
 
         setupRider(level, zpiglin, zoglin);

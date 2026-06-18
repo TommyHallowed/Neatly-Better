@@ -8,7 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -45,7 +45,7 @@ public abstract class WolfCollarMixin {
         tag.remove("HurtTime");
         tag.remove("HurtByTimestamp");
 
-        Wolf wolf = new Wolf(EntityType.WOLF, level);
+        Wolf wolf = new Wolf(EntityTypes.WOLF, level);
         wolf.load(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), tag));
         wolf.setHealth(wolf.getMaxHealth());
 

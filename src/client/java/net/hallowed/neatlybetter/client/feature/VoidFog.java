@@ -109,7 +109,7 @@ public final class VoidFog {
     private static int getLuminance(Entity entity, boolean includeBlocks) {
         entity = getCorrectEntity(entity);
         BlockPos pos = BlockPos.containing(entity.getEyePosition());
-        int lightCoords = LevelRenderer.getLightCoords(entity.level(), pos);
+        int lightCoords = LightCoordsUtil.getLightCoords(entity.level(), pos);
         if (includeBlocks) {
             return Math.max(LightCoordsUtil.block(lightCoords), LightCoordsUtil.sky(lightCoords));
         }
@@ -228,7 +228,7 @@ public final class VoidFog {
                     : (float) Mth.clamp(100 * Math.pow(Math.max(fogDistance, 0), 2), 5, viewDistance);
 
             if (entity instanceof LivingEntity l && l.hasEffect(MobEffects.NIGHT_VISION)) {
-                distance *= 4 * GameRenderer.getNightVisionScale(l, tickDelta);
+                distance *= 4 * GameRenderer.nightVisionScale(l, tickDelta);
             }
 
             distance = Mth.lerp(tickDelta / transitionTicks, lastFogDistance, distance);

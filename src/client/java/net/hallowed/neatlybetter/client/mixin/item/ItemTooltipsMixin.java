@@ -118,7 +118,7 @@ public abstract class ItemTooltipsMixin {
             List<ItemStack> items = new ArrayList<>(containerContents.allItemsCopyStream().toList());
 
             // Don't show a tooltip for an empty shulker box — there's nothing useful to preview.
-            if (items.stream().noneMatch(stack -> !stack.isEmpty())) {
+            if (items.stream().allMatch(ItemStack::isEmpty)) {
                 return original;
             }
 

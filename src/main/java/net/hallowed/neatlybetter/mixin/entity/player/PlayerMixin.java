@@ -99,7 +99,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
                 float yaw = self.getYRot();
                 double x = net.minecraft.util.Mth.sin(yaw * 0.017453292F);
                 double z = -net.minecraft.util.Mth.cos(yaw * 0.017453292F);
-                living.knockback(strength, x, z);
+                living.knockback(strength, x, z, self.damageSources().playerAttack(self), 0.0F);
                 self.setDeltaMovement(self.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
                 self.setSprinting(false);
             }

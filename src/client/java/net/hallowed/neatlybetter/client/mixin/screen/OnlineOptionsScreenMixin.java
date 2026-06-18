@@ -19,7 +19,7 @@ import java.util.List;
 @Mixin(OnlineOptionsScreen.class)
 public abstract class OnlineOptionsScreenMixin {
 
-    @Inject(method = "init", at = @At("RETURN"))
+    //@Inject(method = "init", at = @At("RETURN"))
     private void neatlybetter$hideRealmsNotifications(CallbackInfo ci) {
         if (!NTClientConfig.CONFIG.realmsButtons.get()) return;
         Screen self = (Screen)(Object)this;

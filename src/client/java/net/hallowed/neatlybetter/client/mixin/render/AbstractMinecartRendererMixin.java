@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -37,6 +38,7 @@ public abstract class AbstractMinecartRendererMixin<T extends AbstractMinecart, 
     @Shadow
     protected abstract void submitMinecartContents(S state, BlockModelRenderState blockModel, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords);
 
+    @Final
     @Shadow
     private BlockModelResolver blockModelResolver;
 
