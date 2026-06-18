@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 interface ItemInstanceMixin {
     @Inject(method = "getMaxStackSize", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$potionsStack16(CallbackInfoReturnable<Integer> cir) {
-        ItemStack self = (ItemStack)(Object)this;
+        if (!((Object) this instanceof ItemStack self)) return;
         Item it = self.getItem();
         if (it instanceof PotionItem || it instanceof SplashPotionItem || it instanceof LingeringPotionItem) {
             cir.setReturnValue(16);
