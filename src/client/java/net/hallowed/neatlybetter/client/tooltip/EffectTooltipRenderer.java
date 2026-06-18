@@ -134,8 +134,9 @@ public final class EffectTooltipRenderer implements ClientTooltipComponent {
                                      float durationMultiplier,
                                      float tickRate,
                                      float chance) {
-            Component duration = MobEffectUtil.formatDuration(
-                    instance, durationMultiplier, tickRate);
+            Component duration = instance.getDuration() <= 1
+                    ? Component.literal("Instant")
+                    : MobEffectUtil.formatDuration(instance, durationMultiplier, tickRate);
 
             return new RenderedEffect(
                     instance.getEffect(),
