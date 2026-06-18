@@ -66,9 +66,7 @@ public final class EffectTooltipRenderer implements ClientTooltipComponent {
     }
 
     @Override
-    public void extractImage(@NotNull Font font, int x, int y,
-                            int width, int height,
-                            @NotNull GuiGraphicsExtractor gfx) {
+    public void extractImage(@NotNull Font font, int x, int y, int width, int height, @NotNull GuiGraphicsExtractor gfx) {
         int rowOffset = -1;
 
         for (RenderedEffect effect : effects) {

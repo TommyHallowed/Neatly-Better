@@ -1,5 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.screen;
 
+import net.hallowed.neatlybetter.client.network.NTNetworkClient;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 
@@ -32,7 +33,7 @@ public abstract class ContainerScreenMixin extends AbstractContainerScreen<@NotN
                         && "container.enderchest".equals(tc.getKey());
 
         if (isEnderChest) {
-            net.hallowed.neatlybetter.client.network.NTNetworkClient.sendEnderCheck();
+            NTNetworkClient.sendEnderCheck();
         }
     }
 }
