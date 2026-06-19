@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/template_bed_foot",
+  "textures": {
+    "east": "neatly-better:block/rainbow_bed_foot_east",
+    "south": "neatly-better:block/rainbow_bed_foot_south",
+    "up": "neatly-better:block/rainbow_bed_foot_up",
+    "west": "neatly-better:block/rainbow_bed_foot_west"
+  }
+}
