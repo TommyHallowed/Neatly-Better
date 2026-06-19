@@ -8,6 +8,7 @@ accessible method net/minecraft/world/entity/ai/behavior/VillagerGoalPackages ge
 accessible field net/minecraft/world/entity/projectile/arrow/ThrownTrident ID_LOYALTY Lnet/minecraft/network/syncher/EntityDataAccessor;
 accessible method net/minecraft/server/level/ServerChunkCache runDistanceManagerUpdates ()Z
 accessible method net/minecraft/world/level/saveddata/maps/MapItemSavedData addDecoration (Lnet/minecraft/core/Holder;Lnet/minecraft/world/level/LevelAccessor;Ljava/lang/String;DDDLnet/minecraft/network/chat/Component;)V
+accessible field net/minecraft/client/renderer/fog/FogRenderer FOG_ENVIRONMENTS Ljava/util/List;
 accessible field net/minecraft/client/gui/screens/inventory/AbstractRecipeBookScreen recipeBookComponent Lnet/minecraft/client/gui/screens/recipebook/RecipeBookComponent;
 accessible field net/minecraft/client/gui/screens/recipebook/RecipeBookComponent menu Lnet/minecraft/world/inventory/RecipeBookMenu;
 accessible field net/minecraft/client/renderer/item/ItemStackRenderState layers [Lnet/minecraft/client/renderer/item/ItemStackRenderState$LayerRenderState;
@@ -15,7 +16,4 @@ accessible field net/minecraft/client/renderer/blockentity/state/BlockEntityRend
 accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen topPos I
 accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen leftPos I
 accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen imageWidth I
-accessible field net/minecraft/client/gui/screens/inventory/AbstractRecipeBookScreen recipeBookComponent Lnet/minecraft/client/gui/screens/recipebook/RecipeBookComponent;
 accessible field net/minecraft/world/inventory/EnchantmentMenu enchantSlots Lnet/minecraft/world/Container;
-accessible field net/minecraft/client/renderer/fog/FogRenderer FOG_ENVIRONMENTS Ljava/util/List;
-accessible method net/minecraft/client/renderer/blockentity/AbstractSignRenderer submitSign (Lcom/mojang/blaze3d/vertex/PoseStack;ILnet/minecraft/world/level/block/state/properties/WoodType;Lnet/minecraft/client/model/Model$Simple;Lnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;Lnet/minecraft/client/renderer/SubmitNodeCollector;)V
