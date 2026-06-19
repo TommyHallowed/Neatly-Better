@@ -9,6 +9,7 @@ import net.hallowed.neatlybetter.config.NTCommonConfig;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SignApplicator;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,6 +29,6 @@ public class ServerPlayerGameModeMixin {
     ) {
         if (!NTCommonConfig.CONFIG.clickThrough.get()) return false;
         if (!op.call(player)) return false;
-        return !(itemStack.getItem() instanceof SignApplicator);
+        return !(itemStack.getItem() instanceof SignApplicator || itemStack.is(Items.PHANTOM_MEMBRANE));
     }
 }

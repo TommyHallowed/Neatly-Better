@@ -7,6 +7,8 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 
+import net.hallowed.neatlybetter.config.NTCommonConfig;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
@@ -43,7 +45,7 @@ public final class InvisibleSign implements UseBlockCallback {
 
         if (!stack.is(Items.PHANTOM_MEMBRANE)) return InteractionResult.PASS;
         if (!player.mayBuild()) return InteractionResult.PASS;
-        if (player.isShiftKeyDown()) return InteractionResult.PASS;
+        if (player.isShiftKeyDown() && !NTCommonConfig.CONFIG.clickThrough.get()) return InteractionResult.PASS;
 
         BlockPos pos = hitResult.getBlockPos();
         BlockState state = level.getBlockState(pos);
