@@ -13,6 +13,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -69,6 +71,8 @@ public final class InvisibleSign implements UseBlockCallback {
             level.sendBlockUpdated(pos, state, state, 3);
 
             stack.consume(1, player);
+
+            level.playSound(null, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
 
         return InteractionResult.SUCCESS;

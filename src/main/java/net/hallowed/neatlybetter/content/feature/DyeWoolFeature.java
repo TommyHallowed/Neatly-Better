@@ -7,6 +7,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -85,6 +87,8 @@ public class DyeWoolFeature {
                 } else {
                     level.setBlock(pos, newBlock.get().defaultBlockState(), 3);
                 }
+
+                level.playSound(null, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
 
                 if (!player.isCreative()) {
                     stack.shrink(1);
