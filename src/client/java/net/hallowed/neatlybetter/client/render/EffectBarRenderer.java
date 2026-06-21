@@ -49,7 +49,7 @@ public class EffectBarRenderer {
 
             int nameWidth = 32 + font.width(name) + 7;
             int durationWidth = 32 + font.width(duration) + 7;
-            int backgroundWidth = Math.min(maxWidth, Math.max(nameWidth, durationWidth));
+            int backgroundWidth = Math.clamp(nameWidth, durationWidth, maxWidth);
 
             barWidth = backgroundWidth - 8;
         } else {
@@ -72,7 +72,7 @@ public class EffectBarRenderer {
         float tickDelta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
         float exactDuration = Math.max(0.0F, effect.getDuration() - tickDelta);
         float progress = exactDuration / (float) maxDuration;
-        return Math.min(1.0F, Math.max(0.0F, progress));
+        return Math.clamp(progress, 0.0F, 1.0F);
     }
 
     private static void drawBar(GuiGraphicsExtractor context, MobEffectInstance effect, int x, int y, int width, int height, float progress) {
