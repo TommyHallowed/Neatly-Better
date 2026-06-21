@@ -22,6 +22,7 @@ public final class ModEvents {
         DyeWoolFeature.register();
         InvisibleSign.register();
         LegacyCombatDamageValues.register();
+        LadderPillarExtender.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();
