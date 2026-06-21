@@ -2,6 +2,8 @@ package net.hallowed.neatlybetter.client.mixin.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.hallowed.neatlybetter.config.NTCommonConfig;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
@@ -29,6 +31,10 @@ public abstract class ItemInHandRendererMixin {
 
     @Inject(method = "itemUsed", at = @At("HEAD"), cancellable = true)
     public void preventReequipWhenUsing(InteractionHand hand, CallbackInfo callback) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
+            return;
+        }
+        // Don't play the re-equip animation when beginning to use an item
         assert this.minecraft.player != null;
         if (this.minecraft.player.isUsingItem() && this.minecraft.player.getUsedItemHand() == hand) {
             callback.cancel();
@@ -48,6 +54,9 @@ public abstract class ItemInHandRendererMixin {
                                           float inverseArmHeight, PoseStack poseStack,
                                           SubmitNodeCollector submitNodeCollector, int lightCoords,
                                           CallbackInfo callback) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
+            return;
+        }
         if (player.isUsingItem() && player.getUseItemRemainingTicks() > 0 && player.getUsedItemHand() == hand) {
             HumanoidArm arm = hand == InteractionHand.MAIN_HAND
                     ? player.getMainArm()
