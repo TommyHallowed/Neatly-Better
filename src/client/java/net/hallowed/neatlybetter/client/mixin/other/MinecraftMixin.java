@@ -20,6 +20,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.SignApplicator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -66,7 +67,8 @@ public abstract class MinecraftMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isUsingItem()Z")
     )
     private boolean allowAttackWhileUsing(boolean isUsingItem) {
-        if (NTCommonConfig.CONFIG.legacyCombat.get()) {
+        if (NTCommonConfig.CONFIG.legacyCombat.get()
+                && !(this.player.getOffhandItem().getItem() instanceof ShieldItem)) {
             return false;
         }
         return isUsingItem;
@@ -77,7 +79,8 @@ public abstract class MinecraftMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;isDestroying()Z")
     )
     private boolean allowUseWhileDestroying(boolean isDestroying) {
-        if (NTCommonConfig.CONFIG.legacyCombat.get()) {
+        if (NTCommonConfig.CONFIG.legacyCombat.get()
+                && !(this.player.getOffhandItem().getItem() instanceof ShieldItem)) {
             return false;
         }
         return isDestroying;
@@ -88,7 +91,9 @@ public abstract class MinecraftMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isUsingItem()Z", ordinal = 0)
     )
     private void handleAttackWhileUsing(CallbackInfo ci) {
-        if (!NTCommonConfig.CONFIG.legacyCombat.get() || !this.player.isUsingItem()) {
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()
+                || !this.player.isUsingItem()
+                || this.player.getOffhandItem().getItem() instanceof ShieldItem) {
             return;
         }
         while (this.options.keyAttack.consumeClick()) {
