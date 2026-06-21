@@ -2,12 +2,15 @@ package net.hallowed.neatlybetter.mixin.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,20 +21,31 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class LadderBlockMixin {
 
     @Unique
-    private static boolean isFreeStanding(LevelReader level, BlockPos pos) {
+    private static boolean isWallMounted(LevelReader level, BlockPos pos, BlockState ladderState) {
+        Direction facing = ladderState.getValue(LadderBlock.FACING);
+        BlockPos behind = pos.relative(facing.getOpposite());
+        return level.getBlockState(behind).isFaceSturdy(level, behind, facing);
+    }
 
-        boolean solidBelow = level.getBlockState(pos.below())
-                .isFaceSturdy(level, pos.below(), Direction.UP);
-        boolean solidAbove = level.getBlockState(pos.above())
-                .isFaceSturdy(level, pos.above(), Direction.DOWN);
+    @Unique
+    private static boolean hasSupportInDirection(LevelReader level, BlockPos start, Direction direction) {
+        BlockPos pos = start;
+        while (true) {
+            BlockPos next = pos.relative(direction);
+            BlockState nextState = level.getBlockState(next);
+            if (!nextState.is(Blocks.LADDER)) {
+                return nextState.isFaceSturdy(level, next, direction.getOpposite());
+            }
+            if (isWallMounted(level, next, nextState)) return true;
+            pos = next;
+        }
+    }
 
-        if (solidBelow || solidAbove) return true;
-
-        BlockState below = level.getBlockState(pos.below());
-        if (below.is(Blocks.LADDER) && isFreeStanding(level, pos.below())) return true;
-
-        BlockState above = level.getBlockState(pos.above());
-        return above.is(Blocks.LADDER) && isFreeStanding(level, pos.above());
+    @Unique
+    private static boolean isFreeStanding(LevelReader level, BlockPos start, BlockState startState) {
+        return isWallMounted(level, start, startState)
+                || hasSupportInDirection(level, start, Direction.DOWN)
+                || hasSupportInDirection(level, start, Direction.UP);
     }
 
     @Inject(method = "getStateForPlacement", at = @At("HEAD"), cancellable = true)
@@ -52,7 +66,7 @@ public class LadderBlockMixin {
         BlockState sourceState = context.getLevel().getBlockState(sourcePos);
 
         Direction facing;
-        if (sourceState.is(Blocks.LADDER) && isFreeStanding(context.getLevel(), sourcePos)) {
+        if (sourceState.is(Blocks.LADDER) && isFreeStanding(context.getLevel(), sourcePos, sourceState)) {
             facing = sourceState.getValue(LadderBlock.FACING);
         } else {
             facing = context.getHorizontalDirection().getOpposite();
@@ -76,8 +90,22 @@ public class LadderBlockMixin {
             BlockPos pos,
             CallbackInfoReturnable<Boolean> cir) {
 
-        if (isFreeStanding(level, pos)) {
+        if (isFreeStanding(level, pos, state)) {
             cir.setReturnValue(true);
+        }
+    }
+
+    @Inject(method = "updateShape", at = @At("HEAD"), cancellable = true)
+    private void breakWhenVerticalSupportLost(
+            BlockState state, LevelReader level, ScheduledTickAccess ticks,
+            BlockPos pos, Direction directionToNeighbour, BlockPos neighbourPos,
+            BlockState neighbourState, RandomSource random,
+            CallbackInfoReturnable<BlockState> cir) {
+
+        if (directionToNeighbour == Direction.UP || directionToNeighbour == Direction.DOWN) {
+            if (!state.canSurvive(level, pos)) {
+                cir.setReturnValue(Blocks.AIR.defaultBlockState());
+            }
         }
     }
 }
