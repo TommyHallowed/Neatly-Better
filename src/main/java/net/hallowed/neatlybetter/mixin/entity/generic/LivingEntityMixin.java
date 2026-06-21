@@ -22,6 +22,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
@@ -338,5 +339,21 @@ public abstract class LivingEntityMixin extends Entity {
                                        CallbackInfo ci) {
         LivingEntity self = (LivingEntity) (Object) this;
         LegacyCombatHandler.applyUpwardsKnockback(self, power, xd, zd);
+    }
+
+    /* ===================== 9) Death Drops Don't Despawn ===================== */
+
+    @ModifyReturnValue(
+            method = "createItemStackToDrop",
+            at = @At("RETURN")
+    )
+    private ItemEntity neatlybetter$unlimitedLifetimeOnDeathDrops(ItemEntity entity, ItemStack itemStack, boolean randomly, boolean thrownFromHand) {
+        if (NTServerConfig.CONFIG.unlimitedLifetimeOnDeathDrops.get()
+                && entity != null
+                && randomly
+                && (Object) this instanceof Player) {
+            entity.setUnlimitedLifetime();
+        }
+        return entity;
     }
 }
