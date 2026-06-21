@@ -2,11 +2,13 @@ package net.hallowed.neatlybetter.mixin.entity.ai.goal;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
 
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.RangedCrossbowAttackGoal;
 import net.minecraft.world.entity.monster.Monster;
 
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -42,6 +44,10 @@ public abstract class RangedCrossbowAttackGoalMixin {
         if (target == null) return;
 
         if (target.isBlocking()) {
+            ItemStack blockingWith = target.getItemBlockingWith();
+            assert blockingWith != null;
+            if (blockingWith.is(ItemTags.SWORDS)) return;
+            
             this.neatlybetter$shieldHoldoff = 4;
             ci.cancel();
             return;
