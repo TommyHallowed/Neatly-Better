@@ -76,6 +76,6 @@ public abstract class InventoryMixin {
 
     @Unique
     private static boolean neatlybetter$protectsAgainstDeath(ItemStack itemStack) {
-        return itemStack.is(Items.RECOVERY_COMPASS);
+        return NTServerConfig.CONFIG.keepRecoveryCompassOnDeath.get() && itemStack.is(Items.RECOVERY_COMPASS);
     }
 }

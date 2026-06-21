@@ -66,6 +66,7 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue explosionsDisableShield;
     public final ModConfigSpec.BooleanValue unlimitedLifetimeOnDeathDrops;
     public final ModConfigSpec.BooleanValue restoreDeathDropSlots;
+    public final ModConfigSpec.BooleanValue keepRecoveryCompassOnDeath;
     public final ModConfigSpec.BooleanValue cropHarvester;
     public final ModConfigSpec.BooleanValue armorStandSwap;
 
@@ -488,6 +489,11 @@ public final class NTServerConfig {
                 .comment("§ePicked up death drops will restore their slot positions.")
                 .translation("neatly-better.config.restore_death_drop_slots")
                 .define("restore_death_drop_slots", true);
+
+        keepRecoveryCompassOnDeath = builder
+                .comment("§eRecovery compass is kept in the inventory after death.")
+                .translation("neatly-better.config.keep_recovery_compass_on_death")
+                .define("keep_recovery_compass_on_death", true);
 
         cropHarvester = builder
                 .comment("§eHarvest fully grown crops by Right-Clicking.")

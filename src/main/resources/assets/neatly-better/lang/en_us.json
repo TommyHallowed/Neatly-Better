@@ -274,6 +274,7 @@
   "neatly-better.config.throwable_knockpack_player": "Throwable Items Knockback",
   "neatly-better.config.unlimited_lifetime_on_death_drops": "Persistent Death Drops",
   "neatly-better.config.restore_death_drop_slots": "Restore Death Drop Slots",
+  "neatly-better.config.keep_recovery_compass_on_death": "Keep Recovery Compass",
   "neatly-better.config.crop_harvester": "Easy Crop Harvesting",
   "neatly-better.config.armor_stand_swap": "Armor Swap",
   "neatly-better.config.common.legacy_combat": "Legacy Combat",

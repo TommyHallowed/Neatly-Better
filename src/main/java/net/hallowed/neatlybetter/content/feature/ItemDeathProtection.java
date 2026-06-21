@@ -1,6 +1,7 @@
 package net.hallowed.neatlybetter.content.feature;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -11,6 +12,10 @@ public final class ItemDeathProtection {
 
     public static void init() {
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
+            if (!NTServerConfig.CONFIG.keepRecoveryCompassOnDeath.get()) {
+                return;
+            }
+
             if (alive || oldPlayer.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
                 return;
             }
