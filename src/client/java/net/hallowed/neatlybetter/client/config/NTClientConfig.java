@@ -24,6 +24,8 @@ public final class NTClientConfig {
     public final ModConfigSpec.EnumValue<RecipeBookMode> recipeBookMode;
 
     // -- Title Screen --
+    public final ModConfigSpec.BooleanValue legacyTitleScreenLayout;
+    public final ModConfigSpec.BooleanValue languageButton;
     public final ModConfigSpec.BooleanValue realmsButtons;
     public final ModConfigSpec.BooleanValue customBranding;
     public final ModConfigSpec.BooleanValue accessibilityButton;
@@ -94,18 +96,26 @@ public final class NTClientConfig {
         builder.pop();
 
         builder.push("title_screen");
+        legacyTitleScreenLayout = builder
+                .comment("§eOld title screen button layout from pre-26.2 versions.")
+                .translation("neatly-better.config.legacy_title_screen_layout")
+                .define("legacy_title_screen_layout", true);
         realmsButtons = builder
-                .comment("§eShow Realms buttons in title screen.")
+                .comment("§eShow Realms button in title screen.")
                 .translation("neatly-better.config.realms_buttons")
-                .define("realms_buttons", false);
+                .define("realms_buttons", true);
+        languageButton = builder
+                .comment("§eShow language button in title screen.")
+                .translation("neatly-better.config.language_button")
+                .define("language_button", true);
         customBranding = builder
-                .comment("§eReplace the Fabric/modded branding in title screen with clean vanilla text.")
+                .comment("§eReplace the Fabric/modded branding in title screen with clean vanilla one.")
                 .translation("neatly-better.config.custom_branding")
                 .define("custom_branding", true);
         accessibilityButton = builder
                 .comment("§eShow extra accessibility button in title screen.")
                 .translation("neatly-better.config.accessibility_button")
-                .define("accessibility_button", false);
+                .define("accessibility_button", true);
         builder.pop();
 
         builder.push("resourcepacks");
