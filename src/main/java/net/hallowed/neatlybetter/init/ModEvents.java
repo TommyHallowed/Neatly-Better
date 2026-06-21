@@ -32,5 +32,6 @@ public final class ModEvents {
         SaplingAutoPlanter.init();
         TorchIgnite.init();
         BlockGluing.init();
+        ItemDeathProtection.init();
     }
 }

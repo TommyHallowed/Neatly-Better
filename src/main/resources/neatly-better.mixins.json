@@ -57,6 +57,7 @@
     "entity.passive.SheepMixin",
     "entity.passive.VillagerMixin",
     "entity.passive.VillagerTradeMixin",
+    "entity.player.InventoryMixin",
     "entity.player.PlayerMixin",
     "entity.player.ServerPlayerGameModeMixin",
     "entity.player.ServerPlayerMixin",

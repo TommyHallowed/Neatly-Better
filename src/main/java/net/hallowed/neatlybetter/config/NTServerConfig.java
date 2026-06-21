@@ -64,6 +64,8 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue stepUpDisabledWhileShifting;
     public final ModConfigSpec.BooleanValue lapisStaysInEnchanting;
     public final ModConfigSpec.BooleanValue explosionsDisableShield;
+    public final ModConfigSpec.BooleanValue unlimitedLifetimeOnDeathDrops;
+    public final ModConfigSpec.BooleanValue restoreDeathDropSlots;
     public final ModConfigSpec.BooleanValue cropHarvester;
     public final ModConfigSpec.BooleanValue armorStandSwap;
 
@@ -476,6 +478,16 @@ public final class NTServerConfig {
                 .define("xp_from_placing_blocks", true);
 
         builder.pop(); // experience
+
+        unlimitedLifetimeOnDeathDrops = builder
+                .comment("§eItems dropped upon death will not despawn.")
+                .translation("neatly-better.config.unlimited_lifetime_on_death_drops")
+                .define("unlimited_lifetime_on_death_drops", true);
+
+        restoreDeathDropSlots = builder
+                .comment("§ePicked up death drops will restore their slot positions.")
+                .translation("neatly-better.config.restore_death_drop_slots")
+                .define("restore_death_drop_slots", true);
 
         cropHarvester = builder
                 .comment("§eHarvest fully grown crops by Right-Clicking.")

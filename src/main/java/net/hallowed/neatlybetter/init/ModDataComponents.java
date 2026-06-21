@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 
 import net.hallowed.neatlybetter.api.NTRegistry;
 
+import net.hallowed.neatlybetter.util.DeathSlotData;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -39,6 +40,15 @@ public final class ModDataComponents {
             DataComponentType.<CustomData>builder()
                     .persistent(CustomData.CODEC)
                     .networkSynchronized(CustomData.STREAM_CODEC)
+                    .build()
+    );
+
+    public static final DataComponentType<@NotNull DeathSlotData> DEATH_SLOT = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            NTRegistry.id("death_slot"),
+            DataComponentType.<DeathSlotData>builder()
+                    .persistent(DeathSlotData.CODEC)
+                    .networkSynchronized(DeathSlotData.STREAM_CODEC)
                     .build()
     );
 
