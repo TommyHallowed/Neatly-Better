@@ -24,6 +24,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -284,6 +285,10 @@ public abstract class LivingEntityMixin extends Entity {
             return original;
         }
         if (!original && this.isUsingItem() && LegacyCombatHandler.isSword(this.getUseItem())) {
+            LivingEntity self = (LivingEntity) (Object) this;
+            if (self.getOffhandItem().getItem() instanceof ShieldItem) {
+                return original;
+            }
             return true;
         }
         return original;
@@ -294,7 +299,11 @@ public abstract class LivingEntityMixin extends Entity {
         if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
             return original;
         }
-        if (((original == null || original.isEmpty()) && this.isUsingItem() && LegacyCombatHandler.isSword(this.getUseItem()))) {
+        if ((original == null || original.isEmpty()) && this.isUsingItem() && LegacyCombatHandler.isSword(this.getUseItem())) {
+            LivingEntity self = (LivingEntity) (Object) this;
+            if (self.getOffhandItem().getItem() instanceof ShieldItem) {
+                return original;
+            }
             return this.getUseItem();
         }
         return original;
