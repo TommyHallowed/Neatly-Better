@@ -34,7 +34,6 @@ public abstract class ItemInHandRendererMixin {
         if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
             return;
         }
-        // Don't play the re-equip animation when beginning to use an item
         assert this.minecraft.player != null;
         if (this.minecraft.player.isUsingItem() && this.minecraft.player.getUsedItemHand() == hand) {
             callback.cancel();
