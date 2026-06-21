@@ -16,11 +16,7 @@ import net.hallowed.neatlybetter.client.feature.VoidFog;
 import net.hallowed.neatlybetter.client.feature.ui.SmallHudOverlay;
 import net.hallowed.neatlybetter.client.init.ModTooltips;
 import net.hallowed.neatlybetter.client.render.InvisibleSignModelPlugin;
-import net.hallowed.neatlybetter.client.tooltip.EffectTooltipData;
-import net.hallowed.neatlybetter.client.tooltip.EffectTooltipRenderer;
-import net.hallowed.neatlybetter.client.tooltip.ShulkerBoxTooltipData;
-import net.hallowed.neatlybetter.client.tooltip.ShulkerBoxTooltipRenderer;
-import net.hallowed.neatlybetter.client.util.BackpackCheckClient;
+import net.hallowed.neatlybetter.client.tooltip.*;
 import net.hallowed.neatlybetter.client.util.EnderCheckClient;
 import net.hallowed.neatlybetter.tooltip.MapPreviewTooltip;
 

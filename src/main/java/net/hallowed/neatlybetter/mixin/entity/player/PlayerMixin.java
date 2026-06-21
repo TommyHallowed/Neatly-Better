@@ -84,7 +84,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
             float base = 0.4F + (self.isSprinting() ? 0.5F : 0.0F);
             float strength = base;
             if (self.level() instanceof net.minecraft.server.level.ServerLevel sw) {
-                float modified = net.minecraft.world.item.enchantment.EnchantmentHelper.modifyKnockback(
+                float modified = EnchantmentHelper.modifyKnockback(
                         sw,
                         self.getMainHandItem(),
                         living,
@@ -93,7 +93,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
                 );
                 strength = base + (modified - base) * 0.25F;
             }
-            strength += (float) self.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_KNOCKBACK);
+            strength += (float) self.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
 
             if (strength > 0.0F) {
                 float yaw = self.getYRot();

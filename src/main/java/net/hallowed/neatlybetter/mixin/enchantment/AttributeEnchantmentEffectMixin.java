@@ -21,10 +21,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(EnchantmentAttributeEffect.class)
 public abstract class AttributeEnchantmentEffectMixin {
 
-    @Unique private static final double VANILLA_PER_LEVEL  = 0.15;
-    @Unique private static final double DESIRED_PER_LEVEL  = 0.046875;
-    @Unique private static final double SCALE = DESIRED_PER_LEVEL / VANILLA_PER_LEVEL;
-
     @Shadow public abstract Holder<@NotNull Attribute> attribute();
 
     @Inject(
@@ -32,7 +28,7 @@ public abstract class AttributeEnchantmentEffectMixin {
             at = @At("RETURN"),
             cancellable = true
     )
-    private void neatlybetter$weakerProtection(int level, StringRepresentable suffix,
+    private void neatlybetter$weakerProtection(int level, StringRepresentable slot,
                                                CallbackInfoReturnable<AttributeModifier> cir) {
 
         if (!NTServerConfig.CONFIG.protectionOverhaul.get()) return;
@@ -42,8 +38,7 @@ public abstract class AttributeEnchantmentEffectMixin {
         AttributeModifier orig = cir.getReturnValue();
         if (orig == null) return;
 
-        // Scale down the modifier’s magnitude
-        double scaled = orig.amount() * SCALE;
+        double scaled = orig.amount() * 0.3125;
         cir.setReturnValue(new AttributeModifier(orig.id(), scaled, orig.operation()));
     }
 
