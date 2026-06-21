@@ -181,6 +181,7 @@
   "neatly-better.config.copy_screenshots": "Copy Screenshots",
   "neatly-better.config.auto_refill": "Auto Refill",
   "neatly-better.config.telemetry_off": "Disable Telemetry",
+  "neatly-better.config.instant_eye_height": "Instant Eye Height",
   "neatly-better.config.show_stuck_projectiles": "Show Stuck Projectiles",
   "neatly-better.config.show_potion_glint": "Show Potion Glint",
   "neatly-better.config.render_2d_items": "Render 2D Items",

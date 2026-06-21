@@ -65,6 +65,7 @@ public final class NTClientConfig {
     public final ModConfigSpec.BooleanValue copyScreenshots;
     public final ModConfigSpec.BooleanValue autoRefill;
     public final ModConfigSpec.BooleanValue telemetryOff;
+    public final ModConfigSpec.BooleanValue instantEyeHeight;
 
     // -- Render --
     public final ModConfigSpec.BooleanValue showStuckProjectiles;
@@ -222,6 +223,11 @@ public final class NTClientConfig {
                 .comment("§eShow remaining durability as a small number in the top-right of item slots.")
                 .translation("neatly-better.config.show_durability")
                 .define("show_durability", true);
+
+        instantEyeHeight = builder
+                .comment("§eNo more smooth transitions for changing camera eye height.")
+                .translation("neatly-better.config.instant_eye_height")
+                .define("instant_eye_height", false);
         builder.pop();
 
         builder.push("render");
