@@ -9,6 +9,7 @@ import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.SpriteIconButton;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -66,48 +67,151 @@ public abstract class TitleScreenMixin {
                 List<AbstractWidget> buttons = Screens.getWidgets(screen);
 
                 if (!NTClientConfig.CONFIG.accessibilityButton.get()) {
-                    for (Iterator<AbstractWidget> it = buttons.iterator(); it.hasNext();) {
-                        AbstractWidget wgt = it.next();
-                        if (wgt.getMessage().getString().toLowerCase().contains("access")) {
-                            it.remove();
-
-                            if (wgt instanceof SpriteIconButton ti) { ti.visible = false; ti.active = false; }
-                        }
-                    }
+                    neatlybetter$removeAccessibilityButton(buttons);
                 }
 
-                if (NTClientConfig.CONFIG.realmsButtons.get()) return;
-
-                final Component REALMS    = Component.translatable("menu.online");
-                final Component COPYRIGHT = Component.translatable("title.credits");
-
-                AbstractWidget realmsBtn = null;
-                for (AbstractWidget wgt : buttons) {
-                    if (wgt.getMessage().equals(REALMS)) { realmsBtn = wgt; break; }
+                if (!NTClientConfig.CONFIG.languageButton.get()) {
+                    neatlybetter$removeLanguageButton(buttons);
                 }
 
-                if (realmsBtn == null) return;
-
-                final int centerLeft  = (screen.width - 200) / 2;
-                final int centerRight = centerLeft + 200;
-
-                final int delta = realmsBtn.getHeight() + V_SPACING;
-                final int cutY  = realmsBtn.getY();
-
-                for (AbstractWidget wgt : buttons) {
-                    if (wgt == realmsBtn || !wgt.visible) continue;
-                    if (wgt.getMessage().equals(COPYRIGHT)) continue;
-
-                    boolean inCenterColumn = (wgt.getX() <= centerRight) && (wgt.getX() + wgt.getWidth() >= centerLeft);
-                    boolean isSmallIcon    = (wgt instanceof SpriteIconButton) && wgt.getWidth() <= 22 && wgt.getHeight() <= 22;
-
-                    if (wgt.getY() >= cutY && (inCenterColumn || isSmallIcon)
-                            && (wgt instanceof Button || wgt instanceof SpriteIconButton)) {
-                        wgt.setY(wgt.getY() - delta);
-                    }
+                if (!NTClientConfig.CONFIG.realmsButtons.get()) {
+                    neatlybetter$removeRealmsButton(screen, buttons);
                 }
-                buttons.remove(realmsBtn);
+
+                if (NTClientConfig.CONFIG.legacyTitleScreenLayout.get()) {
+                    neatlybetter$applyLegacyLayout(screen, buttons);
+                }
             });
+        }
+    }
+
+    @Unique
+    private static void neatlybetter$removeAccessibilityButton(List<AbstractWidget> buttons) {
+        for (Iterator<AbstractWidget> it = buttons.iterator(); it.hasNext();) {
+            AbstractWidget wgt = it.next();
+            if (wgt.getMessage().getString().toLowerCase().contains("access")) {
+                it.remove();
+
+                if (wgt instanceof SpriteIconButton ti) { ti.visible = false; ti.active = false; }
+            }
+        }
+    }
+
+    @Unique
+    private static void neatlybetter$removeLanguageButton(List<AbstractWidget> buttons) {
+        for (Iterator<AbstractWidget> it = buttons.iterator(); it.hasNext();) {
+            AbstractWidget wgt = it.next();
+            if (wgt.getMessage().getString().toLowerCase().contains("language")) {
+                it.remove();
+
+                if (wgt instanceof SpriteIconButton ti) { ti.visible = false; ti.active = false; }
+            }
+        }
+    }
+
+    @Unique
+    private static void neatlybetter$removeRealmsButton(Screen screen, List<AbstractWidget> buttons) {
+        final Component REALMS    = Component.translatable("menu.online");
+        final Component COPYRIGHT = Component.translatable("title.credits");
+
+        AbstractWidget realmsBtn = null;
+        for (AbstractWidget wgt : buttons) {
+            if (wgt.getMessage().equals(REALMS)) { realmsBtn = wgt; break; }
+        }
+
+        if (realmsBtn == null) return;
+
+        final int centerLeft  = (screen.width - 200) / 2;
+        final int centerRight = centerLeft + 200;
+
+        final int delta = realmsBtn.getHeight() + V_SPACING;
+        final int cutY  = realmsBtn.getY();
+
+        for (AbstractWidget wgt : buttons) {
+            if (wgt == realmsBtn || !wgt.visible) continue;
+            if (wgt.getMessage().equals(COPYRIGHT)) continue;
+
+            boolean inCenterColumn = (wgt.getX() <= centerRight) && (wgt.getX() + wgt.getWidth() >= centerLeft);
+            boolean isSmallIcon    = (wgt instanceof SpriteIconButton) && wgt.getWidth() <= 22 && wgt.getHeight() <= 22;
+
+            if (wgt.getY() >= cutY && (inCenterColumn || isSmallIcon)
+                    && (wgt instanceof Button || wgt instanceof SpriteIconButton)) {
+                wgt.setY(wgt.getY() - delta);
+            }
+        }
+        buttons.remove(realmsBtn);
+    }
+
+    @Unique
+    private static void neatlybetter$applyLegacyLayout(Screen screen, List<AbstractWidget> buttons) {
+        final Component OPTIONS = Component.translatable("menu.options");
+        final Component QUIT    = Component.translatable("menu.quit");
+
+        AbstractWidget languageBtn = null;
+        AbstractWidget accessibilityBtn = null;
+        AbstractWidget friendsBtn = null;
+        AbstractWidget optionsBtn = null;
+        AbstractWidget quitBtn = null;
+
+        for (AbstractWidget wgt : buttons) {
+            if (!wgt.visible) continue;
+
+            Component message = wgt.getMessage();
+
+            if (message.equals(OPTIONS)) {
+                optionsBtn = wgt;
+                continue;
+            }
+            if (message.equals(QUIT)) {
+                quitBtn = wgt;
+                continue;
+            }
+
+            String msg = message.getString().toLowerCase();
+            if (msg.contains("language")) {
+                languageBtn = wgt;
+            } else if (msg.contains("access")) {
+                accessibilityBtn = wgt;
+            } else if (msg.contains("friend")) {
+                friendsBtn = wgt;
+            }
+        }
+
+        if (optionsBtn == null || quitBtn == null) return;
+
+        final int iconHeight = languageBtn != null ? languageBtn.getHeight()
+                : accessibilityBtn != null ? accessibilityBtn.getHeight()
+                  : friendsBtn != null ? friendsBtn.getHeight()
+                    : 20;
+        final int rowDelta = iconHeight + V_SPACING;
+
+        final int anchorY = languageBtn != null ? languageBtn.getY()
+                : accessibilityBtn != null ? accessibilityBtn.getY()
+                  : friendsBtn != null ? friendsBtn.getY()
+                    : optionsBtn.getY() - rowDelta;
+
+        final int rowY = anchorY + 12;
+
+        if (languageBtn != null) {
+            languageBtn.setX(screen.width / 2 - 124);
+            languageBtn.setY(rowY);
+        }
+
+        if (accessibilityBtn != null) {
+            accessibilityBtn.setX(screen.width / 2 + 104);
+            accessibilityBtn.setY(rowY);
+        }
+
+        optionsBtn.setY(rowY);
+        quitBtn.setY(rowY);
+
+        if (friendsBtn != null) {
+            friendsBtn.setX(screen.width / 2 - 124);
+            if (languageBtn != null) {
+                friendsBtn.setY(rowY - rowDelta - 12);
+            } else {
+                friendsBtn.setY(rowY);
+            }
         }
     }
 }
