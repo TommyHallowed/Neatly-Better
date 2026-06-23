@@ -79,7 +79,8 @@
     "screen.LoomMenuMixin",
     "screen.SmithingMenuMixin",
     "screen.StonecutterMenu$2Mixin",
-    "screen.StonecutterMenuMixin"
+    "screen.StonecutterMenuMixin",
+    "structure.DesertPyramidPieceMixin"
   ],
   "injectors": {
     "defaultRequire": 1
