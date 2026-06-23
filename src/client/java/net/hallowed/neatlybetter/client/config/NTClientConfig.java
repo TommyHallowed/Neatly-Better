@@ -66,6 +66,7 @@ public final class NTClientConfig {
     public final ModConfigSpec.BooleanValue autoRefill;
     public final ModConfigSpec.BooleanValue telemetryOff;
     public final ModConfigSpec.BooleanValue instantEyeHeight;
+    public final ModConfigSpec.BooleanValue denyOffhandWhileHungry;
 
     // -- Render --
     public final ModConfigSpec.BooleanValue showStuckProjectiles;
@@ -228,6 +229,11 @@ public final class NTClientConfig {
                 .comment("§eNo more smooth transitions for changing camera eye height.")
                 .translation("neatly-better.config.instant_eye_height")
                 .define("instant_eye_height", false);
+
+        denyOffhandWhileHungry = builder
+                .comment("§eDeny off-hand block placement after eating.")
+                .translation("neatly-better.config.deny_offhand_while_hungry")
+                .define("deny_offhand_while_hungry", true);
         builder.pop();
 
         builder.push("render");
