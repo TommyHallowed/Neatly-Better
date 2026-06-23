@@ -28,7 +28,7 @@ public class DefendOwnerGoal extends TargetGoal {
             scanCooldown--;
             return false;
         }
-        scanCooldown = adjustedTickDelay(20);
+        scanCooldown = 5;
 
         LivingEntity owner = tamable.getOwner();
         if (owner == null) return false;
@@ -36,16 +36,16 @@ public class DefendOwnerGoal extends TargetGoal {
         double closestDistSq = Double.MAX_VALUE;
         Mob closestThreat = null;
 
-        AABB area = tamable.getBoundingBox().inflate(16.0);
+        AABB area = owner.getBoundingBox().inflate(16.0);
         for (Mob nearby : tamable.level().getEntitiesOfClass(Mob.class, area)) {
             if (nearby == tamable || !nearby.isAlive()) continue;
-            LivingEntity target = nearby.getTarget();
-            if (target != null && target.is(owner) && tamable.wantsToAttack(nearby, owner)) {
-                double dist = tamable.distanceToSqr(nearby);
-                if (dist < closestDistSq) {
-                    closestDistSq = dist;
-                    closestThreat = nearby;
-                }
+            LivingEntity nearbyTarget = nearby.getTarget();
+            if (nearbyTarget == null || !nearbyTarget.is(owner)) continue;
+            if (!tamable.wantsToAttack(nearby, owner)) continue;
+            double dist = tamable.distanceToSqr(nearby);
+            if (dist < closestDistSq) {
+                closestDistSq = dist;
+                closestThreat = nearby;
             }
         }
 
@@ -54,6 +54,12 @@ public class DefendOwnerGoal extends TargetGoal {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean canContinueToUse() {
+        if (!tamable.isTame() || tamable.isOrderedToSit()) return false;
+        return super.canContinueToUse();
     }
 
     @Override

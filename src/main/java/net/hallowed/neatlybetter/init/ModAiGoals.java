@@ -88,7 +88,7 @@ public final class ModAiGoals {
         }
 
         // 7) Tamed wolf improvements
-        if (type == EntityTypes.WOLF && mob instanceof Wolf wolf && wolf.isTame()) {
+        if (type == EntityTypes.WOLF && mob instanceof Wolf wolf) {
             if (NTServerConfig.CONFIG.wolfImprovements.get()) {
                 if (hasNoGoal(goals, TamedWolfMeleeAttackGoal.class)) {
                     removeExactGoal(goals, MeleeAttackGoal.class);
