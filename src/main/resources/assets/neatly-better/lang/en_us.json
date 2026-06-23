@@ -279,5 +279,6 @@
   "neatly-better.config.crop_harvester": "Easy Crop Harvesting",
   "neatly-better.config.armor_stand_swap": "Armor Swap",
   "neatly-better.config.common.legacy_combat": "Legacy Combat",
-  "neatly-better.config.common.click_through": "Click Through"
+  "neatly-better.config.common.click_through": "Click Through",
+  "neatly-better.config.deny_offhand_while_hungry": "Deny Eating Block Placement"
 }

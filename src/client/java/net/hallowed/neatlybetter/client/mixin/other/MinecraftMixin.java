@@ -1,11 +1,14 @@
 package net.hallowed.neatlybetter.client.mixin.other;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.client.util.ClickThroughState;
 import net.hallowed.neatlybetter.client.util.CrosshairPickHelper;
 import net.hallowed.neatlybetter.config.NTCommonConfig;
 
+import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -14,11 +17,14 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.SignApplicator;
@@ -298,5 +304,58 @@ public abstract class MinecraftMixin {
     private boolean isClickableBlockAt(BlockPos pos) {
         BlockEntity entity = this.level.getBlockEntity(pos);
         return entity instanceof Container || entity instanceof EnderChestBlockEntity;
+    }
+
+// =========================================================================
+// Offhand block deny — post-eating key-held state (client timing only)
+// =========================================================================
+
+    @Unique private boolean neatlybetter$wasUsingFood = false;
+    @Unique private boolean neatlybetter$denyOffhandUntilRelease = false;
+
+    @Inject(method = "handleKeybinds", at = @At("RETURN"))
+    private void neatlybetter$trackPostEatingState(CallbackInfo ci) {
+        if (this.player == null || !NTClientConfig.CONFIG.denyOffhandWhileHungry.get()) {
+            neatlybetter$denyOffhandUntilRelease = false;
+            neatlybetter$wasUsingFood = false;
+            return;
+        }
+
+        if (!this.options.keyUse.isDown()) {
+            neatlybetter$denyOffhandUntilRelease = false;
+            neatlybetter$wasUsingFood = false;
+            return;
+        }
+
+        if (neatlybetter$wasUsingFood && !this.player.isUsingItem()) {
+            neatlybetter$denyOffhandUntilRelease = true;
+        }
+
+        neatlybetter$wasUsingFood = this.player.isUsingItem()
+                && this.player.getMainHandItem().has(DataComponents.FOOD);
+    }
+
+    @WrapOperation(
+            method = "startUseItem",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;useItemOn(Lnet/minecraft/client/player/LocalPlayer;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;")
+    )
+    private InteractionResult neatlybetter$denyOffhandPostEating(
+            MultiPlayerGameMode gameMode, LocalPlayer player, InteractionHand hand, BlockHitResult blockHit,
+            Operation<InteractionResult> original
+    ) {
+        if (hand == InteractionHand.OFF_HAND
+                && player.getOffhandItem().getItem() instanceof BlockItem) {
+            if (NTClientConfig.CONFIG.denyOffhandWhileHungry.get()) {
+                boolean justFinished = neatlybetter$wasUsingFood && !player.isUsingItem();
+                if (justFinished || neatlybetter$denyOffhandUntilRelease) {
+                    return InteractionResult.FAIL;
+                }
+            }
+            if (NTCommonConfig.CONFIG.legacyCombat.get()
+                    && LegacyCombatHandler.isSword(player.getMainHandItem().getItem().getDefaultInstance())) {
+                return InteractionResult.FAIL;
+            }
+        }
+        return original.call(gameMode, player, hand, blockHit);
     }
 }
