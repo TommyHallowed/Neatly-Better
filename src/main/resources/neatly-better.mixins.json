@@ -23,6 +23,7 @@
     "block.SugarCaneBlockMixin",
     "block.SweetBerryBushBlockMixin",
     "block.TrapDoorBlockMixin",
+    "block.VaultServerMixin",
     "block.VineBlockMixin",
     "blockentity.AbstractContainerMenuAccessor",
     "blockentity.BeaconBlockEntityMixin",
