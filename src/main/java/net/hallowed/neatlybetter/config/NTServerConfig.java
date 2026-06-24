@@ -45,6 +45,9 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue beaconSaturationEffect;
     public final ModConfigSpec.IntValue maxBeaconRange;
     public final ModConfigSpec.BooleanValue dispenserCauldronInteraction;
+    public final ModConfigSpec.BooleanValue vaultReopenEnabled;
+    public final ModConfigSpec.LongValue vaultReopenCooldownTicks;
+    public final ModConfigSpec.LongValue vaultOminousReopenCooldownTicks;
     public final ModConfigSpec.IntValue spongeBlockAbsorbRadius;
     public final ModConfigSpec.BooleanValue rainIncreasesCropGrowth;
     public final ModConfigSpec.BooleanValue harderNetherrack;
@@ -335,6 +338,31 @@ public final class NTServerConfig {
                 .defineInRange("sponge_block_absorb_radius", 10, 1, 64);
 
         builder.pop(); // sponge
+
+        // ── Vault ──
+        builder.push("vault");
+
+        vaultReopenEnabled = builder
+       .comment("§eAllow players to re-open vaults after a cooldown.")
+       .translation("neatly-better.config.vault_reopen_enabled")
+       .define("vault_reopen_enabled", true);
+
+        vaultReopenCooldownTicks = builder
+       .comment("§eTicks before a normal vault can be re-opened by the same player.")
+       .comment("")
+       .comment("Default 24000 = 1 in-game days.")
+       .translation("neatly-better.config.vault_cooldown_ticks")
+       .defineInRange("vault_cooldown_ticks", 24000L, 0L, Long.MAX_VALUE);
+
+        vaultOminousReopenCooldownTicks = builder
+       .comment("§eTicks before an ominous vault can be re-opened by the same player.")
+       .comment("")
+       .comment("Default 72000 = 3 in-game days.")
+       .translation("neatly-better.config.vault_ominous_cooldown_ticks")
+       .defineInRange("vault_ominous_cooldown_ticks", 75000L, 0L, Long.MAX_VALUE);
+
+        builder.pop(); // vault
+
 
         builder.pop(); // block
 
