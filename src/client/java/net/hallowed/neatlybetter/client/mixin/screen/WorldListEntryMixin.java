@@ -2,7 +2,7 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 
 import com.mojang.logging.LogUtils;
 
-import net.hallowed.neatlybetter.util.PlaytimeStorage;
+import net.hallowed.neatlybetter.data.PlaytimeData;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -46,7 +46,7 @@ public class WorldListEntryMixin {
             GuiGraphicsExtractor graphics, int mouseX, int mouseY,
             boolean hovered, float a, CallbackInfo ci
     ) {
-        long ticks = PlaytimeStorage.get(summary);
+        long ticks = PlaytimeData.get(summary);
         if (ticks <= 0L) return;
 
         String label = neatlybetter$formatPlaytime(ticks);

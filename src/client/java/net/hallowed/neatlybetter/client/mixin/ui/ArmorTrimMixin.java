@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.ui;
 
-import net.hallowed.neatlybetter.init.ModDataComponents;
+import net.hallowed.neatlybetter.init.ModData;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentGetter;
@@ -41,8 +41,8 @@ public class ArmorTrimMixin {
             DataComponentGetter components,
             CallbackInfo ci
     ) {
-        boolean pulsing  = components.getOrDefault(ModDataComponents.PULSING_TRIM, false);
-        boolean emissive = components.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
+        boolean pulsing  = components.getOrDefault(ModData.PULSING_TRIM, false);
+        boolean emissive = components.getOrDefault(ModData.EMISSIVE_TRIM, false);
 
         if (pulsing) {
             consumer.accept(PULSING_ECHO_LINE);

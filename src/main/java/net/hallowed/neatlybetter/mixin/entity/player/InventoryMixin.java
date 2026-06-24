@@ -1,7 +1,7 @@
 package net.hallowed.neatlybetter.mixin.entity.player;
 
-import net.hallowed.neatlybetter.util.DeathSlotData;
-import net.hallowed.neatlybetter.init.ModDataComponents;
+import net.hallowed.neatlybetter.data.DeathSlotData;
+import net.hallowed.neatlybetter.init.ModData;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.core.NonNullList;
@@ -41,7 +41,7 @@ public abstract class InventoryMixin {
             }
 
             if (restoreSlots) {
-                itemStack.set(ModDataComponents.DEATH_SLOT, new DeathSlotData(this.player.getUUID(), i));
+                itemStack.set(ModData.DEATH_SLOT, new DeathSlotData(this.player.getUUID(), i));
             }
             this.player.drop(itemStack, true, false);
             this.items.set(i, ItemStack.EMPTY);
@@ -56,7 +56,7 @@ public abstract class InventoryMixin {
         if (!NTServerConfig.CONFIG.restoreDeathDropSlots.get()) return;
         if (slot != -1 || itemStack.isEmpty()) return;
 
-        DeathSlotData data = itemStack.get(ModDataComponents.DEATH_SLOT);
+        DeathSlotData data = itemStack.get(ModData.DEATH_SLOT);
         if (data == null) return;
 
         int target = data.slot();
@@ -64,7 +64,7 @@ public abstract class InventoryMixin {
 
         ItemStack occupant = this.getItem(target);
         ItemStack toPlace = itemStack.copyAndClear();
-        toPlace.remove(ModDataComponents.DEATH_SLOT);
+        toPlace.remove(ModData.DEATH_SLOT);
         this.setItem(target, toPlace);
 
         if (!occupant.isEmpty() && !this.add(occupant)) {

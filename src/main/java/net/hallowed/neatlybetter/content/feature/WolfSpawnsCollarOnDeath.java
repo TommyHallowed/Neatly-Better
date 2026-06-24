@@ -3,7 +3,7 @@ package net.hallowed.neatlybetter.content.feature;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
-import net.hallowed.neatlybetter.init.ModDataComponents;
+import net.hallowed.neatlybetter.init.ModData;
 import net.hallowed.neatlybetter.init.ModItems;
 
 import net.minecraft.core.component.DataComponents;
@@ -37,7 +37,7 @@ public final class WolfSpawnsCollarOnDeath {
         TagValueOutput tagValueOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, level.registryAccess());
         wolf.saveWithoutId(tagValueOutput);
         CompoundTag tag = tagValueOutput.buildResult();
-        collar.set(ModDataComponents.WOLF_DATA, CustomData.of(tag));
+        collar.set(ModData.WOLF_DATA, CustomData.of(tag));
         DyeColor color = wolf.getCollarColor();
         collar.set(DataComponents.DYED_COLOR, new DyedItemColor(color.getTextureDiffuseColor()));
 

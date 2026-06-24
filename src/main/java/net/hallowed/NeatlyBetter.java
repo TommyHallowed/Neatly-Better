@@ -50,7 +50,7 @@ public class NeatlyBetter implements ModInitializer {
         ModBrewing.register();
         ModTickets.init();
         ModEvents.init();
-        ModDataComponents.init();
+        ModData.init();
         HostileAttributeTweaks.init();
 
         // 3) Server Tick Events

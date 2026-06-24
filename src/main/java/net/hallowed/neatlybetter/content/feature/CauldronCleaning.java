@@ -2,7 +2,7 @@ package net.hallowed.neatlybetter.content.feature;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 
-import net.hallowed.neatlybetter.init.ModDataComponents;
+import net.hallowed.neatlybetter.init.ModData;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -49,8 +49,8 @@ public final class CauldronCleaning {
             cleanedItem = stack.copy();
             cleanedItem.setCount(1);
             cleanedItem.remove(DataComponents.TRIM);
-            cleanedItem.remove(ModDataComponents.EMISSIVE_TRIM);
-            cleanedItem.remove(ModDataComponents.PULSING_TRIM);
+            cleanedItem.remove(ModData.EMISSIVE_TRIM);
+            cleanedItem.remove(ModData.PULSING_TRIM);
             sound = SoundEvents.GENERIC_SPLASH;
             stat = Stats.CLEAN_ARMOR;
 

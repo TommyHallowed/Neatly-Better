@@ -1,4 +1,4 @@
-package net.hallowed.neatlybetter.util;
+package net.hallowed.neatlybetter.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

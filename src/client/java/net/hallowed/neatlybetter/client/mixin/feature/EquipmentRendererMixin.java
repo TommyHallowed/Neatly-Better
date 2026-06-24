@@ -6,7 +6,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.hallowed.neatlybetter.init.ModDataComponents;
+import net.hallowed.neatlybetter.init.ModData;
 
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
@@ -65,8 +65,8 @@ public abstract class EquipmentRendererMixin {
         int finalLight = light;
 
         if (sprite != null && sprite.atlasLocation().getPath().contains("trims")) {
-            boolean emissive = itemStack.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
-            boolean pulsing = itemStack.getOrDefault(ModDataComponents.PULSING_TRIM, false);
+            boolean emissive = itemStack.getOrDefault(ModData.EMISSIVE_TRIM, false);
+            boolean pulsing = itemStack.getOrDefault(ModData.PULSING_TRIM, false);
 
             if (pulsing) {
                 finalLight = LightCoordsUtil.FULL_BRIGHT;

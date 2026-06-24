@@ -6,6 +6,7 @@ import com.google.common.collect.Multiset;
 import com.google.common.collect.Multisets;
 
 import net.hallowed.neatlybetter.content.item.MapBuilderItem;
+import net.hallowed.neatlybetter.data.NTMapData;
 import net.hallowed.neatlybetter.init.ModTickets;
 
 import net.minecraft.core.BlockPos;

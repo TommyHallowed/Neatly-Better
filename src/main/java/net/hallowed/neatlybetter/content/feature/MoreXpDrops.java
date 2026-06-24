@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
-import net.hallowed.neatlybetter.util.PlayerPlacedBlockData;
+import net.hallowed.neatlybetter.data.PlayerPlacedBlockData;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
