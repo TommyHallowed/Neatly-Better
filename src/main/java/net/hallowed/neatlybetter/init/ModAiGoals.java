@@ -92,12 +92,12 @@ public final class ModAiGoals {
             if (NTServerConfig.CONFIG.wolfImprovements.get()) {
                 if (hasNoGoal(goals, TamedWolfMeleeAttackGoal.class)) {
                     removeExactGoal(goals, MeleeAttackGoal.class);
-                    goals.addGoal(5, new TamedWolfMeleeAttackGoal(wolf, 1.2, true));
+                    goals.addGoal(5, new TamedWolfMeleeAttackGoal(wolf, 1.3, true));
                 }
 
                 if (hasNoGoal(goals, FastFollowOwnerGoal.class)) {
                     removeExactGoal(goals, FollowOwnerGoal.class);
-                    goals.addGoal(6, new FastFollowOwnerGoal(wolf, 1.2, 10.0F, 2.0F));
+                    goals.addGoal(6, new FastFollowOwnerGoal(wolf, 1.3, 20.0F, 4.0F));
                 }
 
                 final GoalSelector targets = wolf.targetSelector;
