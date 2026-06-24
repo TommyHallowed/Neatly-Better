@@ -1,7 +1,7 @@
 package net.hallowed.neatlybetter.mixin.other;
 
 import com.mojang.serialization.Dynamic;
-import net.hallowed.neatlybetter.util.PlaytimeStorage;
+import net.hallowed.neatlybetter.data.PlaytimeData;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,6 +25,6 @@ public class LevelStorageSourceMixin {
         if (summary == null) return;
 
         long ticks = dataTag.get("Time").asLong(-1L);
-        PlaytimeStorage.put(summary, ticks);
+        PlaytimeData.put(summary, ticks);
     }
 }

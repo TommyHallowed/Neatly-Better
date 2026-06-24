@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.screen;
 
-import net.hallowed.neatlybetter.init.ModDataComponents;
+import net.hallowed.neatlybetter.init.ModData;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.ItemTags;
@@ -56,8 +56,8 @@ public abstract class SmithingMenuMixin {
             ArmorTrim trim = base.get(DataComponents.TRIM);
             if (trim == null) return;
 
-            boolean emissive = base.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
-            boolean pulsing = base.getOrDefault(ModDataComponents.PULSING_TRIM, false);
+            boolean emissive = base.getOrDefault(ModData.EMISSIVE_TRIM, false);
+            boolean pulsing = base.getOrDefault(ModData.PULSING_TRIM, false);
 
             boolean isArmor = base.is(ItemTags.TRIMMABLE_ARMOR);
 
@@ -86,30 +86,30 @@ public abstract class SmithingMenuMixin {
 
         ItemStack add = addSlot.getItem();
 
-        boolean emissive = base.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
-        boolean pulsing = base.getOrDefault(ModDataComponents.PULSING_TRIM, false);
+        boolean emissive = base.getOrDefault(ModData.EMISSIVE_TRIM, false);
+        boolean pulsing = base.getOrDefault(ModData.PULSING_TRIM, false);
         boolean isArmor = base.is(ItemTags.TRIMMABLE_ARMOR);
 
         if (add.is(Items.GLOW_INK_SAC) && !emissive) {
             ItemStack result = base.copy();
-            result.set(ModDataComponents.EMISSIVE_TRIM, true);
-            result.remove(ModDataComponents.PULSING_TRIM);
+            result.set(ModData.EMISSIVE_TRIM, true);
+            result.remove(ModData.PULSING_TRIM);
             outSlot.setByPlayer(result);
             return;
         }
 
         if (add.is(Items.ECHO_SHARD) && !pulsing && isArmor) {
             ItemStack result = base.copy();
-            result.set(ModDataComponents.PULSING_TRIM, true);
-            result.remove(ModDataComponents.EMISSIVE_TRIM);
+            result.set(ModData.PULSING_TRIM, true);
+            result.remove(ModData.EMISSIVE_TRIM);
             outSlot.setByPlayer(result);
             return;
         }
 
         if (add.is(Items.INK_SAC) && (emissive || pulsing)) {
             ItemStack result = base.copy();
-            result.remove(ModDataComponents.EMISSIVE_TRIM);
-            result.remove(ModDataComponents.PULSING_TRIM);
+            result.remove(ModData.EMISSIVE_TRIM);
+            result.remove(ModData.PULSING_TRIM);
             outSlot.setByPlayer(result);
         }
     }

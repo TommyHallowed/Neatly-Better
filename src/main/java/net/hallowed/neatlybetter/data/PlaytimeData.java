@@ -1,11 +1,11 @@
-package net.hallowed.neatlybetter.util;
+package net.hallowed.neatlybetter.data;
 
 import net.minecraft.world.level.storage.LevelSummary;
 
 import java.util.WeakHashMap;
 
-public final class PlaytimeStorage {
-    private PlaytimeStorage() {}
+public final class PlaytimeData {
+    private PlaytimeData() {}
 
     private static final WeakHashMap<LevelSummary, Long> TICKS = new WeakHashMap<>();
 

@@ -6,7 +6,7 @@ import dev.kikugie.elytratrims.api.render.ETRenderParameters;
 import dev.kikugie.elytratrims.api.render.ETRendererID;
 import dev.kikugie.elytratrims.api.render.ETRenderingAPI;
 
-import net.hallowed.neatlybetter.init.ModDataComponents;
+import net.hallowed.neatlybetter.init.ModData;
 
 
 import net.minecraft.resources.Identifier;
@@ -28,8 +28,8 @@ public class ElytraTrimsCompat implements ETClientInitializer {
         ETRenderingAPI.wrapRenderParameters(trimType, parameters -> {
             ItemStack stack = parameters.stack();
 
-            boolean emissive = stack.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false);
-            boolean pulsing  = stack.getOrDefault(ModDataComponents.PULSING_TRIM, false);
+            boolean emissive = stack.getOrDefault(ModData.EMISSIVE_TRIM, false);
+            boolean pulsing  = stack.getOrDefault(ModData.PULSING_TRIM, false);
 
             if (!emissive && !pulsing) return parameters;
             if (parameters.sprite() == null)  return parameters;

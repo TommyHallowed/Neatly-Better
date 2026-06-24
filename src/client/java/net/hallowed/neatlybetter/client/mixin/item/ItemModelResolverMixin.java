@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.item;
 
-import net.hallowed.neatlybetter.init.ModDataComponents;
+import net.hallowed.neatlybetter.init.ModData;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -29,7 +29,7 @@ public class ItemModelResolverMixin {
             ItemDisplayContext displayContext, Level level,
             ItemOwner owner, int seed, CallbackInfo ci
     ) {
-        if (!item.getOrDefault(ModDataComponents.EMISSIVE_TRIM, false)) {
+        if (!item.getOrDefault(ModData.EMISSIVE_TRIM, false)) {
             return;
         }
 
