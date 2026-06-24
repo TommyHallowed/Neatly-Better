@@ -41,6 +41,7 @@
     "entity.generic.EntityMixin",
     "entity.generic.LivingEntityMixin",
     "entity.generic.MobMixin",
+    "entity.generic.TamableAnimalMixin",
     "entity.hostile.VexMixin",
     "entity.hostile.WitchMixin",
     "entity.misc.AbstractArrowMixin",
