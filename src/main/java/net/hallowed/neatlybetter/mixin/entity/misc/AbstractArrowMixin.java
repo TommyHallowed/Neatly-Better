@@ -2,15 +2,21 @@ package net.hallowed.neatlybetter.mixin.entity.misc;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.AreaEffectCloud;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
+import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
@@ -19,10 +25,13 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractArrow.class)
 public abstract class AbstractArrowMixin {
+
+    @Shadow protected abstract void setPickupItemStack(ItemStack itemStack);
 
     @Shadow
     public AbstractArrow.Pickup pickup;
@@ -50,5 +59,30 @@ public abstract class AbstractArrowMixin {
             }
         }
         return false;
+    }
+
+    @Inject(method = "onHitBlock", at = @At("RETURN"))
+    private void neatlybetter$spawnTippedCloud(BlockHitResult hitResult, CallbackInfo ci) {
+        if (!((Object) this instanceof Arrow self)) return;
+        if (self.level().isClientSide()) return;
+
+        ItemStack origin = self.getPickupItemStackOrigin();
+        PotionContents contents = origin.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
+        if (contents.equals(PotionContents.EMPTY)) return;
+
+        float durationScale = origin.getOrDefault(DataComponents.POTION_DURATION_SCALE, 1.0F);
+
+        AreaEffectCloud cloud = new AreaEffectCloud(self.level(), self.getX(), self.getY(), self.getZ());
+        cloud.setOwner((LivingEntity) self.getOwner());
+        cloud.setRadius(3.0F);
+        cloud.setRadiusOnUse(-0.5F);
+        cloud.setWaitTime(10);
+        cloud.setDuration(600);
+        cloud.setRadiusPerTick(-cloud.getRadius() / (float) cloud.getDuration());
+        cloud.setPotionContents(contents);
+        cloud.setPotionDurationScale(durationScale);
+        self.level().addFreshEntity(cloud);
+
+        this.setPickupItemStack(new ItemStack(Items.ARROW));
     }
 }
