@@ -16,6 +16,7 @@ public final class ModItemGroupRegistrar {
         NTRegistry.addToGroup(CreativeModeTabs.TOOLS_AND_UTILITIES, entries -> {
                 entries.insertAfter(Items.MAP , ModItems.MAP_BUILDER);
                 entries.insertAfter(Items.LEAD , ModItems.CHEST_KEY);
+                entries.insertAfter(ModItems.CHEST_KEY , ModItems.QUIVER);
         });
 
         NTRegistry.addToGroup(CreativeModeTabs.BUILDING_BLOCKS, entries -> {

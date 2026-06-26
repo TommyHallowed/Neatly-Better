@@ -8,6 +8,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.hallowed.neatlybetter.api.NTCompat;
 import net.hallowed.neatlybetter.config.NTCommonConfig;
 import net.hallowed.neatlybetter.config.NTServerConfig;
+import net.hallowed.neatlybetter.content.component.QuiverContents;
+import net.hallowed.neatlybetter.init.ModData;
 import net.hallowed.neatlybetter.util.StonecutterMemory;
 
 import net.minecraft.core.Holder;
@@ -21,6 +23,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -32,6 +35,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jetbrains.annotations.NotNull;
 
+import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -53,11 +57,10 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
     @Shadow
     public abstract @NonNull ItemStack getWeaponItem();
 
-    // ===================== (1) Infinity fix =====================
+    // ===================== (1) Infinity fix & Quiver Arrows =====================
 
     @Inject(method = "getProjectile", at = @At("RETURN"), cancellable = true)
-    private void neatlybetter$virtualArrowForInfinity(ItemStack heldWeapon, CallbackInfoReturnable<ItemStack> cir) {
-        if (!cir.getReturnValue().isEmpty()) return;
+    private void neatlybetter$getProjectile(ItemStack heldWeapon, CallbackInfoReturnable<ItemStack> cir) {
         if (!(heldWeapon.getItem() instanceof ProjectileWeaponItem)) return;
 
         Player self = (Player)(Object)this;
@@ -66,9 +69,52 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
         var enchLookup = self.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
         Holder<@NotNull Enchantment> infinity = enchLookup.getOrThrow(Enchantments.INFINITY);
 
-        if (EnchantmentHelper.getItemEnchantmentLevel(infinity, heldWeapon) <= 0) return;
+        if (EnchantmentHelper.getItemEnchantmentLevel(infinity, heldWeapon) > 0) {
+            if (cir.getReturnValue().isEmpty()) cir.setReturnValue(new ItemStack(Items.ARROW));
+            return;
+        }
 
-        cir.setReturnValue(new ItemStack(Items.ARROW));
+        if (self.level().isClientSide()) return;
+
+        ItemStack quiverStack = neatlybetter$findQuiver(self);
+        if (quiverStack == null) return;
+
+        QuiverContents contents = quiverStack.get(ModData.QUIVER_CONTENTS);
+        if (contents == null || contents.isEmpty()) return;
+
+        if (!self.isUsingItem()) {
+            ItemStackTemplate selected = contents.getSelectedItem();
+            ItemStackTemplate toShow = selected != null ? selected : contents.getFirstItem();
+            if (toShow != null) cir.setReturnValue(toShow.create());
+            return;
+        }
+
+        QuiverContents.Mutable mutable = new QuiverContents.Mutable(contents);
+        ItemStack arrow = mutable.removeOneFromSelected();
+        if (arrow == null || arrow.isEmpty()) return;
+
+        quiverStack.set(ModData.QUIVER_CONTENTS, mutable.toImmutable());
+        cir.setReturnValue(arrow);
+    }
+
+    @Unique
+    private static @Nullable ItemStack neatlybetter$findQuiver(Player player) {
+        ItemStack offhand = player.getOffhandItem();
+        if (neatlybetter$isNonEmptyQuiver(offhand)) return offhand;
+
+        var inventory = player.getInventory();
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack s = inventory.getItem(i);
+            if (neatlybetter$isNonEmptyQuiver(s)) return s;
+        }
+        return null;
+    }
+
+    @Unique
+    private static boolean neatlybetter$isNonEmptyQuiver(ItemStack s) {
+        if (s.isEmpty()) return false;
+        QuiverContents contents = s.get(ModData.QUIVER_CONTENTS);
+        return contents != null && !contents.isEmpty();
     }
 
     // ===================== (2) Feather not dealing damage =====================

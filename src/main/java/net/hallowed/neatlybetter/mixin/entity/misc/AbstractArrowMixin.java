@@ -1,9 +1,13 @@
 package net.hallowed.neatlybetter.mixin.entity.misc;
 
+import net.hallowed.neatlybetter.content.component.QuiverContents;
+import net.hallowed.neatlybetter.content.item.QuiverItem;
+import net.hallowed.neatlybetter.init.ModData;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
@@ -40,10 +44,40 @@ public abstract class AbstractArrowMixin {
     private @Nullable ItemStack firedFromWeapon;
 
     @Inject(method = "tryPickup", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$allowInfinityArrowPickup(Player player, CallbackInfoReturnable<Boolean> cir) {
+    private void neatlybetter$arrowPickup(Player player, CallbackInfoReturnable<Boolean> cir) {
         if (this.pickup == AbstractArrow.Pickup.CREATIVE_ONLY && neatlybetter$hasInfinity(this.firedFromWeapon)) {
             cir.setReturnValue(true);
+            return;
         }
+
+        if (this.pickup == AbstractArrow.Pickup.ALLOWED) {
+            ItemStack pickupItem = ((AbstractArrow) (Object) this).getPickupItem();
+            if (neatlybetter$tryInsertIntoQuiver(player, pickupItem)) {
+                cir.setReturnValue(true);
+            }
+        }
+    }
+
+    @Unique
+    private static boolean neatlybetter$tryInsertIntoQuiver(Player player, ItemStack arrowStack) {
+        if (!QuiverContents.canItemBeInQuiver(arrowStack)) return false;
+
+        Inventory inventory = player.getInventory();
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack slot = inventory.getItem(i);
+            if (!(slot.getItem() instanceof QuiverItem)) continue;
+
+            QuiverContents contents = slot.get(ModData.QUIVER_CONTENTS);
+            if (contents == null) continue;
+
+            QuiverContents.Mutable mutable = new QuiverContents.Mutable(contents);
+            int inserted = mutable.tryInsert(arrowStack);
+            if (inserted > 0) {
+                slot.set(ModData.QUIVER_CONTENTS, mutable.toImmutable());
+                return true;
+            }
+        }
+        return false;
     }
 
     @Unique

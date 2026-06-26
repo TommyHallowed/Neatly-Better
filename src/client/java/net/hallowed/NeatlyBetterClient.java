@@ -20,6 +20,7 @@ import net.hallowed.neatlybetter.client.tooltip.*;
 import net.hallowed.neatlybetter.client.util.EnderCheckClient;
 import net.hallowed.neatlybetter.tooltip.MapPreviewTooltip;
 
+import net.hallowed.neatlybetter.tooltip.QuiverTooltip;
 import net.minecraft.resources.Identifier;
 
 import net.neoforged.fml.config.ModConfig;
@@ -49,6 +50,7 @@ public class NeatlyBetterClient implements ClientModInitializer {
             case MapPreviewTooltip mapData -> new ClientMapPreviewTooltip(mapData);
             case EffectTooltipData effectData -> new EffectTooltipRenderer(effectData);
             case ShulkerBoxTooltipData shulkerBoxTooltip -> new ShulkerBoxTooltipRenderer(shulkerBoxTooltip.items(), shulkerBoxTooltip.color());
+            case QuiverTooltip quiverTooltip -> new QuiverTooltipRenderer(quiverTooltip.contents());
             default -> null;
         });
 

@@ -1,0 +1,16 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "minecraft:has_component",
+    "component": "neatly-better:quiver_contents",
+    "ignore_default": true,
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "neatly-better:item/quiver_full"
+    },
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "neatly-better:item/quiver_empty"
+    }
+  }
+}

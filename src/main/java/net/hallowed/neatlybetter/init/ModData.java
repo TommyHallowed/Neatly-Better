@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.hallowed.neatlybetter.api.NTRegistry;
 
+import net.hallowed.neatlybetter.content.component.QuiverContents;
 import net.hallowed.neatlybetter.data.DeathSlotData;
 import net.hallowed.neatlybetter.data.VaultReopenData;
 import net.minecraft.core.Registry;
@@ -52,6 +53,14 @@ public final class ModData {
             DataComponentType.<DeathSlotData>builder()
                     .persistent(DeathSlotData.CODEC)
                     .networkSynchronized(DeathSlotData.STREAM_CODEC)
+                    .build()
+    );
+
+    public static final DataComponentType<@NotNull QuiverContents> QUIVER_CONTENTS = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE, NTRegistry.id("quiver_contents"),
+            DataComponentType.<QuiverContents>builder()
+                    .persistent(QuiverContents.CODEC)
+                    .networkSynchronized(QuiverContents.STREAM_CODEC)
                     .build()
     );
 
