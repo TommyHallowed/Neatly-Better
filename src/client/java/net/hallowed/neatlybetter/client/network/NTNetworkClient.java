@@ -34,4 +34,8 @@ public final class NTNetworkClient {
     public static void sendArmorSwap(int containerId, int sourceSlotIndex) {
         ClientPlayNetworking.send(new NTNetwork.ArmorSwapRequest(containerId, sourceSlotIndex));
     }
+
+    public static void sendQuiverSelect(int slotIndex, int selectedItem) {
+        ClientPlayNetworking.send(new NTNetwork.SelectQuiverItemPacket(slotIndex, selectedItem));
+    }
 }

@@ -4,7 +4,9 @@ import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 
 import net.hallowed.neatlybetter.api.NTRegistry;
 
+import net.hallowed.neatlybetter.content.component.QuiverContents;
 import net.hallowed.neatlybetter.content.item.MapBuilderItem;
+import net.hallowed.neatlybetter.content.item.QuiverItem;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BedItem;
 import net.minecraft.world.item.Item;
@@ -15,7 +17,7 @@ import static net.hallowed.neatlybetter.init.ModBlocks.RAINBOW_BED;
 public final class ModItems {
     private ModItems() {}
 
-    public static Item MAP_BUILDER, CHEST_KEY, WOLF_COLLAR;
+    public static Item MAP_BUILDER, CHEST_KEY, WOLF_COLLAR, QUIVER;
 
     public static void register() {
 
@@ -39,6 +41,12 @@ public final class ModItems {
                         .stacksTo(1)
                         .fireResistant()
                         .setId(NTRegistry.itemKey("wolf_collar"))));
+
+        QUIVER = NTRegistry.registerItem("quiver",
+                new QuiverItem(new Item.Properties()
+                        .stacksTo(1)
+                        .setId(NTRegistry.itemKey("quiver"))
+                        .component(ModData.QUIVER_CONTENTS, QuiverContents.EMPTY)));
 
         AttackBlockCallback.EVENT.register((player, world, hand, pos, _) -> {
             if (!world.isClientSide() && !player.isSpectator()) {

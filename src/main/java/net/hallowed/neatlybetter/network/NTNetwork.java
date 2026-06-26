@@ -6,6 +6,8 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.config.ShieldDelayHolder;
+import net.hallowed.neatlybetter.content.item.QuiverItem;
+import net.hallowed.neatlybetter.init.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -28,11 +30,8 @@ import net.minecraft.world.item.equipment.Equippable;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.OptionalInt;
-import java.util.Set;
-import java.util.UUID;
 import java.util.function.Predicate;
 
 /** Common networking: packet types, codecs, and server handlers. */
@@ -98,6 +97,18 @@ public final class NTNetwork {
         @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
     }
 
+    public record SelectQuiverItemPacket(int slotIndex, int selectedItem) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<@NotNull SelectQuiverItemPacket> ID =
+                new CustomPacketPayload.Type<>(id("select_quiver_item"));
+        public static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull SelectQuiverItemPacket> CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.VAR_INT, SelectQuiverItemPacket::slotIndex,
+                        ByteBufCodecs.VAR_INT, SelectQuiverItemPacket::selectedItem,
+                        SelectQuiverItemPacket::new
+                );
+        @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
+    }
+
     /**
      * S2C: syncs the stored lapis count for a specific enchanting table to
      * all clients in the level, so players sharing a table stay in sync.
@@ -142,6 +153,9 @@ public final class NTNetwork {
         // Lapis count sync
         PayloadTypeRegistry.clientboundPlay().register(LapisCountPayload.ID, LapisCountPayload.CODEC);
 
+        // Quiver selection (persistent)
+        PayloadTypeRegistry.serverboundPlay().register(SelectQuiverItemPacket.ID, SelectQuiverItemPacket.CODEC);
+
         // -- Server-side receivers --
         ServerPlayNetworking.registerGlobalReceiver(EnderCheckRequest.ID,
                 (_, ctx) -> pushEnderChestState(ctx.player()));
@@ -149,7 +163,10 @@ public final class NTNetwork {
         ServerPlayNetworking.registerGlobalReceiver(ArmorSwapRequest.ID,
                 (payload, ctx) -> handleArmorSwap(ctx.player(), payload));
 
-        // -- push ender chest and backpack state on join --
+        ServerPlayNetworking.registerGlobalReceiver(SelectQuiverItemPacket.ID,
+                (payload, ctx) -> handleQuiverSelect(ctx.player(), payload));
+
+        // -- push ender chest state on join --
         ServerPlayConnectionEvents.JOIN.register((handler, _, _) -> {
             pushEnderChestState(handler.player);
             pushShieldDelay(handler.player);
@@ -233,6 +250,23 @@ public final class NTNetwork {
             player.setItemSlot(eqSlot, toEquip);
             menu.broadcastChanges();
         }
+    }
+
+    /* ===================== Quiver Selection Handler ===================== */
+
+
+    private static void handleQuiverSelect(ServerPlayer player, SelectQuiverItemPacket payload) {
+        AbstractContainerMenu menu = player.containerMenu;
+
+        int idx = payload.slotIndex();
+        if (idx < 0 || idx >= menu.slots.size()) return;
+
+        Slot slot = menu.getSlot(idx);
+        ItemStack stack = slot.getItem();
+        if (stack.isEmpty() || stack.getItem() != ModItems.QUIVER) return;
+
+        QuiverItem.toggleSelectedItem(stack, payload.selectedItem());
+        menu.slotsChanged(slot.container);
     }
 
     /* ===================== Ender Chest Helpers ===================== */

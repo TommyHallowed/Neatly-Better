@@ -1,6 +1,7 @@
 package net.hallowed.neatlybetter.client.mixin.screen;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.ScrollWheelHandler;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -11,8 +12,16 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.equipment.Equippable;
 
+import net.hallowed.neatlybetter.client.network.NTNetworkClient;
+import net.hallowed.neatlybetter.content.component.QuiverContents;
+import net.hallowed.neatlybetter.content.item.QuiverItem;
+import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.init.ModItems;
+
+import org.joml.Vector2i;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -21,6 +30,39 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class AbstractContainerScreenMixin {
 
     @Shadow protected Slot hoveredSlot;
+
+    @Unique
+    private final ScrollWheelHandler neatlybetter$quiverScroll = new ScrollWheelHandler();
+
+    @Inject(method = "mouseScrolled", at = @At("HEAD"), cancellable = true)
+    private void neatlybetter$onQuiverScroll(
+            double x, double y, double scrollX, double scrollY,
+            CallbackInfoReturnable<Boolean> cir) {
+
+        Slot slot = this.hoveredSlot;
+        if (slot == null || !slot.hasItem()) return;
+
+        ItemStack stack = slot.getItem();
+        if (stack.getItem() != ModItems.QUIVER) return;
+
+        int shown = stack.getOrDefault(ModData.QUIVER_CONTENTS, QuiverContents.EMPTY).size();
+        if (shown == 0) {
+            cir.setReturnValue(true);
+            return;
+        }
+
+        Vector2i wheelXY = this.neatlybetter$quiverScroll.onMouseScroll(scrollX, scrollY);
+        int wheel = wheelXY.y == 0 ? -wheelXY.x : wheelXY.y;
+        if (wheel != 0) {
+            int selected = QuiverItem.getSelectedItemIndex(stack);
+            int updated = ScrollWheelHandler.getNextScrollWheelSelection(wheel, selected, shown);
+            if (selected != updated && updated < shown) {
+                QuiverItem.toggleSelectedItem(stack, updated);
+                NTNetworkClient.sendQuiverSelect(slot.index, updated);
+            }
+        }
+        cir.setReturnValue(true);
+    }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$onRightClickArmorSwap(
@@ -54,7 +96,7 @@ public abstract class AbstractContainerScreenMixin {
         }
 
         AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>) (Object) this;
-        net.hallowed.neatlybetter.client.network.NTNetworkClient.sendArmorSwap(
+        NTNetworkClient.sendArmorSwap(
                 screen.getMenu().containerId,
                 this.hoveredSlot.index);
         cir.setReturnValue(true);
