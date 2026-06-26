@@ -12,7 +12,6 @@ public final class NTCompat {
     private static final Set<String> PRECHECK_MODS = Set.of(
             "horseman",
             "respectmytrims",
-            //"backpacked",
             "bettertridents",
             "enchancement",
             "doubledoors",
@@ -51,7 +50,6 @@ public final class NTCompat {
 
     public static final boolean HORSEMAN                = isLoaded("horseman");
     public static final boolean RESPECTMYTRIMS          = isLoaded("respectmytrims");
-    //public static final boolean BACKPACKED              = isLoaded("backpacked");
     public static final boolean BETTERTRIDENTS          = isLoaded("bettertridents");
     public static final boolean ENCHANCEMENT            = isLoaded("enchancement");
     public static final boolean DOUBLEDOORS             = isLoaded("doubledoors");

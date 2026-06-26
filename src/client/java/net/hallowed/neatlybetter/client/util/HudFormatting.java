@@ -34,14 +34,12 @@ public final class HudFormatting {
     public static boolean shouldShowCoords(Player p) {
         return NTClientConfig.CONFIG.showCoords.get()
                 && (InventoryDeepScan.hasCompass(p)
-                || EnderCheckClient.enderHasCompass()
-                || BackpackCheckClient.backpackHasCompass());
+                || EnderCheckClient.enderHasCompass());
     }
     public static boolean shouldShowTime(Player p) {
         return NTClientConfig.CONFIG.showTime.get()
                 && (InventoryDeepScan.hasClock(p)
-                || EnderCheckClient.enderHasClock()
-                || BackpackCheckClient.backpackHasClock());
+                || EnderCheckClient.enderHasClock());
     }
 
     public static Line coordsLine(Player p) {
