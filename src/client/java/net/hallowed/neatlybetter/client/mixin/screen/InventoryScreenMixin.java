@@ -71,8 +71,8 @@ public abstract class InventoryScreenMixin extends Screen {
         );
 
         var player = Minecraft.getInstance().player;
-        boolean hasCompass = player != null && (InventoryDeepScan.hasCompass(player) || EnderCheckClient.enderHasCompass() || BackpackCheckClient.backpackHasCompass());
-        boolean hasClock   = player != null && (InventoryDeepScan.hasClock(player)   || EnderCheckClient.enderHasClock()   || BackpackCheckClient.backpackHasClock());
+        boolean hasCompass = player != null && (InventoryDeepScan.hasCompass(player) || EnderCheckClient.enderHasCompass());
+        boolean hasClock   = player != null && (InventoryDeepScan.hasClock(player)   || EnderCheckClient.enderHasClock());
         coordsBtn.visible = hasCompass;
         timeBtn.visible   = hasClock;
 
@@ -92,8 +92,8 @@ public abstract class InventoryScreenMixin extends Screen {
 
         var mc = Minecraft.getInstance();
         var player = mc.player;
-        boolean hasCompass = player != null && (InventoryDeepScan.hasCompass(player) || EnderCheckClient.enderHasCompass() || BackpackCheckClient.backpackHasCompass());
-        boolean hasClock   = player != null && (InventoryDeepScan.hasClock(player)   || EnderCheckClient.enderHasClock()   || BackpackCheckClient.backpackHasClock());
+        boolean hasCompass = player != null && (InventoryDeepScan.hasCompass(player) || EnderCheckClient.enderHasCompass());
+        boolean hasClock   = player != null && (InventoryDeepScan.hasClock(player)   || EnderCheckClient.enderHasClock());
         coordsBtn.visible = hasCompass;
         timeBtn.visible   = hasClock;
 

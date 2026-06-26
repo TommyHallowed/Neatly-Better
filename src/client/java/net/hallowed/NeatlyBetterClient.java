@@ -34,7 +34,6 @@ public class NeatlyBetterClient implements ClientModInitializer {
         ConfigRegistry.INSTANCE.register(MOD_ID, ModConfig.Type.CLIENT, NTClientConfig.CONFIG_SPEC);
         ConfigScreenFactoryRegistry.INSTANCE.register(MOD_ID, ConfigurationScreen::new);
         EnderCheckClient.register();
-        BackpackCheckClient.register();
         AutoRefill.register();
         VoidFog.register();
 
