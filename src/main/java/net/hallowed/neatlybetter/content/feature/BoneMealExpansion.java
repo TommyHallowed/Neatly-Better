@@ -3,6 +3,7 @@ package net.hallowed.neatlybetter.content.feature;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 
 import net.hallowed.neatlybetter.api.NTCompat;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -69,10 +70,11 @@ public final class BoneMealExpansion {
             BlockPos top = growColumnOnce(world, pos, Blocks.SUGAR_CANE);
             if (top != null) { grew = true; particlePos = top; }
         } else if (block instanceof VineBlock) {
-            BlockPos below = pos.below();
+            BlockPos bottom = getColumnBottom(world, pos, Blocks.VINE);
+            BlockPos below = bottom.below();
             if (world.isEmptyBlock(below)) {
                 grew = true;
-                world.setBlock(below, copyVineFaces(state), Block.UPDATE_ALL);
+                world.setBlock(below, copyVineFaces(world.getBlockState(bottom)), Block.UPDATE_ALL);
                 particlePos = below;
             }
         } else {
@@ -94,30 +96,34 @@ public final class BoneMealExpansion {
             return state.getValue(NetherWartBlock.AGE) < 3;
         }
         if (block == Blocks.CACTUS || block == Blocks.SUGAR_CANE) {
-            return getColumnHeight(world, pos, block) < 3 && world.isEmptyBlock(pos.above(getColumnHeight(world, pos, block)));
+            BlockPos bottom = getColumnBottom(world, pos, block);
+            int height = getColumnHeight(world, bottom, block);
+            return height < 16 && world.isEmptyBlock(bottom.above(height));
         }
         if (block instanceof VineBlock) {
-            return world.isEmptyBlock(pos.below());
+            return world.isEmptyBlock(getColumnBottom(world, pos, Blocks.VINE).below());
         }
         return false;
     }
 
-    private static BlockPos growColumnOnce(Level world, BlockPos base, Block targetBlock) {
-        int height = getColumnHeight(world, base, targetBlock);
-        if (height >= 3) return null;
-        BlockPos top = base.above(height);
+    private static BlockPos growColumnOnce(Level world, BlockPos pos, Block targetBlock) {
+        BlockPos bottom = getColumnBottom(world, pos, targetBlock);
+        int height = getColumnHeight(world, bottom, targetBlock);
+        if (height >= 16) return null;
+        BlockPos top = bottom.above(height);
         if (!world.isEmptyBlock(top)) return null;
         world.setBlock(top, targetBlock.defaultBlockState(), Block.UPDATE_ALL);
         return top;
     }
 
-    private static int getColumnHeight(Level world, BlockPos pos, Block target) {
+    private static BlockPos getColumnBottom(Level world, BlockPos pos, Block target) {
+        while (world.getBlockState(pos.below()).is(target)) pos = pos.below();
+        return pos;
+    }
+
+    private static int getColumnHeight(Level world, BlockPos bottom, Block target) {
         int h = 0;
-        if (world.getBlockState(pos).is(target)) {
-            while (h < 16 && world.getBlockState(pos.above(h)).is(target)) h++;
-        } else if (world.getBlockState(pos.above()).is(target)) {
-            while (h < 16 && world.getBlockState(pos.above(1 + h)).is(target)) h++;
-        }
+        while (h < 16 && world.getBlockState(bottom.above(h)).is(target)) h++;
         return h;
     }
 
