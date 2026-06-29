@@ -368,16 +368,16 @@ public final class NTServerConfig {
         vaultReopenCooldownTicks = builder
        .comment("§eTicks before a normal vault can be re-opened by the same player.")
        .comment("")
-       .comment("Default 24000 = 1 in-game days.")
+       .comment(" Default 24000 = 1 day")
        .translation("neatly-better.config.vault_cooldown_ticks")
        .defineInRange("vault_cooldown_ticks", 24000L, 0L, Long.MAX_VALUE);
 
         vaultOminousReopenCooldownTicks = builder
        .comment("§eTicks before an ominous vault can be re-opened by the same player.")
        .comment("")
-       .comment("Default 72000 = 3 in-game days.")
+       .comment(" Default 72000 = 3 days")
        .translation("neatly-better.config.vault_ominous_cooldown_ticks")
-       .defineInRange("vault_ominous_cooldown_ticks", 75000L, 0L, Long.MAX_VALUE);
+       .defineInRange("vault_ominous_cooldown_ticks", 72000L, 0L, Long.MAX_VALUE);
 
         builder.pop(); // vault
 
@@ -447,7 +447,7 @@ public final class NTServerConfig {
                 .comment("")
                 .comment(" Vanilla Default: 2")
                 .translation("neatly-better.config.mending_efficiency")
-                .defineInRange("mending_efficiency", 4.0, 1.0, 100.0);
+                .defineInRange("mending_efficiency", 1.0, 1.0, 100.0);
 
         builder.pop(); // mending
 
