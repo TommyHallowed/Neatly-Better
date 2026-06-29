@@ -5,7 +5,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import net.hallowed.neatlybetter.client.util.LapisClientUtil;
-import net.hallowed.neatlybetter.config.ShieldDelayHolder;
 import net.hallowed.neatlybetter.network.NTNetwork;
 
 import java.util.function.Consumer;
@@ -17,10 +16,6 @@ public final class NTNetworkClient {
     public static void registerClient(Consumer<NTNetwork.EnderCheckResponse> onResponse) {
         ClientPlayNetworking.registerGlobalReceiver(NTNetwork.EnderCheckResponse.ID,
                 (payload, ctx) -> ctx.client().execute(() -> onResponse.accept(payload)));
-
-        ClientPlayNetworking.registerGlobalReceiver(NTNetwork.ShieldDelaySyncPayload.ID,
-                (payload, ctx) -> ctx.client().execute(() ->
-                        ShieldDelayHolder.setShieldRaiseDelay(payload.shieldRaiseDelay())));
 
         ClientPlayNetworking.registerGlobalReceiver(NTNetwork.LapisCountPayload.ID,
                 (payload, ctx) -> ctx.client().execute(() ->

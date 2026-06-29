@@ -4,8 +4,6 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
-import net.hallowed.neatlybetter.config.NTServerConfig;
-import net.hallowed.neatlybetter.config.ShieldDelayHolder;
 import net.hallowed.neatlybetter.content.item.QuiverItem;
 import net.hallowed.neatlybetter.init.ModItems;
 import net.minecraft.core.BlockPos;
@@ -15,7 +13,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -85,18 +82,6 @@ public final class NTNetwork {
         @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
     }
 
-    /** S2C: syncs the server's shield raise delay to the client. */
-    public record ShieldDelaySyncPayload(int shieldRaiseDelay) implements CustomPacketPayload {
-        public static final CustomPacketPayload.Type<@NotNull ShieldDelaySyncPayload> ID =
-                new CustomPacketPayload.Type<>(id("shield_delay_sync"));
-        public static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull ShieldDelaySyncPayload> CODEC =
-                StreamCodec.composite(
-                        ByteBufCodecs.VAR_INT, ShieldDelaySyncPayload::shieldRaiseDelay,
-                        ShieldDelaySyncPayload::new
-                );
-        @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
-    }
-
     public record SelectQuiverItemPacket(int slotIndex, int selectedItem) implements CustomPacketPayload {
         public static final CustomPacketPayload.Type<@NotNull SelectQuiverItemPacket> ID =
                 new CustomPacketPayload.Type<>(id("select_quiver_item"));
@@ -147,9 +132,6 @@ public final class NTNetwork {
         // ArmorSwap packets
         PayloadTypeRegistry.serverboundPlay().register(ArmorSwapRequest.ID, ArmorSwapRequest.CODEC);
 
-        // Shield delay sync
-        PayloadTypeRegistry.clientboundPlay().register(ShieldDelaySyncPayload.ID, ShieldDelaySyncPayload.CODEC);
-
         // Lapis count sync
         PayloadTypeRegistry.clientboundPlay().register(LapisCountPayload.ID, LapisCountPayload.CODEC);
 
@@ -169,27 +151,7 @@ public final class NTNetwork {
         // -- push ender chest state on join --
         ServerPlayConnectionEvents.JOIN.register((handler, _, _) -> {
             pushEnderChestState(handler.player);
-            pushShieldDelay(handler.player);
         });
-    }
-
-    /* ===================== Shield Delay Sync ===================== */
-
-    /** Push the current shield raise delay to a single player. */
-    private static void pushShieldDelay(ServerPlayer player) {
-        int delay = NTServerConfig.CONFIG.shieldRaiseDelay.get();
-        ShieldDelayHolder.setShieldRaiseDelay(delay);
-        ServerPlayNetworking.send(player, new ShieldDelaySyncPayload(delay));
-    }
-
-    /** Re-sync shield delay to all online players (call after config reload). */
-    public static void syncShieldDelayToAll(MinecraftServer server) {
-        int delay = NTServerConfig.CONFIG.shieldRaiseDelay.get();
-        ShieldDelayHolder.setShieldRaiseDelay(delay);
-        ShieldDelaySyncPayload payload = new ShieldDelaySyncPayload(delay);
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            ServerPlayNetworking.send(player, payload);
-        }
     }
 
     /* ===================== Armor Swap Handler ===================== */

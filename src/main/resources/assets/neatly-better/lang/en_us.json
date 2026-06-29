@@ -263,7 +263,7 @@
   "neatly-better.config.harder_netherrack": "Tough Netherrack",
   "neatly-better.config.magma_spawns_lava": "Magma Spawns Lava",
   "neatly-better.config.totem_cooldown": "Totem Cooldown",
-  "neatly-better.config.shield_raise_delay": "Shield Raise Delay",
+  "neatly-better.config.common.shield_raise_delay": "Shield Raise Delay",
   "neatly-better.config.do_elytra_firework_boosting": "Elytra Firework Boosting",
   "neatly-better.config.feather_no_damage": "Feather Deals No Damage",
   "neatly-better.config.mending_inventory": "Repair Mode",

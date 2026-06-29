@@ -15,10 +15,18 @@ public final class NTCommonConfig {
         CONFIG_SPEC = pair.getRight();
     }
 
+    public final ModConfigSpec.IntValue shieldRaiseDelay;
     public final ModConfigSpec.BooleanValue legacyCombat;
     public final ModConfigSpec.BooleanValue clickThrough;
 
     private NTCommonConfig(ModConfigSpec.Builder builder) {
+
+        shieldRaiseDelay = builder
+                .comment("§eDelay in ticks before a shield is fully raised.")
+                .comment("")
+                .comment(" Vanilla Default: 5")
+                .translation("neatly-better.config.common.shield_raise_delay")
+                .defineInRange("shield_raise_delay", 0, 0, 5);
 
         legacyCombat = builder
                 .comment("§eEnables legacy pre-1.9 combat mechanics including no attack cooldown, sword blocking,")

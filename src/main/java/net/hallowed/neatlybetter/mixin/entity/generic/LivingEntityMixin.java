@@ -157,7 +157,7 @@ public abstract class LivingEntityMixin extends Entity {
             )
     )
     private int neatlybetter$customBlockDelay(BlocksAttacks instance, Operation<Integer> original) {
-        int configDelay = NTServerConfig.CONFIG.shieldRaiseDelay.get();
+        int configDelay = NTCommonConfig.CONFIG.shieldRaiseDelay.get();
         if (configDelay == 5) return original.call(instance);
         return configDelay;
     }

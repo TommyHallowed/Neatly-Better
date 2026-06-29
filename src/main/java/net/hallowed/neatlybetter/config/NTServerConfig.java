@@ -53,7 +53,6 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue harderNetherrack;
     public final ModConfigSpec.BooleanValue magmaSpawnsLava;
     public final ModConfigSpec.IntValue totemCooldown;
-    public final ModConfigSpec.IntValue shieldRaiseDelay;
     public final ModConfigSpec.BooleanValue doElytraFireworkBoosting;
     public final ModConfigSpec.BooleanValue featherNoDamage;
     public final ModConfigSpec.EnumValue<MendingScope> mendingInventory;
@@ -377,13 +376,6 @@ public final class NTServerConfig {
                 .comment(" 0 = no cooldown")
                 .translation("neatly-better.config.totem_cooldown")
                 .defineInRange("totem_cooldown", 5, 0, 1800);
-
-        shieldRaiseDelay = builder
-                .comment("§eDelay in ticks before a shield is fully raised.")
-                .comment("")
-                .comment(" Vanilla Default: 5")
-                .translation("neatly-better.config.shield_raise_delay")
-                .defineInRange("shield_raise_delay", 0, 0, 5);
 
         doElytraFireworkBoosting = builder
                 .comment("§eAllow firework rockets to boost elytra flight.")
