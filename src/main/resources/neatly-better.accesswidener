@@ -1,5 +1,6 @@
 accessWidener v2 official
 accessible method net/minecraft/world/entity/Mob populateDefaultEquipmentEnchantments (Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/DifficultyInstance;)V
+accessible method net/minecraft/world/entity/monster/skeleton/WitherSkeleton populateDefaultEquipmentEnchantments (Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/DifficultyInstance;)V
 accessible method net/minecraft/server/level/ServerPlayer removeEntitiesOnShoulder ()V
 accessible field net/minecraft/server/level/ServerPlayer server Lnet/minecraft/server/MinecraftServer;
 accessible field net/minecraft/world/entity/Mob goalSelector Lnet/minecraft/world/entity/ai/goal/GoalSelector;

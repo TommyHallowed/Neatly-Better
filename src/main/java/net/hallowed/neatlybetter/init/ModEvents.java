@@ -23,6 +23,7 @@ public final class ModEvents {
         InvisibleSign.register();
         LegacyCombatDamageValues.register();
         LadderPillarExtender.register();
+        WitherSkeletonArcher.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();

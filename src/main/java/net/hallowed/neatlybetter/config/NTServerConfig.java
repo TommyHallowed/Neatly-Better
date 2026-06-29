@@ -35,6 +35,7 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue sheepRunFromWolves;
     public final ModConfigSpec.BooleanValue oldSpiderAttacks;
     public final ModConfigSpec.BooleanValue vexDiesAfterSummoner;
+    public final ModConfigSpec.BooleanValue witherSkeletonArcher;
     public final ModConfigSpec.BooleanValue wolfImprovements;
     public final ModConfigSpec.BooleanValue anvilNoRenameCost;
     public final ModConfigSpec.BooleanValue anvilNoItalicsRename;
@@ -223,6 +224,18 @@ public final class NTServerConfig {
                 .define("vex_dies_after_summoner", true);
 
         builder.pop(); // vex
+
+        builder.push("wither_skeleton");
+
+        witherSkeletonArcher = builder
+                .comment("§eSpawn Wither Skeletons with bows.")
+                .comment("")
+                .comment("20% Chance at Hard Difficulty")
+                .comment("10% Chance at Normal Difficulty")
+                .translation("neatly-better.config.wither_skeleton_archer")
+                .define("wither_skeleton_archer", true);
+
+        builder.pop(); // wither skeleton
 
         builder.push("wolf");
 
