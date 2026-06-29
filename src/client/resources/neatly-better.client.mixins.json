@@ -12,6 +12,7 @@
     "entity.player.CameraMixin",
     "entity.player.LocalPlayerMixin",
     "entity.player.PlayerSecondaryUseMixin",
+    "entity.player.CameraMixin",
     "feature.EquipmentRendererMixin",
     "feature.MultiPlayerGameModeMixin",
     "item.ItemModelResolverMixin",
