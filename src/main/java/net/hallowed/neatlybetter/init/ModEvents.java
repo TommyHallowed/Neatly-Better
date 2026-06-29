@@ -17,7 +17,7 @@ public final class ModEvents {
         ArmorStandSwap.register();
         JockeyAdditions.register();
         SleepModeHandler.register();
-        WolfDamageByOwnerBypass.register();
+        TamableDamageByOwnerBypass.register();
         WolfSpawnsCollarOnDeath.register();
         DyeWoolFeature.register();
         InvisibleSign.register();

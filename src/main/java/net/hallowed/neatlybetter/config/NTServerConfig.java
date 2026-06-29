@@ -32,6 +32,7 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue mobParkour;
     public final ModConfigSpec.BooleanValue groundItemBreeding;
     public final ModConfigSpec.BooleanValue rangedMobShieldHoldoff;
+    public final ModConfigSpec.BooleanValue tamableFriendlyFire;
     public final ModConfigSpec.BooleanValue sheepRunFromWolves;
     public final ModConfigSpec.BooleanValue oldSpiderAttacks;
     public final ModConfigSpec.BooleanValue vexDiesAfterSummoner;
@@ -184,6 +185,11 @@ public final class NTServerConfig {
                 .comment("§eMobs that use bows will holdoff from shooting if the player is actively blocking.")
                 .translation("neatly-better.config.ranged_mob_shield_holdoff")
                 .define("ranged_mob_shield_holdoff", true);
+
+        tamableFriendlyFire = builder
+                .comment("§eTamable Animals cannot be hurt by their owners.")
+                .translation("neatly-better.config.tamable_friendly_fire")
+                .define("tamable_friendly_fire", true);
 
         builder.pop(); // generic
 
