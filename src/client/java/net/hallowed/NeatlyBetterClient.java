@@ -10,14 +10,11 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
-import net.hallowed.neatlybetter.client.feature.AutoRefill;
-import net.hallowed.neatlybetter.client.feature.ClientMapPreviewTooltip;
-import net.hallowed.neatlybetter.client.feature.VoidFog;
-import net.hallowed.neatlybetter.client.feature.ui.SmallHudOverlay;
 import net.hallowed.neatlybetter.client.content.feature.AutoRefill;
 import net.hallowed.neatlybetter.client.content.feature.ClientMapPreviewTooltip;
 import net.hallowed.neatlybetter.client.content.feature.VoidFog;
 import net.hallowed.neatlybetter.client.content.feature.ui.SmallHudOverlay;
+import net.hallowed.neatlybetter.client.init.ModBlockColors;
 import net.hallowed.neatlybetter.client.init.ModTooltips;
 import net.hallowed.neatlybetter.client.render.CarpetPatternModelPlugin;
 import net.hallowed.neatlybetter.client.render.InvisibleSignModelPlugin;

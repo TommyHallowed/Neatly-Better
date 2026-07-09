@@ -39,6 +39,7 @@ public class NeatlyBetter implements ModInitializer {
         // 2) Register content
         ModBlocks.register();
         ModItems.register();
+        ModBlockEntities.register();
         ModAiGoals.register();
         ModPotions.registerAll();
         ModBrewing.register();

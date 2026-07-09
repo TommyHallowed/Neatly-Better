@@ -30,10 +30,10 @@ public abstract class BlockMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    private static void neatlybetter$constrainScaffoldingDrop(
+    private static void neatlybetter$constrainScatterDrop(
             Level level, BlockPos pos, ItemStack itemStack, CallbackInfo ci
     ) {
-        if (!itemStack.is(Items.SCAFFOLDING)) return;
+        if (!itemStack.is(Items.SCAFFOLDING) && !itemStack.is(Items.LADDER)) return;
         if (!(level instanceof ServerLevel serverLevel)) return;
         if (itemStack.isEmpty()) return;
         if (!serverLevel.getGameRules().get(GameRules.BLOCK_DROPS)) return;
