@@ -6,6 +6,7 @@ import java.util.Map;
 import net.fabricmc.fabric.api.transfer.v1.fluid.CauldronFluidContent;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
+import net.hallowed.neatlybetter.init.ModBlocks;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -68,6 +69,8 @@ public class CauldronDispenseBehavior implements DispenseItemBehavior {
             if (solidBucket.getBlock() == Blocks.POWDER_SNOW) {
                 result = tryFillPowderSnow(source, level, targetPos, targetState);
             }
+        } else if (stack.is(Items.MILK_BUCKET)) {
+            result = tryFillMilk(source, level, targetPos, targetState);
         } else if (stack.getItem() instanceof BucketItem bucketItem) {
             Fluid fluid = bucketItem.getContent();
             if (fluid == Fluids.EMPTY) {
@@ -132,6 +135,24 @@ public class CauldronDispenseBehavior implements DispenseItemBehavior {
         return new ItemStack(Items.BUCKET);
     }
 
+    private ItemStack tryFillMilk(BlockSource source, ServerLevel level,
+                                  BlockPos pos, BlockState state) {
+        if (state.is(Blocks.CAULDRON)) {
+            level.setBlock(pos, ModBlocks.MILK_CAULDRON.defaultBlockState()
+                    .setValue(LayeredCauldronBlock.LEVEL, 3), 3);
+        } else if (state.is(ModBlocks.MILK_CAULDRON)) {
+            if (state.getValue(LayeredCauldronBlock.LEVEL) >= 3) return null;
+            level.setBlock(pos, state.setValue(LayeredCauldronBlock.LEVEL, 3), 3);
+        } else {
+            return null;
+        }
+
+        level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0f, 1.0f);
+        level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
+        playDispenserEffects(source);
+        return new ItemStack(Items.BUCKET);
+    }
+
     private ItemStack tryCollect(BlockSource source, ItemStack stack,
                                  ServerLevel level, BlockPos pos, BlockState state) {
 
@@ -142,6 +163,10 @@ public class CauldronDispenseBehavior implements DispenseItemBehavior {
                 && state.getValue(LayeredCauldronBlock.LEVEL) == 3) {
             filled = new ItemStack(Items.POWDER_SNOW_BUCKET);
             sound  = SoundEvents.BUCKET_FILL_POWDER_SNOW;
+
+        } else if (state.is(ModBlocks.MILK_CAULDRON)
+                && state.getValue(LayeredCauldronBlock.LEVEL) == 3) {
+            filled = new ItemStack(Items.MILK_BUCKET);
 
         } else {
             CauldronFluidContent content = CauldronFluidContent.getForBlock(state.getBlock());

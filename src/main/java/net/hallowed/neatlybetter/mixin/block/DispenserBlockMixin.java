@@ -8,6 +8,7 @@ import net.hallowed.neatlybetter.content.feature.CauldronDispenseBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SolidBucketItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -28,7 +29,8 @@ public abstract class DispenserBlockMixin {
         if (!NTServerConfig.CONFIG.dispenserCauldronInteraction.get()) return original;
 
         if (itemStack.getItem() instanceof BucketItem
-                || itemStack.getItem() instanceof SolidBucketItem) {
+                || itemStack.getItem() instanceof SolidBucketItem
+                || itemStack.is(Items.MILK_BUCKET)) {
             return new CauldronDispenseBehavior(original);
         }
         return original;

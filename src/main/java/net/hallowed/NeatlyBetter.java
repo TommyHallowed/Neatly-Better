@@ -43,6 +43,7 @@ public class NeatlyBetter implements ModInitializer {
         ModAiGoals.register();
         ModPotions.registerAll();
         ModBrewing.register();
+        ModCauldronInteractions.bootstrap();
         ModTickets.init();
         ModEvents.init();
         ModData.init();

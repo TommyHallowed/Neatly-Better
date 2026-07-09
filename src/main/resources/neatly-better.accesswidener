@@ -21,4 +21,5 @@ accessible field net/minecraft/world/inventory/EnchantmentMenu enchantSlots Lnet
 accessible field net/minecraft/world/level/block/entity/vault/VaultServerData rewardedPlayers Ljava/util/Set;
 accessible field net/minecraft/world/level/block/entity/vault/VaultServerData isDirty Z
 accessible method net/minecraft/world/entity/projectile/arrow/AbstractArrow getPickupItem ()Lnet/minecraft/world/item/ItemStack;
+accessible method net/minecraft/core/cauldron/CauldronInteraction$Dispatcher put (Lnet/minecraft/world/item/Item;Lnet/minecraft/core/cauldron/CauldronInteraction;)V
 accessible method net/minecraft/world/inventory/AbstractContainerMenu moveItemStackTo (Lnet/minecraft/world/item/ItemStack;IIZ)Z

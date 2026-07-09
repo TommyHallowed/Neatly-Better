@@ -1,10 +1,13 @@
 package net.hallowed.neatlybetter.init;
 
+import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.hallowed.neatlybetter.api.NTRegistry;
 
+import net.hallowed.neatlybetter.content.block.DyeCauldronBlock;
 import net.hallowed.neatlybetter.content.block.GlowTorchBlock;
 
 import net.hallowed.neatlybetter.content.block.GlowWallTorchBlock;
+import net.hallowed.neatlybetter.content.block.MilkCauldronBlock;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.*;
@@ -40,7 +43,7 @@ public final class ModBlocks {
             END_STONE_WALL, PURPUR_WALL, SMOOTH_BASALT_WALL, PRISMARINE_BRICK_WALL, DARK_PRISMARINE_WALL,
             SMOOTH_SANDSTONE_WALL, SMOOTH_RED_SANDSTONE_WALL;
 
-    public static Block RAINBOW_WOOL, RAINBOW_CARPET, RAINBOW_BED, CHARCOAL_BLOCK;
+    public static Block RAINBOW_WOOL, RAINBOW_CARPET, RAINBOW_BED, CHARCOAL_BLOCK, GLOW_TORCH, GLOW_WALL_TORCH, MILK_CAULDRON, DYE_CAULDRON;
 
     public static void register() {
         // Stairs
