@@ -1,6 +1,7 @@
 package net.hallowed.neatlybetter.api;
 
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 
 import net.hallowed.NeatlyBetter;
 
@@ -13,6 +14,8 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -62,6 +65,10 @@ public final class NTRegistry {
 
     public static Item registerItem(String name, Item item) {
         return Registry.register(BuiltInRegistries.ITEM, id(name), item);
+    }
+
+    public static <T extends BlockEntity> BlockEntityType<T> registerBlockEntity(String name, FabricBlockEntityTypeBuilder<T> builder) {
+        return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, id(name), builder.build());
     }
 
     /* ----------------- ItemGroup batching -----------------*/
