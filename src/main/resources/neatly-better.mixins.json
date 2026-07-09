@@ -35,6 +35,7 @@
     "enchantment.CombatRulesMixin",
     "entity.ai.PiglinAiMixin",
     "entity.ai.WalkNodeEvaluatorMixin",
+    "entity.ai.behavior.CrossbowAttackMixin",
     "entity.ai.goal.RangedBowAttackGoalMixin",
     "entity.ai.goal.RangedCrossbowAttackGoalMixin",
     "entity.ai.goal.SwellGoalMixin",
