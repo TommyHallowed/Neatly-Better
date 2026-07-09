@@ -5,7 +5,9 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.hallowed.NeatlyBetter;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -21,7 +23,6 @@ import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.core.particles.ParticleTypes;
 
 public final class BlockGluing {
     private BlockGluing() {}
@@ -57,7 +58,7 @@ public final class BlockGluing {
 
                 spawnRemoveParticles((ServerLevel) level, pos);
 
-                stack.hurtAndBreak(1, (ServerLevel) level, player instanceof net.minecraft.server.level.ServerPlayer sp ? sp : null,
+                stack.hurtAndBreak(1, (ServerLevel) level, player instanceof ServerPlayer sp ? sp : null,
                         item -> player.onEquippedItemBroken(item, net.minecraft.world.entity.EquipmentSlot.MAINHAND));
             }
 
@@ -96,7 +97,7 @@ public final class BlockGluing {
             double ox = (level.getRandom().nextDouble() - 0.5) * 0.8;
             double oy =  level.getRandom().nextDouble()        * 0.6;
             double oz = (level.getRandom().nextDouble() - 0.5) * 0.8;
-            level.sendParticles(ParticleTypes.WAX_ON,
+            level.sendParticles(ParticleTypes.ITEM_SLIME,
                     cx + ox, cy + oy, cz + oz,
                     1, 0.0, 0.0, 0.0, 0.0);
         }
@@ -110,7 +111,7 @@ public final class BlockGluing {
             double ox = (level.getRandom().nextDouble() - 0.5) * 0.8;
             double oy =  level.getRandom().nextDouble()        * 0.6;
             double oz = (level.getRandom().nextDouble() - 0.5) * 0.8;
-            level.sendParticles(ParticleTypes.WAX_OFF,
+            level.sendParticles(ParticleTypes.ITEM_SLIME,
                     cx + ox, cy + oy, cz + oz,
                     1, 0.0, 0.0, 0.0, 0.0);
         }
