@@ -11,6 +11,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.wolf.Wolf;
+import net.minecraft.world.entity.monster.illager.Pillager;
 import net.minecraft.world.entity.monster.spider.Spider;
 
 import java.util.ArrayList;
@@ -41,11 +42,11 @@ public final class ModAiGoals {
         }
 
         // 2) Run while charging crossbow
-        if (type == EntityTypes.PILLAGER || type == EntityTypes.PIGLIN) {
-            if (NTServerConfig.CONFIG.runWhileCharging.get()
-                    && mob instanceof PathfinderMob path
-                    && hasNoGoal(goals, RunWhileChargingCrossbowGoal.class)) {
-                goals.addGoal(2, new RunWhileChargingCrossbowGoal(path, 1.0D));
+        if (type == EntityTypes.PILLAGER && mob instanceof Pillager pillager) {
+            if (NTServerConfig.CONFIG.runWhileCharging.isTrue()
+                    && hasNoGoal(goals, RetreatingCrossbowAttackGoal.class)) {
+                removeExactGoal(goals, RangedCrossbowAttackGoal.class);
+                goals.addGoal(3, new RetreatingCrossbowAttackGoal<>(pillager, 1.0D, 8.0F, 5.0F));
             }
         }
 
