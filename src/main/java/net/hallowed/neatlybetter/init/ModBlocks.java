@@ -515,7 +515,7 @@ public final class ModBlocks {
                 new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.WOOL.pick(DyeColor.WHITE)).setId(NTRegistry.blockKey("rainbow_wool"))));
 
         RAINBOW_CARPET = NTRegistry.registerBlockWithItem("rainbow_carpet",
-                new CarpetBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CARPET.pick(DyeColor.WHITE)).setId(NTRegistry.blockKey("rainbow_carpet"))));
+                new WoolCarpetBlock(DyeColor.WHITE, BlockBehaviour.Properties.ofFullCopy(Blocks.CARPET.pick(DyeColor.WHITE)).setId(NTRegistry.blockKey("rainbow_carpet"))));
 
         RAINBOW_BED = NTRegistry.registerBlock("rainbow_bed",
                 new BedBlock(DyeColor.WHITE,
