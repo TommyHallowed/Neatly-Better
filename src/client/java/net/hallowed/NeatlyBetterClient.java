@@ -15,6 +15,7 @@ import net.hallowed.neatlybetter.client.feature.ClientMapPreviewTooltip;
 import net.hallowed.neatlybetter.client.feature.VoidFog;
 import net.hallowed.neatlybetter.client.feature.ui.SmallHudOverlay;
 import net.hallowed.neatlybetter.client.init.ModTooltips;
+import net.hallowed.neatlybetter.client.render.CarpetPatternModelPlugin;
 import net.hallowed.neatlybetter.client.render.InvisibleSignModelPlugin;
 import net.hallowed.neatlybetter.client.tooltip.*;
 import net.hallowed.neatlybetter.client.util.EnderCheckClient;
@@ -39,6 +40,7 @@ public class NeatlyBetterClient implements ClientModInitializer {
         VoidFog.register();
 
         ModelLoadingPlugin.register(new InvisibleSignModelPlugin());
+        ModelLoadingPlugin.register(new CarpetPatternModelPlugin());
 
         HudElementRegistry.attachElementAfter(
                 VanillaHudElements.MOB_EFFECTS,
