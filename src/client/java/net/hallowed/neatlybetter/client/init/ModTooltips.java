@@ -103,8 +103,7 @@ public final class ModTooltips {
             if (slot == EquipmentSlot.HEAD || slot == EquipmentSlot.CHEST
                     || slot == EquipmentSlot.LEGS || slot == EquipmentSlot.FEET) {
 
-                net.minecraft.client.player.LocalPlayer player =
-                        net.minecraft.client.Minecraft.getInstance().player;
+                LocalPlayer player = Minecraft.getInstance().player;
 
                 if (player == null || player.getItemBySlot(slot) != stack) {
                     int insertPos = lines.size();
