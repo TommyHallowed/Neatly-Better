@@ -2,9 +2,14 @@ package net.hallowed.neatlybetter.init;
 
 import net.hallowed.neatlybetter.api.NTRegistry;
 
+import net.hallowed.neatlybetter.content.block.GlowTorchBlock;
+
+import net.hallowed.neatlybetter.content.block.GlowWallTorchBlock;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.PushReaction;
 
 public final class ModBlocks {
     private ModBlocks() {}
@@ -516,6 +521,24 @@ public final class ModBlocks {
 
         CHARCOAL_BLOCK = NTRegistry.registerBlockWithItem("charcoal_block",
                 new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.COAL_BLOCK).setId(NTRegistry.blockKey("charcoal_block"))));
+        GLOW_TORCH = NTRegistry.registerBlock("glow_torch",
+                new GlowTorchBlock(ParticleTypes.GLOW, BlockBehaviour.Properties.of()
+                        .noCollision()
+                        .instabreak()
+                        .sound(SoundType.WOOD)
+                        .lightLevel(state -> 15)
+                        .pushReaction(PushReaction.DESTROY)
+                        .setId(NTRegistry.blockKey("glow_torch"))));
+
+        GLOW_WALL_TORCH = NTRegistry.registerBlock("glow_wall_torch",
+                new GlowWallTorchBlock(ParticleTypes.GLOW, BlockBehaviour.Properties.of()
+                        .noCollision()
+                        .instabreak()
+                        .sound(SoundType.WOOD)
+                        .lightLevel(state -> 15)
+                        .pushReaction(PushReaction.DESTROY)
+                        .setId(NTRegistry.blockKey("glow_wall_torch"))));
+
         MILK_CAULDRON = NTRegistry.registerBlock("milk_cauldron",
                 new MilkCauldronBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WATER_CAULDRON).setId(NTRegistry.blockKey("milk_cauldron"))));
 

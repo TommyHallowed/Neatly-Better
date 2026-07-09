@@ -58,5 +58,10 @@ public final class ModItems {
             }
             return InteractionResult.PASS;
         });
+
+        Registry.register(BuiltInRegistries.ITEM, NTRegistry.id("glow_torch"),
+                new StandingAndWallBlockItem(GLOW_TORCH, GLOW_WALL_TORCH, Direction.DOWN,
+                        new Item.Properties().setId(NTRegistry.itemKey("glow_torch"))));
+
     }
 }
