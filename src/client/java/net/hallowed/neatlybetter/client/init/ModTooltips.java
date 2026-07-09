@@ -5,8 +5,11 @@ import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.item.MapBuilderItem;
+import net.hallowed.neatlybetter.init.ModItems;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -56,6 +59,10 @@ public final class ModTooltips {
                     .withStyle(ChatFormatting.RED)
     );
 
+    private static final MutableComponent MILK_BOTTLE_HINT =
+            Component.translatable("tooltip.neatly-better.milk_bottle_hint")
+                    .withStyle(ChatFormatting.YELLOW);
+
     public static void init() {
         ItemTooltipCallback.EVENT.register(ModTooltips::onTooltip);
     }
@@ -85,6 +92,9 @@ public final class ModTooltips {
         }
         if (stack.getItem() instanceof MapBuilderItem) {
             lines.addAll(MAP_BUILDER_LINES);
+        }
+        if (stack.is(ModItems.MILK_BOTTLE)) {
+            addBasicUnderName(lines, MILK_BOTTLE_HINT);
         }
 
         Equippable equippable = stack.get(DataComponents.EQUIPPABLE);

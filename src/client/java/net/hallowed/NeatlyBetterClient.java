@@ -39,6 +39,7 @@ public class NeatlyBetterClient implements ClientModInitializer {
         EnderCheckClient.register();
         AutoRefill.register();
         VoidFog.register();
+        ModBlockColors.register();
 
         ModelLoadingPlugin.register(new InvisibleSignModelPlugin());
         ModelLoadingPlugin.register(new CarpetPatternModelPlugin());

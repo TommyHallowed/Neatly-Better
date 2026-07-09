@@ -3,21 +3,28 @@ package net.hallowed.neatlybetter.init;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 
 import net.hallowed.neatlybetter.api.NTRegistry;
-
 import net.hallowed.neatlybetter.content.component.QuiverContents;
 import net.hallowed.neatlybetter.content.item.MapBuilderItem;
+import net.hallowed.neatlybetter.content.item.MilkBottleItem;
 import net.hallowed.neatlybetter.content.item.QuiverItem;
+
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BedItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.StandingAndWallBlockItem;
+import net.minecraft.world.item.component.Consumables;
 
-import static net.hallowed.neatlybetter.init.ModBlocks.RAINBOW_BED;
+import static net.hallowed.neatlybetter.init.ModBlocks.*;
 
 public final class ModItems {
     private ModItems() {}
 
-    public static Item MAP_BUILDER, CHEST_KEY, WOLF_COLLAR, QUIVER;
+    public static Item MAP_BUILDER, CHEST_KEY, WOLF_COLLAR, QUIVER, MILK_BOTTLE;
 
     public static void register() {
 
@@ -63,5 +70,7 @@ public final class ModItems {
                 new StandingAndWallBlockItem(GLOW_TORCH, GLOW_WALL_TORCH, Direction.DOWN,
                         new Item.Properties().setId(NTRegistry.itemKey("glow_torch"))));
 
+        MILK_BOTTLE = NTRegistry.registerItem("milk_bottle",
+                new MilkBottleItem(new Item.Properties().stacksTo(16).component(DataComponents.CONSUMABLE, Consumables.DEFAULT_DRINK).useCooldown(60F).setId(NTRegistry.itemKey("milk_bottle"))));
     }
 }
