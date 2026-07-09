@@ -516,5 +516,10 @@ public final class ModBlocks {
 
         CHARCOAL_BLOCK = NTRegistry.registerBlockWithItem("charcoal_block",
                 new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.COAL_BLOCK).setId(NTRegistry.blockKey("charcoal_block"))));
+        MILK_CAULDRON = NTRegistry.registerBlock("milk_cauldron",
+                new MilkCauldronBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WATER_CAULDRON).setId(NTRegistry.blockKey("milk_cauldron"))));
+
+        DYE_CAULDRON = NTRegistry.registerBlock("dye_cauldron",
+                new DyeCauldronBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WATER_CAULDRON).setId(NTRegistry.blockKey("dye_cauldron"))));
     }
 }
