@@ -97,27 +97,27 @@ public abstract class LivingEntityMixin extends Entity {
     @Inject(method = "getDamageAfterMagicAbsorb", at = @At("HEAD"))
     private void neatlybetter$setProtContext(DamageSource damageSource, float damage,
                                              CallbackInfoReturnable<Float> cir) {
-        if (!NTServerConfig.CONFIG.protectionOverhaul.get()) return;
+        if (NTServerConfig.CONFIG.protectionOverhaul.isFalse()) return;
         ProtectionContext.set((LivingEntity) (Object) this, damageSource);
     }
 
     @Inject(method = "getDamageAfterMagicAbsorb", at = @At("RETURN"))
     private void neatlybetter$clearProtContext(DamageSource damageSource, float damage,
                                                CallbackInfoReturnable<Float> cir) {
-        if (!NTServerConfig.CONFIG.protectionOverhaul.get()) return;
+        if (NTServerConfig.CONFIG.protectionOverhaul.isFalse()) return;
         ProtectionContext.clear();
     }
 
     /* ===================== 3) Resistance effect absorption nerf ===================== */
     @ModifyConstant(method = "getDamageAfterMagicAbsorb", constant = @Constant(intValue = 25))
     private int neatlybetter$resistanceDenominatorInt(int original) {
-        if (!NTServerConfig.CONFIG.resistanceOverhaul.get()) return original;
+        if (NTServerConfig.CONFIG.resistanceOverhaul.isFalse()) return original;
         return 50;
     }
 
     @ModifyConstant(method = "getDamageAfterMagicAbsorb", constant = @Constant(floatValue = 25.0F))
     private float neatlybetter$resistanceDenominatorFloat(float original) {
-        if (!NTServerConfig.CONFIG.resistanceOverhaul.get()) return original;
+        if (NTServerConfig.CONFIG.resistanceOverhaul.isFalse()) return original;
         return 50.0F;
     }
 
@@ -131,7 +131,7 @@ public abstract class LivingEntityMixin extends Entity {
                                                       float damage,
                                                       CallbackInfoReturnable<Float> cir) {
 
-        if (!NTServerConfig.CONFIG.explosionsDisableShield.get()) return;
+        if (NTServerConfig.CONFIG.explosionsDisableShield.isFalse()) return;
         if (cir.getReturnValue() <= 0.0F) return;
         if (!source.is(DamageTypeTags.IS_EXPLOSION)) return;
 
@@ -166,7 +166,7 @@ public abstract class LivingEntityMixin extends Entity {
     @ModifyReturnValue(method = "maxUpStep", at = @At("RETURN"))
     private float neatlybetter$suppressStepUpWhileShifting(float original) {
 
-        if (!NTServerConfig.CONFIG.stepUpDisabledWhileShifting.get()) return original;
+        if (NTServerConfig.CONFIG.stepUpDisabledWhileShifting.isFalse()) return original;
 
         LivingEntity self = (LivingEntity) (Object) this;
 
@@ -216,11 +216,13 @@ public abstract class LivingEntityMixin extends Entity {
             return original.call(a, b);
         }
 
+        double downMultiplier = NTServerConfig.CONFIG.ladderClimbDownSpeedMultiplier.get();
+
         double maxDown = Mth.clampedMap(getXRot(), 20, 90, b, -0.4);
         if (maxDown < b) {
             maxDown = Mth.clampedMap(
                     neatlybetter$climbDownTicks, 0, 60,
-                    maxDown, maxDown * 1.25
+                    maxDown, maxDown * downMultiplier
             );
         }
         return original.call(a, maxDown);
@@ -245,10 +247,10 @@ public abstract class LivingEntityMixin extends Entity {
 
         neatlybetter$climbingUpThisTick = true;
 
-        double boosted = vanillaClimbSpeed * 1.25;
+        double upMultiplier = NTServerConfig.CONFIG.ladderClimbUpSpeedMultiplier.get();
         double ramped = Mth.clampedMap(
                 neatlybetter$climbUpTicks, 0, 60,
-                boosted, boosted * 1.75
+                vanillaClimbSpeed, vanillaClimbSpeed * upMultiplier
         );
         return Math.max(this.getDeltaMovement().y, ramped);
     }
@@ -282,7 +284,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @ModifyReturnValue(method = "isBlocking", at = @At("RETURN"))
     private boolean isSwordBlocking(boolean original) {
-        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
+        if (NTCommonConfig.CONFIG.legacyCombat.isFalse()) {
             return original;
         }
         if (!original && this.isUsingItem() && LegacyCombatHandler.isSword(this.getUseItem())) {
@@ -297,7 +299,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @ModifyReturnValue(method = "getItemBlockingWith", at = @At("RETURN"))
     private ItemStack getSwordBlockingItem(ItemStack original) {
-        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
+        if (NTCommonConfig.CONFIG.legacyCombat.isFalse()) {
             return original;
         }
         if ((original == null || original.isEmpty()) && this.isUsingItem() && LegacyCombatHandler.isSword(this.getUseItem())) {
@@ -321,7 +323,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "hurtServer", at = @At("RETURN"))
     private void damageSwordOnBlock(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
-        if (!NTCommonConfig.CONFIG.legacyCombat.get() || damage <= 0.0F) {
+        if (NTCommonConfig.CONFIG.legacyCombat.isFalse() || damage <= 0.0F) {
             return;
         }
 
@@ -348,7 +350,7 @@ public abstract class LivingEntityMixin extends Entity {
             at = @At("RETURN")
     )
     private ItemEntity neatlybetter$unlimitedLifetimeOnDeathDrops(ItemEntity entity, ItemStack itemStack, boolean randomly, boolean thrownFromHand) {
-        if (NTServerConfig.CONFIG.unlimitedLifetimeOnDeathDrops.get()
+        if (NTServerConfig.CONFIG.unlimitedLifetimeOnDeathDrops.isTrue()
                 && entity != null
                 && randomly
                 && (Object) this instanceof Player) {

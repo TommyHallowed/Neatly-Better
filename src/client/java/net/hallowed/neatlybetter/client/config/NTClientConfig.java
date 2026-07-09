@@ -67,6 +67,7 @@ public final class NTClientConfig {
     public final ModConfigSpec.BooleanValue telemetryOff;
     public final ModConfigSpec.BooleanValue instantEyeHeight;
     public final ModConfigSpec.BooleanValue denyOffhandWhileHungry;
+    public final ModConfigSpec.BooleanValue ladderForceSneakOnGui;
 
     // -- Render --
     public final ModConfigSpec.BooleanValue showStuckProjectiles;
@@ -234,6 +235,11 @@ public final class NTClientConfig {
                 .comment("§eDeny off-hand block placement after eating.")
                 .translation("neatly-better.config.deny_offhand_while_hungry")
                 .define("deny_offhand_while_hungry", true);
+
+        ladderForceSneakOnGui = builder
+                .comment("§eForce the player to sneak while climbing a ladder with a GUI open.")
+                .translation("neatly-better.config.ladder_force_sneak_on_gui")
+                .define("ladder_force_sneak_on_gui", true);
         builder.pop();
 
         builder.push("render");

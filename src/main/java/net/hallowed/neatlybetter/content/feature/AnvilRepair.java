@@ -3,6 +3,7 @@ package net.hallowed.neatlybetter.content.feature;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 
 import net.hallowed.neatlybetter.api.NTCompat;
+import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -25,6 +26,7 @@ public final class AnvilRepair {
     }
 
     private static InteractionResult onUseBlock(Player player, Level world, InteractionHand hand, BlockHitResult hit) {
+        if (NTServerConfig.CONFIG.anvilRepair.isFalse()) return InteractionResult.PASS;
         if (NTCompat.ANVILRESTORATION || NTCompat.EASYANVILS) return InteractionResult.PASS;
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
         if (!player.isCrouching()) return InteractionResult.PASS;

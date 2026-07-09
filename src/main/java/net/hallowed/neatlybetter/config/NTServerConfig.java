@@ -24,10 +24,10 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue villagerGlobalCuringPrices;
     public final ModConfigSpec.BooleanValue villagerInfiniteCuringDiscounts;
     public final ModConfigSpec.BooleanValue villagerBookLevelCap;
-    public final ModConfigSpec.BooleanValue ironGolemNoSpeedrun;
     public final ModConfigSpec.BooleanValue ironGolemRepairUsingBlocks;
     public final ModConfigSpec.BooleanValue shulkerBulletDespawnsAfterOwner;
     public final ModConfigSpec.BooleanValue piglinRespectsTrims;
+    public final ModConfigSpec.EnumValue<PhantomSpawner> phantomSpawnerMode;
     public final ModConfigSpec.BooleanValue runWhileCharging;
     public final ModConfigSpec.BooleanValue mobParkour;
     public final ModConfigSpec.BooleanValue groundItemBreeding;
@@ -38,6 +38,7 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue vexDiesAfterSummoner;
     public final ModConfigSpec.BooleanValue witherSkeletonArcher;
     public final ModConfigSpec.BooleanValue wolfImprovements;
+    public final ModConfigSpec.BooleanValue anvilRepair;
     public final ModConfigSpec.BooleanValue anvilNoRenameCost;
     public final ModConfigSpec.BooleanValue anvilNoItalicsRename;
     public final ModConfigSpec.BooleanValue anvilRenameColors;
@@ -47,6 +48,9 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue beaconSaturationEffect;
     public final ModConfigSpec.IntValue maxBeaconRange;
     public final ModConfigSpec.BooleanValue dispenserCauldronInteraction;
+    public final ModConfigSpec.BooleanValue ladderExtensionPlacement;
+    public final ModConfigSpec.DoubleValue ladderClimbUpSpeedMultiplier;
+    public final ModConfigSpec.DoubleValue ladderClimbDownSpeedMultiplier;
     public final ModConfigSpec.BooleanValue vaultReopenEnabled;
     public final ModConfigSpec.LongValue vaultReopenCooldownTicks;
     public final ModConfigSpec.LongValue vaultOminousReopenCooldownTicks;
@@ -54,8 +58,8 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue rainIncreasesCropGrowth;
     public final ModConfigSpec.BooleanValue harderNetherrack;
     public final ModConfigSpec.BooleanValue magmaSpawnsLava;
+    public final ModConfigSpec.BooleanValue inWorldWoolDyeing;
     public final ModConfigSpec.IntValue totemCooldown;
-    public final ModConfigSpec.BooleanValue doElytraFireworkBoosting;
     public final ModConfigSpec.BooleanValue featherNoDamage;
     public final ModConfigSpec.EnumValue<MendingScope> mendingInventory;
     public final ModConfigSpec.DoubleValue mendingEfficiency;
@@ -65,14 +69,22 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue hungerMechanics;
     public final ModConfigSpec.BooleanValue xpFromMiningNonOre;
     public final ModConfigSpec.BooleanValue xpFromPlacingBlocks;
+    public final ModConfigSpec.BooleanValue xpFromFarming;
+    public final ModConfigSpec.BooleanValue doElytraFireworkBoosting;
+    public final ModConfigSpec.BooleanValue elytraFlightLimiter;
+    public final ModConfigSpec.DoubleValue elytraFlightLimiterMinClearance;
+    public final ModConfigSpec.DoubleValue elytraFlightLimiterBypassFallDistance;
     public final ModConfigSpec.BooleanValue stepUpDisabledWhileShifting;
     public final ModConfigSpec.BooleanValue lapisStaysInEnchanting;
     public final ModConfigSpec.BooleanValue explosionsDisableShield;
+    public final ModConfigSpec.BooleanValue torchIgnite;
+    public final ModConfigSpec.BooleanValue saplingAutoReplant;
     public final ModConfigSpec.BooleanValue unlimitedLifetimeOnDeathDrops;
     public final ModConfigSpec.BooleanValue restoreDeathDropSlots;
     public final ModConfigSpec.BooleanValue keepRecoveryCompassOnDeath;
     public final ModConfigSpec.BooleanValue cropHarvester;
     public final ModConfigSpec.BooleanValue armorStandSwap;
+    public final ModConfigSpec.BooleanValue doubleDoorOpening;
 
     private NTServerConfig(ModConfigSpec.Builder builder) {
 
@@ -87,14 +99,14 @@ public final class NTServerConfig {
         creeperOrbiting = builder
                 .comment("§eCreeper will orbit around players while igniting.")
                 .comment("")
-                .comment("§4(Only on Hard Difficulty)")
+                .comment("§4(Exclusive to: Hard Difficulty)")
                 .translation("neatly-better.config.creeper_orbiting")
                 .define("creeper_orbiting", true);
 
         creeperWalkIgnite = builder
                 .comment("§eCreeper will walk towards players while igniting.")
                 .comment("")
-                .comment("§6(Only on Normal Difficulty)")
+                .comment("§6(Exclusive to: Normal Difficulty)")
                 .translation("neatly-better.config.creeper_walk_ignite")
                 .define("creeper_walk_ignite", true);
 
@@ -139,12 +151,6 @@ public final class NTServerConfig {
         // ── Iron Golem ──
         builder.push("iron_golem");
 
-        ironGolemNoSpeedrun = builder
-                .comment("§eIron Golems can reach up to 4 blocks high.")
-                .comment("§eMeaning the speedrun strat won't work anymore on them.")
-                .translation("neatly-better.config.iron_golem_no_speedrun")
-                .define("iron_golem_no_speedrun", true);
-
         ironGolemRepairUsingBlocks = builder
                 .comment("§eIron Golems can be only repaired using Iron Blocks instead of iron ingots.")
                 .translation("neatly-better.config.iron_golem_repair_using_blocks")
@@ -172,17 +178,17 @@ public final class NTServerConfig {
                 .comment("§eAffected Mobs:")
                 .comment("§eVindicators, Piglin Brutes, Zombified Piglins & Zombies")
                 .comment("")
-                .comment("§4(Only on Hard Difficulty)")
+                .comment("§4(Exclusive to: Hard Difficulty)")
                 .translation("neatly-better.config.mob_parkour")
                 .define("mob_parkour", true);
 
         groundItemBreeding = builder
-                .comment("§eAnimals can be bread by eating dropped breeding items from the ground.")
+                .comment("§eAnimals can be bred by feeding them dropped breeding items from the ground.")
                 .translation("neatly-better.config.ground_item_breeding")
                 .define("ground_item_breeding", true);
 
         rangedMobShieldHoldoff = builder
-                .comment("§eMobs that use bows will holdoff from shooting if the player is actively blocking.")
+                .comment("§eMobs that use bows/crossbows will holdoff from shooting if the player is actively blocking.")
                 .translation("neatly-better.config.ranged_mob_shield_holdoff")
                 .define("ranged_mob_shield_holdoff", true);
 
@@ -201,6 +207,16 @@ public final class NTServerConfig {
                 .define("piglin_respects_trims", true);
 
         builder.pop(); // piglin
+
+        builder.push("phantom");
+
+        phantomSpawnerMode = builder
+                .comment("§eDecide where and how will phantoms spawn, or if at all.")
+                .comment("")
+                .translation("neatly-better.config.phantom_spawner_mode")
+                .defineEnum("phantom_spawner_mode", PhantomSpawner.END);
+
+        builder.pop(); // phantom
 
         builder.push("sheep");
 
@@ -236,8 +252,9 @@ public final class NTServerConfig {
         witherSkeletonArcher = builder
                 .comment("§eSpawn Wither Skeletons with bows.")
                 .comment("")
-                .comment("20% Chance at Hard Difficulty")
-                .comment("10% Chance at Normal Difficulty")
+                .comment("20% Chance on Hard")
+                .comment("10% Chance on Normal")
+                .comment("0% Chance on Easy/Peaceful")
                 .translation("neatly-better.config.wither_skeleton_archer")
                 .define("wither_skeleton_archer", true);
 
@@ -268,7 +285,7 @@ public final class NTServerConfig {
         rainIncreasesCropGrowth = builder
                 .comment("§eCrops will grow faster when it's raining.")
                 .comment("")
-                .comment("§e(This works only if the crops are under the sun)")
+                .comment("§e(This works only if the crops are under the sky)")
                 .translation("neatly-better.config.rain_increases_crop_growth")
                 .define("rain_increases_crop_growth", true);
 
@@ -282,10 +299,20 @@ public final class NTServerConfig {
                 .translation("neatly-better.config.magma_spawns_lava")
                 .define("magma_spawns_lava", true);
 
+        inWorldWoolDyeing = builder
+                .comment("§eDye dyeable blocks like wool, carpet, bed by Right-Clicking with Dye Item.")
+                .translation("neatly-better.config.in_world_wool_dyeing")
+                .define("in_world_wool_dyeing", true);
+
         builder.pop(); // generic
 
         // ── Anvil ──
         builder.push("anvil");
+
+        anvilRepair = builder
+                .comment("§eRepair anvil by using an iron block on it.")
+                .translation("neatly-better.config.anvil_repair")
+                .define("anvil_repair", true);
 
         anvilNoRenameCost = builder
                 .comment("§eItem renames using anvil do not cost xp.")
@@ -346,6 +373,30 @@ public final class NTServerConfig {
 
         builder.pop(); // dispenser
 
+        builder.push("ladder");
+
+        ladderExtensionPlacement = builder
+                .comment("§eLadders can be extended upwards by Right-Clicking with ladder item.")
+                .comment("§eUse Shift to extend ladders downwards")
+                .translation("neatly-better.config.ladder_extension_placement")
+                .define("ladder_extension_placement", true);
+
+        ladderClimbUpSpeedMultiplier = builder
+                .comment("§eSpeed multiplier applied when climbing up a ladder.")
+                .comment("")
+                .comment(" §eVanilla Default: 1.0")
+                .translation("neatly-better.config.ladder_climb_up_speed_multiplier")
+                .defineInRange("ladder_climb_up_speed_multiplier", 1.75, 0.1, 10.0);
+
+        ladderClimbDownSpeedMultiplier = builder
+                .comment("§eSpeed multiplier applied when climbing down a ladder.")
+                .comment("")
+                .comment(" §eVanilla Default: 1.0")
+                .translation("neatly-better.config.ladder_climb_down_speed_multiplier")
+                .defineInRange("ladder_climb_down_speed_multiplier", 1.25, 0.1, 10.0);
+
+        builder.pop(); // ladder
+
         builder.push("sponge");
 
         spongeBlockAbsorbRadius = builder
@@ -368,14 +419,14 @@ public final class NTServerConfig {
         vaultReopenCooldownTicks = builder
        .comment("§eTicks before a normal vault can be re-opened by the same player.")
        .comment("")
-       .comment(" Default 24000 = 1 day")
+       .comment(" 24000 ticks = 1 day")
        .translation("neatly-better.config.vault_cooldown_ticks")
        .defineInRange("vault_cooldown_ticks", 24000L, 0L, Long.MAX_VALUE);
 
         vaultOminousReopenCooldownTicks = builder
        .comment("§eTicks before an ominous vault can be re-opened by the same player.")
        .comment("")
-       .comment(" Default 72000 = 3 days")
+       .comment(" 72000 ticks = 3 days")
        .translation("neatly-better.config.vault_ominous_cooldown_ticks")
        .defineInRange("vault_ominous_cooldown_ticks", 72000L, 0L, Long.MAX_VALUE);
 
@@ -394,12 +445,7 @@ public final class NTServerConfig {
                 .comment("")
                 .comment(" 0 = no cooldown")
                 .translation("neatly-better.config.totem_cooldown")
-                .defineInRange("totem_cooldown", 5, 0, 1800);
-
-        doElytraFireworkBoosting = builder
-                .comment("§eAllow firework rockets to boost elytra flight.")
-                .translation("neatly-better.config.do_elytra_firework_boosting")
-                .define("do_elytra_firework_boosting", false);
+                .defineInRange("totem_cooldown", 30, 0, 1800);
 
         featherNoDamage = builder
                 .comment("§eFeather deals no damage to entities, applies only knockback.")
@@ -410,6 +456,20 @@ public final class NTServerConfig {
                 .comment("§eShields are disabled if hit directly by explosive damage.")
                 .translation("neatly-better.config.explosions_disable_shield")
                 .define("explosions_disable_shield", true);
+
+        torchIgnite = builder
+                .comment("§eTorch ignites attacked entities.")
+                .comment("")
+                .comment("§cOn Hard Difficulty: 20% chance of igniting for 4 seconds.")
+                .comment("§7On Normal Difficulty: 60% chance of igniting for 6 seconds.")
+                .comment("§aOn Easy/Peaceful Difficulty: 100% chance of igniting for 8 seconds.")
+                .translation("neatly-better.config.torch_ignite")
+                .define("torch_ignite", true);
+
+        saplingAutoReplant = builder
+                .comment("§eSaplings dropped on the ground will get planted instead of despawning.")
+                .translation("neatly-better.config.sapling_auto_replant")
+                .define("sapling_auto_replant", true);
 
         builder.pop(); // item
 
@@ -517,7 +577,37 @@ public final class NTServerConfig {
                 .translation("neatly-better.config.xp_from_placing_blocks")
                 .define("xp_from_placing_blocks", true);
 
+        xpFromFarming = builder
+                .comment("§eGain XP by farming.")
+                .translation("neatly-better.config.xp_from_farming")
+                .define("xp_from_farming", true);
+
         builder.pop(); // experience
+
+        builder.push("elytra_flying");
+
+        doElytraFireworkBoosting = builder
+                .comment("§eAllow firework rockets to boost elytra flight.")
+                .translation("neatly-better.config.do_elytra_firework_boosting")
+                .define("do_elytra_firework_boosting", false);
+
+        elytraFlightLimiter = builder
+                .comment("§eLimits opening an elytra when there isn't enough clear space below the player.")
+                .translation("neatly-better.config.elytra_flight_limiter")
+                .define("elytra_flight_limiter", true);
+
+        elytraFlightLimiterMinClearance = builder
+                .comment("§eMinimum vertical clearance (in blocks) required below the player to open an elytra.")
+                .translation("neatly-better.config.elytra_flight_limiter_min_clearance")
+                .defineInRange("elytra_flight_limiter_min_clearance", 2.0, 0.0, 16.0);
+
+        elytraFlightLimiterBypassFallDistance = builder
+                .comment("§eIf the player has already fallen more than this many blocks, clearance is ignored")
+                .comment("§eand the elytra can be opened regardless (prevents fall-death from a false-positive block).")
+                .translation("neatly-better.config.elytra_flight_limiter_bypass_fall_distance")
+                .defineInRange("elytra_flight_limiter_bypass_fall_distance", 2.0, 0.0, 64.0);
+
+        builder.pop(); // elytra flying
 
         unlimitedLifetimeOnDeathDrops = builder
                 .comment("§eItems dropped upon death will not despawn.")
@@ -547,6 +637,11 @@ public final class NTServerConfig {
                 .translation("neatly-better.config.armor_stand_swap")
                 .define("armor_stand_swap", true);
 
+        doubleDoorOpening = builder
+                .comment("§eOpen both doors at the same time.")
+                .translation("neatly-better.config.double_door_opening")
+                .define("double_door_opening", true);
+
         builder.pop(); // player
 
 
@@ -562,5 +657,11 @@ public final class NTServerConfig {
         ALLOW,
         DENY,
         DRAGON
+    }
+
+    public enum PhantomSpawner {
+        VANILLA,
+        DISABLE,
+        END
     }
 }

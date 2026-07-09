@@ -22,7 +22,7 @@ public class ArmorStandSwap {
     public static void register() {
         UseEntityCallback.EVENT.register((player, world, hand, entity, _) -> {
 
-            if (!NTServerConfig.CONFIG.armorStandSwap.get()) return InteractionResult.PASS;
+            if (NTServerConfig.CONFIG.armorStandSwap.isFalse()) return InteractionResult.PASS;
 
             if (hand != InteractionHand.MAIN_HAND
                         || !player.isShiftKeyDown()

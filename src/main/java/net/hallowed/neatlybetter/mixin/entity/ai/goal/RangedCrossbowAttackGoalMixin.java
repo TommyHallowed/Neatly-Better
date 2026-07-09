@@ -34,7 +34,7 @@ public abstract class RangedCrossbowAttackGoalMixin {
             cancellable = true
     )
     private void neatlybetter$dontShootShields(CallbackInfo ci) {
-        if (!NTServerConfig.CONFIG.rangedMobShieldHoldoff.get()) return;
+        if (NTServerConfig.CONFIG.rangedMobShieldHoldoff.isFalse()) return;
         if (this.mob.level().getDifficulty() != Difficulty.HARD) {
             this.neatlybetter$shieldHoldoff = 0;
             return;

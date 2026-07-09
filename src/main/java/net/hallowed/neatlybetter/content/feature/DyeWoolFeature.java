@@ -2,6 +2,9 @@ package net.hallowed.neatlybetter.content.feature;
 
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -29,6 +32,7 @@ public class DyeWoolFeature {
     public static void register() {
 
         UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
+            if (NTServerConfig.CONFIG.inWorldWoolDyeing.isFalse()) return InteractionResult.PASS;
             ItemStack stack = player.getItemInHand(hand);
 
             if (!(stack.getItem() instanceof DyeItem)) return InteractionResult.PASS;

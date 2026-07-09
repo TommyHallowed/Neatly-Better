@@ -79,6 +79,8 @@ public abstract class LocalPlayerMixin extends LivingEntity {
             cancellable = true
     )
     private void neatlybetter$forceShiftOnClimbableWithContainer(CallbackInfoReturnable<Boolean> cir) {
+        if (!NTClientConfig.CONFIG.ladderForceSneakOnGui.get()) return;
+
         if (this.onClimbable() && Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?>) {
             BlockState state = this.level().getBlockState(this.blockPosition());
             if (state.is(Blocks.SCAFFOLDING)) {

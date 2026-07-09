@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.hallowed.NeatlyBetter;
 import net.hallowed.neatlybetter.api.NTCompat;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
@@ -34,7 +35,7 @@ public abstract class DoorBlockMixin {
 
     @Inject(method = "useWithoutItem", at = @At("RETURN"))
     private void neatlybetter$syncDoubleDoors(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
-        if (NTCompat.DOUBLEDOORS || player.isShiftKeyDown()) return;
+        if (NTCompat.DOUBLEDOORS || player.isShiftKeyDown() || NTServerConfig.CONFIG.doubleDoorOpening.isFalse()) return;
 
         if (!cir.getReturnValue().consumesAction()) return;
 

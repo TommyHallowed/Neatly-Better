@@ -101,9 +101,9 @@ public class MoreXpDrops {
     }
 
     public static void tryAwardCropXp(ServerLevel level, BlockPos pos) {
+        if (!NTServerConfig.CONFIG.xpFromFarming.get()) return;
 
-        double chance = 0.2;
-        if (level.getRandom().nextDouble() >= chance) return;
+        if (level.getRandom().nextDouble() >= 0.2) return;
 
         int xp = 2;
         ExperienceOrb.award(level, Vec3.atCenterOf(pos), xp);
