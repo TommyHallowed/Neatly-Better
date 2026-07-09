@@ -1,4 +1,4 @@
-package net.hallowed.neatlybetter.client.feature;
+package net.hallowed.neatlybetter.client.content.feature;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -11,7 +11,6 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.environment.AtmosphericFogEnvironment;
 import net.minecraft.client.renderer.fog.environment.FogEnvironment;

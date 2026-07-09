@@ -1,4 +1,4 @@
-package net.hallowed.neatlybetter.client.feature;
+package net.hallowed.neatlybetter.client.content.feature;
 
 import net.hallowed.neatlybetter.tooltip.MapPreviewTooltip;
 

@@ -1,4 +1,4 @@
-package net.hallowed.neatlybetter.client.feature.ui;
+package net.hallowed.neatlybetter.client.content.feature.ui;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
