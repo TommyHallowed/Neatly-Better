@@ -19,6 +19,10 @@ public final class ModItemGroupRegistrar {
                 entries.insertAfter(ModItems.CHEST_KEY , ModItems.QUIVER);
         });
 
+        NTRegistry.addToGroup(CreativeModeTabs.FUNCTIONAL_BLOCKS, entries -> {
+            entries.insertAfter(Items.COPPER_TORCH , GLOW_TORCH);
+        });
+
         NTRegistry.addToGroup(CreativeModeTabs.FOOD_AND_DRINKS, entries -> {
             entries.insertAfter(Items.MILK_BUCKET , ModItems.MILK_BOTTLE);
         });
