@@ -24,6 +24,7 @@ public final class ModEvents {
         LegacyCombatDamageValues.register();
         LadderPillarExtender.register();
         WitherSkeletonArcher.register();
+        EndPhantomSpawner.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();
