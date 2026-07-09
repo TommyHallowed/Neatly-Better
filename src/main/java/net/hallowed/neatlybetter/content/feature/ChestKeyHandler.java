@@ -63,7 +63,7 @@ public class ChestKeyHandler {
     }
 
     public static final AttachmentType<@NotNull LockOwner> LOCK_OWNER = AttachmentRegistry.createPersistent(
-            Identifier.fromNamespaceAndPath("neatlybetter", "lock_owner"),
+            Identifier.fromNamespaceAndPath("neatly-better", "lock_owner"),
             LockOwner.CODEC
     );
 

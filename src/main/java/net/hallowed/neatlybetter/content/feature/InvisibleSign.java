@@ -47,7 +47,7 @@ public final class InvisibleSign implements UseBlockCallback {
 
         if (!stack.is(Items.PHANTOM_MEMBRANE)) return InteractionResult.PASS;
         if (!player.mayBuild()) return InteractionResult.PASS;
-        if (player.isShiftKeyDown() && !NTCommonConfig.CONFIG.clickThrough.get()) return InteractionResult.PASS;
+        if (player.isShiftKeyDown() && NTCommonConfig.CONFIG.clickThrough.isFalse()) return InteractionResult.PASS;
 
         BlockPos pos = hitResult.getBlockPos();
         BlockState state = level.getBlockState(pos);

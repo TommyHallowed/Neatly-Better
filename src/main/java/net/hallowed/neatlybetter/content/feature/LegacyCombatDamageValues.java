@@ -69,7 +69,7 @@ public final class LegacyCombatDamageValues {
             boolean replaced = false;
 
             for (ItemAttributeModifiers.Entry entry : current.modifiers()) {
-                if (entry.attribute().is(Attributes.ATTACK_DAMAGE) && entry.modifier().id().equals(ATTACK_DAMAGE_ID)) {
+                if (entry.attribute().equals(Attributes.ATTACK_DAMAGE) && entry.modifier().id().equals(ATTACK_DAMAGE_ID)) {
                     rebuilt.add(Attributes.ATTACK_DAMAGE,
                             new AttributeModifier(ATTACK_DAMAGE_ID, attackDamageBonus, AttributeModifier.Operation.ADD_VALUE),
                             EquipmentSlotGroup.MAINHAND);
@@ -97,7 +97,7 @@ public final class LegacyCombatDamageValues {
 
             ItemAttributeModifiers current = builder.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
             boolean hasAttackSpeed = current.modifiers().stream()
-                    .anyMatch(entry -> entry.attribute().is(Attributes.ATTACK_SPEED) && !(entry.display() instanceof ItemAttributeModifiers.Display.Hidden));
+                    .anyMatch(entry -> entry.attribute().equals(Attributes.ATTACK_SPEED) && !(entry.display() instanceof ItemAttributeModifiers.Display.Hidden));
 
             if (!hasAttackSpeed) {
                 return;
@@ -106,7 +106,7 @@ public final class LegacyCombatDamageValues {
             ItemAttributeModifiers.Builder rebuilt = ItemAttributeModifiers.builder();
 
             for (ItemAttributeModifiers.Entry entry : current.modifiers()) {
-                if (entry.attribute().is(Attributes.ATTACK_SPEED)) {
+                if (entry.attribute().equals(Attributes.ATTACK_SPEED)) {
                     rebuilt.add(entry.attribute(), entry.modifier(), entry.slot(), ItemAttributeModifiers.Display.hidden());
                 } else {
                     rebuilt.add(entry.attribute(), entry.modifier(), entry.slot(), entry.display());

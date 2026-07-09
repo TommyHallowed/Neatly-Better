@@ -521,6 +521,9 @@ public final class ModBlocks {
 
         CHARCOAL_BLOCK = NTRegistry.registerBlockWithItem("charcoal_block",
                 new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.COAL_BLOCK).setId(NTRegistry.blockKey("charcoal_block"))));
+
+        FuelValueEvents.BUILD.register((builder, _) -> builder.add(ModBlocks.CHARCOAL_BLOCK.asItem(), 16000));
+
         GLOW_TORCH = NTRegistry.registerBlock("glow_torch",
                 new GlowTorchBlock(ParticleTypes.GLOW, BlockBehaviour.Properties.of()
                         .noCollision()

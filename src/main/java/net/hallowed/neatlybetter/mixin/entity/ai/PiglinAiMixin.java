@@ -37,13 +37,13 @@ public abstract class PiglinAiMixin {
             at = @At("RETURN"),
             cancellable = true
     )
-    private static void neatlybetter$goldTrimPacifies(LivingEntity entity, CallbackInfoReturnable<Boolean> cir) {
+    private static void neatlybetter$goldTrimPacifies(LivingEntity livingEntity, CallbackInfoReturnable<Boolean> cir) {
         if (!NTServerConfig.CONFIG.piglinRespectsTrims.get()) return;
         if (NTCompat.RESPECTMYTRIMS) return;
         if (cir.getReturnValue()) return;
 
         for (EquipmentSlot slot : EquipmentSlotGroup.ARMOR) {
-            ArmorTrim trimComp = entity.getItemBySlot(slot)
+            ArmorTrim trimComp = livingEntity.getItemBySlot(slot)
                     .getComponents().get(DataComponents.TRIM);
             if (trimComp == null) continue;
 
@@ -63,20 +63,17 @@ public abstract class PiglinAiMixin {
     @Unique
     private static final WeakHashMap<Piglin, Long> neatlybetter$lastSoundTick = new WeakHashMap<>();
 
-    @Unique
-    private static final long neatlybetter$SOUND_COOLDOWN = 40L;
-
     @Redirect(
             method = "updateActivity",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/monster/piglin/PiglinAi;getSoundForCurrentActivity(Lnet/minecraft/world/entity/monster/piglin/Piglin;)Ljava/util/Optional;")
     )
-    private static Optional<SoundEvent> neatlybetter$throttleActivitySound(Piglin piglin) {
-        long tick = piglin.level().getGameTime();
-        Long last = neatlybetter$lastSoundTick.get(piglin);
-        if (last != null && tick - last < neatlybetter$SOUND_COOLDOWN) {
+    private static Optional<SoundEvent> neatlybetter$throttleActivitySound(Piglin body) {
+        long tick = body.level().getGameTime();
+        Long last = neatlybetter$lastSoundTick.get(body);
+        if (last != null && tick - last < 40) {
             return Optional.empty();
         }
-        neatlybetter$lastSoundTick.put(piglin, tick);
-        return PiglinAi.getSoundForCurrentActivity(piglin);
+        neatlybetter$lastSoundTick.put(body, tick);
+        return PiglinAi.getSoundForCurrentActivity(body);
     }
 }

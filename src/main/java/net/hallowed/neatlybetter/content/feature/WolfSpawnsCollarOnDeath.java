@@ -19,6 +19,8 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.storage.TagValueOutput;
 
+import java.util.Objects;
+
 public final class WolfSpawnsCollarOnDeath {
     private WolfSpawnsCollarOnDeath() {}
 
@@ -44,7 +46,7 @@ public final class WolfSpawnsCollarOnDeath {
         if (wolf.hasCustomName()) {
             collar.set(DataComponents.ITEM_NAME,
                     Component.literal("")
-                            .append(wolf.getCustomName())
+                            .append(Objects.requireNonNull(wolf.getCustomName()))
                             .append("'s Collar"));
         }
 

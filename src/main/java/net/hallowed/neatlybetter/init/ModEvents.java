@@ -1,6 +1,7 @@
 package net.hallowed.neatlybetter.init;
 
 import net.hallowed.neatlybetter.content.feature.*;
+import net.hallowed.neatlybetter.content.spawner.EndPhantomSpawner;
 
 public final class ModEvents {
     private ModEvents() {}
@@ -28,7 +29,7 @@ public final class ModEvents {
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();
-        //ElytraFlightLimiter.init();
+        ElytraFlightLimiter.init();
         CauldronCleaning.init();
         MoreXpDrops.init();
         SaplingAutoPlanter.init();

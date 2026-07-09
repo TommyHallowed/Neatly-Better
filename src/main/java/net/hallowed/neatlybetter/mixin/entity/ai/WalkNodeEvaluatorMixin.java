@@ -31,9 +31,9 @@ public abstract class WalkNodeEvaluatorMixin {
 }
 
     @Inject(method = "prepare", at = @At("TAIL"))
-    private void neatlybetter$ensureVillagerDoorFlags(PathNavigationRegion region, Mob mob, CallbackInfo ci) {
+    private void neatlybetter$ensureVillagerDoorFlags(PathNavigationRegion level, Mob entity, CallbackInfo ci) {
             if (NTServerConfig.CONFIG_SPEC.isLoaded() && NTServerConfig.CONFIG.villagerOpensFenceGate.get()) {
-            if (mob instanceof Villager) {
+            if (entity instanceof Villager) {
                 ((WalkNodeEvaluator)(Object)this).setCanOpenDoors(true);
                 ((WalkNodeEvaluator)(Object)this).setCanPassDoors(true);
             }

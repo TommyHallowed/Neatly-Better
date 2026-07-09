@@ -110,7 +110,7 @@ public class WorldListEntryMixin {
             access.close();
 
             if (Desktop.getDesktop().moveToTrash(worldDir)) {
-                NEATLYBETTER_LOGGER.info("Moved world '{}' to trash", levelId);
+                NEATLYBETTER_LOGGER.debug("Moved world '{}' to trash", levelId);
             } else {
                 NEATLYBETTER_LOGGER.warn("moveToTrash returned false for world '{}', falling back to permanent deletion", levelId);
                 try (LevelStorageSource.LevelStorageAccess fallback = levelSource.createAccess(levelId)) {

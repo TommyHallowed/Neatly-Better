@@ -45,7 +45,7 @@ public final class ItemCooldownHandler {
     public static void register() {
         UseItemCallback.EVENT.register((player, world, hand) -> {
             if (world.isClientSide()) return InteractionResult.PASS;
-            if (player.getAbilities().instabuild) return InteractionResult.PASS;
+            if (player.isCreative()) return InteractionResult.PASS;
 
             ItemStack stack = player.getItemInHand(hand);
             if (stack.getItem() instanceof SplashPotionItem
