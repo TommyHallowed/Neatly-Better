@@ -4,13 +4,6 @@ import net.hallowed.neatlybetter.util.CopperGrateHelper;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BubbleColumnBlock;
@@ -24,28 +17,11 @@ import net.minecraft.world.level.material.Fluids;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MagmaBlock.class)
 public abstract class MagmaBlockMixin extends Block {
     public MagmaBlockMixin(Properties properties) {
         super(properties);
-    }
-
-    @Inject(method = "stepOn", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$frostWalkerProtectsFromMagma(Level level, BlockPos pos, BlockState onState, Entity entity, CallbackInfo ci) {
-        if (entity instanceof LivingEntity livingEntity) {
-            ItemStack boots = livingEntity.getItemBySlot(EquipmentSlot.FEET);
-            if (!boots.isEmpty()) {
-                var registry = livingEntity.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-                var frostWalker = registry.getOrThrow(Enchantments.FROST_WALKER);
-                if (EnchantmentHelper.getItemEnchantmentLevel(frostWalker, boots) > 0) {
-                    ci.cancel();
-                }
-            }
-        }
     }
 
     @Override
