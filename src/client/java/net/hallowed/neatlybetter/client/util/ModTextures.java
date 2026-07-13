@@ -15,5 +15,11 @@ public class ModTextures {
     public static final Identifier CLOCK_SHOWN     = id("textures/gui/overlay/clock_icon_shown.png");
     public static final Identifier CLOCK_HIDDEN    = id("textures/gui/overlay/clock_icon_hidden.png");
 
+    public static final Identifier SCREENSHOTS_ICON = id("icon/screenshots");
+    public static final Identifier DELETE_ICON = id("icon/delete");
+    public static final Identifier OPEN_FOLDER_ICON = id("icon/open_folder");
+    public static final Identifier COPY_ICON = id("icon/copy");
+    public static final Identifier COPY_TAKEN_ICON = id("icon/copy_taken");
+
     public static final Identifier SHULKER_TOOLTIP    = id("shulker_tooltip");
 }

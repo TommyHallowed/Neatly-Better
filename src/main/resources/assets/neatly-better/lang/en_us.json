@@ -7,6 +7,12 @@
   "item.neatly-better.glow_torch": "Glow Torch",
   "item.neatly-better.milk_bottle": "Milk Bottle",
 
+  "neatlybetter.pause_menu.screenshots": "Screenshots",
+  "neatlybetter.screen.screenshots.title": "Screenshots",
+  "neatlybetter.screen.screenshots.delete": "Delete",
+  "neatlybetter.screen.screenshots.open_folder": "Open Folder",
+  "neatlybetter.screen.screenshots.empty": "No screenshots yet",
+
   "tooltip.neatly-better.glow_ink_sac_hint": "Can be used on trimmed items",
   "tooltip.neatly-better.echo_shard_hint": "Can be used on trimmed armor",
   "tooltip.neatly-better.phantom_membrane_hint": "Can be used on signs",
