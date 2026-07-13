@@ -76,6 +76,7 @@
     "item.ShearsItemMixin",
     "level.LevelChunkMixin",
     "other.FoodDataMixin",
+    "other.LeashableMixin",
     "other.LevelMixin",
     "other.LevelStorageSourceMixin",
     "other.PortalShapeMixin",
