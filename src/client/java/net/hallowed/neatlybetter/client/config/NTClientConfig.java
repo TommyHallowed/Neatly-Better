@@ -25,10 +25,21 @@ public final class NTClientConfig {
 
     // -- Title Screen --
     public final ModConfigSpec.BooleanValue legacyTitleScreenLayout;
+    public final ModConfigSpec.BooleanValue realmsButton;
+    public final ModConfigSpec.BooleanValue screenshotsButton;
+    public final ModConfigSpec.BooleanValue friendsButton;
     public final ModConfigSpec.BooleanValue languageButton;
-    public final ModConfigSpec.BooleanValue realmsButtons;
-    public final ModConfigSpec.BooleanValue customBranding;
     public final ModConfigSpec.BooleanValue accessibilityButton;
+    public final ModConfigSpec.BooleanValue customBranding;
+
+    // -- Pause Menu --
+
+    public final ModConfigSpec.BooleanValue legacyPauseMenuLayout;
+    public final ModConfigSpec.BooleanValue screenshotsPauseButton;
+    public final ModConfigSpec.BooleanValue reportBugsButton;
+    public final ModConfigSpec.BooleanValue feedbackButton;
+    public final ModConfigSpec.BooleanValue friendsPauseButton;
+    public final ModConfigSpec.BooleanValue reportButton;
 
     // -- Resourcepacks Screen --
     public final ModConfigSpec.BooleanValue resourcePackCompatibility;
@@ -103,22 +114,64 @@ public final class NTClientConfig {
                 .comment("§eOld title screen button layout from pre-26.2 versions.")
                 .translation("neatly-better.config.legacy_title_screen_layout")
                 .define("legacy_title_screen_layout", true);
-        realmsButtons = builder
+        realmsButton = builder
                 .comment("§eShow Realms button in title screen.")
-                .translation("neatly-better.config.realms_buttons")
-                .define("realms_buttons", true);
+                .translation("neatly-better.config.realms_button")
+                .define("realms_button", true);
+        screenshotsButton = builder
+                .comment("§eShow screenshots button in title screen.")
+                .translation("neatly-better.config.screenshots_button")
+                .define("screenshots_button", true);
+        friendsButton = builder
+                .comment("§eShow Friends button in title screen.")
+                .translation("neatly-better.config.friends_button")
+                .define("friends_button", true);
         languageButton = builder
                 .comment("§eShow language button in title screen.")
                 .translation("neatly-better.config.language_button")
                 .define("language_button", true);
-        customBranding = builder
-                .comment("§eReplace the Fabric/modded branding in title screen with clean vanilla one.")
-                .translation("neatly-better.config.custom_branding")
-                .define("custom_branding", true);
         accessibilityButton = builder
                 .comment("§eShow extra accessibility button in title screen.")
                 .translation("neatly-better.config.accessibility_button")
                 .define("accessibility_button", true);
+        customBranding = builder
+                .comment("§eReplace the Fabric/modded branding in title screen with clean vanilla one.")
+                .translation("neatly-better.config.custom_branding")
+                .define("custom_branding", true);
+        builder.pop();
+
+        builder.push("pausemenu");
+
+        legacyPauseMenuLayout = builder
+                .comment("§eOld Pause Menu button layout from pre-26.2 versions.")
+                .translation("neatly-better.config.legacy_pause_menu_layout")
+                .define("legacy_pause_menu_layout", true);
+
+        screenshotsPauseButton = builder
+                .comment("§eShow screenshots button in pause menu.")
+                .translation("neatly-better.config.screenshots_pause_button")
+                .define("screenshots_pause_button", true);
+
+        reportBugsButton = builder
+                .comment("§eShow Report Bugs button in pause menu.")
+                .translation("neatly-better.config.report_bugs_button")
+                .define("report_bugs_button", true);
+
+        feedbackButton = builder
+                .comment("§eShow Feedback button in pause menu.")
+                .translation("neatly-better.config.feedback_button")
+                .define("feedback_button", true);
+
+        friendsPauseButton = builder
+                .comment("§eShow Friends button in pause menu.")
+                .translation("neatly-better.config.friends_pause_button")
+                .define("friends_pause_button", true);
+
+        reportButton = builder
+                .comment("§eShow Report button in pause menu.")
+                .translation("neatly-better.config.report_button")
+                .define("report_button", true);
+
         builder.pop();
 
         builder.push("resourcepacks");
