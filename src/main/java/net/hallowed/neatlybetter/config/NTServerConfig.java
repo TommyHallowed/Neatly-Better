@@ -496,10 +496,14 @@ public final class NTServerConfig {
         builder.push("mending");
 
         mendingInventory = builder
-                .comment("§eHow deep to search for items to repair.")
+                .comment("§eChoose how mending works:")
                 .comment("")
+                .comment(" §6Vanilla - repairs equipped items")
+                .comment(" §aHotbar - repairs items in hotbar")
+                .comment(" §3Inventory - repairs items in the whole inventory")
+                .comment(" §5Overhaul - mending books only reset repair cost, XP -> Durability conversion is disabled§r")
                 .translation("neatly-better.config.mending_inventory")
-                .defineEnum("mending_inventory", MendingScope.INVENTORY);
+                .defineEnum("mending_inventory", MendingScope.OVERHAUL);
 
         mendingEfficiency = builder
                 .comment("§eHow efficient the mending enchantment is.")
@@ -650,7 +654,8 @@ public final class NTServerConfig {
     public enum MendingScope {
         VANILLA,
         HOTBAR,
-        INVENTORY
+        INVENTORY,
+        OVERHAUL
     }
 
     public enum SleepMode {

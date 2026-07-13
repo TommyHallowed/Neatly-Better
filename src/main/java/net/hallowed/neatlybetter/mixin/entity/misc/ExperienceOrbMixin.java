@@ -69,6 +69,18 @@ public abstract class ExperienceOrbMixin {
                 player.getScoreboardName());
     }
 
+    // ── mendingInventory (OVERHAUL) ──
+    // Short-circuits before any target is even looked up, so the full orb value always goes
+    // back to the caller (player.giveExperiencePoints in playerTouch) — same as vanilla's own
+    // "no mending target found" path, regardless of what the player has equipped or carrying.
+    @Inject(method = "repairPlayerItems", at = @At("HEAD"), cancellable = true)
+    private void neatlybetter$overhaulSkipsRepair(ServerPlayer player, int xpAmount,
+                                                  CallbackInfoReturnable<Integer> cir) {
+        if (NTServerConfig.CONFIG.mendingInventory.get() == MendingScope.OVERHAUL) {
+            cir.setReturnValue(xpAmount);
+        }
+    }
+
     // ── mendingInventory ──
     @ModifyVariable(
             method  = "repairPlayerItems",
