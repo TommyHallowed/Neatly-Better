@@ -2,9 +2,9 @@ package net.hallowed.neatlybetter.content.feature;
 
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
@@ -15,12 +15,19 @@ import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.enchantment.Repairable;
 
-import org.jetbrains.annotations.NotNull;
+import java.util.Set;
 
 public final class AddedItemProperties {
     private AddedItemProperties() {}
 
-    @SuppressWarnings({"unchecked"})
+    private static final Set<Item> NETHERITE_TOOLS = Set.of(
+            Items.NETHERITE_SWORD,
+            Items.NETHERITE_SHOVEL,
+            Items.NETHERITE_PICKAXE,
+            Items.NETHERITE_AXE,
+            Items.NETHERITE_HOE
+    );
+
     public static void register() {
         DefaultItemComponentEvents.MODIFY.register(ctx ->
                 ctx.modify(Items.GLISTERING_MELON_SLICE, builder -> {
@@ -43,18 +50,14 @@ public final class AddedItemProperties {
         );
         DefaultItemComponentEvents.MODIFY.register(ctx ->
                 ctx.modify(Items.TRIDENT, builder -> {
-                    try {
-                        Holder<?> shardEntry = Items.PRISMARINE_SHARD.builtInRegistryHolder();
-                        HolderSet<?> registryList = HolderSet.direct(shardEntry);
-                        Repairable repairable = new Repairable((HolderSet<@NotNull Item>) registryList);
-                        builder.set(DataComponents.REPAIRABLE, repairable);
-                    } catch (Throwable t) {
-                        try {
-                            Repairable repairable = new Repairable(HolderSet.direct(Items.PRISMARINE_SHARD.builtInRegistryHolder()));
-                            builder.set(DataComponents.REPAIRABLE, repairable);
-                        } catch (Throwable ignored) {
-                        }
-                    }
+                    HolderSet<Item> repairItems = HolderSet.direct(BuiltInRegistries.ITEM.wrapAsHolder(Items.PRISMARINE_SHARD));
+                    builder.set(DataComponents.REPAIRABLE, new Repairable(repairItems));
+                })
+        );
+        DefaultItemComponentEvents.MODIFY.register(ctx ->
+                ctx.modify(NETHERITE_TOOLS, (builder, _) -> {
+                    HolderSet<Item> repairItems = HolderSet.direct(BuiltInRegistries.ITEM.wrapAsHolder(Items.NETHERITE_SCRAP));
+                    builder.set(DataComponents.REPAIRABLE, new Repairable(repairItems));
                 })
         );
     }

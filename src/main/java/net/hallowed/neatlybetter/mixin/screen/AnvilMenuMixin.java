@@ -79,7 +79,7 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
         return original.withStyle(style -> style.withItalic(false));
     }
 
-    // ── anvilEnchantFeather ──
+    // ── anvilNetheriteIngotFullRepair / anvilEnchantFeather ──
     @Inject(method = "createResult", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$featherBypass(CallbackInfo ci) {
         if (!NTServerConfig.CONFIG.anvilEnchantFeather.get()) return;
@@ -107,6 +107,13 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
             this.cost.set(target * count);
             this.repairItemCountCost = 0;
             neatlybetter$consumeRightOnTake = true;
+        if (right.is(Items.NETHERITE_INGOT) && neatlybetter$isNetheriteTool(left)
+                && left.isDamageableItem() && left.getDamageValue() > 0) {
+            ItemStack result = left.copy();
+            result.setDamageValue(0);
+            this.resultSlots.setItem(0, result);
+            this.cost.set(1);
+            this.repairItemCountCost = 1;
             ci.cancel();
             return;
         }
@@ -129,6 +136,13 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
             neatlybetter$consumeRightOnTake = false;
             ci.cancel();
         }
+    @Unique
+    private static boolean neatlybetter$isNetheriteTool(ItemStack stack) {
+        return stack.is(Items.NETHERITE_SWORD)
+                || stack.is(Items.NETHERITE_SHOVEL)
+                || stack.is(Items.NETHERITE_PICKAXE)
+                || stack.is(Items.NETHERITE_AXE)
+                || stack.is(Items.NETHERITE_HOE);
     }
 
     // ── anvilNoRenameCost (+ general bookkeeping) ──
