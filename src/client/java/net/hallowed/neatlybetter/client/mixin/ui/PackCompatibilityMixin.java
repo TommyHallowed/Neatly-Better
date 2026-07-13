@@ -13,7 +13,7 @@ public abstract class PackCompatibilityMixin {
 
     @Inject(method = "isCompatible", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$alwaysCompatible(CallbackInfoReturnable<Boolean> cir) {
-        if (NTClientConfig.CONFIG.resourcePackCompatibility.get()) return;
+        if (NTClientConfig.CONFIG.resourcePackCompatibility.isTrue()) return;
         cir.setReturnValue(true);
     }
 }
