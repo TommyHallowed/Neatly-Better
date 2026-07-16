@@ -9,6 +9,7 @@ import net.hallowed.neatlybetter.api.NTCompat;
 import net.hallowed.neatlybetter.config.NTCommonConfig;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.component.QuiverContents;
+import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
 import net.hallowed.neatlybetter.init.ModData;
 import net.hallowed.neatlybetter.util.StonecutterMemory;
 
@@ -16,6 +17,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -237,10 +239,15 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
             at = @At(value = "RETURN", ordinal = 0)
     )
     private boolean requireSweepingEdgeForSweep(boolean original) {
-        if (NTCommonConfig.CONFIG.legacyCombat.get()) {
-            return original && this.getAttributeValue(Attributes.SWEEPING_DAMAGE_RATIO) > 0.0;
+        if (!NTCommonConfig.CONFIG.legacyCombat.get()) {
+            return original;
         }
-        return original;
+        if (!original) {
+            return false;
+        }
+        Player self = (Player) (Object) this;
+        ItemStack weapon = self.getItemInHand(InteractionHand.MAIN_HAND);
+        return LegacyCombatHandler.canSweepAttack(self, weapon);
     }
 
     // ===================== (9) 0 DMG Attack Knockback =====================
