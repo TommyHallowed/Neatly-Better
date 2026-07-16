@@ -33,7 +33,6 @@ public final class NTClientConfig {
     public final ModConfigSpec.BooleanValue customBranding;
 
     // -- Pause Menu --
-
     public final ModConfigSpec.BooleanValue legacyPauseMenuLayout;
     public final ModConfigSpec.BooleanValue screenshotsPauseButton;
     public final ModConfigSpec.BooleanValue reportBugsButton;
@@ -133,7 +132,7 @@ public final class NTClientConfig {
         accessibilityButton = builder
                 .comment("§eShow extra accessibility button in title screen.")
                 .translation("neatly-better.config.accessibility_button")
-                .define("accessibility_button", true);
+                .define("accessibility_button", false);
         customBranding = builder
                 .comment("§eReplace the Fabric/modded branding in title screen with clean vanilla one.")
                 .translation("neatly-better.config.custom_branding")

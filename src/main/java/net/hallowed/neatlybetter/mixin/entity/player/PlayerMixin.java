@@ -64,7 +64,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
         if (!(heldWeapon.getItem() instanceof ProjectileWeaponItem)) return;
 
         Player self = (Player)(Object)this;
-        if (self.getAbilities().instabuild) return;
+        if (self.isCreative()) return;
 
         var enchLookup = self.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
         Holder<@NotNull Enchantment> infinity = enchLookup.getOrThrow(Enchantments.INFINITY);
@@ -121,7 +121,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
 
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$featherPush(Entity entity, CallbackInfo ci) {
-        if (!NTServerConfig.CONFIG.featherNoDamage.get()) return;
+        if (NTServerConfig.CONFIG.featherNoDamage.isFalse()) return;
         Player self = (Player)(Object)this;
         if (self.getMainHandItem().is(Items.FEATHER)
                 && entity instanceof LivingEntity living
@@ -188,7 +188,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;resetAttackStrengthTicker()V")
     )
     private void neatlybetter$skipEquipCooldown(Player player) {
-        if (NTCompat.COMBATNOUVEAU || NTCompat.GOLDENAGECOMBAT || NTCommonConfig.CONFIG.legacyCombat.get()) return; {}
+        if (NTCompat.COMBATNOUVEAU || NTCompat.GOLDENAGECOMBAT || NTCommonConfig.CONFIG.legacyCombat.isTrue()) return; {}
     }
 
     // ===================== (5) Remove Attack Cooldown =====================
@@ -199,7 +199,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
             cancellable = true
     )
     private void removeAttackCooldown(float a, CallbackInfoReturnable<Float> cir) {
-        if (NTCommonConfig.CONFIG.legacyCombat.get()) {
+        if (NTCommonConfig.CONFIG.legacyCombat.isTrue()) {
             cir.setReturnValue(1.0F);
         }
     }
@@ -211,7 +211,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;isSprinting()Z")
     )
     private boolean allowCriticalHitsWhileSprinting(boolean isSprinting, Entity entity) {
-        if (NTCommonConfig.CONFIG.legacyCombat.get()) {
+        if (NTCommonConfig.CONFIG.legacyCombat.isTrue()) {
             return false;
         }
         return isSprinting;
@@ -224,7 +224,7 @@ public abstract class PlayerMixin extends LivingEntity implements StonecutterMem
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;setSprinting(Z)V")
     )
     private void preventSprintStopOnAttack(Player player, boolean sprinting, Operation<Void> original) {
-        if (NTCommonConfig.CONFIG.legacyCombat.get()) {
+        if (NTCommonConfig.CONFIG.legacyCombat.isTrue()) {
             return;
         }
         original.call(player, sprinting);
