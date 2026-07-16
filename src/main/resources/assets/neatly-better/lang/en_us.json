@@ -24,6 +24,10 @@
   "tooltip.neatly-better.map_builder.zoom": " Shift + Right-Click in Air: Change Map Zoom",
   "tooltip.neatly-better.map_builder.requires": "Requires Empty Maps & Item Frames",
   "tooltip.neatly-better.milk_bottle_hint": "Removes 1 negative potion effect",
+  "tooltip.neatly-better.milk_bucket_hint": "Can be placed inside cauldrons",
+  "tooltip.neatly-better.slime_ball_hint": "Can be used to glue interactive blocks",
+  "tooltip.neatly-better.wolf_collar_hint": "Infuse a spark of being into the lifeless thing that lies at your feet",
+  "tooltip.neatly-better.glow_torch_hint": "Can be placed underwater",
 
   "item.neatly-better.smooth_stone_stairs": "Smooth Stone Stairs",
   "item.neatly-better.calcite_stairs": "Calcite Stairs",

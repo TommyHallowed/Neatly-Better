@@ -15,13 +15,12 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.equipment.Equippable;
 
 import java.util.List;
+
+import static net.hallowed.neatlybetter.init.ModBlocks.GLOW_TORCH;
 
 public final class ModTooltips {
     private ModTooltips() {}
@@ -63,6 +62,22 @@ public final class ModTooltips {
             Component.translatable("tooltip.neatly-better.milk_bottle_hint")
                     .withStyle(ChatFormatting.YELLOW);
 
+    private static final MutableComponent MILK_BUCKET_HINT =
+            Component.translatable("tooltip.neatly-better.milk_bucket_hint")
+                    .withStyle(ChatFormatting.YELLOW);
+
+    private static final MutableComponent SLIME_BALL_HINT =
+            Component.translatable("tooltip.neatly-better.slime_ball_hint")
+                    .withStyle(ChatFormatting.YELLOW);
+
+    private static final MutableComponent WOLF_COLLAR_HINT =
+            Component.translatable("tooltip.neatly-better.wolf_collar_hint")
+                    .withStyle(ChatFormatting.YELLOW);
+
+    private static final MutableComponent GLOW_TORCH_HINT =
+            Component.translatable("tooltip.neatly-better.glow_torch_hint")
+                    .withStyle(ChatFormatting.YELLOW);
+
     public static void init() {
         ItemTooltipCallback.EVENT.register(ModTooltips::onTooltip);
     }
@@ -96,6 +111,18 @@ public final class ModTooltips {
         if (stack.is(ModItems.MILK_BOTTLE)) {
             addBasicUnderName(lines, MILK_BOTTLE_HINT);
         }
+        if (stack.is(Items.MILK_BUCKET)) {
+            addBasicUnderName(lines, MILK_BUCKET_HINT);
+        }
+        if (stack.is(Items.SLIME_BALL)) {
+            addBasicUnderName(lines, SLIME_BALL_HINT);
+        }
+        if (stack.is(ModItems.WOLF_COLLAR)) {
+            addBasicUnderName(lines, WOLF_COLLAR_HINT);
+        }
+        if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() == GLOW_TORCH) {
+            addBasicUnderName(lines, GLOW_TORCH_HINT);
+        }
 
         Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
         if (equippable != null) {
@@ -105,7 +132,7 @@ public final class ModTooltips {
 
                 LocalPlayer player = Minecraft.getInstance().player;
 
-                if (player == null || player.getItemBySlot(slot) != stack) {
+                if ((player == null || player.getItemBySlot(slot) != stack) && !player.isCreative()) {
                     int insertPos = lines.size();
 
                     if (type.isAdvanced()) {
