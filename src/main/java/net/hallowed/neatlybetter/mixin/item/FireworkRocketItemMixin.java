@@ -2,7 +2,8 @@ package net.hallowed.neatlybetter.mixin.item;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
 
-import net.minecraft.server.MinecraftServer;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -23,11 +24,19 @@ public class FireworkRocketItemMixin {
     private void neatlybetter$disableFireworkBoosting(Level level, Player player, InteractionHand hand,
                                                       CallbackInfoReturnable<InteractionResult> cir) {
         if (!player.isFallFlying()) return;
-        MinecraftServer server = level.getServer();
-        if (server == null) return;
-
         if (NTServerConfig.CONFIG.doElytraFireworkBoosting.isTrue()) return;
         cir.setReturnValue(InteractionResult.FAIL);
+    }
+
+    @ModifyExpressionValue(
+            method = "useOn",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/player/Player;isFallFlying()Z"
+            )
+    )
+    private boolean neatlybetter$allowGroundPlacementWhileFlying(boolean original) {
+        return original && NTServerConfig.CONFIG.doElytraFireworkBoosting.isTrue();
     }
 
     @Redirect(
