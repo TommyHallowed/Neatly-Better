@@ -42,8 +42,8 @@ public final class TorchIgnite {
 
     private static IgniteProfile profileFor(Difficulty difficulty) {
         return switch (difficulty) {
-            case PEACEFUL, EASY -> new IgniteProfile(1.0F, 8);
-            case NORMAL -> new IgniteProfile(0.6F, 6);
+            case PEACEFUL, EASY -> new IgniteProfile(1.0F, 6);
+            case NORMAL -> new IgniteProfile(0.6F, 5);
             case HARD -> new IgniteProfile(0.2F, 4);
         };
     }
