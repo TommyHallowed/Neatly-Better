@@ -461,8 +461,8 @@ public final class NTServerConfig {
                 .comment("§eTorch ignites attacked entities.")
                 .comment("")
                 .comment("§cOn Hard Difficulty: 20% chance of igniting for 4 seconds.")
-                .comment("§7On Normal Difficulty: 60% chance of igniting for 6 seconds.")
-                .comment("§aOn Easy/Peaceful Difficulty: 100% chance of igniting for 8 seconds.")
+                .comment("§7On Normal Difficulty: 40% chance of igniting for 5 seconds.")
+                .comment("§aOn Easy/Peaceful Difficulty: 60% chance of igniting for 6 seconds.")
                 .translation("neatly-better.config.torch_ignite")
                 .define("torch_ignite", true);
 
