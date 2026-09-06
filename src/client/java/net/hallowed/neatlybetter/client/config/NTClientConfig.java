@@ -22,6 +22,7 @@ public final class NTClientConfig {
 
     // -- Recipe Book --
     public final ModConfigSpec.EnumValue<RecipeBookMode> recipeBookMode;
+    public final ModConfigSpec.BooleanValue recipeBookShift;
 
     // -- Title Screen --
     public final ModConfigSpec.BooleanValue legacyTitleScreenLayout;
@@ -107,6 +108,10 @@ public final class NTClientConfig {
                 .comment("§eControls recipe book visibility mode.")
                 .translation("neatly-better.config.recipe_book_mode")
                 .defineEnum("recipe_book_mode", RecipeBookMode.AUTOHIDE);
+        recipeBookShift = builder
+                .comment("§eDoes recipe book shift inventory?")
+                .translation("neatly-better.config.recipe_book_shift")
+                .define("recipe_book_shift", false);
         builder.pop();
 
         builder.push("title_screen");

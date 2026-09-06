@@ -43,7 +43,7 @@ public abstract class InventoryScreenMixin extends Screen {
         boolean bookOpen = false;
         try {
             RecipeBookComponent<?> rb = ((AbstractRecipeBookScreen<?>) (Object) this).recipeBookComponent;
-            bookOpen = rb != null && rb.isVisible();
+            bookOpen = rb != null && rb.isVisible() && NTClientConfig.CONFIG.recipeBookShift.get();
         } catch (Throwable ignored) {
         }
 
@@ -87,7 +87,7 @@ public abstract class InventoryScreenMixin extends Screen {
         int shift = 0;
         try {
             RecipeBookComponent<?> book = ((AbstractRecipeBookScreen<?>) (Object) this).recipeBookComponent;
-            if (book != null && book.isVisible()) shift = SHIFT;
+            if (book != null && book.isVisible() && NTClientConfig.CONFIG.recipeBookShift.get()) shift = SHIFT;
         } catch (Throwable ignored) { }
 
         var mc = Minecraft.getInstance();
