@@ -21,6 +21,8 @@ public final class ModItemGroupRegistrar {
 
         NTRegistry.addToGroup(CreativeModeTabs.FUNCTIONAL_BLOCKS, entries -> {
             entries.insertAfter(Items.COPPER_TORCH , GLOW_TORCH);
+            entries.insertAfter(Items.BEEHIVE , LAVA_SPONGE);
+            entries.insertAfter(LAVA_SPONGE , SOAKED_LAVA_SPONGE);
         });
 
         NTRegistry.addToGroup(CreativeModeTabs.FOOD_AND_DRINKS, entries -> {

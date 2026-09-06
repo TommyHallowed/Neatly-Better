@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "neatly-better:block/soaked_lava_sponge"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " X ",
+    "XSX",
+    " X "
+  ],
+  "key": {
+    "X": "minecraft:sponge",
+    "S": "minecraft:magma_cream"
+  },
+  "result": {
+    "id": "neatly-better:lava_sponge",
+    "count": 4
+  }
+}

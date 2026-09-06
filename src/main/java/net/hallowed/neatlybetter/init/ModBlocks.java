@@ -43,7 +43,7 @@ public final class ModBlocks {
             END_STONE_WALL, PURPUR_WALL, SMOOTH_BASALT_WALL, PRISMARINE_BRICK_WALL, DARK_PRISMARINE_WALL,
             SMOOTH_SANDSTONE_WALL, SMOOTH_RED_SANDSTONE_WALL;
 
-    public static Block RAINBOW_WOOL, RAINBOW_CARPET, RAINBOW_BED, CHARCOAL_BLOCK, GLOW_TORCH, GLOW_WALL_TORCH, MILK_CAULDRON, DYE_CAULDRON;
+    public static Block RAINBOW_WOOL, RAINBOW_CARPET, RAINBOW_BED, CHARCOAL_BLOCK, GLOW_TORCH, GLOW_WALL_TORCH, MILK_CAULDRON, DYE_CAULDRON, SOAKED_LAVA_SPONGE, LAVA_SPONGE;
 
     public static void register() {
         // Stairs
@@ -550,5 +550,14 @@ public final class ModBlocks {
 
         DYE_CAULDRON = NTRegistry.registerBlock("dye_cauldron",
                 new DyeCauldronBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WATER_CAULDRON).setId(NTRegistry.blockKey("dye_cauldron"))));
+
+        LAVA_SPONGE = NTRegistry.registerBlockWithItem("lava_sponge",
+                new LavaSpongeBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SPONGE).setId(NTRegistry.blockKey("lava_sponge"))));
+
+        SOAKED_LAVA_SPONGE = NTRegistry.registerBlockWithItem("soaked_lava_sponge",
+                new SoakedLavaSpongeBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WET_SPONGE).lightLevel(state -> 3).setId(NTRegistry.blockKey("soaked_lava_sponge"))),
+                new Item.Properties().setId(NTRegistry.itemKey("soaked_lava_sponge")).craftRemainder(LAVA_SPONGE.asItem()));
+
+        FuelValueEvents.BUILD.register((builder, _) -> builder.add(ModBlocks.SOAKED_LAVA_SPONGE.asItem(), 30000));
     }
 }
