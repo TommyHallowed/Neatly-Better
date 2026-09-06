@@ -45,6 +45,7 @@
     "screen.MultiplayerOptionsScreenMixin",
     "screen.OptionsScreenMixin",
     "screen.PauseScreenMixin",
+    "screen.ScreenEffectRendererMixin",
     "screen.ScreenMixin",
     "screen.StonecutterScreenMixin",
     "screen.TitleScreenMixin",

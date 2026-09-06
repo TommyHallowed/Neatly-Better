@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.client.content.feature.AutoRefill;
 import net.hallowed.neatlybetter.client.content.feature.ClientMapPreviewTooltip;
+import net.hallowed.neatlybetter.client.content.feature.FireResistanceLavaFog;
 import net.hallowed.neatlybetter.client.content.feature.VoidFog;
 import net.hallowed.neatlybetter.client.content.feature.ui.SmallHudOverlay;
 import net.hallowed.neatlybetter.client.init.ModBlockColors;
@@ -39,6 +40,7 @@ public class NeatlyBetterClient implements ClientModInitializer {
         EnderCheckClient.register();
         AutoRefill.register();
         VoidFog.register();
+        FireResistanceLavaFog.register();
         ModBlockColors.register();
 
         ModelLoadingPlugin.register(new InvisibleSignModelPlugin());
