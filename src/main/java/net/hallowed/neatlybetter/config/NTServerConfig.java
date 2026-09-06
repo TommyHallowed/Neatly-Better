@@ -78,6 +78,7 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue stepUpDisabledWhileShifting;
     public final ModConfigSpec.BooleanValue lapisStaysInEnchanting;
     public final ModConfigSpec.BooleanValue explosionsDisableShield;
+    public final ModConfigSpec.BooleanValue shieldDamageNerf;
     public final ModConfigSpec.BooleanValue torchIgnite;
     public final ModConfigSpec.BooleanValue saplingAutoReplant;
     public final ModConfigSpec.BooleanValue unlimitedLifetimeOnDeathDrops;
@@ -457,6 +458,11 @@ public final class NTServerConfig {
                 .comment("§eShields are disabled if hit directly by explosive damage.")
                 .translation("neatly-better.config.explosions_disable_shield")
                 .define("explosions_disable_shield", true);
+
+        shieldDamageNerf = builder
+                .comment("§eShields now get disabled after 5 fast hits.")
+                .translation("neatly-better.config.rapid_hit_disable_shield")
+                .define("rapid_hit_disable_shield", true);
 
         torchIgnite = builder
                 .comment("§eTorch ignites attacked entities.")

@@ -37,6 +37,8 @@ import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.ArrayDeque;
+
 @SuppressWarnings("ConstantValue")
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
@@ -121,34 +123,7 @@ public abstract class LivingEntityMixin extends Entity {
         return 50.0F;
     }
 
-    /* ===================== 4) Explosions disable shields ===================== */
-    @Inject(
-            method = "applyItemBlocking(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)F",
-            at = @At("RETURN")
-    )
-    private void neatlybetter$explosionDisablesShield(ServerLevel level,
-                                                      DamageSource source,
-                                                      float damage,
-                                                      CallbackInfoReturnable<Float> cir) {
-
-        if (NTServerConfig.CONFIG.explosionsDisableShield.isFalse()) return;
-        if (cir.getReturnValue() <= 0.0F) return;
-        if (!source.is(DamageTypeTags.IS_EXPLOSION)) return;
-
-        LivingEntity self = (LivingEntity) (Object) this;
-        if (!(self instanceof Player player)) return;
-
-        ItemStack blocking = self.getItemBlockingWith();
-        if (blocking == null || blocking.isEmpty()) return;
-
-        BlocksAttacks blocks = blocking.get(DataComponents.BLOCKS_ATTACKS);
-        if (blocks == null) return;
-
-        blocks.disable(level, player, 5.0F, blocking);
-        self.releaseUsingItem();
-    }
-
-    /* ===================== 5) No shield raise delay ===================== */
+    /* ===================== 4) No shield raise delay ===================== */
     @WrapOperation(
             method = "getItemBlockingWith",
             at = @At(
@@ -160,6 +135,60 @@ public abstract class LivingEntityMixin extends Entity {
         int configDelay = NTCommonConfig.CONFIG.shieldRaiseDelay.get();
         if (configDelay == 5) return original.call(instance);
         return configDelay;
+    }
+
+    /* ===================== 5) Shield Nerf ===================== */
+
+    @Unique
+    private final ArrayDeque<Long> neatlybetter$recentShieldHits = new ArrayDeque<>();
+
+    @Inject(
+            method = "applyItemBlocking(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)F",
+            at = @At("RETURN"),
+            cancellable = true
+    )
+    private void neatlybetter$shieldDisableAndDamageCap(ServerLevel level,
+                                                        DamageSource source,
+                                                        float damage,
+                                                        CallbackInfoReturnable<Float> cir) {
+        float damageBlocked = cir.getReturnValue();
+        if (damageBlocked <= 0.0F) return;
+
+        ItemStack blocking = this.getItemBlockingWith();
+        boolean isShield = blocking != null && !blocking.isEmpty() && blocking.getItem() instanceof ShieldItem;
+        if (!isShield) return;
+
+        boolean explosion = source.is(DamageTypeTags.IS_EXPLOSION);
+
+        if (NTServerConfig.CONFIG.shieldDamageNerf.isTrue() && damage > 10.0F) {
+            cir.setReturnValue(damage * 0.5F);
+        }
+
+        boolean explosionDisable = NTServerConfig.CONFIG.explosionsDisableShield.isTrue() && explosion;
+
+        boolean rapidHitDisable = false;
+        if (NTServerConfig.CONFIG.shieldDamageNerf.isTrue()
+                && !explosion && damage < 10.0F) {
+            long now = this.level().getGameTime();
+            neatlybetter$recentShieldHits.addLast(now);
+            while (!neatlybetter$recentShieldHits.isEmpty()
+                    && now - neatlybetter$recentShieldHits.peekFirst() > 40) {
+                neatlybetter$recentShieldHits.pollFirst();
+            }
+            rapidHitDisable = neatlybetter$recentShieldHits.size() >= 10;
+        }
+
+        if (explosionDisable || rapidHitDisable) {
+            LivingEntity self = (LivingEntity) (Object) this;
+            if (self instanceof Player player) {
+                BlocksAttacks blocks = blocking.get(DataComponents.BLOCKS_ATTACKS);
+                if (blocks != null) {
+                    blocks.disable(level, player, 5.0F, blocking);
+                    self.releaseUsingItem();
+                    neatlybetter$recentShieldHits.clear();
+                }
+            }
+        }
     }
 
     /* ===================== 6) Step Up disabled while sneaking ===================== */
