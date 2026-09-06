@@ -3,13 +3,11 @@ package net.hallowed.neatlybetter.init;
 import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.hallowed.neatlybetter.api.NTRegistry;
 
-import net.hallowed.neatlybetter.content.block.DyeCauldronBlock;
-import net.hallowed.neatlybetter.content.block.GlowTorchBlock;
+import net.hallowed.neatlybetter.content.block.*;
 
-import net.hallowed.neatlybetter.content.block.GlowWallTorchBlock;
-import net.hallowed.neatlybetter.content.block.MilkCauldronBlock;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.PushReaction;

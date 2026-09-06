@@ -3,14 +3,14 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.loader.api.FabricLoader;
 
+import net.hallowed.neatlybetter.api.NTCompat;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.client.screen.ScreenshotManagerScreen;
 import net.hallowed.neatlybetter.client.util.ModTextures;
 
 import com.terraformersmc.modmenu.gui.widget.ModMenuButtonWidget;
-import com.terraformersmc.modmenu.gui.widget.UpdateCheckerTexturedButtonWidget;
+import com.terraformersmc.modmenu.gui.widget.SmallModMenuButtonWidget;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -286,12 +286,12 @@ public abstract class PauseScreenMixin extends Screen {
 
     @Unique
     private static boolean neatlybetter$isModsIconButton(AbstractWidget widget) {
-        return FabricLoader.getInstance().isModLoaded("modmenu") && widget instanceof UpdateCheckerTexturedButtonWidget;
+        return NTCompat.MODMENU && widget instanceof SmallModMenuButtonWidget;
     }
 
     @Unique
     private static boolean neatlybetter$isModsFullButton(AbstractWidget widget) {
-        return FabricLoader.getInstance().isModLoaded("modmenu") && widget instanceof ModMenuButtonWidget;
+        return NTCompat.MODMENU && widget instanceof ModMenuButtonWidget;
     }
 
     @Unique

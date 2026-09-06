@@ -23,7 +23,8 @@ public final class NTCompat {
             "universalbonemeal",
             "anvilrestoration",
             "easyanvils",
-            "grassseeds"
+            "grassseeds",
+            "modmenu"
     );
 
     private static final Map<String, Boolean> CACHE;
@@ -62,4 +63,5 @@ public final class NTCompat {
     public static final boolean ANVILRESTORATION        = isLoaded("anvilrestoration");
     public static final boolean EASYANVILS              = isLoaded("easyanvils");
     public static final boolean GRASSSEEDS              = isLoaded("grassseeds");
+    public static final boolean MODMENU                 = isLoaded("modmenu");
 }

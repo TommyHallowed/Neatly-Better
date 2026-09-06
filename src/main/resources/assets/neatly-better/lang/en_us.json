@@ -216,7 +216,6 @@
   "neatly-better.config.void_fog_transition_ticks": "Transition Speed",
   "neatly-better.config.void_fog_dissipation_delay_ticks": "Dissipation Delay",
 
-
   "neatly-better.configuration.mob": "Mob",
   "neatly-better.configuration.mob.creeper": "Creeper",
   "neatly-better.configuration.mob.villager": "Villager",
@@ -315,7 +314,6 @@
   "neatly-better.config.explosions_disable_shield": "Explosions Disable Shield",
   "neatly-better.config.torch_ignite": "Torch Hot",
   "neatly-better.config.sapling_auto_replant": "Sapling Auto-Plant",
-  "neatly-better.config.throwable_knockpack_player": "Throwable Items Knockback",
   "neatly-better.config.unlimited_lifetime_on_death_drops": "Persistent Death Drops",
   "neatly-better.config.restore_death_drop_slots": "Restore Death Drop Slots",
   "neatly-better.config.keep_recovery_compass_on_death": "Keep Recovery Compass",
