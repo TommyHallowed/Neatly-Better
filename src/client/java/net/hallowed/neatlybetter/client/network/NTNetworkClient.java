@@ -7,6 +7,9 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.hallowed.neatlybetter.client.util.LapisClientUtil;
 import net.hallowed.neatlybetter.network.NTNetwork;
 
+import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
@@ -20,6 +23,11 @@ public final class NTNetworkClient {
         ClientPlayNetworking.registerGlobalReceiver(NTNetwork.LapisCountPayload.ID,
                 (payload, ctx) -> ctx.client().execute(() ->
                         LapisClientUtil.syncLapisToClient(payload.lapisCount(), payload.pos())));
+    }
+
+    public static void registerEnderChestContentsListener(Consumer<List<ItemStack>> onContents) {
+        ClientPlayNetworking.registerGlobalReceiver(NTNetwork.EnderChestContentsPayload.ID,
+                (payload, ctx) -> ctx.client().execute(() -> onContents.accept(payload.items())));
     }
 
     public static void sendEnderCheck() {

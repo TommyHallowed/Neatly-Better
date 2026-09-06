@@ -49,6 +49,7 @@ public final class NTClientConfig {
     public final ModConfigSpec.BooleanValue susStewEffectIcons;
     public final ModConfigSpec.BooleanValue mapTooltip;
     public final ModConfigSpec.BooleanValue shulkerBoxTooltip;
+    public final ModConfigSpec.BooleanValue enderchesttooltip;
 
     // ═══════════════════════════════════════════
     //  HUD
@@ -203,6 +204,10 @@ public final class NTClientConfig {
                 .comment("§eShow a preview of items in shulker boxes.")
                 .translation("neatly-better.config.shulkerbox_tooltip")
                 .define("shulkerbox_tooltip", true);
+        enderchesttooltip = builder
+                .comment("§eShow a preview of items in ender chest.")
+                .translation("neatly-better.config.ender_chest_tooltip")
+                .define("ender_chest_tooltip", true);
         builder.pop();
 
         builder.pop(); // ui

@@ -4,7 +4,9 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
 import net.hallowed.neatlybetter.client.tooltip.EffectTooltipData;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
+import net.hallowed.neatlybetter.client.tooltip.EnderChestTooltipData;
 import net.hallowed.neatlybetter.client.tooltip.ShulkerBoxTooltipData;
+import net.hallowed.neatlybetter.client.util.EnderCheckClient;
 import net.hallowed.neatlybetter.tooltip.MapPreviewTooltip;
 
 import net.minecraft.client.Minecraft;
@@ -57,6 +59,20 @@ public abstract class ItemTooltipsMixin {
                     }
                 }
             }
+        }
+
+        if (itemStack.is(Items.ENDER_CHEST) && NTClientConfig.CONFIG.enderchesttooltip.isTrue()) {
+            List<ItemStack> items = new ArrayList<>(EnderCheckClient.enderChestItems());
+
+            if (items.stream().allMatch(ItemStack::isEmpty)) {
+                return original;
+            }
+
+            while (items.size() < 27) {
+                items.add(ItemStack.EMPTY);
+            }
+
+            return Optional.of(new EnderChestTooltipData(items));
         }
 
         PotionContents potionContents = itemStack.get(DataComponents.POTION_CONTENTS);

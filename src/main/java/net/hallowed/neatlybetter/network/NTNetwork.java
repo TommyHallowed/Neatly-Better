@@ -27,6 +27,7 @@ import net.minecraft.world.item.equipment.Equippable;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Predicate;
@@ -61,6 +62,18 @@ public final class NTNetwork {
                         ByteBufCodecs.BOOL, EnderCheckResponse::hasCompass,
                         ByteBufCodecs.BOOL, EnderCheckResponse::hasClock,
                         EnderCheckResponse::new
+                );
+        @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
+    }
+
+    /** S2C: the player's full Ender Chest slot contents, for the tooltip preview. */
+    public record EnderChestContentsPayload(List<ItemStack> items) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<@NotNull EnderChestContentsPayload> ID =
+                new CustomPacketPayload.Type<>(id("ender_chest_contents"));
+        public static final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull EnderChestContentsPayload> CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.collection(ArrayList::new, ItemStack.OPTIONAL_STREAM_CODEC), EnderChestContentsPayload::items,
+                        EnderChestContentsPayload::new
                 );
         @Override public @NotNull Type<? extends @NotNull CustomPacketPayload> type() { return ID; }
     }
@@ -128,6 +141,7 @@ public final class NTNetwork {
         // Ender Chest packets
         PayloadTypeRegistry.serverboundPlay().register(EnderCheckRequest.ID, EnderCheckRequest.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(EnderCheckResponse.ID, EnderCheckResponse.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(EnderChestContentsPayload.ID, EnderChestContentsPayload.CODEC);
 
         // ArmorSwap packets
         PayloadTypeRegistry.serverboundPlay().register(ArmorSwapRequest.ID, ArmorSwapRequest.CODEC);
@@ -237,6 +251,16 @@ public final class NTNetwork {
         boolean compass = hasInEnderDeep(player, s -> s.is(Items.COMPASS));
         boolean clock   = hasInEnderDeep(player, s -> s.is(Items.CLOCK));
         ServerPlayNetworking.send(player, new EnderCheckResponse(compass, clock));
+        ServerPlayNetworking.send(player, new EnderChestContentsPayload(collectEnderChestItems(player)));
+    }
+
+    private static List<ItemStack> collectEnderChestItems(ServerPlayer player) {
+        var inv = player.getEnderChestInventory();
+        List<ItemStack> items = new ArrayList<>(inv.getContainerSize());
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            items.add(inv.getItem(i).copy());
+        }
+        return items;
     }
 
     private static boolean hasInEnderDeep(ServerPlayer p, Predicate<ItemStack> test) {

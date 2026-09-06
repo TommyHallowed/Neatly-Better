@@ -54,6 +54,7 @@ public class NeatlyBetterClient implements ClientModInitializer {
             case MapPreviewTooltip mapData -> new ClientMapPreviewTooltip(mapData);
             case EffectTooltipData effectData -> new EffectTooltipRenderer(effectData);
             case ShulkerBoxTooltipData shulkerBoxTooltip -> new ShulkerBoxTooltipRenderer(shulkerBoxTooltip.items(), shulkerBoxTooltip.color());
+            case EnderChestTooltipData enderChestTooltip -> new EnderChestTooltipRenderer(enderChestTooltip.items());
             case QuiverTooltip quiverTooltip -> new QuiverTooltipRenderer(quiverTooltip.contents());
             default -> null;
         });
