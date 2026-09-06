@@ -301,6 +301,7 @@
   "neatly-better.config.resistance_overhaul": "Resistance Effect",
   "neatly-better.config.allow_sleeping": "Sleeping Configuration",
   "neatly-better.config.hunger_mechanics": "Hunger Health Regeneration",
+  "neatly-better.config.saturation_eating": "Saturation Eating",
   "neatly-better.config.xp_from_mining_non_ore": "Mining XP",
   "neatly-better.config.xp_from_placing_blocks": "Building XP",
   "neatly-better.config.xp_from_farming": "Farming XP",

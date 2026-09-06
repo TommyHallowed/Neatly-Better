@@ -75,6 +75,7 @@
     "item.MapItemSavedDataMixin",
     "item.ShearsItemMixin",
     "level.LevelChunkMixin",
+    "other.ConsumableMixin",
     "other.FoodDataMixin",
     "other.LeashableMixin",
     "other.LevelMixin",

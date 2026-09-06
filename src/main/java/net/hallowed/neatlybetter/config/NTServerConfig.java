@@ -67,6 +67,7 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue resistanceOverhaul;
     public final ModConfigSpec.EnumValue<SleepMode> allowSleeping;
     public final ModConfigSpec.BooleanValue hungerMechanics;
+    public final ModConfigSpec.BooleanValue saturationEating;
     public final ModConfigSpec.BooleanValue xpFromMiningNonOre;
     public final ModConfigSpec.BooleanValue xpFromPlacingBlocks;
     public final ModConfigSpec.BooleanValue xpFromFarming;
@@ -546,6 +547,11 @@ public final class NTServerConfig {
                 .comment("§eModifies the hunger system to make healing at full hp slower depending on difficultly.")
                 .translation("neatly-better.config.hunger_mechanics")
                 .define("hunger_mechanics", true);
+
+        saturationEating = builder
+                .comment("§eAllows eating food when hunger is full and saturation is not.")
+                .translation("neatly-better.config.saturation_eating")
+                .define("saturation_eating", false);
 
         allowSleeping = builder
                 .comment("§6VANILLA = No change")
