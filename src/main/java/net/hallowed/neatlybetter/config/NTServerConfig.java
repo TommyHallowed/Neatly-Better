@@ -353,7 +353,7 @@ public final class NTServerConfig {
                 .define("beacon_soak_effects", true);
 
         beaconSoakPerLevel = builder
-                .comment("§eMax Beacon soak effect duration per level.§r")
+                .comment("§eMax Beacon soak effect duration per level in seconds.§r")
                 .comment("")
                 .translation("neatly-better.config.beacon_soak_per_level")
                 .defineInRange("beacon_soak_per_level", 60, 1, 512);
