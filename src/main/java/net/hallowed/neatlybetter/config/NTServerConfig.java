@@ -45,6 +45,7 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue anvilNoTooExpensive;
     public final ModConfigSpec.BooleanValue anvilEnchantFeather;
     public final ModConfigSpec.BooleanValue beaconSoakEffects;
+    public final ModConfigSpec.IntValue beaconSoakPerLevel;
     public final ModConfigSpec.BooleanValue beaconSaturationEffect;
     public final ModConfigSpec.IntValue maxBeaconRange;
     public final ModConfigSpec.BooleanValue dispenserCauldronInteraction;
@@ -347,18 +348,24 @@ public final class NTServerConfig {
         builder.push("beacon");
 
         beaconSoakEffects = builder
-                .comment("§ePlayers soak beacon effects gradually when in range of a beacon.")
+                .comment("§ePlayers soak beacon effects gradually when in range of a beacon.§r")
                 .translation("neatly-better.config.beacon_soak_effects")
                 .define("beacon_soak_effects", true);
 
+        beaconSoakPerLevel = builder
+                .comment("§eMax Beacon soak effect duration per level.§r")
+                .comment("")
+                .translation("neatly-better.config.beacon_soak_per_level")
+                .defineInRange("beacon_soak_per_level", 60, 1, 512);
+
         beaconSaturationEffect = builder
                 .comment("§eSaturation effect is added to the secondary effect list.")
-                .comment("§cRequires full Diamond/Netherite beacon base to work.")
+                .comment("§cRequires full Diamond/Netherite beacon base to work.§r")
                 .translation("neatly-better.config.beacon_saturation_effect")
                 .define("beacon_saturation_effect", true);
 
         maxBeaconRange = builder
-                .comment("§eMaximum range of a beacon at max tier in blocks.")
+                .comment("§eMaximum range of a beacon at max tier in blocks.§r")
                 .comment("")
                 .comment(" Vanilla Default: 50")
                 .translation("neatly-better.config.max_beacon_range")
@@ -369,7 +376,7 @@ public final class NTServerConfig {
         builder.push("dispenser");
 
         dispenserCauldronInteraction = builder
-                .comment("§eDispensers can fill/empty cauldrons using buckets.")
+                .comment("§eDispensers can fill/empty cauldrons using buckets.§r")
                 .translation("neatly-better.config.dispenser_cauldron_interaction")
                 .define("dispenser_cauldron_interaction", true);
 
@@ -379,19 +386,19 @@ public final class NTServerConfig {
 
         ladderExtensionPlacement = builder
                 .comment("§eLadders can be extended upwards by Right-Clicking with ladder item.")
-                .comment("§eUse Shift to extend ladders downwards")
+                .comment("§eUse Shift to extend ladders downwards.§r")
                 .translation("neatly-better.config.ladder_extension_placement")
                 .define("ladder_extension_placement", true);
 
         ladderClimbUpSpeedMultiplier = builder
-                .comment("§eSpeed multiplier applied when climbing up a ladder.")
+                .comment("§eSpeed multiplier applied when climbing up a ladder.§r")
                 .comment("")
                 .comment(" §eVanilla Default: 1.0")
                 .translation("neatly-better.config.ladder_climb_up_speed_multiplier")
                 .defineInRange("ladder_climb_up_speed_multiplier", 1.75, 0.1, 10.0);
 
         ladderClimbDownSpeedMultiplier = builder
-                .comment("§eSpeed multiplier applied when climbing down a ladder.")
+                .comment("§eSpeed multiplier applied when climbing down a ladder.§r")
                 .comment("")
                 .comment(" §eVanilla Default: 1.0")
                 .translation("neatly-better.config.ladder_climb_down_speed_multiplier")
@@ -402,7 +409,7 @@ public final class NTServerConfig {
         builder.push("sponge");
 
         spongeBlockAbsorbRadius = builder
-                .comment("§eRadius in blocks that a sponge absorbs water.")
+                .comment("§eRadius in blocks that a sponge absorbs water.§r")
                 .comment("")
                 .comment(" Vanilla Default: 7.")
                 .translation("neatly-better.config.sponge_block_absorb_radius")
@@ -414,19 +421,19 @@ public final class NTServerConfig {
         builder.push("vault");
 
         vaultReopenEnabled = builder
-       .comment("§eAllow players to re-open vaults after a cooldown.")
+       .comment("§eAllow players to re-open vaults after a cooldown.§r")
        .translation("neatly-better.config.vault_reopen_enabled")
        .define("vault_reopen_enabled", true);
 
         vaultReopenCooldownTicks = builder
-       .comment("§eTicks before a normal vault can be re-opened by the same player.")
+       .comment("§eTicks before a normal vault can be re-opened by the same player.§r")
        .comment("")
        .comment(" 24000 ticks = 1 day")
        .translation("neatly-better.config.vault_cooldown_ticks")
        .defineInRange("vault_cooldown_ticks", 24000L, 0L, Long.MAX_VALUE);
 
         vaultOminousReopenCooldownTicks = builder
-       .comment("§eTicks before an ominous vault can be re-opened by the same player.")
+       .comment("§eTicks before an ominous vault can be re-opened by the same player.§r")
        .comment("")
        .comment(" 72000 ticks = 3 days")
        .translation("neatly-better.config.vault_ominous_cooldown_ticks")
@@ -443,24 +450,24 @@ public final class NTServerConfig {
         builder.push("item");
 
         totemCooldown = builder
-                .comment("§eTotem of undying cooldown in seconds.")
+                .comment("§eTotem of undying cooldown in seconds.§r")
                 .comment("")
                 .comment(" 0 = no cooldown")
                 .translation("neatly-better.config.totem_cooldown")
                 .defineInRange("totem_cooldown", 30, 0, 1800);
 
         featherNoDamage = builder
-                .comment("§eFeather deals no damage to entities, applies only knockback.")
+                .comment("§eFeather deals no damage to entities, applies only knockback.§r")
                 .translation("neatly-better.config.feather_no_damage")
                 .define("feather_no_damage", true);
 
         explosionsDisableShield = builder
-                .comment("§eShields are disabled if hit directly by explosive damage.")
+                .comment("§eShields are disabled if hit directly by explosive damage.§r")
                 .translation("neatly-better.config.explosions_disable_shield")
                 .define("explosions_disable_shield", true);
 
         shieldDamageNerf = builder
-                .comment("§eShields now get disabled after 5 fast hits.")
+                .comment("§eShields now get disabled after 5 fast hits.§r")
                 .translation("neatly-better.config.rapid_hit_disable_shield")
                 .define("rapid_hit_disable_shield", true);
 
@@ -469,12 +476,12 @@ public final class NTServerConfig {
                 .comment("")
                 .comment("§cOn Hard Difficulty: 20% chance of igniting for 4 seconds.")
                 .comment("§7On Normal Difficulty: 40% chance of igniting for 5 seconds.")
-                .comment("§aOn Easy/Peaceful Difficulty: 60% chance of igniting for 6 seconds.")
+                .comment("§aOn Easy/Peaceful Difficulty: 60% chance of igniting for 6 seconds.§r")
                 .translation("neatly-better.config.torch_ignite")
                 .define("torch_ignite", true);
 
         saplingAutoReplant = builder
-                .comment("§eSaplings dropped on the ground will get planted instead of despawning.")
+                .comment("§eSaplings dropped on the ground will get planted instead of despawning.§r")
                 .translation("neatly-better.config.sapling_auto_replant")
                 .define("sapling_auto_replant", true);
 
@@ -488,12 +495,12 @@ public final class NTServerConfig {
         builder.push("general");
 
         stepUpDisabledWhileShifting = builder
-                .comment("§eDisable step up enchantment when sneaking.")
+                .comment("§eDisable step up enchantment when sneaking.§r")
                 .translation("neatly-better.config.step_up")
                 .define("step_up", true);
 
         lapisStaysInEnchanting = builder
-                .comment("§eLapis Lazuli placed in an enchanting table stays stored when the GUI is closed.")
+                .comment("§eLapis Lazuli placed in an enchanting table stays stored when the GUI is closed.§r")
                 .translation("neatly-better.config.lapis_stays_in_enchanting")
                 .define("lapis_stays_in_enchanting", true);
 
@@ -516,7 +523,7 @@ public final class NTServerConfig {
                 .comment("§eHow efficient the mending enchantment is.")
                 .comment("§e(XP to durability conversion)")
                 .comment("")
-                .comment(" Vanilla Default: 2")
+                .comment(" §rVanilla Default: 2")
                 .translation("neatly-better.config.mending_efficiency")
                 .defineInRange("mending_efficiency", 1.0, 1.0, 100.0);
 
@@ -535,7 +542,7 @@ public final class NTServerConfig {
                 .comment("§eVanilla: Full Protection IV = 64% Damage Reduction.")
                 .comment("         §eFull Fire/Projectile/Blast Protection IV = 80% Damage Reduction.")
                 .comment("    §eMod: Full Protection IV = 35% Damage Reduction.")
-                .comment("         §eFull Fire/Projectile/Blast Protection IV = 50% Damage Reduction.")
+                .comment("         §eFull Fire/Projectile/Blast Protection IV = 50% Damage Reduction.§r")
                 .translation("neatly-better.config.protection_overhaul")
                 .define("protection_overhaul", true);
 

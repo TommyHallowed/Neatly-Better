@@ -98,20 +98,20 @@ public class BeaconBlockEntityMixin implements PremiumBaseAccessor {
             )
     )
     private static AABB neatlybetter$useScaledConfigValue(
-            AABB box, double vanillaRadius,
-            Level world, BlockPos pos, int beaconLevel,
-            Holder<@NotNull MobEffect> primary, Holder<@NotNull MobEffect> secondary) {
+            AABB box, double amountToAddInAllDirections,
+            Level level, BlockPos worldPosition, int levels,
+            Holder<@NotNull MobEffect> primaryPower, Holder<@NotNull MobEffect> secondaryPower) {
 
-        if (world instanceof ServerLevel) {
+        if (level instanceof ServerLevel) {
             int rule = NTServerConfig.CONFIG.maxBeaconRange.get();
             if (rule > 0) {
                 final int MAX_LEVEL = 4;
                 final double VANILLA_MAX_RADIUS = MAX_LEVEL * 10.0 + 10.0;
-                double scaledRadius = (beaconLevel * 10.0 + 10.0) * (rule / VANILLA_MAX_RADIUS);
+                double scaledRadius = (levels * 10.0 + 10.0) * (rule / VANILLA_MAX_RADIUS);
                 return box.inflate(scaledRadius);
             }
         }
-        return box.inflate(vanillaRadius);
+        return box.inflate(amountToAddInAllDirections);
     }
 
     // =====================================================================
@@ -127,16 +127,16 @@ public class BeaconBlockEntityMixin implements PremiumBaseAccessor {
     )
     private static boolean neatlybetter$soakOrVanilla(
             Player player, MobEffectInstance instance,
-            Level world, BlockPos pos, int beaconLevel,
-            Holder<@NotNull MobEffect> primary, Holder<@NotNull MobEffect> secondary) {
+            Level level, BlockPos worldPosition, int levels,
+            Holder<@NotNull MobEffect> primaryPower, Holder<@NotNull MobEffect> secondaryPower) {
 
         boolean soak = false;
-        if (world instanceof ServerLevel) {
+        if (level instanceof ServerLevel) {
             soak = NTServerConfig.CONFIG.beaconSoakEffects.get();
         }
         if (!soak) return player.addEffect(instance);
 
-        int cap = Math.max(1, beaconLevel) * 60 * 20;
+        int cap = Math.max(1, levels) * NTServerConfig.CONFIG.beaconSoakPerLevel.get() * 20;
         int current = 0;
         MobEffectInstance existing = player.getEffect(instance.getEffect());
         if (existing != null) current = existing.getDuration();

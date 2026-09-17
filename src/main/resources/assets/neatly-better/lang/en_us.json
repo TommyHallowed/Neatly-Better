@@ -285,6 +285,7 @@
   "neatly-better.config.anvil_no_too_expensive": "Remove Too Expensive",
   "neatly-better.config.anvil_enchant_feather": "Combine Feather With Knockback",
   "neatly-better.config.beacon_soak_effects": "Soak Effects",
+  "neatly-better.config.beacon_soak_per_level": "Soak Per Level Duration",
   "neatly-better.config.beacon_saturation_effect": "Saturation Effect",
   "neatly-better.config.max_beacon_range": "Max Range",
   "neatly-better.config.dispenser_cauldron_interaction": "Dispenser Cauldron Interactions",
