@@ -96,38 +96,6 @@ public final class ModItemGroupRegistrar {
             entries.insertAfter(MAGENTA_TERRACOTTA_STAIRS , MAGENTA_TERRACOTTA_SLAB);
             entries.insertAfter(Items.DYED_TERRACOTTA.pick(DyeColor.PINK) , PINK_TERRACOTTA_STAIRS);
             entries.insertAfter(PINK_TERRACOTTA_STAIRS , PINK_TERRACOTTA_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.WHITE) , WHITE_CONCRETE_STAIRS);
-            entries.insertAfter(WHITE_CONCRETE_STAIRS , WHITE_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.LIGHT_GRAY) , LIGHT_GRAY_CONCRETE_STAIRS);
-            entries.insertAfter(LIGHT_GRAY_CONCRETE_STAIRS , LIGHT_GRAY_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.GRAY) , GRAY_CONCRETE_STAIRS);
-            entries.insertAfter(GRAY_CONCRETE_STAIRS , GRAY_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.BLACK) , BLACK_CONCRETE_STAIRS);
-            entries.insertAfter(BLACK_CONCRETE_STAIRS , BLACK_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.BROWN) , BROWN_CONCRETE_STAIRS);
-            entries.insertAfter(BROWN_CONCRETE_STAIRS , BROWN_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.RED) , RED_CONCRETE_STAIRS);
-            entries.insertAfter(RED_CONCRETE_STAIRS , RED_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.ORANGE) , ORANGE_CONCRETE_STAIRS);
-            entries.insertAfter(ORANGE_CONCRETE_STAIRS , ORANGE_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.YELLOW) , YELLOW_CONCRETE_STAIRS);
-            entries.insertAfter(YELLOW_CONCRETE_STAIRS , YELLOW_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.LIME) , LIME_CONCRETE_STAIRS);
-            entries.insertAfter(LIME_CONCRETE_STAIRS , LIME_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.GREEN) , GREEN_CONCRETE_STAIRS);
-            entries.insertAfter(GREEN_CONCRETE_STAIRS , GREEN_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.CYAN) , CYAN_CONCRETE_STAIRS);
-            entries.insertAfter(CYAN_CONCRETE_STAIRS , CYAN_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.LIGHT_BLUE) , LIGHT_BLUE_CONCRETE_STAIRS);
-            entries.insertAfter(LIGHT_BLUE_CONCRETE_STAIRS , LIGHT_BLUE_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.BLUE) , BLUE_CONCRETE_STAIRS);
-            entries.insertAfter(BLUE_CONCRETE_STAIRS , BLUE_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.PURPLE) , PURPLE_CONCRETE_STAIRS);
-            entries.insertAfter(PURPLE_CONCRETE_STAIRS , PURPLE_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.MAGENTA) , MAGENTA_CONCRETE_STAIRS);
-            entries.insertAfter(MAGENTA_CONCRETE_STAIRS , MAGENTA_CONCRETE_SLAB);
-            entries.insertAfter(Items.CONCRETE.pick(DyeColor.PINK) , PINK_CONCRETE_STAIRS);
-            entries.insertAfter(PINK_CONCRETE_STAIRS , PINK_CONCRETE_SLAB);
         });
     }
 }
