@@ -9,6 +9,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.SwingAnimation;
 
 public class ArmorStandSwap {
 
@@ -55,7 +56,7 @@ public class ArmorStandSwap {
                 }
 
                 if (swapped) {
-                    player.swing(InteractionHand.MAIN_HAND, true);
+                    player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
                     return InteractionResult.SUCCESS;
                 }
 

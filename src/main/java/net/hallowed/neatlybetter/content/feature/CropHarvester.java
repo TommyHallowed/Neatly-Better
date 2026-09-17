@@ -7,14 +7,15 @@ import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -44,9 +45,9 @@ public class CropHarvester {
         }
 
         ItemStack tool = player.getItemInHand(hand);
-        boolean isHoe = tool.getItem() instanceof HoeItem;
+        boolean isHoe = tool.is(ItemTags.HOES);
 
-        player.swing(hand, true);
+        player.swing(hand, SwingAnimation.DEFAULT, true);
 
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
@@ -108,7 +109,7 @@ public class CropHarvester {
 
         level.setBlockAndUpdate(pos, block.defaultBlockState());
 
-        if (tool.getItem() instanceof HoeItem) {
+        if (tool.is(ItemTags.HOES)) {
             tool.hurtAndBreak(1, player, slot);
         }
     }

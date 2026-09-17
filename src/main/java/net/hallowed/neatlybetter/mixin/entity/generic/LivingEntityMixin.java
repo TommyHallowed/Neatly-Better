@@ -57,10 +57,6 @@ public abstract class LivingEntityMixin extends Entity {
     public abstract ItemStack getUseItem();
 
     @Shadow
-    protected abstract void blockUsingItem(ServerLevel level, LivingEntity attacker,
-                                           DamageSource source, float damage);
-
-    @Shadow
     public abstract ItemStack getItemBlockingWith();
 
     @Unique

@@ -69,7 +69,7 @@ public abstract class AbstractContainerScreenMixin {
             MouseButtonEvent event, boolean doubleClick,
             CallbackInfoReturnable<Boolean> cir) {
 
-        if (event.button() != 1) return;
+        if (event.button() != 3) return;
         if (this.hoveredSlot == null || !this.hoveredSlot.hasItem()) return;
 
         Minecraft mc = Minecraft.getInstance();

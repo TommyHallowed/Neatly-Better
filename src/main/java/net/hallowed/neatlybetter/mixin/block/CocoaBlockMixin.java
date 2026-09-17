@@ -5,6 +5,7 @@ import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.CocoaBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -17,17 +18,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class CocoaBlockMixin {
 
     @Inject(method = "randomTick", at = @At("RETURN"))
-    private void neatlybetter$onCocoaRandomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo ci) {
+    private void neatlybetter$onCocoaRandomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random, CallbackInfo ci) {
 
         if (!NTServerConfig.CONFIG.rainIncreasesCropGrowth.get()) return;
-        if (!world.isRainingAt(pos.above())) return;
+        if (!level.isRainingAt(pos.above())) return;
 
         CocoaBlock self = (CocoaBlock)(Object)this;
 
         for (int i = 0; i < 2; i++) {
             if (random.nextInt(5) == 0) {
                 try {
-                    self.performBonemeal(world, random, pos, state);
+                    self.performBonemeal(level, random, pos, state, BonemealSource.INTERACTION);
                 } catch (Throwable ignored) {}
             }
         }

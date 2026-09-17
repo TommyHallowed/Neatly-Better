@@ -28,6 +28,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.SignApplicator;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WallBannerBlock;
@@ -123,7 +124,7 @@ public abstract class MinecraftMixin {
                         this.gameMode.startDestroyBlock(blockPos, blockHitResult.getDirection());
                         return;
                     }
-                    this.player.swing(InteractionHand.MAIN_HAND);
+                    this.player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
                 }
             }
         }

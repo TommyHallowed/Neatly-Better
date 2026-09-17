@@ -1,6 +1,5 @@
 package net.hallowed.neatlybetter.init;
 
-import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.hallowed.neatlybetter.api.NTRegistry;
 
 import net.hallowed.neatlybetter.content.block.*;
@@ -11,6 +10,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProviders;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 
 public final class ModBlocks {
     private ModBlocks() {}
@@ -521,9 +522,8 @@ public final class ModBlocks {
                                 .setId(NTRegistry.blockKey("rainbow_bed"))));
 
         CHARCOAL_BLOCK = NTRegistry.registerBlockWithItem("charcoal_block",
-                new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.COAL_BLOCK).setId(NTRegistry.blockKey("charcoal_block"))));
-
-        FuelValueEvents.BUILD.register((builder, _) -> builder.add(ModBlocks.CHARCOAL_BLOCK.asItem(), 16000));
+                new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.COAL_BLOCK).setId(NTRegistry.blockKey("charcoal_block"))),
+                new Item.Properties().setId(NTRegistry.itemKey("charcoal_block")).cookingFuel(ContextIntProviders.COOKING_TIME_COAL_BLOCK));
 
         GLOW_TORCH = NTRegistry.registerBlock("glow_torch",
                 new GlowTorchBlock(ParticleTypes.GLOW, BlockBehaviour.Properties.of()
@@ -531,7 +531,7 @@ public final class ModBlocks {
                         .instabreak()
                         .sound(SoundType.WOOD)
                         .lightLevel(state -> 15)
-                        .pushReaction(PushReaction.DESTROY)
+                        .pushReaction(PushReaction.POPPED)
                         .setId(NTRegistry.blockKey("glow_torch"))));
 
         GLOW_WALL_TORCH = NTRegistry.registerBlock("glow_wall_torch",
@@ -540,7 +540,7 @@ public final class ModBlocks {
                         .instabreak()
                         .sound(SoundType.WOOD)
                         .lightLevel(state -> 15)
-                        .pushReaction(PushReaction.DESTROY)
+                        .pushReaction(PushReaction.POPPED)
                         .setId(NTRegistry.blockKey("glow_wall_torch"))));
 
         MILK_CAULDRON = NTRegistry.registerBlock("milk_cauldron",
@@ -554,8 +554,6 @@ public final class ModBlocks {
 
         SOAKED_LAVA_SPONGE = NTRegistry.registerBlockWithItem("soaked_lava_sponge",
                 new SoakedLavaSpongeBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WET_SPONGE).lightLevel(state -> 3).setId(NTRegistry.blockKey("soaked_lava_sponge"))),
-                new Item.Properties().setId(NTRegistry.itemKey("soaked_lava_sponge")).craftRemainder(LAVA_SPONGE.asItem()));
-
-        FuelValueEvents.BUILD.register((builder, _) -> builder.add(ModBlocks.SOAKED_LAVA_SPONGE.asItem(), 30000));
+                new Item.Properties().setId(NTRegistry.itemKey("soaked_lava_sponge")).cookingFuel(ContextIntProviders.COOKING_TIME_HANGING_SIGNS).craftRemainder(LAVA_SPONGE.asItem()));
     }
 }

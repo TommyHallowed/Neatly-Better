@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -154,7 +155,7 @@ public final class ModCauldronInteractions {
             if (stack.isEmpty()) {
                 player.setItemInHand(hand, resultStack);
             } else if (!player.getInventory().add(resultStack)) {
-                player.drop(resultStack, false);
+                player.drop(resultStack, false, Prediction.SERVER_ONLY);
             }
 
             LayeredCauldronBlock.lowerFillLevel(state, level, pos);
@@ -229,7 +230,7 @@ public final class ModCauldronInteractions {
         if (itemInHand.isEmpty()) {
             player.setItemInHand(hand, resultStack);
         } else if (!player.getInventory().add(resultStack)) {
-            player.drop(resultStack, false);
+            player.drop(resultStack, false, Prediction.SERVER_ONLY);
         }
 
         LayeredCauldronBlock.lowerFillLevel(state, level, pos);

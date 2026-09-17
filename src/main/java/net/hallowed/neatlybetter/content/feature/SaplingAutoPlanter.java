@@ -6,7 +6,7 @@ import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.util.Continuation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -34,7 +34,7 @@ public final class SaplingAutoPlanter {
                     if (!entity.isRemoved() && entity.getAge() >= 5980) {
                         candidates.add(entity);
                     }
-                    return AbortableIterationConsumer.Continuation.CONTINUE.shouldAbort();
+                    return Continuation.CONTINUE.shouldAbort();
                 }
         );
 

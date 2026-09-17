@@ -126,7 +126,7 @@ public class QuiverTooltipRenderer implements ClientTooltipComponent {
         int centerTooltip = x + w / 2 - 12;
         ClientTooltipComponent nameTooltip = ClientTooltipComponent.create(selectedItemName.getVisualOrderText());
         graphics.tooltip(font, List.of(nameTooltip), centerTooltip - textWidth / 2, y - 15,
-                DefaultTooltipPositioner.INSTANCE, itemStack.get(DataComponents.TOOLTIP_STYLE));
+                DefaultTooltipPositioner.INSTANCE, itemStack.get(DataComponents.TOOLTIP_STYLE), false);
     }
 
     private void extractProgressbar(final int x, final int y, final Font font, final GuiGraphicsExtractor graphics) {

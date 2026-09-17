@@ -11,9 +11,8 @@ import net.hallowed.neatlybetter.init.ModData;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
 import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
-import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.UvMapping;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
@@ -44,7 +43,7 @@ public abstract class EquipmentRendererMixin {
             method = "renderLayers(Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/world/item/ItemStack;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/resources/Identifier;II)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/OrderedSubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/TextureAtlasSprite;ILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V"
+                    target = "Lnet/minecraft/client/renderer/OrderedSubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/UvMapping;I)V"
             )
     )
     private void neatlybetter$applyTrimEffects(
@@ -56,15 +55,14 @@ public abstract class EquipmentRendererMixin {
             int light,
             int overlay,
             int finalColor,
-            TextureAtlasSprite sprite,
+            UvMapping uvMapping,
             int outline,
-            ModelFeatureRenderer.CrumblingOverlay crumble,
             Operation<Void> original,
             @Local(argsOnly = true, name = "itemStack") ItemStack itemStack
     ) {
         int finalLight = light;
 
-        if (sprite != null && sprite.atlasLocation().getPath().contains("trims")) {
+        if (uvMapping != null) {
             boolean emissive = itemStack.getOrDefault(ModData.EMISSIVE_TRIM, false);
             boolean pulsing = itemStack.getOrDefault(ModData.PULSING_TRIM, false);
 
@@ -77,6 +75,6 @@ public abstract class EquipmentRendererMixin {
         }
 
         original.call(instance, model, stateObj, matrices, renderType,
-                finalLight, overlay, finalColor, sprite, outline, crumble);
+                finalLight, overlay, finalColor, uvMapping, outline);
     }
 }

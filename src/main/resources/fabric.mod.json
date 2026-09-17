@@ -8,7 +8,10 @@
 	"authors": [
 		"Hallowed103"
 	],
-	"contact": {},
+	"contact": {
+		"homepage": "https://modrinth.com/mod/neatly-better",
+		"sources": "https://github.com/TommyHallowed/Neatly-Better/"
+	},
 	"license": "MIT",
 	"icon": "assets/neatly-better/icon.png",
 	"environment": "*",
@@ -29,7 +32,7 @@
     ],
 	"depends": {
 		"fabricloader": ">=0.18.4",
-		"minecraft": "~26.2",
+		"minecraft": "~26.3",
 		"java": ">=21",
 		"fabric-api": "*",
 		"forgeconfigapiport": "*"

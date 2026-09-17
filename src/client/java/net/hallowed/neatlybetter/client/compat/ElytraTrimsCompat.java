@@ -2,7 +2,6 @@ package net.hallowed.neatlybetter.client.compat;
 
 import dev.kikugie.elytratrims.api.ETClientInitializer;
 import dev.kikugie.elytratrims.api.render.ETRenderMethod;
-import dev.kikugie.elytratrims.api.render.ETRenderParameters;
 import dev.kikugie.elytratrims.api.render.ETRendererID;
 import dev.kikugie.elytratrims.api.render.ETRenderingAPI;
 
@@ -26,35 +25,18 @@ public class ElytraTrimsCompat implements ETClientInitializer {
         );
 
         ETRenderingAPI.wrapRenderParameters(trimType, parameters -> {
-            ItemStack stack = parameters.stack();
+            ItemStack stack = parameters.stack;
 
             boolean emissive = stack.getOrDefault(ModData.EMISSIVE_TRIM, false);
             boolean pulsing  = stack.getOrDefault(ModData.PULSING_TRIM, false);
 
-            if (!emissive && !pulsing) return parameters;
-            if (parameters.sprite() == null)  return parameters;
+            if (!emissive && !pulsing) return;
+            if (parameters.sprite == null) return;
 
-            int light = LightCoordsUtil.FULL_BRIGHT;
-            int color = parameters.color();
-
+            parameters.lightCoords = LightCoordsUtil.FULL_BRIGHT;
             if (pulsing) {
-                color = getPulseColor(color);
+                parameters.tintedColor = getPulseColor(parameters.tintedColor);
             }
-
-            return new ETRenderParameters(
-                    parameters.elytra(),
-                    parameters.object(),
-                    parameters.stack(),
-                    parameters.matrices(),
-                    parameters.render(),
-                    parameters.sprite(),
-                    parameters.texture(),
-                    light,
-                    color,
-                    parameters.overlay(),
-                    parameters.outline(),
-                    parameters.order()
-            );
         });
     }
 

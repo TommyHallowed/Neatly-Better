@@ -56,7 +56,7 @@ public abstract class PauseScreenMixin extends Screen {
     @Unique private static final Component SEND_FEEDBACK      = Component.translatable("menu.sendFeedback");
     @Unique private static final Component REPORT_BUGS        = Component.translatable("menu.reportBugs");
     @Unique private static final Component OPTIONS            = Component.translatable("menu.options");
-    @Unique private static final Component MULTIPLAYER_OPTIONS = Component.translatable("menu.multiplayerOptions.button");
+    @Unique private static final Component WORLD_OPTIONS = Component.translatable("options.worldOptions.button");
     @Unique private static final Component PLAYER_REPORTING   = Component.translatable("menu.playerReporting");
 
     @Unique private static final Identifier neatlybetter$PHASE = Identifier.fromNamespaceAndPath("neatly-better", "pause_buttons_late");
@@ -95,7 +95,7 @@ public abstract class PauseScreenMixin extends Screen {
 
             AbstractWidget returnBtn = null, advancementsBtn = null, statsBtn = null,
                     reportBugsBtn = null, feedbackBtn = null, friendsBtn = null,
-                    reportingBtn = null, optionsBtn = null, multiplayerOptionsBtn = null,
+                    reportingBtn = null, optionsBtn = null, worldOptionsBtn = null,
                     screenshotsBtn = null, modsBtn = null, modsFullBtn = null, disconnectBtn = null;
 
             for (AbstractWidget wgt : widgets) {
@@ -127,8 +127,8 @@ public abstract class PauseScreenMixin extends Screen {
                     reportingBtn = wgt;
                 } else if (wgt instanceof SpriteIconButton && neatlybetter$keyEquals(msg, SCREENSHOTS_MESSAGE)) {
                     screenshotsBtn = wgt;
-                } else if (neatlybetter$keyEquals(msg, MULTIPLAYER_OPTIONS)) {
-                    multiplayerOptionsBtn = wgt;
+                } else if (neatlybetter$keyEquals(msg, WORLD_OPTIONS)) {
+                    worldOptionsBtn = wgt;
                 } else if (neatlybetter$keyEquals(msg, OPTIONS)) {
                     optionsBtn = wgt;
                 }
@@ -137,7 +137,7 @@ public abstract class PauseScreenMixin extends Screen {
             for (AbstractWidget wgt : widgets) {
                 if (wgt instanceof Button
                         && wgt != returnBtn && wgt != advancementsBtn && wgt != statsBtn
-                        && wgt != optionsBtn && wgt != multiplayerOptionsBtn && wgt != modsBtn && wgt != modsFullBtn) {
+                        && wgt != optionsBtn && wgt != worldOptionsBtn && wgt != modsBtn && wgt != modsFullBtn) {
                     disconnectBtn = wgt;
                 }
             }
@@ -170,7 +170,7 @@ public abstract class PauseScreenMixin extends Screen {
             if (NTClientConfig.CONFIG.legacyPauseMenuLayout.isTrue()) {
                 neatlybetter$applyLegacyLayout(screen, widgets, returnBtn, advancementsBtn, statsBtn,
                         reportBugsBtn, feedbackBtn, friendsBtn, reportingBtn,
-                        optionsBtn, multiplayerOptionsBtn, screenshotsBtn, modsBtn, modsFullBtn, disconnectBtn);
+                        optionsBtn, worldOptionsBtn, screenshotsBtn, modsBtn, modsFullBtn, disconnectBtn);
             } else {
                 List<AbstractWidget> present = new ArrayList<>();
                 for (AbstractWidget w : new AbstractWidget[]{ screenshotsBtn, reportBugsBtn, feedbackBtn, friendsBtn, reportingBtn }) {

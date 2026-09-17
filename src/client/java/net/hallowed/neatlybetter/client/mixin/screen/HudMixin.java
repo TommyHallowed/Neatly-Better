@@ -2,7 +2,7 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 
 import com.google.common.collect.Ordering;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import net.hallowed.neatlybetter.api.NTCompat;
 import net.hallowed.neatlybetter.client.render.EffectBarRenderer;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
@@ -123,7 +123,7 @@ public abstract class HudMixin {
             method = "extractCrosshair",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V",
+                    target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blitSprite(Lcom/mojang/renderpearl/api/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V",
                     ordinal = 0
             )
     )

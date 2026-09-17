@@ -26,7 +26,7 @@ public class FireBlockMixin {
         BlockState blockState = level.getBlockState(pos);
 
         if (!blockState.is(BlockTags.LOGS)) return;
-        if (random.nextFloat() >= 0.50f) return;
+        if (random.nextFloat() >= 0.20f) return;
 
         level.addFreshEntity(new ItemEntity(
                 level,

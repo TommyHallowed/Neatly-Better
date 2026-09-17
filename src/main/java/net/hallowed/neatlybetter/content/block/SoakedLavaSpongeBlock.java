@@ -1,7 +1,5 @@
 package net.hallowed.neatlybetter.content.block;
 
-import com.mojang.serialization.MapCodec;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -13,13 +11,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.NonNull;
 
 public class SoakedLavaSpongeBlock extends Block {
-
-    public static final MapCodec<SoakedLavaSpongeBlock> CODEC = simpleCodec(SoakedLavaSpongeBlock::new);
-
-    @Override
-    public @NonNull MapCodec<SoakedLavaSpongeBlock> codec() {
-        return CODEC;
-    }
 
     public SoakedLavaSpongeBlock(final BlockBehaviour.Properties properties) {
         super(properties);

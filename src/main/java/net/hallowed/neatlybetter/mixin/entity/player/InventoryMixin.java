@@ -5,6 +5,7 @@ import net.hallowed.neatlybetter.init.ModData;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.core.NonNullList;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -43,7 +44,7 @@ public abstract class InventoryMixin {
             if (restoreSlots) {
                 itemStack.set(ModData.DEATH_SLOT, new DeathSlotData(this.player.getUUID(), i));
             }
-            this.player.drop(itemStack, true, false);
+            this.player.drop(itemStack, true, Prediction.SERVER_ONLY);
             this.items.set(i, ItemStack.EMPTY);
         }
 
@@ -68,7 +69,7 @@ public abstract class InventoryMixin {
         this.setItem(target, toPlace);
 
         if (!occupant.isEmpty() && !this.add(occupant)) {
-            this.player.drop(occupant, false);
+            this.player.drop(occupant, false, Prediction.SERVER_ONLY);
         }
 
         cir.setReturnValue(true);

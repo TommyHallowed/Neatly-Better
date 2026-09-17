@@ -11,6 +11,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -33,7 +34,7 @@ public class SweetBerryBushBlockMixin {
         for (int i = 0; i < 2; i++) {
             if (random.nextInt(5) == 0) {
                 try {
-                    self.performBonemeal(level, random, pos, state);
+                    self.performBonemeal(level, random, pos, state, BonemealSource.INTERACTION);
                 } catch (Throwable ignored) {}
             }
         }

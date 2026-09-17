@@ -17,7 +17,7 @@ public class PortalShapeMixin {
     @Shadow
     @Final
     @Mutable
-    private static BlockBehaviour.StatePredicate FRAME;
+    public static BlockBehaviour.StatePredicate FRAME;
 
     @Inject(method = "<clinit>", at = @At("RETURN"))
     private static void onClassInit(CallbackInfo ci) {

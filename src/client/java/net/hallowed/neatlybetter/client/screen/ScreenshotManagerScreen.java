@@ -1,10 +1,11 @@
 package net.hallowed.neatlybetter.client.screen;
 
+import com.mojang.blaze3d.Blaze3D;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
 
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
-import net.hallowed.neatlybetter.client.util.FullscreenGuard;
 import net.hallowed.neatlybetter.client.util.ModTextures;
 
 import net.minecraft.client.gui.Font;
@@ -31,7 +32,6 @@ import net.minecraft.util.Util;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
 import javax.imageio.ImageIO;
@@ -327,7 +327,7 @@ public class ScreenshotManagerScreen extends Screen {
             if (this.previewCloseButton != null && this.previewCloseButton.mouseClicked(event, doubleClick)) {
                 return true;
             }
-            if (event.buttonInfo().button() == 0 && this.isInPreviewMargin(event.x(), event.y())) {
+            if (event.buttonInfo().button() == 1 && this.isInPreviewMargin(event.x(), event.y())) {
                 this.closePreview();
                 return true;
             }
@@ -355,7 +355,7 @@ public class ScreenshotManagerScreen extends Screen {
     public boolean keyPressed(@NonNull KeyEvent event) {
         if (this.previewFile != null) {
             if (this.previewNameField != null && this.previewNameField.isFocused()) {
-                if (event.key() == GLFW.GLFW_KEY_ENTER || event.key() == GLFW.GLFW_KEY_KP_ENTER) {
+                if (event.key() == InputConstants.KEY_RETURN || event.key() == InputConstants.KEY_NUMPADENTER) {
                     this.previewNameField.setFocused(false);
                     this.commitPreviewRename();
                     return true;
@@ -374,12 +374,12 @@ public class ScreenshotManagerScreen extends Screen {
                 this.closePreview();
                 return true;
             }
-            if (event.hasControlDown() && event.key() == GLFW.GLFW_KEY_C) {
+            if (event.hasControlDown() && event.key() == InputConstants.KEY_C) {
                 this.copyPreviewToClipboard();
                 return true;
             }
         }
-        if (this.previewFile == null && event.key() == GLFW.GLFW_KEY_DELETE && !this.selected.isEmpty()) {
+        if (this.previewFile == null && event.key() == InputConstants.KEY_DELETE && !this.selected.isEmpty()) {
             this.deleteSelected();
             return true;
         }
@@ -727,25 +727,23 @@ public class ScreenshotManagerScreen extends Screen {
         boolean canTrash = desktop != null && desktop.isSupported(Desktop.Action.MOVE_TO_TRASH);
 
         List<Path> removedFiles = new ArrayList<>();
-        FullscreenGuard.runWithoutAutoIconify(this.minecraft, () -> {
-            for (Path file : filesToRemove) {
-                try {
-                    if (canTrash) {
-                        if (desktop.moveToTrash(new File(file.toUri()))) {
-                            removedFiles.add(file);
-                        } else {
-                            LOGGER.warn("[NeatlyBetter/Screenshots] OS refused to trash {}", file);
-                        }
-                    } else {
-                        LOGGER.warn("[NeatlyBetter/Screenshots] Desktop trash unsupported on this platform, deleting {} permanently", file);
-                        Files.deleteIfExists(file);
+        for (Path file : filesToRemove) {
+            try {
+                if (canTrash) {
+                    if (desktop.moveToTrash(new File(file.toUri()))) {
                         removedFiles.add(file);
+                    } else {
+                        LOGGER.warn("[NeatlyBetter/Screenshots] OS refused to trash {}", file);
                     }
-                } catch (IOException e) {
-                    LOGGER.warn("[NeatlyBetter/Screenshots] Failed to delete {}", file, e);
+                } else {
+                    LOGGER.warn("[NeatlyBetter/Screenshots] Desktop trash unsupported on this platform, deleting {} permanently", file);
+                    Files.deleteIfExists(file);
+                    removedFiles.add(file);
                 }
+            } catch (IOException e) {
+                LOGGER.warn("[NeatlyBetter/Screenshots] Failed to delete {}", file, e);
             }
-        });
+        }
 
         for (Path file : removedFiles) {
             Thumbnail thumbnail = thumbnailCache.remove(file);
@@ -768,7 +766,7 @@ public class ScreenshotManagerScreen extends Screen {
     }
 
     private void openFolder() {
-        Util.getPlatform().openPath(this.screenshotsDir);
+        Blaze3D.openPath(this.screenshotsDir);
     }
 
     private void toggleCopyScreenshots() {
@@ -825,7 +823,7 @@ public class ScreenshotManagerScreen extends Screen {
 
             boolean consumed = super.mouseClicked(event, doubleClick);
 
-            if (!hitTile && event.buttonInfo().button() == 0 && this.isMouseOver(event.x(), event.y())) {
+            if (!hitTile && event.buttonInfo().button() == 1 && this.isMouseOver(event.x(), event.y())) {
                 ScreenshotManagerScreen.this.clearSelection();
             }
 
@@ -915,10 +913,10 @@ public class ScreenshotManagerScreen extends Screen {
             }
 
             int button = event.buttonInfo().button();
-            if (button == 0) {
+            if (button == 1) {
                 this.screen.onTileLeftClick(file);
                 return true;
-            } else if (button == 1) {
+            } else if (button == 3) {
                 this.screen.onTileRightClick(file);
                 return true;
             }

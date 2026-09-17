@@ -42,7 +42,6 @@ public class NeatlyBetter implements ModInitializer {
         ModBlockEntities.register();
         ModAiGoals.register();
         ModPotions.registerAll();
-        ModBrewing.register();
         ModCauldronInteractions.bootstrap();
         ModTickets.init();
         ModEvents.init();
@@ -67,7 +66,7 @@ public class NeatlyBetter implements ModInitializer {
                         Identifier.fromNamespaceAndPath(MOD_ID, "rebalance_datapack"),
                         container,
                         Component.literal("Neatly Better Rebalance"),
-                        PackActivationType.DEFAULT_ENABLED
+                        PackActivationType.NORMAL
                 ));
     }
 }

@@ -14,7 +14,6 @@ public final class ModEvents {
         CropHarvester.register();
         ChestKeyHandler.register();
         ItemCooldownHandler.register();
-        ComposterRegistration.register();
         ArmorStandSwap.register();
         JockeyAdditions.register();
         SleepModeHandler.register();

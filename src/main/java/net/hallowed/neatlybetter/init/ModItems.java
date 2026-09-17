@@ -13,7 +13,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.BedItem;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.StandingAndWallBlockItem;
@@ -39,7 +39,7 @@ public final class ModItems {
                         .setId(NTRegistry.itemKey("chest_key"))));
 
         NTRegistry.registerItem("rainbow_bed",
-                new BedItem(RAINBOW_BED, new Item.Properties()
+                new BlockItem(RAINBOW_BED, new Item.Properties()
                         .stacksTo(1)
                         .setId(NTRegistry.itemKey("rainbow_bed"))));
 

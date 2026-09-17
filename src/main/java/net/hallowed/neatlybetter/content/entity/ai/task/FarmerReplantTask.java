@@ -19,6 +19,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gamerules.GameRules;
 
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 public class FarmerReplantTask extends Behavior<@NotNull Villager> {
     private static final int SCAN_RADIUS = 4;
@@ -34,7 +35,7 @@ public class FarmerReplantTask extends Behavior<@NotNull Villager> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel world, Villager villager) {
+    protected boolean checkExtraStartConditions(ServerLevel world, @NonNull Villager villager) {
         if (!world.getGameRules().get(GameRules.MOB_GRIEFING)) return false;
 
         BlockPos origin = villager.blockPosition();
@@ -67,7 +68,7 @@ public class FarmerReplantTask extends Behavior<@NotNull Villager> {
     }
 
     @Override
-    protected void start(@NotNull ServerLevel world, Villager villager, long time) {
+    protected void start(@NotNull ServerLevel world, @NonNull Villager villager, long time) {
         if (target != null) {
             villager.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(target));
             villager.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosTracker(target), WALK_SPEED, 1));
@@ -75,12 +76,12 @@ public class FarmerReplantTask extends Behavior<@NotNull Villager> {
     }
 
     @Override
-    protected boolean canStillUse(@NotNull ServerLevel world, Villager villager, long time) {
+    protected boolean canStillUse(@NotNull ServerLevel world, @NonNull Villager villager, long time) {
         return target != null && target.closerToCenterThan(villager.position(), 16.0D);
     }
 
     @Override
-    protected void tick(@NotNull ServerLevel world, Villager villager, long time) {
+    protected void tick(@NotNull ServerLevel world, @NonNull Villager villager, long time) {
         if (target == null) return;
 
         if (target.closerToCenterThan(villager.position(), 1.5D)) {
@@ -92,7 +93,7 @@ public class FarmerReplantTask extends Behavior<@NotNull Villager> {
                 world.setBlock(target, after, 3);
 
                 world.gameEvent(villager, GameEvent.BLOCK_CHANGE, target);
-                world.playSound(null, target, SoundEvents.HOE_TILL, SoundSource.BLOCKS, 1.0F, 1.0F);
+                world.playSound(null, target, SoundEvents.HOE_TILL.value(), SoundSource.BLOCKS, 1.0F, 1.0F);
             }
 
             villager.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);

@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.BambooStalkBlock;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.state.BlockState;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,7 +27,7 @@ public class BambooStalkBlockMixin {
 
         if (random.nextInt(3) == 0) {
             try {
-                self.performBonemeal(level, random, pos, state);
+                self.performBonemeal(level, random, pos, state, BonemealSource.INTERACTION);
             } catch (Throwable ignored) {}
         }
     }

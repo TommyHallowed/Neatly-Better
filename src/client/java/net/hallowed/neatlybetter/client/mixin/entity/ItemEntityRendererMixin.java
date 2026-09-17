@@ -1,5 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.entity;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -20,7 +21,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntityRenderer.class)
@@ -67,14 +67,13 @@ public abstract class ItemEntityRendererMixin {
         pos[1] = state.z;
     }
 
-    @ModifyArg(
+    @ModifyExpressionValue(
             method = "submit(Lnet/minecraft/client/renderer/entity/state/ItemEntityRenderState;"
                     + "Lcom/mojang/blaze3d/vertex/PoseStack;"
                     + "Lnet/minecraft/client/renderer/SubmitNodeCollector;"
                     + "Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
             at = @At(value = "INVOKE",
-                    target = "Lcom/mojang/math/Axis;rotation(F)Lorg/joml/Quaternionf;"),
-            index = 0
+                    target = "Lnet/minecraft/world/entity/item/ItemEntity;getSpin(FF)F")
     )
     private float neatlybetter$billboardRotation(float spinAngle) {
         if (!neatlybetter$isFlat.get()) return spinAngle;

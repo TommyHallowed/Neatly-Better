@@ -20,9 +20,9 @@ import net.minecraft.world.entity.vehicle.minecart.OldMinecartBehavior;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import org.joml.Matrix4fc;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,7 +30,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractMinecartRenderer.class)
 public abstract class AbstractMinecartRendererMixin<T extends AbstractMinecart, S extends MinecartRenderState> {
@@ -58,17 +57,6 @@ public abstract class AbstractMinecartRendererMixin<T extends AbstractMinecart, 
             }
         }
         return rawPos;
-    }
-
-    @Inject(method = "getBoundingBoxForCulling*", at = @At("RETURN"), cancellable = true)
-    private void neatlybetter$expandRenderBox(T entity, CallbackInfoReturnable<AABB> cir) {
-        int linkedId = ((LinkableMinecart) entity).neatlybetter$getFollowingId();
-        if (linkedId != -1) {
-            Entity e = entity.level().getEntity(linkedId);
-            if (e instanceof AbstractMinecart linked) {
-                cir.setReturnValue(cir.getReturnValue().minmax(linked.getBoundingBox()));
-            }
-        }
     }
 
     @Inject(method = "extractRenderState*", at = @At("TAIL"))
@@ -119,8 +107,8 @@ public abstract class AbstractMinecartRendererMixin<T extends AbstractMinecart, 
         float yaw   = (float) (Mth.atan2(dx, dz) * 180.0F / Math.PI);
         float pitch = (float) -(Mth.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * 180.0F / Math.PI);
 
-        poseStack.mulPose(Axis.YP.rotationDegrees(yaw));
-        poseStack.mulPose(Axis.XP.rotationDegrees(pitch));
+        poseStack.mulPose((Matrix4fc) Axis.YP.rotationDegrees(yaw));
+        poseStack.mulPose((Matrix4fc) Axis.XP.rotationDegrees(pitch));
 
         double distance     = offset.length();
         double anchorOffset = 0.45;

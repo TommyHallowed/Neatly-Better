@@ -2,7 +2,6 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 
 import com.mojang.logging.LogUtils;
 
-import net.hallowed.neatlybetter.client.util.FullscreenGuard;
 import net.hallowed.neatlybetter.data.PlaytimeData;
 
 import net.minecraft.ChatFormatting;
@@ -110,11 +109,9 @@ public class WorldListEntryMixin {
             File worldDir = access.getLevelDirectory().path().toFile();
             access.close();
 
-            boolean[] moved = new boolean[1];
-            FullscreenGuard.runWithoutAutoIconify(this.minecraft,
-                    () -> moved[0] = Desktop.getDesktop().moveToTrash(worldDir));
+            boolean moved = Desktop.getDesktop().moveToTrash(worldDir);
 
-            if (moved[0]) {
+            if (moved) {
                 NEATLYBETTER_LOGGER.debug("Moved world '{}' to trash", levelId);
             } else {
                 NEATLYBETTER_LOGGER.warn("moveToTrash returned false for world '{}', falling back to permanent deletion", levelId);

@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.ui;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.client.util.FloatBlitSprite;

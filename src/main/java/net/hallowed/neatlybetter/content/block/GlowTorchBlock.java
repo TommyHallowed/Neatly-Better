@@ -1,8 +1,5 @@
 package net.hallowed.neatlybetter.content.block;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -27,18 +24,10 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class GlowTorchBlock extends TorchBlock implements SimpleWaterloggedBlock {
-    public static final MapCodec<GlowTorchBlock> CODEC = RecordCodecBuilder.mapCodec((i) ->
-            i.group(PARTICLE_OPTIONS_FIELD.forGetter((b) -> ParticleTypes.GLOW), propertiesCodec())
-                    .apply(i, GlowTorchBlock::new));
 
     public GlowTorchBlock(final SimpleParticleType flameParticle, final BlockBehaviour.Properties properties) {
         super(flameParticle, properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(BlockStateProperties.WATERLOGGED, false));
-    }
-
-    @Override
-    public @NonNull MapCodec<? extends TorchBlock> codec() {
-        return CODEC;
     }
 
     @Override
