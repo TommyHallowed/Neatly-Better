@@ -4,16 +4,14 @@ import fuzs.forgeconfigapiport.fabric.api.v5.ConfigRegistry;
 import fuzs.forgeconfigapiport.fabric.api.v5.client.ConfigScreenFactoryRegistry;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
-import net.hallowed.neatlybetter.client.content.feature.AutoRefill;
-import net.hallowed.neatlybetter.client.content.feature.ClientMapPreviewTooltip;
-import net.hallowed.neatlybetter.client.content.feature.FireResistanceLavaFog;
-import net.hallowed.neatlybetter.client.content.feature.VoidFog;
+import net.hallowed.neatlybetter.client.content.feature.*;
 import net.hallowed.neatlybetter.client.content.feature.ui.SmallHudOverlay;
 import net.hallowed.neatlybetter.client.init.ModBlockColors;
 import net.hallowed.neatlybetter.client.init.ModTooltips;
@@ -42,6 +40,7 @@ public class NeatlyBetterClient implements ClientModInitializer {
         VoidFog.register();
         FireResistanceLavaFog.register();
         ModBlockColors.register();
+        Zoom.register();
 
         ModelLoadingPlugin.register(new InvisibleSignModelPlugin());
         ModelLoadingPlugin.register(new CarpetPatternModelPlugin());

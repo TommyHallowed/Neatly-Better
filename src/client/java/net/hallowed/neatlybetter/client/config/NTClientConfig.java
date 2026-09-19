@@ -81,6 +81,17 @@ public final class NTClientConfig {
     public final ModConfigSpec.BooleanValue denyOffhandWhileHungry;
     public final ModConfigSpec.BooleanValue ladderForceSneakOnGui;
 
+    // -- Zoom --
+    public final ModConfigSpec.BooleanValue zoomEnabled;
+    public final ModConfigSpec.DoubleValue zoomFactor;
+    public final ModConfigSpec.DoubleValue zoomMaxFactor;
+    public final ModConfigSpec.DoubleValue zoomTransitionSpeed;
+    public final ModConfigSpec.BooleanValue zoomReduceSensitivity;
+    public final ModConfigSpec.DoubleValue zoomBobbingReduction;
+    public final ModConfigSpec.BooleanValue zoomScroll;
+    public final ModConfigSpec.DoubleValue zoomScrollStep;
+    public final ModConfigSpec.BooleanValue zoomHideHand;
+
     // -- Render --
     public final ModConfigSpec.BooleanValue showStuckProjectiles;
     public final ModConfigSpec.BooleanValue showPotionGlint;
@@ -266,6 +277,48 @@ public final class NTClientConfig {
         builder.push("misc");
 
         builder.push("utilities");
+
+        builder.push("zoom");
+
+        zoomEnabled = builder
+                .comment("§eEnable the hold-to-zoom keybind.")
+                .translation("neatly-better.config.zoom_enabled")
+                .define("zoom_enabled", true);
+        zoomFactor = builder
+                .comment("§eHow much the view is magnified while zooming (3.0 = 3x).")
+                .translation("neatly-better.config.zoom_factor")
+                .defineInRange("zoom_factor", 5.0, 1.1, 1000.0);
+        zoomMaxFactor = builder
+                .comment("§eMaximum zoom level reachable (100.0 = 100x). Also caps the base zoom factor.")
+                .translation("neatly-better.config.zoom_max_factor")
+                .defineInRange("zoom_max_factor", 100.0, 1.1, 1000.0);
+        zoomTransitionSpeed = builder
+                .comment("§eFraction of the remaining zoom covered each tick. Lower = slower, smoother transitions.")
+                .translation("neatly-better.config.zoom_transition_speed")
+                .defineInRange("zoom_transition_speed", 0.25, 0.02, 1.0);
+        zoomReduceSensitivity = builder
+                .comment("§eScale mouse sensitivity down in proportion to the zoom level.")
+                .translation("neatly-better.config.zoom_reduce_sensitivity")
+                .define("zoom_reduce_sensitivity", true);
+        zoomBobbingReduction = builder
+                .comment("§eHow much view bobbing is reduced at full zoom.")
+                .translation("neatly-better.config.zoom_bobbing_reduction")
+                .defineInRange("zoom_bobbing_reduction", 0.7, 0.0, 1.0);
+        zoomScroll = builder
+                .comment("§eWhile zooming, the mouse wheel adjusts zoom instead of scrolling the hotbar.")
+                .translation("neatly-better.config.zoom_scroll")
+                .define("zoom_scroll", true);
+        zoomScrollStep = builder
+                .comment("§eZoom change per scroll notch, as a fraction (0.1 = 10%).")
+                .translation("neatly-better.config.zoom_scroll_step")
+                .defineInRange("zoom_scroll_step", 0.1, 0.01, 1.0);
+        zoomHideHand = builder
+                .comment("§eHide hands while zooming.")
+                .translation("neatly-better.config.zoom_hide_hand")
+                .define("zoom_hide_hand", true);
+
+        builder.pop(); // zoom
+
         swingThrough = builder
                 .comment("§eSwing through grass and other non-collidable blocks to hit entities behind it.")
                 .translation("neatly-better.config.swing_through")

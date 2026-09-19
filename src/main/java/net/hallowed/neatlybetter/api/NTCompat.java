@@ -24,7 +24,11 @@ public final class NTCompat {
             "anvilrestoration",
             "easyanvils",
             "grassseeds",
-            "modmenu"
+            "modmenu",
+            "zoomify",
+            "ok_zoomer",
+            "justzoom",
+            "wi_zoom"
     );
 
     private static final Map<String, Boolean> CACHE;
@@ -64,4 +68,8 @@ public final class NTCompat {
     public static final boolean EASYANVILS              = isLoaded("easyanvils");
     public static final boolean GRASSSEEDS              = isLoaded("grassseeds");
     public static final boolean MODMENU                 = isLoaded("modmenu");
+    public static final boolean ZOOMIFY                 = isLoaded("zoomify");
+    public static final boolean OK_ZOOMER               = isLoaded("ok_zoomer");
+    public static final boolean JUSTZOOM                = isLoaded("justzoom");
+    public static final boolean WI_ZOOM                = isLoaded("wi_zoom");
 }
