@@ -194,6 +194,7 @@
   "neatly-better.config.show_potion_glint": "Show Potion Glint",
   "neatly-better.config.render_2d_items": "Render 2D Items",
   "neatly-better.config.show_durability": "Show Durability",
+  "neatly-better.config.void_fog_enabled": "Enable Void Fog",
   "neatly-better.config.void_fog_max_height": "Max Fog Height",
   "neatly-better.config.void_fog_transition_distance": "Fog Transition Distance",
   "neatly-better.config.void_fog_density": "Fog Density",

@@ -8,7 +8,6 @@ import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.fog.FogData;
@@ -66,9 +65,12 @@ public final class VoidFog {
 
     static boolean isDepthFogActive(Entity entity, Level world) {
         if (entity.isSpectator()) return false;
-        if (cfg().DisableInCreative.get() && entity instanceof Player p && p.isCreative()) return false;
+        if (cfg().VoidFogEnabled.isFalse()) return false;
+        if (cfg().DisableInCreative.isTrue() && entity instanceof Player p && p.isCreative()) return false;
 
         return world.isClientSide()
+                && world.dimension() == Level.OVERWORLD
+                && !((ClientLevel) world).getLevelData().isFlat
                 && ((ClientLevel) world).getLevelData().getHorizonHeight(world) > world.getMinY()
                 && world.dimensionType().hasSkyLight()
                 && !world.dimensionType().hasCeiling();
@@ -98,10 +100,18 @@ public final class VoidFog {
         return cfg().ScaleWithDifficulty.get() ? world.getDifficulty().getId() + 1 : 1;
     }
 
+    private static float getTransitionDistance() {
+        return Math.max(10f, cfg().TransitionDistance.get().floatValue());
+    }
+
+    private static float getFullFogAltitude() {
+        return cfg().MaxHeight.get() - getTransitionDistance();
+    }
+
     static float getFogBlendingDelta(Entity entity) {
         float altitude = (float) getAltitude(entity, entity.level());
-        float transitionDist = Math.max(0, cfg().TransitionDistance.get().floatValue());
-        float maxFogAltitude = cfg().MaxHeight.get() - transitionDist;
+        float transitionDist = getTransitionDistance();
+        float maxFogAltitude = getFullFogAltitude();
         return Mth.clamp((altitude - maxFogAltitude) / transitionDist, 0, 1);
     }
 
@@ -120,17 +130,31 @@ public final class VoidFog {
     }
 
     private static void spawnParticles(Level world, Entity entity) {
-        int maxFogHeight = cfg().MaxHeight.get();
-        int maxParticleWorldY = world.getMinY() + maxFogHeight;
-        if (getAltitude(entity, world) > maxFogHeight) return;
+        if (getFogBlendingDelta(entity) > 0f) return;
 
-        int particleCount = (int) (cfg().ParticleDensity.get() * (1 - getFogBlendingDelta(entity)));
+        int fullFogHeight = Math.max(0, (int) getFullFogAltitude());
+        if (getAltitude(entity, world) > fullFogHeight) return;
+
+        int maxParticleWorldY = world.getMinY() + fullFogHeight;
+        int particleCount = cfg().ParticleDensity.get();
         int difficultyMultiplier = (int) (8 * getDifficultyMultiplier(world));
         RandomSource rand = world.getRandom();
 
-        for (int pass = 0; pass < particleCount; pass++) {
-            BlockPos rawPos = randomPos(rand).subtract(randomPos(rand)).offset(entity.blockPosition());
+        int luminance = getLuminance(entity, cfg().RespectTorches.get());
+        float luminanceClearance = (luminance / 15f) * 8f;
+        float densityClearance   = cfg().Density.get().floatValue() * 3f;
+        float clearanceRadius    = Math.max(luminanceClearance, densityClearance);
+        double minClearanceDistanceSq = clearanceRadius * clearanceRadius;
 
+        for (int pass = 0; pass < particleCount; pass++) {
+            BlockPos offset = randomPos(rand).subtract(randomPos(rand));
+
+            double distanceSq = (double) offset.getX() * offset.getX()
+                    + (double) offset.getY() * offset.getY()
+                    + (double) offset.getZ() * offset.getZ();
+            if (distanceSq < minClearanceDistanceSq) continue;
+
+            BlockPos rawPos = offset.offset(entity.blockPosition());
             BlockPos pos = new BlockPos(rawPos.getX(),
                     Math.min(rawPos.getY(), maxParticleWorldY),
                     rawPos.getZ());
@@ -140,7 +164,7 @@ public final class VoidFog {
             if (state.isAir()
                     && world.getFluidState(pos).isEmpty()
                     && pos.getY() <= maxParticleWorldY
-                    && rand.nextInt(difficultyMultiplier) <= maxFogHeight) {
+                    && rand.nextInt(difficultyMultiplier) <= fullFogHeight) {
 
                 boolean nearBedrock = isNearBedrock(pos, world);
                 world.addParticle(
@@ -158,9 +182,10 @@ public final class VoidFog {
 
     public static final class Renderer extends AtmosphericFogEnvironment {
 
-        private float lastFogDistance = 1000;
-        private float smoothedBlend   = 0f;
-        private float dissipationDelayRemaining = 0f;
+        private float smoothedBlend = 0f;
+
+        private float smoothedDistance = 0f;
+        private boolean distanceInitialized = false;
 
         @Override
         public boolean isApplicable(FogType submersionType, @NonNull Entity cameraEntity) {
@@ -174,52 +199,33 @@ public final class VoidFog {
                              float viewDistance, @NonNull DeltaTracker tickCounter) {
             super.setupFog(data, camera, world, viewDistance, tickCounter);
 
-            float targetBlend     = computeTargetBlend(camera.entity());
+            Entity entity = camera.entity();
             float tickDelta       = tickCounter.getGameTimeDeltaTicks();
-            float transitionTicks = cfg().TransitionTicks.get().floatValue();
-            float dissipationDelay = cfg().DissipationDelayTicks.get().floatValue();
+            float transitionTicks = Math.max(1f, cfg().TransitionTicks.get().floatValue());
+            float lerpFactor      = Mth.clamp(tickDelta / transitionTicks, 0f, 1f);
 
-            if (targetBlend < 1f) {
-                dissipationDelayRemaining = dissipationDelay;
-                if (targetBlend < smoothedBlend) {
-                    smoothedBlend = Mth.lerp(tickDelta / transitionTicks, smoothedBlend, targetBlend);
-                }
-                float distance = computeFogDistance(world, camera.entity(), tickDelta, transitionTicks, false);
-                data.environmentalStart = Mth.lerp(smoothedBlend, fogStart(distance), viewDistance - 1f);
-                data.environmentalEnd   = Mth.lerp(smoothedBlend, fogEnd(distance),   viewDistance);
+            float targetBlend = getFogBlendingDelta(entity);
+            smoothedBlend = Mth.lerp(lerpFactor, smoothedBlend, targetBlend);
+
+            float targetDistance = computeTargetFogDistance(world, entity, viewDistance, tickDelta);
+            if (!distanceInitialized) {
+                smoothedDistance = targetDistance;
+                distanceInitialized = true;
             } else {
-                if (dissipationDelayRemaining > 0f) {
-                    dissipationDelayRemaining = Math.max(0f, dissipationDelayRemaining - tickDelta);
-                    float distance = lastFogDistance;
-                    data.environmentalStart = Mth.lerp(smoothedBlend, fogStart(distance), viewDistance - 1f);
-                    data.environmentalEnd   = Mth.lerp(smoothedBlend, fogEnd(distance),   viewDistance);
-                } else {
-                    smoothedBlend = Mth.lerp(tickDelta / transitionTicks, smoothedBlend, 1f);
-                    float distance = lastFogDistance; // keep distance frozen; only smoothedBlend drives the fade
-                    data.environmentalStart = Mth.lerp(smoothedBlend, fogStart(distance), viewDistance - 1f);
-                    data.environmentalEnd   = Mth.lerp(smoothedBlend, fogEnd(distance),   viewDistance);
-                }
+                smoothedDistance = Mth.lerp(lerpFactor, smoothedDistance, targetDistance);
             }
+
+            data.environmentalStart = Mth.lerp(smoothedBlend, fogStart(smoothedDistance), data.environmentalStart);
+            data.environmentalEnd   = Mth.lerp(smoothedBlend, fogEnd(smoothedDistance),   data.environmentalEnd);
         }
 
-        private static float computeTargetBlend(Entity entity) {
-            float altitude = (float) getAltitude(entity, entity.level());
-            float transitionDist = Math.max(0.001f, cfg().TransitionDistance.get().floatValue());
-            float maxFogAltitude = cfg().MaxHeight.get() - transitionDist;
-            return Mth.clamp((altitude - maxFogAltitude) / transitionDist, 0, 1);
-        }
-
-        private float computeFogDistance(ClientLevel world, Entity entity, float tickDelta,
-                                         float transitionTicks, boolean aboveFogZone) {
-            float viewDistance = Minecraft.getInstance().options.getEffectiveRenderDistance();
+        private float computeTargetFogDistance(ClientLevel world, Entity entity, float viewDistance, float tickDelta) {
             int maxFogHeight = cfg().MaxHeight.get();
+            double altitude = Math.min(getAltitude(entity, world), maxFogHeight);
 
-            double altitude = aboveFogZone
-                    ? maxFogHeight
-                    : Math.min(getAltitude(entity, world), maxFogHeight);
-
+            double luminanceTerm = Math.min(getLuminance(entity, cfg().RespectTorches.get()) / 16D, 0.2);
             double fogDistance =
-                    getLuminance(entity, cfg().RespectTorches.get()) / 16D
+                    luminanceTerm
                             + altitude / (maxFogHeight * getDifficultyMultiplier(world));
 
             float distance = fogDistance >= 1
@@ -230,27 +236,26 @@ public final class VoidFog {
                 distance *= 4 * GameRenderer.nightVisionScale(l, tickDelta);
             }
 
-            distance = Mth.lerp(tickDelta / transitionTicks, lastFogDistance, distance);
-            lastFogDistance = distance;
             return distance;
         }
 
         private static float fogStart(float distance) {
             float density = cfg().Density.get().floatValue();
             float factor = 0.55f * (1 - (distance - 5) / 127f);
-            return distance * Math.max(0, factor) - (1 - density) * 9.9f;
+            float start = distance * Math.max(0, factor) - (1 - density) * 9.9f;
+            return start * 1.2f;
         }
 
         private static float fogEnd(float distance) {
             float density = cfg().Density.get().floatValue();
-            return distance + (1 - density) * 9.9f;
+            float end = distance + (1 - density) * 9.9f;
+            return end * 1.2f;
         }
     }
 
     public static final class ColorDarkener extends FogEnvironment {
 
         private float brightness = 0f;
-        private float dissipationDelayRemaining = 0f;
 
         @Override
         public boolean modifiesDarkness() {
@@ -271,22 +276,10 @@ public final class VoidFog {
         @Override
         public float getModifiedDarkness(@NonNull LivingEntity cameraEntity, float darkness, float tickProgress) {
             float light = getLuminance(cameraEntity, false);
-
             float targetBrightness = light >= 1f ? 0f : (1f - light);
 
-            float transitionTicks  = cfg().TransitionTicks.get().floatValue();
-            float dissipationDelay = cfg().DissipationDelayTicks.get().floatValue();
-
-            if (targetBrightness > brightness) {
-                dissipationDelayRemaining = dissipationDelay;
-                brightness = Mth.lerp(tickProgress / transitionTicks, brightness, targetBrightness);
-            } else {
-                if (dissipationDelayRemaining > 0f) {
-                    dissipationDelayRemaining = Math.max(0f, dissipationDelayRemaining - tickProgress);
-                } else {
-                    brightness = Mth.lerp(tickProgress / transitionTicks, brightness, targetBrightness);
-                }
-            }
+            float transitionTicks = Math.max(1f, cfg().TransitionTicks.get().floatValue());
+            brightness = Mth.lerp(Mth.clamp(tickProgress / transitionTicks, 0f, 1f), brightness, targetBrightness);
 
             return Math.max(darkness, brightness);
         }
