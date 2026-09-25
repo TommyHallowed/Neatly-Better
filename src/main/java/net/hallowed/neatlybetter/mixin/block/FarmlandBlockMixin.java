@@ -27,14 +27,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(FarmlandBlock.class)
 public abstract class FarmlandBlockMixin {
 
-    @Inject(method = "turnToDirt", at = @At("HEAD"), cancellable = true, require = 0)
-    private static void neatlybetter$skipTrampleA(Entity sourceEntity, BlockState state, Level level, BlockPos pos, CallbackInfo ci) {
+    @Inject(method = "fallOn", at = @At("HEAD"), cancellable = true, require = 0)
+    private void neatlybetter$skipTrampleA(Level level, BlockState state, BlockPos pos, Entity entity, double fallDistance, CallbackInfo ci) {
         if (!(level instanceof ServerLevel)) return;
-        if (shouldSkipTrample(sourceEntity)) ci.cancel();
+        if (shouldSkipTrample(entity)) ci.cancel();
     }
 
     @Unique
-    private static boolean shouldSkipTrample(Entity entity) {
+    private boolean shouldSkipTrample(Entity entity) {
         if (!(entity instanceof Player player)) return false;
 
         ItemStack boots = player.getItemBySlot(EquipmentSlot.FEET);
