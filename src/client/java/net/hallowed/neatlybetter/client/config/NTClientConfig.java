@@ -99,6 +99,7 @@ public final class NTClientConfig {
     public final ModConfigSpec.BooleanValue showDurability;
 
     // -- Void Fog --
+    public final ModConfigSpec.BooleanValue VoidFogEnabled;
     public final ModConfigSpec.IntValue MaxHeight;
     public final ModConfigSpec.DoubleValue TransitionDistance;
     public final ModConfigSpec.DoubleValue Density;
@@ -107,7 +108,6 @@ public final class NTClientConfig {
     public final ModConfigSpec.BooleanValue ScaleWithDifficulty;
     public final ModConfigSpec.BooleanValue DisableInCreative;
     public final ModConfigSpec.DoubleValue TransitionTicks;
-    public final ModConfigSpec.DoubleValue DissipationDelayTicks;
 
     private NTClientConfig(ModConfigSpec.Builder builder) {
 
@@ -281,17 +281,18 @@ public final class NTClientConfig {
         builder.push("zoom");
 
         zoomEnabled = builder
-                .comment("§eEnable the hold-to-zoom keybind.")
+                .comment("§eEnable the zoom feature.")
+                .comment("§eDisables itself automatically when other zoom mod is present.")
                 .translation("neatly-better.config.zoom_enabled")
                 .define("zoom_enabled", true);
         zoomFactor = builder
-                .comment("§eHow much the view is magnified while zooming (3.0 = 3x).")
+                .comment("§eHow much the view is magnified while zooming.")
                 .translation("neatly-better.config.zoom_factor")
-                .defineInRange("zoom_factor", 5.0, 1.1, 1000.0);
+                .defineInRange("zoom_factor", 10.0, 1.1, 1000.0);
         zoomMaxFactor = builder
-                .comment("§eMaximum zoom level reachable (100.0 = 100x). Also caps the base zoom factor.")
+                .comment("§eMaximum zoom level reachable. Also caps the base zoom factor.")
                 .translation("neatly-better.config.zoom_max_factor")
-                .defineInRange("zoom_max_factor", 100.0, 1.1, 1000.0);
+                .defineInRange("zoom_max_factor", 200.0, 1.1, 1000.0);
         zoomTransitionSpeed = builder
                 .comment("§eFraction of the remaining zoom covered each tick. Lower = slower, smoother transitions.")
                 .translation("neatly-better.config.zoom_transition_speed")
@@ -311,7 +312,7 @@ public final class NTClientConfig {
         zoomScrollStep = builder
                 .comment("§eZoom change per scroll notch, as a fraction (0.1 = 10%).")
                 .translation("neatly-better.config.zoom_scroll_step")
-                .defineInRange("zoom_scroll_step", 0.1, 0.01, 1.0);
+                .defineInRange("zoom_scroll_step", 0.2, 0.01, 1.0);
         zoomHideHand = builder
                 .comment("§eHide hands while zooming.")
                 .translation("neatly-better.config.zoom_hide_hand")
@@ -371,12 +372,16 @@ public final class NTClientConfig {
                 .comment("§eRender items as flat 2D sprites instead of 3D models.")
                 .translation("neatly-better.config.render_2d_items")
                 .define("render_2d_items", false);
-        builder.push("void_fog");
 
+        builder.push("void_fog");
+        VoidFogEnabled = builder
+                .comment("§eEnable Void Fog Feature.")
+                .translation("neatly-better.config.void_fog_enabled")
+                .define("void_fog_enabled", true);
         MaxHeight = builder
                 .comment("§eMaximum height in blocks above world bottom that void fog reaches.")
                 .translation("neatly-better.config.void_fog_max_height")
-                .defineInRange("void_fog_max_height", 20, 1, 256);
+                .defineInRange("void_fog_max_height", 24, 1, 256);
         TransitionDistance = builder
                 .comment("§eDistance in blocks below the max fog height at which fog starts blending in.")
                 .translation("neatly-better.config.void_fog_transition_distance")
@@ -384,7 +389,7 @@ public final class NTClientConfig {
         Density = builder
                 .comment("§eFog density as a 0–1 fraction. Lower values widen the gap between fog start and end.")
                 .translation("neatly-better.config.void_fog_density")
-                .defineInRange("void_fog_density", 1.0, 0.0, 1.0);
+                .defineInRange("void_fog_density", 0.5, 0.0, 1.0);
         ParticleDensity = builder
                 .comment("§eNumber of void particles spawned per tick near the void.")
                 .translation("neatly-better.config.void_fog_particle_density")
@@ -405,11 +410,6 @@ public final class NTClientConfig {
                 .comment("§eTicks for fog and darkness to fully fade in or out (20 ticks = 1 second).")
                 .translation("neatly-better.config.void_fog_transition_ticks")
                 .defineInRange("void_fog_transition_ticks", 10.0, 1.0, 200.0);
-        DissipationDelayTicks = builder
-                .comment("§eTicks to wait after the player moves above the fog zone before dissipation begins.")
-                .comment("§eSet to 0 for no delay. (20 ticks = 1 second)")
-                .translation("neatly-better.config.void_fog_dissipation_delay_ticks")
-                .defineInRange("void_fog_dissipation_delay_ticks", 30.0, 0.0, 600.0);
         builder.pop(); // void_fog
 
         builder.pop(); // render
