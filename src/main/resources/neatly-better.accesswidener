@@ -24,3 +24,4 @@ accessible method net/minecraft/world/entity/projectile/arrow/AbstractArrow getP
 accessible method net/minecraft/core/cauldron/CauldronInteraction$Dispatcher put (Lnet/minecraft/world/item/Item;Lnet/minecraft/core/cauldron/CauldronInteraction;)V
 accessible method net/minecraft/world/inventory/AbstractContainerMenu moveItemStackTo (Lnet/minecraft/world/item/ItemStack;IIZ)Z
 accessible class net/minecraft/client/gui/components/AbstractSelectionList$Entry
+accessible field net/minecraft/client/multiplayer/ClientLevel$ClientLevelData isFlat Z
