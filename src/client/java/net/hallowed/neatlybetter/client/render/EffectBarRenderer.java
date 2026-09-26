@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.client.render;
 
-import net.hallowed.neatlybetter.util.NTEffectInstance;
+import net.hallowed.neatlybetter.util.EffectInstance;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -14,7 +14,7 @@ import net.minecraft.world.effect.MobEffectUtil;
 public class EffectBarRenderer {
 
     public static void renderHUD(GuiGraphicsExtractor context, MobEffectInstance effect, int x, int y) {
-        int maxDuration = ((NTEffectInstance) effect).neatlybetter$getMaxDuration();
+        int maxDuration = ((EffectInstance) effect).neatlybetter$getMaxDuration();
 
         if (!shouldRenderBar(effect, maxDuration)) return;
 
@@ -29,7 +29,7 @@ public class EffectBarRenderer {
     }
 
     public static void renderInventory(GuiGraphicsExtractor context, MobEffectInstance effect, int x, int y, int maxWidth, boolean isWide) {
-        int maxDuration = ((NTEffectInstance) effect).neatlybetter$getMaxDuration();
+        int maxDuration = ((EffectInstance) effect).neatlybetter$getMaxDuration();
 
         if (!shouldRenderBar(effect, maxDuration)) return;
 

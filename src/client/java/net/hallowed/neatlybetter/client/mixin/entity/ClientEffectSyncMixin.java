@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.entity;
 
-import net.hallowed.neatlybetter.util.NTEffectInstance;
+import net.hallowed.neatlybetter.util.EffectInstance;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -24,8 +24,8 @@ public abstract class ClientEffectSyncMixin {
             MobEffectInstance oldEffect = self.getEffect(newEffect.getEffect());
 
             if (oldEffect != null && oldEffect.getAmplifier() == newEffect.getAmplifier()) {
-                NTEffectInstance newDuck = (NTEffectInstance) newEffect;
-                NTEffectInstance oldDuck = (NTEffectInstance) oldEffect;
+                EffectInstance newDuck = (EffectInstance) newEffect;
+                EffectInstance oldDuck = (EffectInstance) oldEffect;
 
                 if (newDuck.neatlybetter$getMaxDuration() < oldDuck.neatlybetter$getMaxDuration()) {
                     newDuck.neatlybetter$setMaxDuration(oldDuck.neatlybetter$getMaxDuration());
@@ -40,8 +40,8 @@ public abstract class ClientEffectSyncMixin {
             MobEffectInstance oldEffect = self.getEffect(newEffect.getEffect());
 
             if (oldEffect != null && oldEffect.getAmplifier() == newEffect.getAmplifier()) {
-                NTEffectInstance newDuck = (NTEffectInstance) newEffect;
-                NTEffectInstance oldDuck = (NTEffectInstance) oldEffect;
+                EffectInstance newDuck = (EffectInstance) newEffect;
+                EffectInstance oldDuck = (EffectInstance) oldEffect;
 
                 if (newDuck.neatlybetter$getMaxDuration() < oldDuck.neatlybetter$getMaxDuration()) {
                     newDuck.neatlybetter$setMaxDuration(oldDuck.neatlybetter$getMaxDuration());

@@ -8,7 +8,7 @@ import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 public class CollisionUtils {
     public static boolean shouldCollide(Entity source, Entity target) {
         if (!(source instanceof AbstractMinecart check)) {
-            return true;
+            return false;
         } else {
             int i = 0;
             int collisionDepth = 20;
@@ -24,13 +24,13 @@ public class CollisionUtils {
                         check = ((LinkableMinecart) check).neatlybetter$getFollowing();
                         ++i;
                         if (check == null || i >= collisionDepth) {
-                            return true;
+                            return false;
                         }
                     }
-                    return false;
+                    return true;
                 }
             }
-            return false;
+            return true;
         }
     }
 }
