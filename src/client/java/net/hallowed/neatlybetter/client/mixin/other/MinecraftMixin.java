@@ -9,6 +9,7 @@ import net.hallowed.neatlybetter.client.util.CrosshairPickHelper;
 import net.hallowed.neatlybetter.config.NTCommonConfig;
 
 import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
+import net.minecraft.client.GameLoadCookie;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -64,6 +65,17 @@ public abstract class MinecraftMixin {
     @Shadow public int missTime;
 
     @Shadow protected abstract void startUseItem();
+
+    // =========================================================================
+    // Disable Accessibility Screen on First Launch
+    // =========================================================================
+
+    @Inject(method = "onResourceLoadFinished(Lnet/minecraft/client/GameLoadCookie;)V", at = @At("HEAD"))
+    private void neatlybetter$disableAccessibilityScreen(GameLoadCookie loadCookie, CallbackInfo ci) {
+        if (NTClientConfig.CONFIG.firstTimeAccessibility.isTrue()) {
+          this.options.onboardAccessibility = false;
+        }
+    }
 
     // =========================================================================
     // Legacy Combat — attack while using item

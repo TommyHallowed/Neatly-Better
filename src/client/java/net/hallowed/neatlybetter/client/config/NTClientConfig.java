@@ -20,6 +20,9 @@ public final class NTClientConfig {
     //  UI
     // ═══════════════════════════════════════════
 
+    // -- Launch Accessibility Screen --
+    public final ModConfigSpec.BooleanValue firstTimeAccessibility;
+
     // -- Recipe Book --
     public final ModConfigSpec.EnumValue<RecipeBookMode> recipeBookMode;
     public final ModConfigSpec.BooleanValue recipeBookShift;
@@ -225,6 +228,11 @@ public final class NTClientConfig {
                 .translation("neatly-better.config.ender_chest_tooltip")
                 .define("ender_chest_tooltip", true);
         builder.pop();
+
+        firstTimeAccessibility = builder
+                .comment("§eDisable Accessibility Screen on First Launch.")
+                .translation("neatly-better.config.first_time_accessibility")
+                .define("first_time_accessibility", true);
 
         builder.pop(); // ui
 
