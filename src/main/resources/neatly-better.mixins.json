@@ -9,6 +9,7 @@
     "block.BlockMixin",
     "block.BlockStateBaseMixin",
     "block.BubbleColumnBlockMixin",
+    "block.CampfireBlockMixin",
     "block.CocoaBlockMixin",
     "block.CropBlockMixin",
     "block.DispenserBlockMixin",
