@@ -25,6 +25,10 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue villagerInfiniteCuringDiscounts;
     public final ModConfigSpec.BooleanValue villagerBookLevelCap;
     public final ModConfigSpec.BooleanValue ironGolemRepairUsingBlocks;
+    public final ModConfigSpec.DoubleValue minecartPlayerSpeed;
+    public final ModConfigSpec.DoubleValue minecartPassengerSpeed;
+    public final ModConfigSpec.DoubleValue minecartOtherSpeed;
+    public final ModConfigSpec.DoubleValue minecartEmptySpeed;
     public final ModConfigSpec.BooleanValue shulkerBulletDespawnsAfterOwner;
     public final ModConfigSpec.BooleanValue piglinRespectsTrims;
     public final ModConfigSpec.EnumValue<PhantomSpawner> phantomSpawnerMode;
@@ -94,7 +98,7 @@ public final class NTServerConfig {
         // ══════════════════════════════════════════════
         //  Mob
         // ══════════════════════════════════════════════
-        builder.push("mob");
+        builder.push("entities");
 
         // ── Creeper ──
         builder.push("creeper");
@@ -160,6 +164,39 @@ public final class NTServerConfig {
                 .define("iron_golem_repair_using_blocks", true);
 
         builder.pop(); // iron_golem
+
+        builder.push("minecart");
+
+        minecartPlayerSpeed = builder
+                .comment("§eMax speed of player ridden minecarts.")
+                .comment("")
+                .comment(" §eVanilla Default: 8.0§r")
+                .translation("neatly-better.config.minecart_player_speed")
+                .defineInRange("minecart_player_speed", 32.0, 1.0, 1000.0);
+
+        minecartPassengerSpeed = builder
+                .comment("§eMax speed of non-player entity ridden minecarts.")
+                .comment("")
+                .comment(" §eVanilla Default: 8.0§r")
+                .translation("neatly-better.config.minecart_passenger_speed")
+                .defineInRange("minecart_passenger_speed", 8.0, 1.0, 1000.0);
+
+        minecartOtherSpeed = builder
+                .comment("§eMax speed of non-rideable minecarts.")
+                .comment("§eFor example: minecart with furnace, hopper, chest.")
+                .comment("")
+                .comment(" §eVanilla Default: 8.0§r")
+                .translation("neatly-better.config.minecart_other_speed")
+                .defineInRange("minecart_other_speed", 8.0, 1.0, 1000.0);
+
+        minecartEmptySpeed = builder
+                .comment("§eMax speed of empty minecarts.")
+                .comment("")
+                .comment(" §eVanilla Default: 8.0§r")
+                .translation("neatly-better.config.minecart_empty_speed")
+                .defineInRange("minecart_empty_speed", 8.0, 1.0, 1000.0);
+
+        builder.pop(); // minecart
 
         builder.push("generic");
 

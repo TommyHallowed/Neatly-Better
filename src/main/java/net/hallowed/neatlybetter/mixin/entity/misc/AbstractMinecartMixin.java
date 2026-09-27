@@ -1,6 +1,7 @@
 package net.hallowed.neatlybetter.mixin.entity.misc;
 
 import net.hallowed.neatlybetter.api.LinkableMinecart;
+import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.util.CartUtils;
 import net.hallowed.neatlybetter.util.CollisionUtils;
 
@@ -9,8 +10,10 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
@@ -22,6 +25,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.UUID;
 
@@ -37,22 +41,22 @@ public abstract class AbstractMinecartMixin implements LinkableMinecart {
     @Unique private ItemStack neatlybetter$itemStack = ItemStack.EMPTY;
 
     @Inject(method = "defineSynchedData", at = @At("TAIL"))
-    private void neatlybetter$initDataTracker(SynchedEntityData.Builder builder, CallbackInfo ci) {
-        builder.define(neatlybetter$FOLLOWING_ID, -1);
+    private void neatlybetter$initDataTracker(SynchedEntityData.Builder entityData, CallbackInfo ci) {
+        entityData.define(neatlybetter$FOLLOWING_ID, -1);
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
-    private void neatlybetter$writeCustomData(ValueOutput view, CallbackInfo ci) {
-        if (this.neatlybetter$followingUUID != null) view.putString("LK-Following", this.neatlybetter$followingUUID.toString());
-        if (this.neatlybetter$followerUUID != null) view.putString("LK-Follower", this.neatlybetter$followerUUID.toString());
+    private void neatlybetter$writeCustomData(ValueOutput output, CallbackInfo ci) {
+        if (this.neatlybetter$followingUUID != null) output.putString("Following", this.neatlybetter$followingUUID.toString());
+        if (this.neatlybetter$followerUUID != null) output.putString("Follower", this.neatlybetter$followerUUID.toString());
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
-    private void neatlybetter$readCustomData(ValueInput view, CallbackInfo ci) {
-        String following = view.getStringOr("LK-Following", "");
+    private void neatlybetter$readCustomData(ValueInput input, CallbackInfo ci) {
+        String following = input.getStringOr("Following", "");
         if (!following.isEmpty()) { try { this.neatlybetter$followingUUID = UUID.fromString(following); } catch (Exception ignored) {} }
 
-        String follower = view.getStringOr("LK-Follower", "");
+        String follower = input.getStringOr("Follower", "");
         if (!follower.isEmpty()) { try { this.neatlybetter$followerUUID = UUID.fromString(follower); } catch (Exception ignored) {} }
     }
 
@@ -115,6 +119,32 @@ public abstract class AbstractMinecartMixin implements LinkableMinecart {
                 CartUtils.unlinkFromParent(self);
             }
         }
+    }
+
+    @Inject(method = "useExperimentalMovement", at = @At("HEAD"), cancellable = true)
+    private static void neatlybetter$forceExperimentalMovement(Level level, CallbackInfoReturnable<Boolean> cir) {
+            cir.setReturnValue(true);
+    }
+
+    @Inject(method = "getMaxSpeed", at = @At("HEAD"), cancellable = true)
+    private void neatlybetter$overrideMaxSpeed(ServerLevel level, CallbackInfoReturnable<Double> cir) {
+        AbstractMinecart self = (AbstractMinecart) (Object) this;
+
+        Entity passenger = self.getFirstPassenger();
+        double blocksPerSecond;
+        if (passenger == null && self.isRideable()) {
+            blocksPerSecond = NTServerConfig.CONFIG.minecartEmptySpeed.get();
+        } else if (!self.isRideable()) {
+            blocksPerSecond = NTServerConfig.CONFIG.minecartOtherSpeed.get();
+        } else if (passenger instanceof Player) {
+            blocksPerSecond = NTServerConfig.CONFIG.minecartPlayerSpeed.get();
+        }
+        else {
+            blocksPerSecond = NTServerConfig.CONFIG.minecartPassengerSpeed.get();
+        }
+
+        double waterFactor = self.isInWater() ? 0.5 : 1.0;
+        cir.setReturnValue(Math.max(0.0, blocksPerSecond) * waterFactor / 20.0);
     }
 
     @Override public AbstractMinecart neatlybetter$getFollowing() { return this.neatlybetter$following; }
