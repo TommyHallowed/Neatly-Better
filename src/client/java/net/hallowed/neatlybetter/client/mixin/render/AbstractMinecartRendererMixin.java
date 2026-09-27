@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 
-import org.joml.Matrix4fc;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -107,8 +106,8 @@ public abstract class AbstractMinecartRendererMixin<T extends AbstractMinecart, 
         float yaw   = (float) (Mth.atan2(dx, dz) * 180.0F / Math.PI);
         float pitch = (float) -(Mth.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * 180.0F / Math.PI);
 
-        poseStack.mulPose((Matrix4fc) Axis.YP.rotationDegrees(yaw));
-        poseStack.mulPose((Matrix4fc) Axis.XP.rotationDegrees(pitch));
+        poseStack.rotateDegrees(Axis.YP, yaw);
+        poseStack.rotateDegrees(Axis.XP, pitch);
 
         double distance     = offset.length();
         double anchorOffset = 0.45;
