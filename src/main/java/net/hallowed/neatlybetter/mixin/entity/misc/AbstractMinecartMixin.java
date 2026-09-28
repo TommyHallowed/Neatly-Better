@@ -1,8 +1,6 @@
 package net.hallowed.neatlybetter.mixin.entity.misc;
 
 import net.hallowed.neatlybetter.api.LinkableMinecart;
-import net.hallowed.neatlybetter.config.NTServerConfig;
-import net.hallowed.neatlybetter.util.CartUtils;
 import net.hallowed.neatlybetter.util.CollisionUtils;
 
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -10,13 +8,11 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.phys.Vec3;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -62,7 +58,7 @@ public abstract class AbstractMinecartMixin implements LinkableMinecart {
 
     @Inject(method = "push(Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$cancelTrainCollision(Entity entity, CallbackInfo ci) {
-        if (!CollisionUtils.shouldCollide((Entity) (Object) this, entity)) {
+        if (CollisionUtils.shouldCollide((Entity) (Object) this, entity)) {
             ci.cancel();
         }
     }
@@ -80,71 +76,11 @@ public abstract class AbstractMinecartMixin implements LinkableMinecart {
             Entity e = sw.getEntity(this.neatlybetter$followerUUID);
             if (e instanceof AbstractMinecart cart) this.neatlybetter$setFollower(cart);
         }
-
-        if (this.neatlybetter$following != null) {
-            if (this.neatlybetter$following.isRemoved()) {
-                CartUtils.unlinkFromParent(self);
-                return;
-            }
-
-            Vec3 myPos = self.position();
-            Vec3 targetPos = this.neatlybetter$following.position();
-
-            double linkDistance = 1.0;
-            double dist = Math.max(Math.abs(myPos.distanceTo(targetPos)) - linkDistance, 0.0);
-
-            Vec3 vec3d = targetPos.subtract(myPos);
-
-            Vec3 myVel = self.getDeltaMovement();
-            Vec3 targetVel = this.neatlybetter$following.getDeltaMovement();
-
-            boolean differentDirection = myVel.length() > 0.15 && targetVel.length() > 0.005
-                    && myVel.normalize().distanceTo(targetVel.normalize()) > 1.42
-                    && myPos.distanceTo(targetPos) > 0.5;
-
-            if (differentDirection) {
-                dist += linkDistance;
-                vec3d = myVel;
-            }
-
-            if (vec3d.lengthSqr() > 0) {
-                vec3d = vec3d.normalize().scale(dist);
-            }
-
-            if (dist <= 1.0) {
-                self.setDeltaMovement(vec3d.scale(0.8 + 0.2 * Math.abs(dist)));
-            } else if (dist <= 8.0) {
-                self.setDeltaMovement(vec3d);
-            } else {
-                CartUtils.unlinkFromParent(self);
-            }
-        }
     }
 
     @Inject(method = "useExperimentalMovement", at = @At("HEAD"), cancellable = true)
     private static void neatlybetter$forceExperimentalMovement(Level level, CallbackInfoReturnable<Boolean> cir) {
-            cir.setReturnValue(true);
-    }
-
-    @Inject(method = "getMaxSpeed", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$overrideMaxSpeed(ServerLevel level, CallbackInfoReturnable<Double> cir) {
-        AbstractMinecart self = (AbstractMinecart) (Object) this;
-
-        Entity passenger = self.getFirstPassenger();
-        double blocksPerSecond;
-        if (passenger == null && self.isRideable()) {
-            blocksPerSecond = NTServerConfig.CONFIG.minecartEmptySpeed.get();
-        } else if (!self.isRideable()) {
-            blocksPerSecond = NTServerConfig.CONFIG.minecartOtherSpeed.get();
-        } else if (passenger instanceof Player) {
-            blocksPerSecond = NTServerConfig.CONFIG.minecartPlayerSpeed.get();
-        }
-        else {
-            blocksPerSecond = NTServerConfig.CONFIG.minecartPassengerSpeed.get();
-        }
-
-        double waterFactor = self.isInWater() ? 0.5 : 1.0;
-        cir.setReturnValue(Math.max(0.0, blocksPerSecond) * waterFactor / 20.0);
+        cir.setReturnValue(true);
     }
 
     @Override public AbstractMinecart neatlybetter$getFollowing() { return this.neatlybetter$following; }
