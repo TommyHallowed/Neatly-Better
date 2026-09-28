@@ -172,7 +172,7 @@ public final class NTServerConfig {
                 .comment("")
                 .comment(" §eVanilla Default: 8.0§r")
                 .translation("neatly-better.config.minecart_player_speed")
-                .defineInRange("minecart_player_speed", 32.0, 1.0, 1000.0);
+                .defineInRange("minecart_player_speed", 24.0, 1.0, 1000.0);
 
         minecartPassengerSpeed = builder
                 .comment("§eMax speed of non-player entity ridden minecarts.")
