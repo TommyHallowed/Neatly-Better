@@ -72,9 +72,7 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "onResourceLoadFinished(Lnet/minecraft/client/GameLoadCookie;)V", at = @At("HEAD"))
     private void neatlybetter$disableAccessibilityScreen(GameLoadCookie loadCookie, CallbackInfo ci) {
-        if (NTClientConfig.CONFIG.firstTimeAccessibility.isTrue()) {
           this.options.onboardAccessibility = false;
-        }
     }
 
     // =========================================================================
