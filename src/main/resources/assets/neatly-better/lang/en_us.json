@@ -33,6 +33,8 @@
   "tooltip.neatly-better.slime_ball_hint": "Can be used to glue interactive blocks",
   "tooltip.neatly-better.wolf_collar_hint": "Infuse a spark of being into the lifeless thing that lies at your feet",
   "tooltip.neatly-better.glow_torch_hint": "Can be placed underwater",
+  "tooltip.neatly-better.banner_pattern_hint": "Can be applied to Banners & Carpets",
+  "tooltip.neatly-better.dyes_hint": "Can dye blocks directly or via cauldron with water",
 
   "item.neatly-better.smooth_stone_stairs": "Smooth Stone Stairs",
   "item.neatly-better.calcite_stairs": "Calcite Stairs",

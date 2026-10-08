@@ -78,6 +78,14 @@ public final class ModTooltips {
             Component.translatable("tooltip.neatly-better.glow_torch_hint")
                     .withStyle(ChatFormatting.YELLOW);
 
+    private static final MutableComponent BANNER_PATTERN_HINT =
+            Component.translatable("tooltip.neatly-better.banner_pattern_hint")
+                    .withStyle(ChatFormatting.YELLOW);
+
+    private static final MutableComponent DYES_HINT =
+            Component.translatable("tooltip.neatly-better.dyes_hint")
+                    .withStyle(ChatFormatting.YELLOW);
+
     public static void init() {
         ItemTooltipCallback.EVENT.register(ModTooltips::onTooltip);
     }
@@ -122,6 +130,12 @@ public final class ModTooltips {
         }
         if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() == GLOW_TORCH) {
             addBasicUnderName(lines, GLOW_TORCH_HINT);
+        }
+        if (stack.has(DataComponents.PROVIDES_BANNER_PATTERNS)) {
+            addBasicUnderName(lines, BANNER_PATTERN_HINT);
+        }
+        if (stack.has(DataComponents.DYE)) {
+            addBasicUnderName(lines, DYES_HINT);
         }
 
         Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
