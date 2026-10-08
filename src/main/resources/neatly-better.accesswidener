@@ -25,3 +25,4 @@ accessible method net/minecraft/core/cauldron/CauldronInteraction$Dispatcher put
 accessible method net/minecraft/world/inventory/AbstractContainerMenu moveItemStackTo (Lnet/minecraft/world/item/ItemStack;IIZ)Z
 accessible class net/minecraft/client/gui/components/AbstractSelectionList$Entry
 accessible field net/minecraft/client/multiplayer/ClientLevel$ClientLevelData isFlat Z
+accessible method net/minecraft/world/entity/vehicle/minecart/AbstractMinecart getMaxSpeed (Lnet/minecraft/server/level/ServerLevel;)D
