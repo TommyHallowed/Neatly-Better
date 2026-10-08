@@ -25,6 +25,7 @@ public final class ModEvents {
         LadderPillarExtender.register();
         WitherSkeletonArcher.register();
         EndPhantomSpawner.register();
+        CowBottleInteraction.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();
