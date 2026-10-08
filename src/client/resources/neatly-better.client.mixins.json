@@ -33,6 +33,7 @@
     "render.MinecartRenderStateMixin",
     "screen.AbstractContainerScreenMixin",
     "screen.AbstractRecipeBookScreenMixin",
+    "screen.AbstractSignEditScreenMixin",
     "screen.AnvilScreenMixin",
     "screen.BeaconScreenMixin",
     "screen.ContainerScreenMixin",
