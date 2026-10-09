@@ -8,30 +8,30 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.item.component.UseRemainder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class AutoRefill {
-
-    private static final Set<Identifier> BLACKLISTED_ITEMS = Set.of(
-            Identifier.parse("neatly-better:chest_key")
-    );
 
     private static ItemStack lastMainHand = ItemStack.EMPTY;
     private static ItemStack lastOffHand  = ItemStack.EMPTY;
     private static int lastSelectedSlot   = -1;
     private static int tickDelay          = 0;
+
+    private static List<? extends String> cachedBlacklistSource = null;
+    private static List<Pattern> cachedBlacklist = List.of();
 
     public static void register() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -107,10 +107,48 @@ public class AutoRefill {
         return a.getCount() == b.getCount() && ItemStack.isSameItemSameComponents(a, b);
     }
 
+    /** Matches the item id against the configured regular expressions (compiled once per config change). */
     private static boolean isBlacklisted(ItemStack stack) {
         if (stack.isEmpty()) return false;
-        Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
-        return BLACKLISTED_ITEMS.contains(id);
+
+        List<? extends String> source = NTClientConfig.CONFIG.autoRefillBlacklist.get();
+        if (source != cachedBlacklistSource) {
+            List<Pattern> compiled = new ArrayList<>();
+            for (String entry : source) {
+                try {
+                    compiled.add(Pattern.compile(entry, Pattern.CASE_INSENSITIVE));
+                } catch (PatternSyntaxException ignored) {
+                    // the config validator already rejects these; skip defensively
+                }
+            }
+            cachedBlacklist = compiled;
+            cachedBlacklistSource = source;
+        }
+
+        String id = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+        for (Pattern pattern : cachedBlacklist) {
+            if (pattern.matcher(id).matches()) return true;
+        }
+        return false;
+    }
+
+    private static boolean isLowDurability(ItemStack stack) {
+        return stack.isDamageableItem()
+                && stack.getMaxDamage() - stack.getDamageValue() <= 5;
+    }
+
+    /** Whether {@code candidate} may be used to refill {@code last}. Low-durability tools never qualify. */
+    private static boolean isValidSource(ItemStack last, ItemStack candidate) {
+        if (!candidate.is(last.getItem())) return false;
+
+        if (last.getItem() instanceof PotionItem
+                && !Objects.equals(
+                last.get(DataComponents.POTION_CONTENTS),
+                candidate.get(DataComponents.POTION_CONTENTS))) {
+            return false;
+        }
+
+        return !isLowDurability(candidate);
     }
 
     private static boolean checkAndRefill(Minecraft client, LocalPlayer player,
@@ -124,21 +162,16 @@ public class AutoRefill {
         int slotToRefillFrom = -1;
 
         for (int i = 35; i >= 9; i--) {
-            ItemStack slotStack = inv.getItem(i);
-            if (!slotStack.is(last.getItem())) continue;
-
-            if (last.getItem() instanceof PotionItem) {
-                if (!Objects.equals(
-                        last.get(DataComponents.POTION_CONTENTS),
-                        slotStack.get(DataComponents.POTION_CONTENTS))) {
-                    continue;
-                }
+            if (isValidSource(last, inv.getItem(i))) {
+                slotToRefillFrom = i;
+                break;
             }
-            slotToRefillFrom = i;
-            break;
         }
 
-        if (slotToRefillFrom == -1) return false;
+        if (slotToRefillFrom == -1) {
+            // Nothing in the main inventory: switch to a matching hotbar slot instead (main hand only).
+            return hand == InteractionHand.MAIN_HAND && selectFromHotbar(inv, last);
+        }
 
         int syncId = player.inventoryMenu.containerId;
 
@@ -160,8 +193,25 @@ public class AutoRefill {
         return true;
     }
 
+    /** Selects the nearest other hotbar slot (scanning to the right, wrapping) holding a valid replacement. */
+    private static boolean selectFromHotbar(Inventory inv, ItemStack last) {
+        int selected = inv.getSelectedSlot();
+        for (int offset = 1; offset < 9; offset++) {
+            int slot = (selected + offset) % 9;
+            if (isValidSource(last, inv.getItem(slot))) {
+                inv.setSelectedSlot(slot);
+                tickDelay = 3;
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static boolean isNeedsRefill(ItemStack last, ItemStack current) {
         if (current.isEmpty()) return true;
+
+        // Swap out a tool that is about to break, as long as a healthy replacement exists.
+        if (current.is(last.getItem()) && isLowDurability(current)) return true;
 
         if (current.getCount() == 1 && !current.is(last.getItem())) {
 
@@ -175,11 +225,6 @@ public class AutoRefill {
                     || current.is(Items.BOWL)) {
                 return true;
             }
-        }
-
-        if (last.getItem() instanceof FishingRodItem
-                && current.getItem() instanceof FishingRodItem) {
-            return current.getMaxDamage() - current.getDamageValue() < 5;
         }
 
         return false;

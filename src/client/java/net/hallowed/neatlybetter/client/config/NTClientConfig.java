@@ -4,6 +4,10 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 public final class NTClientConfig {
 
     public static final NTClientConfig CONFIG;
@@ -73,9 +77,10 @@ public final class NTClientConfig {
     // ═══════════════════════════════════════════
 
     // -- Utilities --
+    public final ModConfigSpec.BooleanValue autoRefill;
+    public final ModConfigSpec.ConfigValue<List<? extends String>> autoRefillBlacklist;
     public final ModConfigSpec.BooleanValue swingThrough;
     public final ModConfigSpec.BooleanValue copyScreenshots;
-    public final ModConfigSpec.BooleanValue autoRefill;
     public final ModConfigSpec.BooleanValue telemetryOff;
     public final ModConfigSpec.BooleanValue instantEyeHeight;
     public final ModConfigSpec.BooleanValue denyOffhandWhileHungry;
@@ -423,5 +428,15 @@ public final class NTClientConfig {
 
     public enum Corner {
         TOP_LEFT, TOP_RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT
+    }
+
+    private static boolean isValidRegex(Object o) {
+        if (!(o instanceof String s) || s.isBlank()) return false;
+        try {
+            Pattern.compile(s);
+            return true;
+        } catch (PatternSyntaxException e) {
+            return false;
+        }
     }
 }
