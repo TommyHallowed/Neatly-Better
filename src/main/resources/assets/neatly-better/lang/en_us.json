@@ -314,7 +314,7 @@
   "neatly-better.config.elytra_flight_limiter": "Flight Limiter",
   "neatly-better.config.elytra_flight_limiter_min_clearance": "Min Clearance",
   "neatly-better.config.elytra_flight_limiter_bypass_fall_distance": "Bypass Fall Distance",
-  "neatly-better.config.step_up": "Step Up",
+  "neatly-better.config.step_up": "Deny Step Up While Sneaking",
   "neatly-better.config.lapis_stays_in_enchanting": "Lapis Stays in Enchanting",
   "neatly-better.config.explosions_disable_shield": "Explosions Disables Shield",
   "neatly-better.config.rapid_hit_disable_shield": "Rapid Hits Disables Shield",

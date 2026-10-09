@@ -369,6 +369,7 @@ public final class NTClientConfig {
                 .comment("§eSwing through grass and other non-collidable blocks to hit entities behind it.")
                 .translation("neatly-better.config.swing_through")
                 .define("swing_through", true);
+
         copyScreenshots = builder
                 .comment("§eAutomatically copy screenshot images to clipboard.")
                 .translation("neatly-better.config.copy_screenshots")
@@ -421,6 +422,7 @@ public final class NTClientConfig {
         builder.pop(); // rain_fog
 
         builder.push("void_fog");
+
         VoidFogEnabled = builder
                 .comment("§eEnable Void Fog Feature.")
                 .translation("neatly-better.config.void_fog_enabled")
