@@ -143,6 +143,7 @@
   "neatly-better.configuration.durability": "Durability Text",
   "neatly-better.configuration.refill": "Auto-Refill",
   "neatly-better.configuration.render": "Render",
+  "neatly-better.configuration.rain_fog": "Rain Fog",
   "neatly-better.configuration.void_fog": "Void Fog",
   "neatly-better.configuration.player": "Player",
   "neatly-better.configuration.drops": "Drops",

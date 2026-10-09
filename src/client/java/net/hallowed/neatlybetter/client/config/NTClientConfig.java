@@ -101,6 +101,13 @@ public final class NTClientConfig {
     public final ModConfigSpec.BooleanValue coloredDurability;
     public final ModConfigSpec.BooleanValue centerDurability;
 
+    // -- Rain Fog --
+    public final ModConfigSpec.BooleanValue rainFogModification;
+    public final ModConfigSpec.IntValue rainFogOutdoorStart;
+    public final ModConfigSpec.IntValue rainFogOutdoorEnd;
+    public final ModConfigSpec.IntValue rainFogIndoorStart;
+    public final ModConfigSpec.IntValue rainFogIndoorEnd;
+
     // -- Void Fog --
     public final ModConfigSpec.BooleanValue VoidFogEnabled;
     public final ModConfigSpec.IntValue MaxHeight;
@@ -389,19 +396,29 @@ public final class NTClientConfig {
         builder.pop();
 
         builder.push("render");
-        showStuckProjectiles = builder
-                .comment("§eRender projectiles stuck in entities.")
-                .comment("§eWork In Progress")
-                .translation("neatly-better.config.show_stuck_projectiles")
-                .define("show_stuck_projectiles", false);
-        showPotionGlint = builder
-                .comment("§eRender enchantment glint on potion items.")
-                .translation("neatly-better.config.show_potion_glint")
-                .define("show_potion_glint", true);
-        render2DItems = builder
-                .comment("§eRender items as flat 2D sprites instead of 3D models.")
-                .translation("neatly-better.config.render_2d_items")
-                .define("render_2d_items", false);
+
+        builder.push("rain_fog");
+        rainFogModification = builder
+                .comment("§eEnable rain fog modification. If off, vanilla rain fog is used.")
+                .translation("neatly-better.config.rain_fog_modification")
+                .define("rain_fog_modification", true);
+        rainFogOutdoorStart = builder
+                .comment("§eHow strongly rain pulls the fog start closer while outdoors, in % of the full rain effect. 100 = vanilla.")
+                .translation("neatly-better.config.rain_fog_outdoor_start")
+                .defineInRange("rain_fog_outdoor_start", 100, 0, 200);
+        rainFogOutdoorEnd = builder
+                .comment("§eHow strongly rain pulls the fog end closer while outdoors, in % of the full rain effect. 100 = vanilla.")
+                .translation("neatly-better.config.rain_fog_outdoor_end")
+                .defineInRange("rain_fog_outdoor_end", 100, 0, 200);
+        rainFogIndoorStart = builder
+                .comment("§eSame as outdoor start, but while under a roof or in caves. 0 = vanilla (no rain fog indoors).")
+                .translation("neatly-better.config.rain_fog_indoor_start")
+                .defineInRange("rain_fog_indoor_start", 0, 0, 200);
+        rainFogIndoorEnd = builder
+                .comment("§eSame as outdoor end, but while under a roof or in caves. 0 = vanilla (no rain fog indoors).")
+                .translation("neatly-better.config.rain_fog_indoor_end")
+                .defineInRange("rain_fog_indoor_end", 0, 0, 200);
+        builder.pop(); // rain_fog
 
         builder.push("void_fog");
         VoidFogEnabled = builder
