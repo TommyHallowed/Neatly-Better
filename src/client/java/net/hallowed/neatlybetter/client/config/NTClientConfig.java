@@ -338,6 +338,26 @@ public final class NTClientConfig {
                 .define("center_durability", false);
 
         builder.pop(); // durability
+
+        builder.push("refill");
+
+        autoRefill = builder
+                .comment("§eAuto-refill the hotbar slot when an item stack runs out or gets used up.")
+                .translation("neatly-better.config.auto_refill")
+                .define("auto_refill", true);
+
+        autoRefillBlacklist = builder
+                .comment("§eItems and blocks that are never auto-refilled.",
+                        "Entries are regular expressions matched against the full item id, e.g. \"minecraft:.*shulker_box\".",
+                        "A plain id such as \"neatly-better:chest_key\" matches only that item.")
+                .translation("neatly-better.config.auto_refill_blacklist")
+                .defineListAllowEmpty("auto_refill_blacklist",
+                        List.of("minecraft:.*shulker_box"),
+                        () -> "minecraft:.*shulker_box",
+                        NTClientConfig::isValidRegex);
+
+        builder.pop(); // refill
+
         swingThrough = builder
                 .comment("§eSwing through grass and other non-collidable blocks to hit entities behind it.")
                 .translation("neatly-better.config.swing_through")
@@ -346,10 +366,7 @@ public final class NTClientConfig {
                 .comment("§eAutomatically copy screenshot images to clipboard.")
                 .translation("neatly-better.config.copy_screenshots")
                 .define("copy_screenshots", true);
-        autoRefill = builder
-                .comment("§eAuto-refill the hotbar slot when an item stack runs out or gets used up.")
-                .translation("neatly-better.config.auto_refill")
-                .define("auto_refill", true);
+
         telemetryOff = builder
                 .comment("§eDisable Mojang's telemetry systems.")
                 .translation("neatly-better.config.telemetry_off")
