@@ -98,6 +98,8 @@ public final class NTClientConfig {
     public final ModConfigSpec.BooleanValue showPotionGlint;
     public final ModConfigSpec.BooleanValue render2DItems;
     public final ModConfigSpec.BooleanValue showDurability;
+    public final ModConfigSpec.BooleanValue coloredDurability;
+    public final ModConfigSpec.BooleanValue centerDurability;
 
     // -- Void Fog --
     public final ModConfigSpec.BooleanValue VoidFogEnabled;
@@ -318,6 +320,24 @@ public final class NTClientConfig {
 
         builder.pop(); // zoom
 
+        builder.push("durability");
+
+        showDurability = builder
+                .comment("§eShow remaining durability as a small number in the top-right of item slots.")
+                .translation("neatly-better.config.show_durability")
+                .define("show_durability", true);
+
+        coloredDurability = builder
+                .comment("§eColor the durability number by remaining durability. If off, it is white.")
+                .translation("neatly-better.config.colored_durability")
+                .define("colored_durability", true);
+
+        centerDurability = builder
+                .comment("§eHorizontally center the durability number in the item slot.")
+                .translation("neatly-better.config.center_durability")
+                .define("center_durability", false);
+
+        builder.pop(); // durability
         swingThrough = builder
                 .comment("§eSwing through grass and other non-collidable blocks to hit entities behind it.")
                 .translation("neatly-better.config.swing_through")
@@ -334,11 +354,6 @@ public final class NTClientConfig {
                 .comment("§eDisable Mojang's telemetry systems.")
                 .translation("neatly-better.config.telemetry_off")
                 .define("telemetry_off", true);
-
-        showDurability = builder
-                .comment("§eShow remaining durability as a small number in the top-right of item slots.")
-                .translation("neatly-better.config.show_durability")
-                .define("show_durability", true);
 
         instantEyeHeight = builder
                 .comment("§eNo more smooth transitions for changing camera eye height.")

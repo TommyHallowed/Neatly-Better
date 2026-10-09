@@ -92,14 +92,18 @@ public abstract class GuiGraphicsExtractorMixin implements FloatBlitSprite {
         int current = itemStack.getMaxDamage() - itemStack.getDamageValue();
         String durability = String.valueOf(current);
 
-        int color = itemStack.getBarColor() | 0xFF000000;
+        int color = NTClientConfig.CONFIG.coloredDurability.get()
+                ? itemStack.getBarColor() | 0xFF000000
+                : 0xFFFFFFFF;
 
         Matrix3x2fStack poseStack = this.pose();
         poseStack.pushMatrix();
 
         poseStack.scale(1f / 2, 1f / 2);
 
-        int textX = (2 * x) + (16 / 2) + 5 + 19 - 2 - font.width(durability);
+        int textX = NTClientConfig.CONFIG.centerDurability.get()
+                ? (2 * x) + (32 - font.width(durability)) / 2
+                : (2 * x) + 30 - font.width(durability);
         int textY = (2 * y) + (16 / 2) + 1 + 6 + 3;
 
         this.text(font, durability, textX, textY, color, true);
