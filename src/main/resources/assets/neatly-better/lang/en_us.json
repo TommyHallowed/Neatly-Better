@@ -130,7 +130,6 @@
 
   "neatly-better.configuration.ui": "UI",
   "neatly-better.configuration.hud": "HUD",
-  "neatly-better.configuration.misc": "Misc",
   "neatly-better.configuration.recipe_book": "Recipe Book",
   "neatly-better.configuration.title_screen": "Title Screen",
   "neatly-better.configuration.pausemenu": "Pause Menu",
@@ -141,6 +140,7 @@
   "neatly-better.configuration.coords_time": "Coords & Time",
   "neatly-better.configuration.utilities": "Utilities",
   "neatly-better.configuration.zoom": "Zoom",
+  "neatly-better.configuration.durability": "Durability Text",
   "neatly-better.configuration.refill": "Auto-Refill",
   "neatly-better.configuration.render": "Render",
   "neatly-better.configuration.void_fog": "Void Fog",

@@ -72,10 +72,6 @@ public final class NTClientConfig {
     public final ModConfigSpec.ConfigValue<String> coordsFormat;
     public final ModConfigSpec.ConfigValue<String> timeDayFormat;
 
-    // ═══════════════════════════════════════════
-    //  Misc
-    // ═══════════════════════════════════════════
-
     // -- Utilities --
     public final ModConfigSpec.BooleanValue autoRefill;
     public final ModConfigSpec.ConfigValue<List<? extends String>> autoRefillBlacklist;
@@ -278,9 +274,6 @@ public final class NTClientConfig {
 
         builder.pop(); // hud
 
-        // ── Misc ────────────────────────────────
-        builder.push("misc");
-
         builder.push("utilities");
 
         builder.push("zoom");
@@ -417,9 +410,21 @@ public final class NTClientConfig {
                 .defineInRange("void_fog_transition_ticks", 10.0, 1.0, 200.0);
         builder.pop(); // void_fog
 
-        builder.pop(); // render
+        showStuckProjectiles = builder
+                .comment("§eRender projectiles stuck in entities.")
+                .comment("§eWork In Progress")
+                .translation("neatly-better.config.show_stuck_projectiles")
+                .define("show_stuck_projectiles", false);
+        showPotionGlint = builder
+                .comment("§eRender enchantment glint on potion items.")
+                .translation("neatly-better.config.show_potion_glint")
+                .define("show_potion_glint", true);
+        render2DItems = builder
+                .comment("§eRender items as flat 2D sprites instead of 3D models.")
+                .translation("neatly-better.config.render_2d_items")
+                .define("render_2d_items", false);
 
-        builder.pop(); // misc
+        builder.pop(); // render
     }
 
     public enum RecipeBookMode {
