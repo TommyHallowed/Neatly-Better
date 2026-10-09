@@ -1,6 +1,7 @@
 package net.hallowed.neatlybetter.init;
 
 import net.hallowed.neatlybetter.content.feature.*;
+import net.hallowed.neatlybetter.content.recipe.StrippingRecipe;
 import net.hallowed.neatlybetter.content.spawner.EndPhantomSpawner;
 
 public final class ModEvents {
@@ -26,6 +27,7 @@ public final class ModEvents {
         WitherSkeletonArcher.register();
         EndPhantomSpawner.register();
         CowBottleInteraction.register();
+        StrippingRecipe.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();
