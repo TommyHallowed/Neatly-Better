@@ -8,10 +8,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
@@ -24,6 +27,11 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class AutoRefill {
+
+    /** Two damageable stacks sharing any of these tags count as "similar tools". */
+    private static final List<TagKey<Item>> TOOL_TAGS = List.of(
+            ItemTags.PICKAXES, ItemTags.AXES, ItemTags.SHOVELS, ItemTags.HOES, ItemTags.SWORDS
+    );
 
     private static ItemStack lastMainHand = ItemStack.EMPTY;
     private static ItemStack lastOffHand  = ItemStack.EMPTY;
@@ -137,11 +145,29 @@ public class AutoRefill {
                 && stack.getMaxDamage() - stack.getDamageValue() <= 5;
     }
 
-    /** Whether {@code candidate} may be used to refill {@code last}. Low-durability tools never qualify. */
-    private static boolean isValidSource(ItemStack last, ItemStack candidate) {
-        if (!candidate.is(last.getItem())) return false;
+    private static boolean isSimilarToolsEnabled() {
+        return NTClientConfig.CONFIG.autoRefillSimilarTools.get();
+    }
 
-        if (last.getItem() instanceof PotionItem
+    /** Different items of the same tool type, e.g. diamond and iron pickaxe. Both must be damageable. */
+    private static boolean isSimilarTool(ItemStack a, ItemStack b) {
+        if (!a.isDamageableItem() || !b.isDamageableItem()) return false;
+        for (TagKey<Item> tag : TOOL_TAGS) {
+            if (a.is(tag) && b.is(tag)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Whether {@code candidate} may be used to refill {@code last}. Low-durability tools never qualify.
+     * With {@code similar} set, a different item of the same tool type also qualifies (unless blacklisted).
+     */
+    private static boolean isValidSource(ItemStack last, ItemStack candidate, boolean similar) {
+        if (candidate.isEmpty()) return false;
+
+        if (!candidate.is(last.getItem())) {
+            if (!similar || !isSimilarTool(last, candidate) || isBlacklisted(candidate)) return false;
+        } else if (last.getItem() instanceof PotionItem
                 && !Objects.equals(
                 last.get(DataComponents.POTION_CONTENTS),
                 candidate.get(DataComponents.POTION_CONTENTS))) {
@@ -159,20 +185,30 @@ public class AutoRefill {
         if (!isNeedsRefill(last, current)) return false;
 
         Inventory inv = player.getInventory();
-        int slotToRefillFrom = -1;
 
-        for (int i = 35; i >= 9; i--) {
-            if (isValidSource(last, inv.getItem(i))) {
-                slotToRefillFrom = i;
-                break;
+        // Identical items first (hotbar, then inventory); similar tools only as a fallback.
+        boolean[] passes = isSimilarToolsEnabled() ? new boolean[]{false, true} : new boolean[]{false};
+        for (boolean similar : passes) {
+            if (hand == InteractionHand.MAIN_HAND && selectFromHotbar(inv, last, similar)) return true;
+
+            int slot = findInInventory(inv, last, similar);
+            if (slot != -1) {
+                swapIn(client, player, hand, inv, current, slot);
+                return true;
             }
         }
+        return false;
+    }
 
-        if (slotToRefillFrom == -1) {
-            // Nothing in the main inventory: switch to a matching hotbar slot instead (main hand only).
-            return hand == InteractionHand.MAIN_HAND && selectFromHotbar(inv, last);
+    private static int findInInventory(Inventory inv, ItemStack last, boolean similar) {
+        for (int i = 35; i >= 9; i--) {
+            if (isValidSource(last, inv.getItem(i), similar)) return i;
         }
+        return -1;
+    }
 
+    private static void swapIn(Minecraft client, LocalPlayer player, InteractionHand hand,
+                               Inventory inv, ItemStack current, int slotToRefillFrom) {
         int syncId = player.inventoryMenu.containerId;
 
         if (!current.isEmpty()) {
@@ -190,15 +226,14 @@ public class AutoRefill {
                 syncId, slotToRefillFrom, hotbarButton, ContainerInput.SWAP, player);
 
         tickDelay = 3;
-        return true;
     }
 
     /** Selects the nearest other hotbar slot (scanning to the right, wrapping) holding a valid replacement. */
-    private static boolean selectFromHotbar(Inventory inv, ItemStack last) {
+    private static boolean selectFromHotbar(Inventory inv, ItemStack last, boolean similar) {
         int selected = inv.getSelectedSlot();
         for (int offset = 1; offset < 9; offset++) {
             int slot = (selected + offset) % 9;
-            if (isValidSource(last, inv.getItem(slot))) {
+            if (isValidSource(last, inv.getItem(slot), similar)) {
                 inv.setSelectedSlot(slot);
                 tickDelay = 3;
                 return true;
@@ -211,7 +246,12 @@ public class AutoRefill {
         if (current.isEmpty()) return true;
 
         // Swap out a tool that is about to break, as long as a healthy replacement exists.
-        if (current.is(last.getItem()) && isLowDurability(current)) return true;
+        if (NTClientConfig.CONFIG.autoRefillLowDurabilitySwap.get()
+                && isLowDurability(current)
+                && (current.is(last.getItem())
+                || (isSimilarToolsEnabled() && isSimilarTool(last, current)))) {
+            return true;
+        }
 
         if (current.getCount() == 1 && !current.is(last.getItem())) {
 

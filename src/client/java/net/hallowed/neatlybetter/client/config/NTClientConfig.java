@@ -75,6 +75,8 @@ public final class NTClientConfig {
     // -- Utilities --
     public final ModConfigSpec.BooleanValue autoRefill;
     public final ModConfigSpec.ConfigValue<List<? extends String>> autoRefillBlacklist;
+    public final ModConfigSpec.BooleanValue autoRefillSimilarTools;
+    public final ModConfigSpec.BooleanValue autoRefillLowDurabilitySwap;
     public final ModConfigSpec.BooleanValue swingThrough;
     public final ModConfigSpec.BooleanValue copyScreenshots;
     public final ModConfigSpec.BooleanValue telemetryOff;
@@ -356,12 +358,24 @@ public final class NTClientConfig {
         autoRefillBlacklist = builder
                 .comment("§eItems and blocks that are never auto-refilled.",
                         "Entries are regular expressions matched against the full item id, e.g. \"minecraft:.*shulker_box\".",
-                        "A plain id such as \"neatly-better:chest_key\" matches only that item.")
+                        "A plain id such as \"minecraft:totem_of_undying\" matches only that item.")
                 .translation("neatly-better.config.auto_refill_blacklist")
                 .defineListAllowEmpty("auto_refill_blacklist",
-                        List.of("minecraft:.*shulker_box"),
+                        List.of("minecraft:totem_of_undying", "minecraft:.*shulker_box"),
                         () -> "minecraft:.*shulker_box",
                         NTClientConfig::isValidRegex);
+
+        autoRefillSimilarTools = builder
+                .comment("§eRefill with a different tool of the same type when no identical one is available.")
+                .translation("neatly-better.config.auto_refill_similar_tools")
+                .define("auto_refill_similar_tools", true);
+
+        autoRefillLowDurabilitySwap = builder
+                .comment("§eSwap out a held tool that has 5 or less durability left so it doesn't break.",
+                        "If off, tools are only refilled after they have actually broken.",
+                        "§4⚠This can be a bit aggressive!§r")
+                .translation("neatly-better.config.auto_refill_low_durability_swap")
+                .define("auto_refill_low_durability_swap", false);
 
         builder.pop(); // refill
 
