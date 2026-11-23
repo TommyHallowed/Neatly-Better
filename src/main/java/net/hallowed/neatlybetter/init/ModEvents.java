@@ -28,6 +28,7 @@ public final class ModEvents {
         EndPhantomSpawner.register();
         CowBottleInteraction.register();
         StrippingRecipe.register();
+        FloatingRailExtender.register();
         DirtToGrassWithSeeds.init();
         MagmaSpawnsLava.init();
         BoneMealExpansion.init();

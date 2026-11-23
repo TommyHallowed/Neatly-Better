@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "block.BambooStalkBlockMixin",
+    "block.BaseRailBlockMixin",
     "block.BlockBehaviourMixin",
     "block.BlockDropPatternCarpetMixin",
     "block.BlockMixin",
