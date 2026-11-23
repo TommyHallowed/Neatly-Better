@@ -16,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 
 public final class AnvilRepair {
@@ -29,7 +30,10 @@ public final class AnvilRepair {
         if (NTServerConfig.CONFIG.anvilRepair.isFalse()) return InteractionResult.PASS;
         if (NTCompat.ANVILRESTORATION || NTCompat.EASYANVILS) return InteractionResult.PASS;
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
-        if (!player.isCrouching()) return InteractionResult.PASS;
+        // Same check vanilla uses to decide between using the block and placing the item,
+        // so client and server always agree (pose-based isCrouching() can lag a tick on the server).
+        if (!player.isSecondaryUseActive()) return InteractionResult.PASS;
+        if (!player.mayBuild()) return InteractionResult.PASS;
         if (!player.getItemInHand(hand).is(Items.IRON_BLOCK)) return InteractionResult.PASS;
 
         BlockPos pos = hit.getBlockPos();
@@ -46,22 +50,13 @@ public final class AnvilRepair {
             return InteractionResult.SUCCESS;
         }
 
-        BlockState newState;
-        if (canRepairDamaged) {
-            newState = Blocks.CHIPPED_ANVIL.defaultBlockState()
-                    .setValue(AnvilBlock.FACING, state.getValue(AnvilBlock.FACING));
-        } else {
-            newState = Blocks.ANVIL.defaultBlockState()
-                    .setValue(AnvilBlock.FACING, state.getValue(AnvilBlock.FACING));
-        }
+        BlockState newState = (canRepairDamaged ? Blocks.CHIPPED_ANVIL : Blocks.ANVIL).defaultBlockState()
+                .setValue(AnvilBlock.FACING, state.getValue(AnvilBlock.FACING));
 
-        if (newState != state) {
-            world.setBlockAndUpdate(pos, newState);
-            world.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0f, 1.0f);
-                player.getItemInHand(hand).consume(1, player);
-            return InteractionResult.SUCCESS_SERVER;
-        }
-
-        return InteractionResult.PASS;
+        world.setBlockAndUpdate(pos, newState);
+        world.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(player, newState));
+        world.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0f, 1.0f);
+        player.getItemInHand(hand).consume(1, player);
+        return InteractionResult.SUCCESS_SERVER;
     }
 }

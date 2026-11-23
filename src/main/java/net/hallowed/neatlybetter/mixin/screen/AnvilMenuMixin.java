@@ -2,14 +2,18 @@ package net.hallowed.neatlybetter.mixin.screen;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.config.NTServerConfig.MendingScope;
+import net.hallowed.neatlybetter.content.feature.AddedItemProperties;
+
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.Mth;
+import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
@@ -26,6 +30,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,12 +43,23 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * Anvil tweaks. Custom recipes (netherite full repair, mending overhaul, feather knockback) are resolved
+ * in {@link #neatlybetter$customRecipes} and follow the same rules as vanilla results: the typed name is
+ * applied, the prior-work penalty is charged and increased, and the "too expensive" limit is respected.
+ * Everything here runs identically on client and server so the preview matches what you get.
+ */
 @Mixin(AnvilMenu.class)
 public abstract class AnvilMenuMixin extends ItemCombinerMenu {
+    @Unique private static final int neatlybetter$TOO_EXPENSIVE = 40;
+    @Unique private static final int neatlybetter$MAX_FEATHER_KNOCKBACK = 2;
+
     @Shadow @Final private DataSlot cost;
     @Shadow private int repairItemCountCost;
+    @Shadow private @Nullable String itemName;
+    @Shadow private boolean onlyRenaming;
 
-    @Unique private int neatlybetter$cachedLevelCost = 0;
+    /** Set when the current result is a mending-overhaul reset, which is allowed to cost 0 levels. */
     @Unique private boolean neatlybetter$mendingOverhaulResult = false;
 
     protected AnvilMenuMixin(MenuType<?> type, int syncId,
@@ -60,151 +76,227 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
 
         StringBuilder builder = new StringBuilder();
         for (char c : translated.toCharArray()) {
-            if (net.minecraft.util.StringUtil.isAllowedChatCharacter(c) || c == '§') {
+            if (StringUtil.isAllowedChatCharacter(c) || c == '§') {
                 builder.append(c);
             }
         }
         String result = builder.toString();
-        cir.setReturnValue(result.length() <= 50 ? result : null);
+        cir.setReturnValue(result.length() <= AnvilMenu.MAX_NAME_LENGTH ? result : null);
     }
 
-    // ── anvilNoItalicsRename ──
+    // ── anvilNoItalicsRename (vanilla rename paths) ──
     @ModifyExpressionValue(
             method = {"setItemName", "createResult"},
             at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/Component;literal(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;")
     )
     private MutableComponent neatlybetter$makeRenamesNonItalic(MutableComponent original) {
-        if (NTServerConfig.CONFIG.anvilNoItalicsRename.isFalse()) return original;
-        return original.withStyle(style -> style.withItalic(false));
+        return neatlybetter$styleName(original);
     }
 
-    // ── anvilNetheriteIngotFullRepair / anvilEnchantFeather ──
-    @Inject(method = "createResult", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$specialCaseBypass(CallbackInfo ci) {
-        ItemStack left = this.getSlot(0).getItem();
-        ItemStack right = this.getSlot(1).getItem();
-        neatlybetter$mendingOverhaulResult = false;
-
-        if (right.is(Items.NETHERITE_INGOT) && neatlybetter$isNetheriteTool(left)
-                && left.isDamageableItem() && left.getDamageValue() > 0) {
-            ItemStack result = left.copy();
-            result.setDamageValue(0);
-            this.resultSlots.setItem(0, result);
-            this.cost.set(1);
-            this.repairItemCountCost = 1;
-            ci.cancel();
-            return;
-        }
-
-        if (NTServerConfig.CONFIG.mendingInventory.get() == MendingScope.OVERHAUL
-                && !left.isEmpty() && neatlybetter$isMendingBook(right)
-                && EnchantmentHelper.canStoreEnchantments(left)) {
-            neatlybetter$mendingOverhaulResult = true;
-            neatlybetter$applyMendingOverhaul(left, ci);
-            return;
-        }
-
-        if (NTServerConfig.CONFIG.anvilEnchantFeather.isTrue() && left.is(Items.FEATHER)) {
-            neatlybetter$applyFeatherKnockback(left, right, ci);
-        }
-    }
-
-    // ── mendingInventory (OVERHAUL) ──
     @Unique
-    private void neatlybetter$applyMendingOverhaul(ItemStack left, CallbackInfo ci) {
-        ItemStack result = left.copy();
-        ItemEnchantments existing = result.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+    private static MutableComponent neatlybetter$styleName(MutableComponent name) {
+        if (NTServerConfig.CONFIG.anvilNoItalicsRename.isFalse()) return name;
+        return name.withStyle(style -> style.withItalic(false));
+    }
 
-        boolean hadMending = false;
-        for (Object2IntMap.Entry<Holder<@NotNull Enchantment>> e : existing.entrySet()) {
-            if (e.getKey().is(Enchantments.MENDING)) {
-                hadMending = true;
+    // ── anvilNetheriteRepair / mendingInventory (OVERHAUL) / anvilEnchantFeather ──
+    @Inject(method = "createResult", at = @At("HEAD"), cancellable = true)
+    private void neatlybetter$customRecipes(CallbackInfo ci) {
+        this.neatlybetter$mendingOverhaulResult = false;
+
+        ItemStack left = this.inputSlots.getItem(0);
+        ItemStack right = this.inputSlots.getItem(1);
+        if (left.isEmpty() || right.isEmpty()) return;
+
+        ItemStack result;
+        int price;
+        boolean workPenalty = true;
+
+        if (NTServerConfig.CONFIG.anvilNetheriteRepair.isTrue()
+                && right.is(Items.NETHERITE_INGOT)
+                && AddedItemProperties.NETHERITE_REPAIR_ITEMS.contains(left.getItem())
+                && left.isDamaged()) {
+            result = left.copy();
+            result.setDamageValue(0);
+            price = 1;
+        } else if (NTServerConfig.CONFIG.mendingInventory.get() == MendingScope.OVERHAUL
+                && neatlybetter$isMendingBook(right)
+                && !left.is(Items.ENCHANTED_BOOK)
+                && EnchantmentHelper.canStoreEnchantments(left)) {
+            result = neatlybetter$resetWithMendingBook(left);
+            if (result == null) {
+                // Nothing to remove: don't consume the book for an identical item.
+                neatlybetter$setResult(ItemStack.EMPTY, 0, ci);
+                return;
+            }
+            price = 0;
+            workPenalty = false; // the reset *is* the penalty removal
+            this.neatlybetter$mendingOverhaulResult = true;
+        } else if (NTServerConfig.CONFIG.anvilEnchantFeather.isTrue() && left.is(Items.FEATHER)) {
+            result = neatlybetter$applyFeatherKnockback(left, right);
+            if (result == null) return; // not a valid combination; vanilla rejects feathers
+            price = neatlybetter$knockbackLevel(result, DataComponents.ENCHANTMENTS) * left.getCount();
+        } else {
+            return;
+        }
+
+        price += neatlybetter$applyTypedName(left, result);
+
+        long tax = workPenalty
+                ? (long) left.getOrDefault(DataComponents.REPAIR_COST, 0) + right.getOrDefault(DataComponents.REPAIR_COST, 0)
+                : 0L;
+        int finalCost = price <= 0 ? 0 : (int) Mth.clamp(tax + price, 0L, Integer.MAX_VALUE);
+
+        if (workPenalty) {
+            int baseCost = Math.max(
+                    result.getOrDefault(DataComponents.REPAIR_COST, 0),
+                    right.getOrDefault(DataComponents.REPAIR_COST, 0));
+            result.set(DataComponents.REPAIR_COST, AnvilMenu.calculateIncreasedRepairCost(baseCost));
+        }
+
+        if (finalCost >= neatlybetter$TOO_EXPENSIVE
+                && NTServerConfig.CONFIG.anvilNoTooExpensive.isFalse()
+                && !this.player.hasInfiniteMaterials()) {
+            result = ItemStack.EMPTY; // keep the cost so the screen shows "Too Expensive!"
+        }
+
+        neatlybetter$setResult(result, finalCost, ci);
+    }
+
+    @Unique
+    private void neatlybetter$setResult(ItemStack result, int levelCost, CallbackInfo ci) {
+        this.onlyRenaming = false;
+        this.repairItemCountCost = result.isEmpty() ? 0 : 1;
+        this.resultSlots.setItem(0, result);
+        this.cost.set(levelCost);
+        this.broadcastChanges();
+        ci.cancel();
+    }
+
+    /**
+     * Mirrors vanilla naming in {@code createResult}: applies (or clears) the typed name.
+     * Returns the level cost of renaming, which is 0 when renames are free.
+     */
+    @Unique
+    private int neatlybetter$applyTypedName(ItemStack input, ItemStack result) {
+        boolean renamed = false;
+        if (this.itemName != null && !StringUtil.isBlank(this.itemName)) {
+            if (!this.itemName.equals(input.getHoverName().getString())) {
+                result.set(DataComponents.CUSTOM_NAME, neatlybetter$styleName(Component.literal(this.itemName)));
+                renamed = true;
+            }
+        } else if (input.has(DataComponents.CUSTOM_NAME)) {
+            result.remove(DataComponents.CUSTOM_NAME);
+            renamed = true;
+        }
+        return renamed && NTServerConfig.CONFIG.anvilNoRenameCost.isFalse() ? 1 : 0;
+    }
+
+    /** Removes Mending and the prior-work penalty; null when the item has neither. */
+    @Unique
+    private static @Nullable ItemStack neatlybetter$resetWithMendingBook(ItemStack left) {
+        boolean hasMending = false;
+        for (Holder<@NotNull Enchantment> e : left.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY).keySet()) {
+            if (e.is(Enchantments.MENDING)) {
+                hasMending = true;
                 break;
             }
         }
+        boolean hasPenalty = left.getOrDefault(DataComponents.REPAIR_COST, 0) > 0;
+        if (!hasMending && !hasPenalty) return null;
 
-        if (hadMending) {
-            ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
-            for (Object2IntMap.Entry<Holder<@NotNull Enchantment>> e : existing.entrySet()) {
-                if (!e.getKey().is(Enchantments.MENDING)) {
-                    mutable.set(e.getKey(), e.getIntValue());
-                }
-            }
-            result.set(DataComponents.ENCHANTMENTS, mutable.toImmutable());
+        ItemStack result = left.copy();
+        if (hasMending) {
+            EnchantmentHelper.updateEnchantments(result, m -> m.removeIf(e -> e.is(Enchantments.MENDING)));
         }
-
         result.remove(DataComponents.REPAIR_COST);
-
-        this.resultSlots.setItem(0, result);
-        this.cost.set(0);
-        this.repairItemCountCost = 1;
-        ci.cancel();
+        return result;
     }
 
     @Unique
     private static boolean neatlybetter$isMendingBook(ItemStack stack) {
         if (!stack.is(Items.ENCHANTED_BOOK)) return false;
-        ItemEnchantments stored = stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
-        for (Object2IntMap.Entry<Holder<@NotNull Enchantment>> e : stored.entrySet()) {
-            if (e.getKey().is(Enchantments.MENDING)) return true;
+        for (Holder<@NotNull Enchantment> e : stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY).keySet()) {
+            if (e.is(Enchantments.MENDING)) return true;
         }
         return false;
     }
 
+    /**
+     * Feather + knockback book, or feather + knockback feather. Levels merge like vanilla
+     * (equal levels go up by one, otherwise the higher one wins), capped at 2.
+     * Returns null if the right item offers no knockback or the feathers wouldn't improve.
+     */
     @Unique
-    private void neatlybetter$applyFeatherKnockback(ItemStack left, ItemStack right, CallbackInfo ci) {
-        Integer target = null;
-
+    private @Nullable ItemStack neatlybetter$applyFeatherKnockback(ItemStack left, ItemStack right) {
+        int current = neatlybetter$knockbackLevel(left, DataComponents.ENCHANTMENTS);
+        int offered;
         if (right.is(Items.ENCHANTED_BOOK)) {
-            int lvl = neatlybetter$getKnockbackLevelFromBook(right);
-            if (lvl > 0) target = Math.min(2, lvl);
+            offered = neatlybetter$knockbackLevel(right, DataComponents.STORED_ENCHANTMENTS);
         } else if (right.is(Items.FEATHER)) {
-            int l = neatlybetter$getKnockbackLevelFromItem(left);
-            int r = neatlybetter$getKnockbackLevelFromItem(right);
-            if (l > 0 || r > 0) {
-                target = l == r ? Math.min(2, l + 1) : Math.max(l, r);
+            offered = neatlybetter$knockbackLevel(right, DataComponents.ENCHANTMENTS);
+        } else {
+            return null;
+        }
+        if (offered <= 0) return null;
+
+        int target = Math.min(neatlybetter$MAX_FEATHER_KNOCKBACK,
+                current == offered ? current + 1 : Math.max(current, offered));
+        if (target <= current) return null;
+
+        // Resolve through the player, not ContainerLevelAccess: the access is NULL on the client,
+        // which made the preview show a plain feather.
+        Holder<@NotNull Enchantment> knockback = this.player.registryAccess()
+                .lookupOrThrow(Registries.ENCHANTMENT)
+                .getOrThrow(Enchantments.KNOCKBACK);
+
+        ItemStack result = left.copy();
+        EnchantmentHelper.updateEnchantments(result, m -> m.set(knockback, target));
+        return result;
+    }
+
+    @Unique
+    private static int neatlybetter$knockbackLevel(ItemStack stack, DataComponentType<ItemEnchantments> component) {
+        ItemEnchantments enchantments = stack.getOrDefault(component, ItemEnchantments.EMPTY);
+        for (var entry : enchantments.entrySet()) {
+            if (entry.getKey().is(Enchantments.KNOCKBACK)) {
+                return Math.clamp(entry.getIntValue(), 0, neatlybetter$MAX_FEATHER_KNOCKBACK);
             }
         }
-
-        if (target == null) return;
-
-        int finalTarget = target;
-        ItemStack out = left.copy();
-        ItemEnchantments existing = out.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
-        this.access.execute((world, _) -> {
-            Holder<@NotNull Enchantment> kb = world.registryAccess().get(Enchantments.KNOCKBACK).orElseThrow();
-            ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(existing);
-            mutable.set(kb, finalTarget);
-            out.set(DataComponents.ENCHANTMENTS, mutable.toImmutable());
-        });
-
-        this.resultSlots.setItem(0, out);
-        this.cost.set(finalTarget * Math.max(1, left.getCount()));
-        this.repairItemCountCost = 1;
-        ci.cancel();
+        return 0;
     }
 
-    @Unique
-    private static boolean neatlybetter$isNetheriteTool(ItemStack stack) {
-        return stack.is(Items.NETHERITE_SWORD)
-                || stack.is(Items.NETHERITE_SHOVEL)
-                || stack.is(Items.NETHERITE_PICKAXE)
-                || stack.is(Items.NETHERITE_AXE)
-                || stack.is(Items.NETHERITE_HOE);
-    }
-
-    // ── anvilNoRenameCost (+ general bookkeeping) ──
+    // ── anvilNoRenameCost (vanilla results) ──
+    // Pure renames become free; renaming while combining no longer adds the extra level either.
     @Inject(method = "createResult", at = @At("TAIL"))
-    private void neatlybetter$handleRenameCost(CallbackInfo ci) {
-        if (NTServerConfig.CONFIG.anvilNoRenameCost.isTrue() && neatlybetter$isPureRename()) {
+    private void neatlybetter$freeRenames(CallbackInfo ci) {
+        if (NTServerConfig.CONFIG.anvilNoRenameCost.isFalse() || !neatlybetter$outputIsRenamed()) return;
+
+        if (this.onlyRenaming) {
             this.cost.set(0);
-            neatlybetter$cachedLevelCost = 0;
-        } else {
-            neatlybetter$cachedLevelCost = this.cost.get();
+        } else if (this.cost.get() > 1) {
+            this.cost.set(this.cost.get() - 1);
         }
     }
 
-    // ── anvilNoRenameCost (charge players who were granted infinite materials without being creative) ──
+    @Inject(method = "mayPickup", at = @At("HEAD"), cancellable = true)
+    private void neatlybetter$mayPickup(Player player, boolean hasItem, CallbackInfoReturnable<Boolean> cir) {
+        int levelCost = this.cost.get();
+
+        // Players with infinite materials who aren't in creative still pay (see onTake), so they need the levels.
+        if (!player.isCreative() && player.hasInfiniteMaterials() && levelCost > 0 && player.experienceLevel < levelCost) {
+            cir.setReturnValue(false);
+            return;
+        }
+
+        // Results that are allowed to cost 0 levels (vanilla requires cost > 0).
+        if (levelCost == 0 && (this.neatlybetter$mendingOverhaulResult
+                || (this.onlyRenaming && NTServerConfig.CONFIG.anvilNoRenameCost.isTrue()))) {
+            cir.setReturnValue(hasItem);
+        }
+    }
+
+    // ── charge players who were granted infinite materials without being creative ──
     @Inject(method = "onTake(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;)V",
             at = @At("HEAD"))
     private void neatlybetter$chargeGrantedInfiniteMaterials(Player player, ItemStack carried, CallbackInfo ci) {
@@ -215,28 +307,7 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
         }
     }
 
-    // ── anvilNoRenameCost ──
-    @Inject(method = "getCost", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$getLevelCostMirror(CallbackInfoReturnable<Integer> cir) {
-        if (NTServerConfig.CONFIG.anvilNoRenameCost.isFalse()) return;
-        if (neatlybetter$isPureRename()) {
-            cir.setReturnValue(neatlybetter$cachedLevelCost);
-        }
-    }
-
-    @Inject(method = "mayPickup", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$allowTakeWhenZeroCost(Player player, boolean hasItem, CallbackInfoReturnable<Boolean> cir) {
-        if (neatlybetter$mendingOverhaulResult) {
-            cir.setReturnValue(hasItem);
-            return;
-        }
-        if (NTServerConfig.CONFIG.anvilNoRenameCost.isFalse()) return;
-        if (neatlybetter$isPureRename()) {
-            cir.setReturnValue(hasItem);
-        }
-    }
-
-    // ── anvilNoTooExpensive ──
+    // ── anvilNoTooExpensive (vanilla results; ordinal 2 = `cost >= 40` result gate) ──
     @ModifyConstant(method = "createResult", constant = @Constant(intValue = 40, ordinal = 2))
     private int neatlybetter$removeTooExpensiveGate(int original) {
         if (NTServerConfig.CONFIG.anvilNoTooExpensive.isFalse()) return original;
@@ -245,47 +316,11 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
 
     @Unique
     private boolean neatlybetter$outputIsRenamed() {
-        ItemStack input = this.getSlot(0).getItem();
-        ItemStack output = this.getSlot(2).getItem();
+        ItemStack output = this.resultSlots.getItem(0);
         if (output.isEmpty()) return false;
-        Component inName  = input.get(DataComponents.CUSTOM_NAME);
+        Component inName = this.inputSlots.getItem(0).get(DataComponents.CUSTOM_NAME);
         Component outName = output.get(DataComponents.CUSTOM_NAME);
-        if (inName == null && outName == null) return false;
-        if (inName == null) return true;
-        if (outName == null) return true;
+        if (inName == null) return outName != null;
         return !inName.equals(outName);
-    }
-
-    @Unique
-    private boolean neatlybetter$isPureRename() {
-        ItemStack right = this.getSlot(1).getItem();
-        return right.isEmpty() && neatlybetter$outputIsRenamed();
-    }
-
-    @Unique
-    private static int neatlybetter$getKnockbackLevelFromBook(ItemStack stack) {
-        if (!stack.is(Items.ENCHANTED_BOOK)) return 0;
-        ItemEnchantments stored =
-                stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
-        for (Object2IntMap.Entry<Holder<@NotNull Enchantment>> e : stored.entrySet()) {
-            if (e.getKey().is(Enchantments.KNOCKBACK)) {
-                int lvl = e.getIntValue();
-                return Math.clamp(lvl, 1, 2);
-            }
-        }
-        return 0;
-    }
-
-    @Unique
-    private static int neatlybetter$getKnockbackLevelFromItem(ItemStack stack) {
-        ItemEnchantments ench =
-                stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
-        for (Object2IntMap.Entry<Holder<@NotNull Enchantment>> e : ench.entrySet()) {
-            if (e.getKey().is(Enchantments.KNOCKBACK)) {
-                int lvl = e.getIntValue();
-                return Math.clamp(lvl, 0, 2);
-            }
-        }
-        return 0;
     }
 }

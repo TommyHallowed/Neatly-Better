@@ -1,6 +1,8 @@
 package net.hallowed.neatlybetter.mixin.item;
 
 import net.hallowed.neatlybetter.config.NTCommonConfig;
+import net.hallowed.neatlybetter.config.NTServerConfig;
+import net.hallowed.neatlybetter.content.feature.AddedItemProperties;
 import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
 
 import net.minecraft.core.Holder;
@@ -90,6 +92,17 @@ public abstract class ItemStackMixin {
         ItemStack self = (ItemStack) (Object) this;
         if (LegacyCombatHandler.isSword(self)) {
             cir.setReturnValue(ItemUseAnimation.BLOCK);
+        }
+    }
+
+    // ── anvilNetheriteRepair: netherite scrap repairs 25% per scrap (the anvil handles the full ingot repair) ──
+    @Inject(method = "isValidRepairItem", at = @At("RETURN"), cancellable = true)
+    private void neatlybetter$netheriteScrapRepair(ItemStack repairItem, CallbackInfoReturnable<Boolean> cir) {
+        if (cir.getReturnValueZ()) return;
+        if (!repairItem.is(Items.NETHERITE_SCRAP)) return;
+        if (!AddedItemProperties.NETHERITE_REPAIR_ITEMS.contains(this.getItem())) return;
+        if (NTServerConfig.CONFIG.anvilNetheriteRepair.isTrue()) {
+            cir.setReturnValue(true);
         }
     }
 }

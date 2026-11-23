@@ -48,6 +48,7 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue anvilRenameColors;
     public final ModConfigSpec.BooleanValue anvilNoTooExpensive;
     public final ModConfigSpec.BooleanValue anvilEnchantFeather;
+    public final ModConfigSpec.BooleanValue anvilNetheriteRepair;
     public final ModConfigSpec.BooleanValue beaconSoakEffects;
     public final ModConfigSpec.IntValue beaconSoakPerLevel;
     public final ModConfigSpec.BooleanValue beaconSaturationEffect;
@@ -378,6 +379,13 @@ public final class NTServerConfig {
                 .comment("§eAllows combining knockback enchantments with feathers.")
                 .translation("neatly-better.config.anvil_enchant_feather")
                 .define("anvil_enchant_feather", true);
+
+        anvilNetheriteRepair = builder
+                .comment("§eNetherite tools, spears and armor are repaired with netherite scrap (25% per scrap),")
+                .comment("§eand a single netherite ingot fully repairs them in an anvil.")
+                .comment("§eWhen off, netherite gear repairs like vanilla (25% per ingot).")
+                .translation("neatly-better.config.anvil_netherite_repair")
+                .define("anvil_netherite_repair", true);
 
         builder.pop(); // anvil
 
