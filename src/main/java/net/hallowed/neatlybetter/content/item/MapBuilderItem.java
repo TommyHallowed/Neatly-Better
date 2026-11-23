@@ -51,6 +51,9 @@ public class MapBuilderItem extends Item {
         float getProgress();
 
         default boolean isWaiting() { return false; }
+
+        /** Releases chunk tickets and other resources when the job is abandoned. */
+        default void cancel() {}
     }
 
     public static class MapGenerationQueue {
@@ -58,6 +61,12 @@ public class MapBuilderItem extends Item {
 
         public static void addJob(ServerPlayer player, List<MapGenerationTask> tasks) {
             JOBS.add(new GenerationJob(player, tasks));
+        }
+
+        /** Called on server stop: drops all jobs, their chunk tickets and boss bars. */
+        public static void cancelAll() {
+            for (GenerationJob job : JOBS) job.cancel();
+            JOBS.clear();
         }
 
         public static void tick() {
@@ -135,6 +144,14 @@ public class MapBuilderItem extends Item {
 
                 int displayPercent = (int)(percent * 100);
                 bossBar.setName(Component.literal(String.format("Mapping Area (%d%%)", displayPercent)));
+            }
+
+            public void cancel() {
+                activeTasks.forEach(MapGenerationTask::cancel);
+                queuedTasks.forEach(MapGenerationTask::cancel);
+                activeTasks.clear();
+                queuedTasks.clear();
+                bossBar.removeAllPlayers();
             }
 
             public void finish() {

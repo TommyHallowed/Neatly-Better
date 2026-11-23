@@ -205,6 +205,11 @@ public class FastChunkScanner implements MapBuilderItem.MapGenerationTask {
     }
 
     @Override
+    public void cancel() {
+        cleanup();
+    }
+
+    @Override
     public float getProgress() {
         return Math.max(0, currentRow) / 128f;
     }

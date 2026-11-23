@@ -21,7 +21,13 @@ import net.hallowed.neatlybetter.util.FastChunkScanner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.hallowed.neatlybetter.mixin.block.BlockStateBaseAccessor;
+
+import java.util.List;
 import net.neoforged.fml.config.ModConfig;
 
 public class NeatlyBetter implements ModInitializer {
@@ -51,6 +57,14 @@ public class NeatlyBetter implements ModInitializer {
         // 3) Server Tick Events
         ServerLifecycleEvents.SERVER_STARTED.register(FastChunkScanner::restoreAllStructuresIcons);
         ServerTickEvents.END_SERVER_TICK.register(_ -> MapBuilderItem.MapGenerationQueue.tick());
+        ServerLifecycleEvents.SERVER_STOPPING.register(_ -> MapBuilderItem.MapGenerationQueue.cancelAll());
+
+        // Torchflowers emit light. Set once on vanilla's cached per-state value instead of hooking getLightEmission.
+        for (Block block : List.of(Blocks.TORCHFLOWER, Blocks.POTTED_TORCHFLOWER)) {
+            for (BlockState state : block.getStateDefinition().getPossibleStates()) {
+                ((BlockStateBaseAccessor) state).neatlybetter$setLightEmission(5);
+            }
+        }
 
         // 4) Creative tab entries
         ModItemGroupRegistrar.register();

@@ -16,7 +16,6 @@ public final class ModEvents {
         ChestKeyHandler.register();
         ItemCooldownHandler.register();
         ArmorStandSwap.register();
-        JockeyAdditions.register();
         SleepModeHandler.register();
         TamableDamageByOwnerBypass.register();
         WolfSpawnsCollarOnDeath.register();
@@ -24,7 +23,6 @@ public final class ModEvents {
         InvisibleSign.register();
         LegacyCombatDamageValues.register();
         LadderPillarExtender.register();
-        WitherSkeletonArcher.register();
         EndPhantomSpawner.register();
         CowBottleInteraction.register();
         StrippingRecipe.register();
@@ -35,7 +33,6 @@ public final class ModEvents {
         ElytraFlightLimiter.init();
         CauldronCleaning.init();
         MoreXpDrops.init();
-        SaplingAutoPlanter.init();
         TorchIgnite.init();
         BlockGluing.init();
         ItemDeathProtection.init();

@@ -14,6 +14,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -75,10 +76,10 @@ public class ChestKeyHandler {
 
     private static boolean isMasterKey(ItemStack stack) {
         if (!stack.is(ModItems.CHEST_KEY)) return false;
-        Component customName = stack.get(DataComponents.CUSTOM_NAME);
-        if (customName == null) return false;
-        String name = customName.getString();
-        return name.contains("Master");
+        // Must not depend on the name: any player can rename a crafted key in an anvil.
+        // Admins create one with: /give @s neatly-better:chest_key[custom_data={MasterKey:1b}]
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+                .copyTag().getBooleanOr("MasterKey", false);
     }
 
     private static boolean isHoldingMasterKey(Player player) {

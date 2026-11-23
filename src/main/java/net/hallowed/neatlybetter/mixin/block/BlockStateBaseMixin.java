@@ -10,31 +10,23 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+// Torchflower light level is applied once at startup via BlockStateBaseAccessor (see NeatlyBetter),
+// instead of hooking getLightEmission, which the lighting engine calls constantly.
 @Mixin(BlockBehaviour.BlockStateBase.class)
 public abstract class BlockStateBaseMixin {
 
     @Shadow public abstract Block getBlock();
 
-    @Unique
-    Block block = getBlock();
-
     @Inject(method = "getDestroySpeed", at = @At("HEAD"), cancellable = true)
     private void neatlybetter$setHardness(BlockGetter level, BlockPos pos, CallbackInfoReturnable<Float> cir) {
-        if (!NTServerConfig.CONFIG.harderNetherrack.get()) return;
-        if (block == Blocks.NETHERRACK || block == Blocks.CRIMSON_NYLIUM || block == Blocks.WARPED_NYLIUM) {
+        Block block = getBlock();
+        if (block != Blocks.NETHERRACK && block != Blocks.CRIMSON_NYLIUM && block != Blocks.WARPED_NYLIUM) return;
+        if (NTServerConfig.CONFIG.harderNetherrack.get()) {
             cir.setReturnValue(1.4F);
-        }
-    }
-
-    @Inject(method = "getLightEmission", at = @At("HEAD"), cancellable = true)
-    private void neatlybetter$setLuminance(CallbackInfoReturnable<Integer> cir) {
-        if (block == Blocks.TORCHFLOWER || block == Blocks.POTTED_TORCHFLOWER) {
-            cir.setReturnValue(5);
         }
     }
 }

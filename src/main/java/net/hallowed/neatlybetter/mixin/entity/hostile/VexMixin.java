@@ -2,7 +2,6 @@ package net.hallowed.neatlybetter.mixin.entity.hostile;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
 
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.entity.monster.illager.Evoker;
 
@@ -19,8 +18,8 @@ public abstract class VexMixin {
         Vex self = (Vex)(Object)this;
         if (self.level().isClientSide()) return;
 
-        Mob owner = (Mob) self.getRootOwner();
-        if (owner instanceof Evoker && !owner.isAlive()) {
+        // getOwner() is a LivingEntity (may be a player), so test the type instead of casting.
+        if (self.getOwner() instanceof Evoker evoker && !evoker.isAlive()) {
             self.hurt(self.damageSources().magic(), Float.MAX_VALUE);
         }
     }

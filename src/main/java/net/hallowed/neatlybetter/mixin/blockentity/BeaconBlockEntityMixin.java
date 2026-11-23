@@ -6,7 +6,6 @@ import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
@@ -46,6 +45,7 @@ public class BeaconBlockEntityMixin implements PremiumBaseAccessor {
 
         if (!NTServerConfig.CONFIG.beaconSaturationEffect.get()) return;
         if (level.isClientSide()) return;
+        if (level.getGameTime() % 80L != 0L) return; // same cadence as vanilla's pyramid check
 
         BeaconBlockEntityMixin self = (BeaconBlockEntityMixin)(Object) entity;
 
@@ -63,6 +63,7 @@ public class BeaconBlockEntityMixin implements PremiumBaseAccessor {
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
+        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
 
         for (int step = 1; step <= 4; step++) {
             int ly = y - step;
@@ -70,9 +71,9 @@ public class BeaconBlockEntityMixin implements PremiumBaseAccessor {
 
             for (int lx = x - step; lx <= x + step; lx++) {
                 for (int lz = z - step; lz <= z + step; lz++) {
-                    BlockState state = level.getBlockState(new BlockPos(lx, ly, lz));
+                    BlockState state = level.getBlockState(cursor.set(lx, ly, lz));
 
-                    if (!state.is(BlockTags.BEACON_BASE_BLOCKS)) return false;
+                    // Diamond and netherite blocks are beacon base blocks, so no separate tag check.
                     if (!state.is(Blocks.DIAMOND_BLOCK) && !state.is(Blocks.NETHERITE_BLOCK)) return false;
                 }
             }
