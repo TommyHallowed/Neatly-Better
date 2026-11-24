@@ -41,6 +41,7 @@ public final class NTServerConfig {
     public final ModConfigSpec.BooleanValue oldSpiderAttacks;
     public final ModConfigSpec.BooleanValue vexDiesAfterSummoner;
     public final ModConfigSpec.BooleanValue witherSkeletonArcher;
+    public final ModConfigSpec.BooleanValue campfiresIgnite;
     public final ModConfigSpec.BooleanValue wolfImprovements;
     public final ModConfigSpec.BooleanValue anvilRepair;
     public final ModConfigSpec.BooleanValue anvilNoRenameCost;
@@ -344,6 +345,13 @@ public final class NTServerConfig {
                 .comment("§eDye dyeable blocks like wool, carpet, bed by Right-Clicking with Dye Item.")
                 .translation("neatly-better.config.in_world_wool_dyeing")
                 .define("in_world_wool_dyeing", true);
+
+        campfiresIgnite = builder
+                .comment("§eLit campfires set entities that touch them on fire.")
+                .comment("")
+                .comment("§e(Soul campfires ignite players with soul fire)")
+                .translation("neatly-better.config.campfires_ignite")
+                .define("campfires_ignite", true);
 
         builder.pop(); // generic
 

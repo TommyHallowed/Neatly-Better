@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "block.BambooStalkBlockMixin",
+    "block.BaseFireBlockMixin",
     "block.BaseRailBlockMixin",
     "block.BlockBehaviourMixin",
     "block.BlockDropPatternCarpetMixin",
@@ -46,6 +47,7 @@
     "entity.ai.goal.TemptGoalMixin",
     "entity.ai.task.VillagerGoalPackagesMixin",
     "entity.generic.EntityMixin",
+    "entity.generic.SoulFireEntityMixin",
     "entity.generic.LivingEntityMixin",
     "entity.generic.MobMixin",
     "entity.generic.TamableAnimalMixin",

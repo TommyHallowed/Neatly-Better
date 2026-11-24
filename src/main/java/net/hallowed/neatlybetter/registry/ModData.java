@@ -91,6 +91,13 @@ public final class ModData {
                     .syncWith(ChunkCarpetPatterns.STREAM_CODEC, AttachmentSyncPredicate.all())
                     .buildAndRegister(NTRegistry.id("carpet_pattern_data"));
 
+    /** Player burns with soul fire (see SoulFire). Saved with the player and synced to everyone tracking them. */
+    public static final AttachmentType<@NotNull Boolean> SOUL_FIRE =
+            AttachmentRegistry.<Boolean>builder()
+                    .persistent(Codec.BOOL)
+                    .syncWith(ByteBufCodecs.BOOL, AttachmentSyncPredicate.all())
+                    .buildAndRegister(NTRegistry.id("soul_fire"));
+
     public static void init() {
         // Vanilla only renders a fixed list of tooltip components; list carpet patterns where banner patterns go.
         ItemComponentTooltipProviderRegistry.addAfter(DataComponents.BANNER_PATTERNS, CARPET_PATTERNS);
