@@ -8,11 +8,13 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.hallowed.neatlybetter.api.NTRegistry;
 
 import net.hallowed.neatlybetter.content.component.QuiverContents;
+import net.fabricmc.fabric.api.item.v1.ItemComponentTooltipProviderRegistry;
 import net.hallowed.neatlybetter.data.CarpetPatternData;
 import net.hallowed.neatlybetter.data.ChunkCarpetPatterns;
 import net.hallowed.neatlybetter.data.DeathSlotData;
 import net.hallowed.neatlybetter.data.VaultReopenData;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -89,5 +91,8 @@ public final class ModData {
                     .syncWith(ChunkCarpetPatterns.STREAM_CODEC, AttachmentSyncPredicate.all())
                     .buildAndRegister(NTRegistry.id("carpet_pattern_data"));
 
-    public static void init() {}
+    public static void init() {
+        // Vanilla only renders a fixed list of tooltip components; list carpet patterns where banner patterns go.
+        ItemComponentTooltipProviderRegistry.addAfter(DataComponents.BANNER_PATTERNS, CARPET_PATTERNS);
+    }
 }

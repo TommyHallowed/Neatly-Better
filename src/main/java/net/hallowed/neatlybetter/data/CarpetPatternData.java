@@ -2,6 +2,7 @@ package net.hallowed.neatlybetter.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -45,8 +46,11 @@ public record CarpetPatternData(BannerPatternLayers patterns, int rotation) impl
         return new CarpetPatternData(this.patterns, newRotation & 3);
     }
 
+    /** Lists every applied pattern (banners stop at 6; carpets allow more). Shown via ItemComponentTooltipProviderRegistry. */
     @Override
     public void addToTooltip(Item.@NonNull TooltipContext context, @NonNull Consumer<Component> consumer, @NonNull TooltipFlag flag, @NonNull DataComponentGetter components) {
-        patterns.addToTooltip(context, consumer, flag, components);
+        for (BannerPatternLayers.Layer layer : patterns.layers()) {
+            consumer.accept(layer.description().withStyle(ChatFormatting.GRAY));
+        }
     }
 }

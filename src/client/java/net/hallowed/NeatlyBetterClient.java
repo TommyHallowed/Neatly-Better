@@ -43,6 +43,7 @@ public class NeatlyBetterClient implements ClientModInitializer {
 
         ModelLoadingPlugin.register(new InvisibleSignModelPlugin());
         ModelLoadingPlugin.register(new CarpetPatternModelPlugin());
+        CarpetPatternModelPlugin.registerClientEvents();
 
         HudElementRegistry.attachElementAfter(
                 VanillaHudElements.MOB_EFFECTS,

@@ -92,6 +92,7 @@
     "other.LevelStorageSourceMixin",
     "other.PortalShapeMixin",
     "other.ServerConfigurationPacketListenerImplMixin",
+    "other.ServerGamePacketListenerImplMixin",
     "screen.AbstractContainerMenuMixin",
     "screen.AnvilMenuMixin",
     "screen.GrindstoneMenuMixin",

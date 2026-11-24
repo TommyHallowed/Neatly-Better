@@ -56,10 +56,11 @@ public abstract class GuiGraphicsExtractorMixin implements FloatBlitSprite {
 
         TextureAtlasSprite sprite = this.guiSprites.getSprite(texture);
 
-        float u0 = sprite.getU0() + (1f / 32768f);
-        float u1 = sprite.getU1() + (1f / 32768f);
-        float v0 = sprite.getV0() - (1f / 32768f);
-        float v1 = sprite.getV1() - (1f / 32768f);
+        // Callers pass screen-pixel-aligned positions, so pixel centres land on texel centres; no UV nudge needed.
+        float u0 = sprite.getU0();
+        float u1 = sprite.getU1();
+        float v0 = sprite.getV0();
+        float v1 = sprite.getV1();
 
         AbstractTexture tex = this.minecraft.getTextureManager().getTexture(sprite.atlasLocation());
         this.guiRenderState.addGuiElement(new SubpixelTexturedQuad(

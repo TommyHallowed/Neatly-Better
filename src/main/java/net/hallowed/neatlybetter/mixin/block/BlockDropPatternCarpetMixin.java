@@ -54,7 +54,8 @@ public abstract class BlockDropPatternCarpetMixin {
             return;
         }
 
-        itemStack.set(ModData.CARPET_PATTERNS, data);
+        // Rotation is recomputed on placement; drops carry 0 so carpets with the same pattern stack.
+        itemStack.set(ModData.CARPET_PATTERNS, data.withRotation(0));
         neatlybetter$LOGGER.debug("[NeatlyBetter/CarpetPatterns] Stamped pattern onto dropped carpet from {}", pos);
     }
 }

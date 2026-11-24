@@ -130,14 +130,17 @@ public abstract class HudMixin {
     private void neatlybetter$centerCrosshair(GuiGraphicsExtractor graphics,
                                               RenderPipeline renderPipeline, Identifier location,
                                               int x, int y, int width, int height) {
-        float scale      = (float) Minecraft.getInstance().getWindow().getGuiScale();
-        float scaledCenterX = (Minecraft.getInstance().getWindow().getWidth()  / scale) / 2f;
-        float scaledCenterY = (Minecraft.getInstance().getWindow().getHeight() / scale) / 2f;
+        // Vanilla places the 15px sprite at (guiWidth - 15) / 2 in whole GUI pixels, so its centre sits up to
+        // half a GUI pixel (= guiScale / 2 screen pixels) left/up of the real screen centre, more when the window
+        // size isn't divisible by the GUI scale. Centre it on the framebuffer instead, snapped to whole screen
+        // pixels so the nearest-filtered sprite keeps every line one texel wide (snapping to fractions of a GUI
+        // pixel, as before, distorted it at GUI scales 3 and 5+).
+        var window = Minecraft.getInstance().getWindow();
+        int scale = window.getGuiScale();
+        float fx = Math.round((window.getWidth()  - width  * scale) / 2f) / (float) scale;
+        float fy = Math.round((window.getHeight() - height * scale) / 2f) / (float) scale;
 
-        float fx = Math.round((scaledCenterX - 7.5f) * 4) / 4f;
-        float fy = Math.round((scaledCenterY - 7.5f) * 4) / 4f;
-
-        ((FloatBlitSprite) graphics).neatlybetter$blitSpriteFloat(renderPipeline, location, fx, fy, 15, 15);
+        ((FloatBlitSprite) graphics).neatlybetter$blitSpriteFloat(renderPipeline, location, fx, fy, width, height);
     }
 
     @Redirect(
