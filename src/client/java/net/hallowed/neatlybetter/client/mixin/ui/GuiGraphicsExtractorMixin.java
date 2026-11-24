@@ -52,15 +52,23 @@ public abstract class GuiGraphicsExtractorMixin implements FloatBlitSprite {
     @Unique
     public void neatlybetter$blitSpriteFloat(RenderPipeline pipeline, Identifier texture,
                                              float x, float y, int width, int height) {
+        neatlybetter$blitSpriteFloat(pipeline, texture, width, height, 0, 0, x, y, width, height);
+    }
+
+    @Override
+    @Unique
+    public void neatlybetter$blitSpriteFloat(RenderPipeline pipeline, Identifier texture,
+                                             int spriteWidth, int spriteHeight, int textureX, int textureY,
+                                             float x, float y, int width, int height) {
         if (width == 0 || height == 0) return;
 
         TextureAtlasSprite sprite = this.guiSprites.getSprite(texture);
 
         // Callers pass screen-pixel-aligned positions, so pixel centres land on texel centres; no UV nudge needed.
-        float u0 = sprite.getU0();
-        float u1 = sprite.getU1();
-        float v0 = sprite.getV0();
-        float v1 = sprite.getV1();
+        float u0 = sprite.getU((float) textureX / spriteWidth);
+        float u1 = sprite.getU((float) (textureX + width) / spriteWidth);
+        float v0 = sprite.getV((float) textureY / spriteHeight);
+        float v1 = sprite.getV((float) (textureY + height) / spriteHeight);
 
         AbstractTexture tex = this.minecraft.getTextureManager().getTexture(sprite.atlasLocation());
         this.guiRenderState.addGuiElement(new SubpixelTexturedQuad(
