@@ -2,6 +2,8 @@ package net.hallowed.neatlybetter.feature.items;
 
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 
+import net.minecraft.world.item.component.Compostable;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -59,6 +61,12 @@ public final class AddedItemProperties {
                 HolderSet<Item> repairItems = HolderSet.direct(BuiltInRegistries.ITEM.wrapAsHolder(Items.PRISMARINE_SHARD));
                 builder.set(DataComponents.REPAIRABLE, new Repairable(repairItems));
             });
+            // Compostable: the item gets the component; the chance is the data-driven provider
+            // (data/minecraft/context_int_provider/compostable/*.json), so datapacks can still tune it.
+            ctx.modify(Items.POISONOUS_POTATO, builder ->       // 100%
+                    builder.set(DataComponents.COMPOSTABLE, new Compostable(ContextIntProviders.COMPOSTABLE_ALWAYS_ADD_ONE)));
+            ctx.modify(Items.ROTTEN_FLESH, builder ->           // 25%
+                    builder.set(DataComponents.COMPOSTABLE, new Compostable(ContextIntProviders.COMPOSTABLE_LOW)));
         });
     }
 }
