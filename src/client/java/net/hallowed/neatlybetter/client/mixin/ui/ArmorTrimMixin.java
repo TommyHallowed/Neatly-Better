@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.ui;
 
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.registry.ModData;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentGetter;

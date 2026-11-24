@@ -1,7 +1,7 @@
 package net.hallowed.neatlybetter.mixin.entity.player;
 
 import net.hallowed.neatlybetter.data.DeathSlotData;
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.registry.ModData;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.core.NonNullList;

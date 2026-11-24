@@ -6,7 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import net.hallowed.neatlybetter.data.CarpetPatternData;
 import net.hallowed.neatlybetter.data.ChunkCarpetPatterns;
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.registry.ModData;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ServerboundPickItemFromBlockPacket;

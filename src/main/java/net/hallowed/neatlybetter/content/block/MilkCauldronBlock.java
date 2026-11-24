@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.content.block;
 
-import net.hallowed.neatlybetter.init.ModCauldronInteractions;
+import net.hallowed.neatlybetter.feature.cauldron.ModCauldronInteractions;
 
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.LayeredCauldronBlock;

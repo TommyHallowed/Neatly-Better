@@ -23,7 +23,7 @@ import net.fabricmc.fabric.api.client.renderer.v1.model.FabricBlockStateModel;
 
 import net.hallowed.neatlybetter.data.CarpetPatternData;
 import net.hallowed.neatlybetter.data.ChunkCarpetPatterns;
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.registry.ModData;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;

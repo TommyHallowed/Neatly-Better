@@ -5,7 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
-import net.hallowed.neatlybetter.init.ModBlocks;
+import net.hallowed.neatlybetter.registry.ModBlocks;
 
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;

@@ -4,7 +4,7 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.fabricmc.fabric.api.event.Event;
 
-import net.hallowed.neatlybetter.api.NTCompat;
+import net.hallowed.neatlybetter.compat.NTCompat;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.client.screen.ScreenshotManagerScreen;
 import net.hallowed.neatlybetter.client.util.ModTextures;

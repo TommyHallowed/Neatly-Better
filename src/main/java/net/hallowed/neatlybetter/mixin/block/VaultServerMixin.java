@@ -6,7 +6,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.data.VaultReopenData;
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.registry.ModData;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

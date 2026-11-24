@@ -1,7 +1,7 @@
 package net.hallowed.neatlybetter.content.block;
 
 import net.hallowed.neatlybetter.content.blockentity.DyeCauldronBlockEntity;
-import net.hallowed.neatlybetter.init.ModCauldronInteractions;
+import net.hallowed.neatlybetter.feature.cauldron.ModCauldronInteractions;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;

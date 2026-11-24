@@ -17,10 +17,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-          "net.hallowed.NeatlyBetter"
+          "net.hallowed.neatlybetter.NeatlyBetter"
 		],
 		"client": [
-			"net.hallowed.NeatlyBetterClient"
+			"net.hallowed.neatlybetter.client.NeatlyBetterClient"
 		],
         "elytratrims-client": [
           "net.hallowed.neatlybetter.client.compat.ElytraTrimsCompat"

@@ -3,7 +3,7 @@ package net.hallowed.neatlybetter.mixin.block;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-import net.hallowed.NeatlyBetter;
+import net.hallowed.neatlybetter.NeatlyBetter;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.WallSignBlock;

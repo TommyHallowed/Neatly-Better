@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.item;
 
-import net.hallowed.NeatlyBetter;
+import net.hallowed.neatlybetter.NeatlyBetter;
 import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;

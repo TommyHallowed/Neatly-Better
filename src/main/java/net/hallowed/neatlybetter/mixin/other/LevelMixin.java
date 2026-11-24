@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.other;
 
-import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
+import net.hallowed.neatlybetter.feature.combat.LegacyCombatHandler;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;

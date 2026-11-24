@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.other;
 
-import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
+import net.hallowed.neatlybetter.feature.combat.LegacyCombatHandler;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;

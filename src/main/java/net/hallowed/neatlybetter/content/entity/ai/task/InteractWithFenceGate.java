@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
-import net.hallowed.NeatlyBetter;
+import net.hallowed.neatlybetter.NeatlyBetter;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

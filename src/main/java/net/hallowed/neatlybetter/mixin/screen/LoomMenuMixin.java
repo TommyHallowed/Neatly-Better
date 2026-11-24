@@ -3,7 +3,7 @@ package net.hallowed.neatlybetter.mixin.screen;
 import com.mojang.logging.LogUtils;
 
 import net.hallowed.neatlybetter.data.CarpetPatternData;
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.registry.ModData;
 import net.hallowed.neatlybetter.util.CarpetLoomSupport;
 
 import net.minecraft.core.Holder;

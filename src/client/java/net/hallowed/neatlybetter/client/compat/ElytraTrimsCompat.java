@@ -5,7 +5,7 @@ import dev.kikugie.elytratrims.api.render.ETRenderMethod;
 import dev.kikugie.elytratrims.api.render.ETRendererID;
 import dev.kikugie.elytratrims.api.render.ETRenderingAPI;
 
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.registry.ModData;
 
 
 import net.minecraft.resources.Identifier;

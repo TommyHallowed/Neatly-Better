@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.entity.misc;
 
-import net.hallowed.neatlybetter.api.NTCompat;
+import net.hallowed.neatlybetter.compat.NTCompat;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;

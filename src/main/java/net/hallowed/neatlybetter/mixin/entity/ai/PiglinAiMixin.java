@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.entity.ai;
 
-import net.hallowed.neatlybetter.api.NTCompat;
+import net.hallowed.neatlybetter.compat.NTCompat;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.core.Holder;

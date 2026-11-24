@@ -1,7 +1,7 @@
 package net.hallowed.neatlybetter.mixin.entity.misc;
 
-import net.hallowed.neatlybetter.api.LinkableMinecart;
-import net.hallowed.neatlybetter.util.CollisionUtils;
+import net.hallowed.neatlybetter.duck.LinkableMinecart;
+import net.hallowed.neatlybetter.feature.minecart.CollisionUtils;
 
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;

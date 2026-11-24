@@ -6,8 +6,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import net.hallowed.neatlybetter.config.NTCommonConfig;
 import net.hallowed.neatlybetter.config.NTServerConfig;
-import net.hallowed.neatlybetter.content.feature.ItemCooldownHandler;
-import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
+import net.hallowed.neatlybetter.feature.items.ItemCooldownHandler;
+import net.hallowed.neatlybetter.feature.combat.LegacyCombatHandler;
 import net.hallowed.neatlybetter.util.ProtectionContext;
 
 import net.minecraft.core.component.DataComponents;

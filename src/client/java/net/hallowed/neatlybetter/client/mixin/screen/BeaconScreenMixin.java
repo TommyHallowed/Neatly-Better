@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.client.mixin.screen;
 
-import net.hallowed.neatlybetter.api.PremiumBaseAccessor;
+import net.hallowed.neatlybetter.duck.PremiumBaseAccessor;
 
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;

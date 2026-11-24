@@ -1,7 +1,9 @@
 package net.hallowed.neatlybetter.client.mixin.screen;
 
-import net.hallowed.neatlybetter.client.content.feature.ui.TextureButtonWidget;
-import net.hallowed.neatlybetter.client.util.*;
+import net.hallowed.neatlybetter.client.util.EnderCheckClient;
+import net.hallowed.neatlybetter.client.util.InventoryDeepScan;
+import net.hallowed.neatlybetter.client.util.ModTextures;
+import net.hallowed.neatlybetter.client.feature.hud.TextureButtonWidget;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.Minecraft;

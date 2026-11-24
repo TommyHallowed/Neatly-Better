@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.entity.passive;
 
-import net.hallowed.neatlybetter.init.ModBlocks;
+import net.hallowed.neatlybetter.registry.ModBlocks;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;

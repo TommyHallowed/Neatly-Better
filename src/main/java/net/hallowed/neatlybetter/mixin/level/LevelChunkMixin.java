@@ -1,7 +1,7 @@
 package net.hallowed.neatlybetter.mixin.level;
 
 import net.hallowed.neatlybetter.data.ChunkCarpetPatterns;
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.registry.ModData;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.WoolCarpetBlock;

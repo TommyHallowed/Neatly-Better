@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.hallowed.neatlybetter.content.item.QuiverItem;
-import net.hallowed.neatlybetter.init.ModItems;
+import net.hallowed.neatlybetter.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;

@@ -1,8 +1,8 @@
 package net.hallowed.neatlybetter.mixin.entity.generic;
 
-import net.hallowed.neatlybetter.api.LinkableMinecart;
-import net.hallowed.neatlybetter.util.CartUtils;
-import net.hallowed.neatlybetter.util.CollisionUtils;
+import net.hallowed.neatlybetter.duck.LinkableMinecart;
+import net.hallowed.neatlybetter.feature.minecart.CartUtils;
+import net.hallowed.neatlybetter.feature.minecart.CollisionUtils;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;

@@ -5,7 +5,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
-import net.hallowed.neatlybetter.client.content.feature.Zoom;
+import net.hallowed.neatlybetter.client.feature.zoom.Zoom;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.state.level.CameraRenderState;

@@ -3,7 +3,7 @@ package net.hallowed.neatlybetter.mixin.block;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
-import net.hallowed.neatlybetter.content.feature.CauldronDispenseBehavior;
+import net.hallowed.neatlybetter.feature.cauldron.CauldronDispenseBehavior;
 
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.world.item.BucketItem;

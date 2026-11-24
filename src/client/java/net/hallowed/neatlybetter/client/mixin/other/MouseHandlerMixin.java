@@ -3,7 +3,7 @@ package net.hallowed.neatlybetter.client.mixin.other;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-import net.hallowed.neatlybetter.client.content.feature.Zoom;
+import net.hallowed.neatlybetter.client.feature.zoom.Zoom;
 import net.hallowed.neatlybetter.client.util.PortalInventoryGuard;
 
 import net.minecraft.client.Minecraft;

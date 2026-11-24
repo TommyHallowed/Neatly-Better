@@ -1,8 +1,8 @@
 package net.hallowed.neatlybetter.mixin.entity.misc;
 
-import net.hallowed.neatlybetter.api.LinkableMinecart;
+import net.hallowed.neatlybetter.duck.LinkableMinecart;
 import net.hallowed.neatlybetter.config.NTServerConfig;
-import net.hallowed.neatlybetter.util.CartUtils;
+import net.hallowed.neatlybetter.feature.minecart.CartUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;

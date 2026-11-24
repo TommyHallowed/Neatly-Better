@@ -2,7 +2,7 @@ package net.hallowed.neatlybetter.client.mixin.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.hallowed.neatlybetter.content.feature.InvisibleSign;
+import net.hallowed.neatlybetter.feature.building.InvisibleSign;
 
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.AbstractSignRenderer;

@@ -1,7 +1,7 @@
 package net.hallowed.neatlybetter.mixin.entity.misc;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
-import net.hallowed.neatlybetter.content.feature.SaplingAutoPlanter;
+import net.hallowed.neatlybetter.feature.farming.SaplingAutoPlanter;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;

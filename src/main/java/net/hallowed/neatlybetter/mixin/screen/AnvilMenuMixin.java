@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.config.NTServerConfig.MendingScope;
-import net.hallowed.neatlybetter.content.feature.AddedItemProperties;
+import net.hallowed.neatlybetter.feature.items.AddedItemProperties;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;

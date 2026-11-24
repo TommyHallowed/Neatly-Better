@@ -1,0 +1,36 @@
+package net.hallowed.neatlybetter.feature.minecart;
+
+import net.hallowed.neatlybetter.duck.LinkableMinecart;
+
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
+
+public class CollisionUtils {
+    public static boolean shouldCollide(Entity source, Entity target) {
+        if (!(source instanceof AbstractMinecart check)) {
+            return false;
+        } else {
+            int i = 0;
+            int collisionDepth = 20;
+
+            while (check != target) {
+                check = ((LinkableMinecart) check).neatlybetter$getFollower();
+                ++i;
+                if (check == null || i >= collisionDepth) {
+                    check = (AbstractMinecart) source;
+                    i = 0;
+
+                    while (check != target) {
+                        check = ((LinkableMinecart) check).neatlybetter$getFollowing();
+                        ++i;
+                        if (check == null || i >= collisionDepth) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+            return true;
+        }
+    }
+}

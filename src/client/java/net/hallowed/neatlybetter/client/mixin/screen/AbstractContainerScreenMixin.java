@@ -15,8 +15,8 @@ import net.minecraft.world.item.equipment.Equippable;
 import net.hallowed.neatlybetter.client.network.NTNetworkClient;
 import net.hallowed.neatlybetter.content.component.QuiverContents;
 import net.hallowed.neatlybetter.content.item.QuiverItem;
-import net.hallowed.neatlybetter.init.ModData;
-import net.hallowed.neatlybetter.init.ModItems;
+import net.hallowed.neatlybetter.registry.ModData;
+import net.hallowed.neatlybetter.registry.ModItems;
 
 import org.joml.Vector2i;
 import org.spongepowered.asm.mixin.Mixin;

@@ -1,8 +1,8 @@
 package net.hallowed.neatlybetter.mixin.entity.misc;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
-import net.hallowed.neatlybetter.init.ModData;
-import net.hallowed.neatlybetter.init.ModItems;
+import net.hallowed.neatlybetter.registry.ModData;
+import net.hallowed.neatlybetter.registry.ModItems;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;

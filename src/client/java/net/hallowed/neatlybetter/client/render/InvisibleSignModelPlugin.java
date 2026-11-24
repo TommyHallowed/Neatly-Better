@@ -5,7 +5,7 @@ import java.util.List;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelModifier;
 
-import net.hallowed.neatlybetter.content.feature.InvisibleSign;
+import net.hallowed.neatlybetter.feature.building.InvisibleSign;
 
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;

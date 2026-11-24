@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.logging.LogUtils;
 
 import net.hallowed.neatlybetter.data.CarpetPatternData;
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.registry.ModData;
 import net.hallowed.neatlybetter.util.CarpetLoomSupport;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;

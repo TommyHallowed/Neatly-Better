@@ -3,8 +3,8 @@ package net.hallowed.neatlybetter.mixin.block;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-import net.hallowed.NeatlyBetter;
-import net.hallowed.neatlybetter.api.NTCompat;
+import net.hallowed.neatlybetter.NeatlyBetter;
+import net.hallowed.neatlybetter.compat.NTCompat;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.minecraft.core.BlockPos;

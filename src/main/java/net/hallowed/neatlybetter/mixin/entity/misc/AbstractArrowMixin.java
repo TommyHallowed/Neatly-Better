@@ -2,7 +2,7 @@ package net.hallowed.neatlybetter.mixin.entity.misc;
 
 import net.hallowed.neatlybetter.content.component.QuiverContents;
 import net.hallowed.neatlybetter.content.item.QuiverItem;
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.registry.ModData;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.AreaEffectCloud;

@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.content.item;
 
-import net.hallowed.neatlybetter.util.FastChunkScanner;
+import net.hallowed.neatlybetter.feature.map.FastChunkScanner;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;

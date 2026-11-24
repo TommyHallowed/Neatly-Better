@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.blockentity;
 
-import net.hallowed.neatlybetter.api.PremiumBaseAccessor;
+import net.hallowed.neatlybetter.duck.PremiumBaseAccessor;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 
 import net.minecraft.core.BlockPos;

@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.content.blockentity;
 
-import net.hallowed.neatlybetter.init.ModBlockEntities;
+import net.hallowed.neatlybetter.registry.ModBlockEntities;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;

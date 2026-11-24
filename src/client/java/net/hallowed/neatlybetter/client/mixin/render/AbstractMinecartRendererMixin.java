@@ -3,7 +3,7 @@ package net.hallowed.neatlybetter.client.mixin.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
-import net.hallowed.neatlybetter.api.LinkableMinecart;
+import net.hallowed.neatlybetter.duck.LinkableMinecart;
 import net.hallowed.neatlybetter.client.util.ChainableRenderState;
 
 import net.minecraft.client.renderer.SubmitNodeCollector;

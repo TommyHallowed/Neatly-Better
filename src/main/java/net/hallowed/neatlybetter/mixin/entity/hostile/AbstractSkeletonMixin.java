@@ -1,7 +1,7 @@
 package net.hallowed.neatlybetter.mixin.entity.hostile;
 
-import net.hallowed.neatlybetter.content.feature.JockeyAdditions;
-import net.hallowed.neatlybetter.content.feature.WitherSkeletonArcher;
+import net.hallowed.neatlybetter.feature.mobs.JockeyAdditions;
+import net.hallowed.neatlybetter.feature.mobs.WitherSkeletonArcher;
 
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;

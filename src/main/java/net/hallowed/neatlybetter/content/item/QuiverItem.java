@@ -1,8 +1,8 @@
 package net.hallowed.neatlybetter.content.item;
 
 import net.hallowed.neatlybetter.content.component.QuiverContents;
-import net.hallowed.neatlybetter.tooltip.QuiverTooltip;
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.content.item.QuiverTooltip;
+import net.hallowed.neatlybetter.registry.ModData;
 
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.ARGB;

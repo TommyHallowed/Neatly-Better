@@ -3,7 +3,7 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 import com.google.common.collect.Ordering;
 
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
-import net.hallowed.neatlybetter.api.NTCompat;
+import net.hallowed.neatlybetter.compat.NTCompat;
 import net.hallowed.neatlybetter.client.render.EffectBarRenderer;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 import net.hallowed.neatlybetter.config.NTCommonConfig;

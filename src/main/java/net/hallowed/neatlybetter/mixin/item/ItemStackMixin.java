@@ -2,8 +2,8 @@ package net.hallowed.neatlybetter.mixin.item;
 
 import net.hallowed.neatlybetter.config.NTCommonConfig;
 import net.hallowed.neatlybetter.config.NTServerConfig;
-import net.hallowed.neatlybetter.content.feature.AddedItemProperties;
-import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
+import net.hallowed.neatlybetter.feature.items.AddedItemProperties;
+import net.hallowed.neatlybetter.feature.combat.LegacyCombatHandler;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.InteractionHand;

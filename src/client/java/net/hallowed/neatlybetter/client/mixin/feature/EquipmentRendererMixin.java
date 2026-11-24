@@ -6,7 +6,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.registry.ModData;
 
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;

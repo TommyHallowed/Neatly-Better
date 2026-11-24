@@ -5,12 +5,12 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-import net.hallowed.neatlybetter.api.NTCompat;
+import net.hallowed.neatlybetter.compat.NTCompat;
 import net.hallowed.neatlybetter.config.NTCommonConfig;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 import net.hallowed.neatlybetter.content.component.QuiverContents;
-import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.feature.combat.LegacyCombatHandler;
+import net.hallowed.neatlybetter.registry.ModData;
 import net.hallowed.neatlybetter.util.StonecutterMemory;
 
 import net.minecraft.core.Holder;

@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.screen;
 
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.registry.ModData;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.ItemTags;

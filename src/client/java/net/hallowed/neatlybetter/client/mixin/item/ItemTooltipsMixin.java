@@ -2,12 +2,12 @@ package net.hallowed.neatlybetter.client.mixin.item;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
-import net.hallowed.neatlybetter.client.tooltip.EffectTooltipData;
+import net.hallowed.neatlybetter.client.feature.tooltips.EffectTooltipData;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
-import net.hallowed.neatlybetter.client.tooltip.EnderChestTooltipData;
-import net.hallowed.neatlybetter.client.tooltip.ShulkerBoxTooltipData;
+import net.hallowed.neatlybetter.client.feature.tooltips.EnderChestTooltipData;
+import net.hallowed.neatlybetter.client.feature.tooltips.ShulkerBoxTooltipData;
 import net.hallowed.neatlybetter.client.util.EnderCheckClient;
-import net.hallowed.neatlybetter.tooltip.MapPreviewTooltip;
+import net.hallowed.neatlybetter.feature.map.MapPreviewTooltip;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;

@@ -1,7 +1,7 @@
 package net.hallowed.neatlybetter.client.mixin.other;
 
 import net.hallowed.neatlybetter.config.NTCommonConfig;
-import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
+import net.hallowed.neatlybetter.feature.combat.LegacyCombatHandler;
 
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;

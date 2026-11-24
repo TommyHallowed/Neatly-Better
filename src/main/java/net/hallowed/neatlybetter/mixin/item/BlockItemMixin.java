@@ -2,7 +2,7 @@ package net.hallowed.neatlybetter.mixin.item;
 
 import net.hallowed.neatlybetter.data.CarpetPatternData;
 import net.hallowed.neatlybetter.data.ChunkCarpetPatterns;
-import net.hallowed.neatlybetter.init.ModData;
+import net.hallowed.neatlybetter.registry.ModData;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

@@ -8,7 +8,7 @@ import net.hallowed.neatlybetter.client.util.ClickThroughState;
 import net.hallowed.neatlybetter.client.util.CrosshairPickHelper;
 import net.hallowed.neatlybetter.config.NTCommonConfig;
 
-import net.hallowed.neatlybetter.handler.LegacyCombatHandler;
+import net.hallowed.neatlybetter.feature.combat.LegacyCombatHandler;
 import net.minecraft.client.GameLoadCookie;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;

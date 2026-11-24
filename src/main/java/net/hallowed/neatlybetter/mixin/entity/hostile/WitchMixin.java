@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.entity.hostile;
 
-import net.hallowed.neatlybetter.init.ModPotions;
+import net.hallowed.neatlybetter.registry.ModPotions;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.monster.Witch;
