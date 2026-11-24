@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 public final class ElytraFlightLimiter {
     private ElytraFlightLimiter() {}
 
-    public static void init() {
+    public static void register() {
         EntityElytraEvents.ALLOW.register((LivingEntity entity) -> {
             if (NTServerConfig.CONFIG.elytraFlightLimiter.isFalse()) return true;
             if (!(entity instanceof Player p)) return true;

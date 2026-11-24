@@ -25,7 +25,7 @@ public final class HostileAttributeTweaks {
     private static final Identifier ID_SPIDER_KBRES  = Identifier.fromNamespaceAndPath("neatly-better", "mods/spider_kbres");
     private static final Identifier ID_DRAGON_KBRES  = Identifier.fromNamespaceAndPath("neatly-better", "mods/dragon_kbres");
 
-    public static void init() {
+    public static void register() {
         ServerEntityEvents.ENTITY_LOAD.register(HostileAttributeTweaks::onEntityLoad);
     }
 

@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public final class DirtToGrassWithSeeds {
     private DirtToGrassWithSeeds() {}
 
-    public static void init() {
+    public static void register() {
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
             if (NTCompat.GRASSSEEDS) return InteractionResult.PASS;
             if (world.isClientSide()) return InteractionResult.PASS;

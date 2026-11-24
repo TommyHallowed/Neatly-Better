@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 public final class MagmaSpawnsLava {
     private MagmaSpawnsLava() {}
 
-    public static void init() {
+    public static void register() {
         PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, _) -> {
 
             if (!NTServerConfig.CONFIG.magmaSpawnsLava.get()) return true;

@@ -1,6 +1,6 @@
 package net.hallowed.neatlybetter.mixin.entity.hostile;
 
-import net.hallowed.neatlybetter.feature.mobs.JockeyAdditions;
+import net.hallowed.neatlybetter.feature.mobs.MobSpawnTweaks;
 
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -20,6 +20,6 @@ public abstract class ZombieMixin {
     private void neatlybetter$spawnTweaks(ServerLevelAccessor level, DifficultyInstance difficulty,
                                           EntitySpawnReason reason, SpawnGroupData groupData,
                                           CallbackInfoReturnable<SpawnGroupData> cir) {
-        JockeyAdditions.onFinalizeSpawn((Zombie) (Object) this, level, difficulty, reason);
+        MobSpawnTweaks.onFinalizeSpawn((Zombie) (Object) this, level, difficulty, reason);
     }
 }

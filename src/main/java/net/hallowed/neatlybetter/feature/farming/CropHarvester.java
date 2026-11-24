@@ -28,7 +28,9 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.List;
 
-public class CropHarvester {
+public final class CropHarvester {
+    private CropHarvester() {}
+
 
     public static void register() {
         UseBlockCallback.EVENT.register(CropHarvester::onBlockInteract);

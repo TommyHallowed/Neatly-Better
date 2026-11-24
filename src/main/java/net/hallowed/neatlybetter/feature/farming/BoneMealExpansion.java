@@ -28,7 +28,7 @@ import net.minecraft.world.phys.BlockHitResult;
 public final class BoneMealExpansion {
     private BoneMealExpansion() {}
 
-    public static void init() {
+    public static void register() {
         UseBlockCallback.EVENT.register(BoneMealExpansion::onUseBlockWithBoneMeal);
     }
 

@@ -11,7 +11,9 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.SwingAnimation;
 
-public class ArmorStandSwap {
+public final class ArmorStandSwap {
+    private ArmorStandSwap() {}
+
 
     private static final EquipmentSlot[] ARMOR_SLOTS = {
             EquipmentSlot.HEAD,

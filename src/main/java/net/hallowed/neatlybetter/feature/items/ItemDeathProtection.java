@@ -10,7 +10,7 @@ import net.minecraft.world.level.gamerules.GameRules;
 public final class ItemDeathProtection {
     private ItemDeathProtection() {}
 
-    public static void init() {
+    public static void register() {
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
             if (!NTServerConfig.CONFIG.keepRecoveryCompassOnDeath.get()) {
                 return;

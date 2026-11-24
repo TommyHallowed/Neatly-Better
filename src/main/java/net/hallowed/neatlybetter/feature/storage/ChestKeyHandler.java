@@ -12,6 +12,7 @@ import net.hallowed.neatlybetter.registry.ModItems;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.CustomData;
@@ -36,27 +37,34 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.UUID;
 
-public class ChestKeyHandler {
+public final class ChestKeyHandler {
+    private ChestKeyHandler() {}
 
-    public record LockOwner(String uuid, String name, String secondUuid, String secondName) {
+
+    /**
+     * Owner (and optional co-owner) of a locked container. UUIDs are parsed once on load; they are still saved as
+     * strings under the same field names, so locks from older versions load unchanged.
+     */
+    public record LockOwner(UUID uuid, String name, Optional<UUID> secondUuid, String secondName) {
         public static final Codec<LockOwner> CODEC = RecordCodecBuilder.create(instance ->
                 instance.group(
-                        Codec.STRING.fieldOf("uuid").forGetter(LockOwner::uuid),
+                        UUIDUtil.STRING_CODEC.fieldOf("uuid").forGetter(LockOwner::uuid),
                         Codec.STRING.fieldOf("name").forGetter(LockOwner::name),
-                        Codec.STRING.optionalFieldOf("secondUuid", "").forGetter(LockOwner::secondUuid),
+                        // lenient: older saves may hold "" for "no second owner"
+                        UUIDUtil.STRING_CODEC.lenientOptionalFieldOf("secondUuid").forGetter(LockOwner::secondUuid),
                         Codec.STRING.optionalFieldOf("secondName", "").forGetter(LockOwner::secondName)
                 ).apply(instance, LockOwner::new)
         );
 
         public boolean isOwner(UUID playerUuid) {
-            if (UUID.fromString(uuid).equals(playerUuid)) return true;
-            return !secondUuid.isEmpty() && UUID.fromString(secondUuid).equals(playerUuid);
+            return uuid.equals(playerUuid) || secondUuid.map(playerUuid::equals).orElse(false);
         }
 
         public boolean hasSecondOwner() {
-            return !secondUuid.isEmpty();
+            return secondUuid.isPresent();
         }
 
         public String displayNames() {
@@ -213,7 +221,7 @@ public class ChestKeyHandler {
     }
 
     private static void lockContainer(ServerLevel level, BlockPos pos, ServerPlayer player, ItemStack keyStack) {
-        String secondUuid = "";
+        Optional<UUID> secondUuid = Optional.empty();
         String secondName = "";
 
         Component customName = keyStack.get(DataComponents.CUSTOM_NAME);
@@ -222,7 +230,7 @@ public class ChestKeyHandler {
             for (ServerPlayer online : level.getServer().getPlayerList().getPlayers()) {
                 if (online.equals(player)) continue;
                 if (keyName.contains(online.getScoreboardName())) {
-                    secondUuid = online.getUUID().toString();
+                    secondUuid = Optional.of(online.getUUID());
                     secondName = online.getScoreboardName();
                     break;
                 }
@@ -230,7 +238,7 @@ public class ChestKeyHandler {
         }
 
         LockOwner owner = new LockOwner(
-                player.getUUID().toString(),
+                player.getUUID(),
                 player.getScoreboardName(),
                 secondUuid,
                 secondName

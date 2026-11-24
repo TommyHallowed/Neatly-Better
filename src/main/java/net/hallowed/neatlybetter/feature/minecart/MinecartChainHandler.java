@@ -18,7 +18,9 @@ import net.minecraft.world.item.component.CustomData;
 
 import java.util.UUID;
 
-public class MinecartChainHandler {
+public final class MinecartChainHandler {
+    private MinecartChainHandler() {}
+
 
     public static void register() {
         UseEntityCallback.EVENT.register((player, world, hand, entity, _) -> {

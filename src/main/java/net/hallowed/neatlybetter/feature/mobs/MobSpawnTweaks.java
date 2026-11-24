@@ -1,5 +1,7 @@
 package net.hallowed.neatlybetter.feature.mobs;
 
+import net.hallowed.neatlybetter.config.NTServerConfig;
+
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
@@ -8,21 +10,47 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.polarbear.PolarBear;
 import net.minecraft.world.entity.monster.Zoglin;
 import net.minecraft.world.entity.monster.skeleton.Stray;
+import net.minecraft.world.entity.monster.skeleton.WitherSkeleton;
 import net.minecraft.world.entity.monster.zombie.ZombifiedPiglin;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ServerLevelAccessor;
 
 /**
- * Stray on a polar bear, zombified piglin on a zoglin. Called from the {@code finalizeSpawn} mixins
- * (AbstractSkeletonMixin / ZombieMixin), the same way vanilla spawns chicken jockeys, so it rolls once
- * per spawn instead of on every chunk load.
+ * Spawn-time rolls: wither skeleton archers and extra jockeys (stray on a polar bear, zombified piglin on a
+ * zoglin). Called from the {@code finalizeSpawn} mixins (AbstractSkeletonMixin / ZombieMixin), the same way
+ * vanilla spawns chicken jockeys, so each roll happens once per spawn instead of on every chunk load.
  */
-public final class JockeyAdditions {
-    private JockeyAdditions() {}
+public final class MobSpawnTweaks {
+    private MobSpawnTweaks() {}
 
     public static void onFinalizeSpawn(Mob mob, ServerLevelAccessor level,
                                        DifficultyInstance difficulty, EntitySpawnReason reason) {
+        if (mob instanceof WitherSkeleton wsk) witherSkeletonArcher(wsk, level, difficulty, reason);
+        jockeys(mob, level, difficulty, reason);
+    }
+
+    /** Some wither skeletons get a bow (after vanilla equipment, so it replaces the sword). */
+    private static void witherSkeletonArcher(WitherSkeleton wsk, ServerLevelAccessor level,
+                                             DifficultyInstance difficulty, EntitySpawnReason reason) {
+        if (!NTServerConfig.CONFIG.witherSkeletonArcher.get()) return;
+        if (reason == EntitySpawnReason.CONVERSION) return;
+        if (wsk.getMainHandItem().is(Items.BOW)) return;
+
+        int chance = switch (level.getDifficulty()) {
+            case HARD   -> 5;
+            case NORMAL -> 10;
+            default     -> 0;
+        };
+        if (chance <= 0 || wsk.getRandom().nextInt(chance) != 0) return;
+
+        wsk.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
+        wsk.populateDefaultEquipmentEnchantments(level, wsk.getRandom(), difficulty);
+        wsk.reassessWeaponGoal();
+    }
+
+    private static void jockeys(Mob mob, ServerLevelAccessor level,
+                                DifficultyInstance difficulty, EntitySpawnReason reason) {
         if (reason == EntitySpawnReason.CONVERSION || reason == EntitySpawnReason.JOCKEY) return;
         if (mob.isBaby() || mob.getVehicle() != null) return;
 

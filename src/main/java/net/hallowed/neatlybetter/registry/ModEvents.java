@@ -54,14 +54,14 @@ public final class ModEvents {
         CowBottleInteraction.register();
         StrippingRecipe.register();
         FloatingRailExtender.register();
-        DirtToGrassWithSeeds.init();
-        MagmaSpawnsLava.init();
-        BoneMealExpansion.init();
-        ElytraFlightLimiter.init();
-        CauldronCleaning.init();
-        MoreXpDrops.init();
-        TorchIgnite.init();
-        BlockGluing.init();
-        ItemDeathProtection.init();
+        DirtToGrassWithSeeds.register();
+        MagmaSpawnsLava.register();
+        BoneMealExpansion.register();
+        ElytraFlightLimiter.register();
+        CauldronCleaning.register();
+        MoreXpDrops.register();
+        TorchIgnite.register();
+        BlockGluing.register();
+        ItemDeathProtection.register();
     }
 }

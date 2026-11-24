@@ -22,7 +22,7 @@ public final class TorchIgnite {
     private static final IgniteProfile PROFILE_NORMAL = new IgniteProfile(0.4F, 5);
     private static final IgniteProfile PROFILE_HARD   = new IgniteProfile(0.2F, 4);
 
-    public static void init() {
+    public static void register() {
         AttackEntityCallback.EVENT.register((player, world, _, entity, _) -> {
             if (!(world instanceof ServerLevel serverLevel)) return InteractionResult.PASS;
             if (NTServerConfig.CONFIG.torchIgnite.isFalse()) return InteractionResult.PASS;

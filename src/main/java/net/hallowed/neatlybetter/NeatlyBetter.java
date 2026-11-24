@@ -62,7 +62,7 @@ public class NeatlyBetter implements ModInitializer {
         ModTickets.init();
         ModEvents.init();
         ModData.init();
-        HostileAttributeTweaks.init();
+        HostileAttributeTweaks.register();
 
         // 3) Server Tick Events
         ServerLifecycleEvents.SERVER_STARTED.register(FastChunkScanner::restoreAllStructuresIcons);

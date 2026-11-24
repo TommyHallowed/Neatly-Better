@@ -17,7 +17,9 @@ import net.minecraft.world.phys.Vec3;
  * is facing) and one up, or one down while sneaking. Side faces need no handling here: vanilla
  * placement already works once BaseRailBlockMixin lets chained rails survive.
  */
-public class FloatingRailExtender {
+public final class FloatingRailExtender {
+    private FloatingRailExtender() {}
+
 
     public static void register() {
         UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {

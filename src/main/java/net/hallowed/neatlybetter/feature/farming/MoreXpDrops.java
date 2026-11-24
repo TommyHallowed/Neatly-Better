@@ -19,9 +19,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 
-public class MoreXpDrops {
+public final class MoreXpDrops {
+    private MoreXpDrops() {}
 
-    public static void init() {
+
+    public static void register() {
 
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
             if (world instanceof ServerLevel serverLevel

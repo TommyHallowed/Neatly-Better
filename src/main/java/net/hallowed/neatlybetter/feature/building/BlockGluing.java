@@ -27,7 +27,7 @@ import net.minecraft.world.phys.BlockHitResult;
 public final class BlockGluing {
     private BlockGluing() {}
 
-    public static void init() {
+    public static void register() {
         UseBlockCallback.EVENT.register(BlockGluing::onUseBlock);
     }
 
