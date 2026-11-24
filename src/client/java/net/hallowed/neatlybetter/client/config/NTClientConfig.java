@@ -477,9 +477,8 @@ public final class NTClientConfig {
 
         showStuckProjectiles = builder
                 .comment("§eRender projectiles stuck in entities.")
-                .comment("§eWork In Progress")
                 .translation("neatly-better.config.show_stuck_projectiles")
-                .define("show_stuck_projectiles", false);
+                .define("show_stuck_projectiles", true);
         showPotionGlint = builder
                 .comment("§eRender enchantment glint on potion items.")
                 .translation("neatly-better.config.show_potion_glint")

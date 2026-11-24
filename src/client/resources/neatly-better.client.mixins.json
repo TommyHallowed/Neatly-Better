@@ -29,6 +29,7 @@
     "render.AbstractSignRendererMixin",
     "render.AtmosphericFogEnvironmentMixin",
     "render.FirstPersonHandsAndItemsMixin",
+    "render.LivingEntityRendererMixin",
     "render.FirstPersonHandsAndItemsRendererMixin",
     "render.MinecartRenderStateMixin",
     "screen.AbstractContainerScreenMixin",

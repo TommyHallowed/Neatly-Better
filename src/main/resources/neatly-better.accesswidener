@@ -26,3 +26,4 @@ accessible method net/minecraft/world/inventory/AbstractContainerMenu moveItemSt
 accessible class net/minecraft/client/gui/components/AbstractSelectionList$Entry
 accessible field net/minecraft/client/multiplayer/ClientLevel$ClientLevelData isFlat Z
 accessible method net/minecraft/world/entity/vehicle/minecart/AbstractMinecart getMaxSpeed (Lnet/minecraft/server/level/ServerLevel;)D
+accessible field net/minecraft/client/model/geom/ModelPart children Ljava/util/Map;

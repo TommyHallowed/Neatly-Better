@@ -3,6 +3,7 @@ package net.hallowed.neatlybetter.client;
 import net.hallowed.neatlybetter.client.feature.autorefill.AutoRefill;
 import net.hallowed.neatlybetter.client.feature.fog.FireResistanceLavaFog;
 import net.hallowed.neatlybetter.client.feature.fog.VoidFog;
+import net.hallowed.neatlybetter.client.feature.stuckarrows.MobStuckArrows;
 import net.hallowed.neatlybetter.client.feature.tooltips.ClientMapPreviewTooltip;
 import net.hallowed.neatlybetter.client.feature.tooltips.EffectTooltipData;
 import net.hallowed.neatlybetter.client.feature.tooltips.EffectTooltipRenderer;
@@ -47,6 +48,7 @@ public class NeatlyBetterClient implements ClientModInitializer {
         EnderCheckClient.register();
         AutoRefill.register();
         VoidFog.register();
+        MobStuckArrows.register();
         FireResistanceLavaFog.register();
         ModBlockColors.register();
         Zoom.register();
