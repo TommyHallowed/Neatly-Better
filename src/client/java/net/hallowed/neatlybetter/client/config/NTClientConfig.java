@@ -256,11 +256,11 @@ public final class NTClientConfig {
 
         builder.push("coords_time");
         showCoords = builder
-                .comment("§eShow coordinates text on the HUD.")
+                .comment("§eCoordinates on the HUD (needs a compass). Off removes the inventory compass button and the text.")
                 .translation("neatly-better.config.show_coords")
                 .define("show_coords", true);
         showTime = builder
-                .comment("§eShow in-game day/time text on the HUD.")
+                .comment("§eDay/time on the HUD (needs a clock). Off removes the inventory clock button and the text.")
                 .translation("neatly-better.config.show_time")
                 .define("show_time", true);
         coordsPos = builder

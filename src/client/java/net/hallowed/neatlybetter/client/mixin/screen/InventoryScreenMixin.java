@@ -3,6 +3,7 @@ package net.hallowed.neatlybetter.client.mixin.screen;
 import net.hallowed.neatlybetter.client.util.EnderCheckClient;
 import net.hallowed.neatlybetter.client.util.InventoryDeepScan;
 import net.hallowed.neatlybetter.client.util.ModTextures;
+import net.hallowed.neatlybetter.client.feature.hud.HudToggleState;
 import net.hallowed.neatlybetter.client.feature.hud.TextureButtonWidget;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
@@ -60,23 +61,24 @@ public abstract class InventoryScreenMixin extends Screen {
                 baseCoordsX, rowY, BTN, BTN,
                 ModTextures.COMPASS_SHOWN,
                 ModTextures.COMPASS_HIDDEN,
-                NTClientConfig.CONFIG.showCoords::get,
-                _ -> NTClientConfig.CONFIG.showCoords.set(!NTClientConfig.CONFIG.showCoords.get())
+                HudToggleState::coordsShown,
+                _ -> HudToggleState.toggleCoords()
         );
 
         timeBtn = new TextureButtonWidget(
                 baseTimeX, rowY, BTN, BTN,
                 ModTextures.CLOCK_SHOWN,
                 ModTextures.CLOCK_HIDDEN,
-                NTClientConfig.CONFIG.showTime::get,
-                _ -> NTClientConfig.CONFIG.showTime.set(!NTClientConfig.CONFIG.showTime.get())
+                HudToggleState::timeShown,
+                _ -> HudToggleState.toggleTime()
         );
 
         var player = Minecraft.getInstance().player;
         boolean hasCompass = player != null && (InventoryDeepScan.hasCompass(player) || EnderCheckClient.enderHasCompass());
         boolean hasClock   = player != null && (InventoryDeepScan.hasClock(player)   || EnderCheckClient.enderHasClock());
-        coordsBtn.visible = hasCompass;
-        timeBtn.visible   = hasClock;
+        // Config off removes the button (and the HUD text) entirely
+        coordsBtn.visible = hasCompass && NTClientConfig.CONFIG.showCoords.get();
+        timeBtn.visible   = hasClock   && NTClientConfig.CONFIG.showTime.get();
 
         this.addRenderableWidget(coordsBtn);
         this.addRenderableWidget(timeBtn);
@@ -96,8 +98,9 @@ public abstract class InventoryScreenMixin extends Screen {
         var player = mc.player;
         boolean hasCompass = player != null && (InventoryDeepScan.hasCompass(player) || EnderCheckClient.enderHasCompass());
         boolean hasClock   = player != null && (InventoryDeepScan.hasClock(player)   || EnderCheckClient.enderHasClock());
-        coordsBtn.visible = hasCompass;
-        timeBtn.visible   = hasClock;
+        // Config off removes the button (and the HUD text) entirely
+        coordsBtn.visible = hasCompass && NTClientConfig.CONFIG.showCoords.get();
+        timeBtn.visible   = hasClock   && NTClientConfig.CONFIG.showTime.get();
 
         int coordsX = baseCoordsX + shift;
         int timeX   = baseTimeX   + shift;

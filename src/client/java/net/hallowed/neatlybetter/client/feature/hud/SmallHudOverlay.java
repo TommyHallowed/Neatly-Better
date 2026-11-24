@@ -25,7 +25,8 @@ public final class SmallHudOverlay implements HudElement {
 
     @Override
     public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, @NonNull DeltaTracker deltaTracker) {
-        if (!NTClientConfig.CONFIG.showCoords.get() && !NTClientConfig.CONFIG.showTime.get()) return;
+        if (!(NTClientConfig.CONFIG.showCoords.get() && HudToggleState.coordsShown())
+                && !(NTClientConfig.CONFIG.showTime.get() && HudToggleState.timeShown())) return;
 
         if (MC.player == null || MC.level == null) return;
         if (MC.getDebugOverlay().showDebugScreen()) return;

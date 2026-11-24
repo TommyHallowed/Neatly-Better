@@ -1,5 +1,6 @@
 package net.hallowed.neatlybetter.client.util;
 
+import net.hallowed.neatlybetter.client.feature.hud.HudToggleState;
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
 
 import net.minecraft.client.Minecraft;
@@ -32,12 +33,12 @@ public final class HudFormatting {
     private static int secondBucket(long timeOfDay) { return (int)((timeOfDay % 24000L) / 20L); }
 
     public static boolean shouldShowCoords(Player p) {
-        return NTClientConfig.CONFIG.showCoords.get()
+        return NTClientConfig.CONFIG.showCoords.get() && HudToggleState.coordsShown()
                 && (InventoryDeepScan.hasCompass(p)
                 || EnderCheckClient.enderHasCompass());
     }
     public static boolean shouldShowTime(Player p) {
-        return NTClientConfig.CONFIG.showTime.get()
+        return NTClientConfig.CONFIG.showTime.get() && HudToggleState.timeShown()
                 && (InventoryDeepScan.hasClock(p)
                 || EnderCheckClient.enderHasClock());
     }
@@ -77,9 +78,15 @@ public final class HudFormatting {
         return cachedTime;
     }
 
+    /**
+     * Rebuild only when the shown text would change (coordinates are shown with 2 decimals). A movement deadband
+     * left the last small steps of slowing down unshown, so the text stayed on an older value until the next
+     * forced refresh and then jumped.
+     */
     private static boolean movedEnough(double x, double y, double z) {
-        double dx = x - lastCoordX, dy = y - lastCoordY, dz = z - lastCoordZ;
-        return (dx*dx + dy*dy + dz*dz) > (0.05 * 0.05); //refresh rate of coords
+        return Math.round(x * 100) != Math.round(lastCoordX * 100)
+                || Math.round(y * 100) != Math.round(lastCoordY * 100)
+                || Math.round(z * 100) != Math.round(lastCoordZ * 100);
     }
 
     public static int[] coordsXY(int textW, int lineH, float scale) { return ensureAnchor(textW, lineH, scale, true); }
