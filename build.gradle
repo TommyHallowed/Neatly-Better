@@ -59,7 +59,9 @@ dependencies {
     compileOnly "maven.modrinth:elytra-trims:${project.elytratrims_version}"
 
     //  Config
-    api "maven.modrinth:modmenu:${project.modmenu_version}"
+    // Optional integration: not a transitive dependency of the published mod, still present in dev runs
+    compileOnly "maven.modrinth:modmenu:${project.modmenu_version}"
+    localRuntime "maven.modrinth:modmenu:${project.modmenu_version}"
     implementation "maven.modrinth:forge-config-api-port:${project.forgeconfigapiport_version}"
 }
 

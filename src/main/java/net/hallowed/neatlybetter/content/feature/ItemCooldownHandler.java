@@ -1,12 +1,9 @@
 package net.hallowed.neatlybetter.content.feature;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
+import net.hallowed.neatlybetter.util.ServerTaskQueue;
 
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -18,8 +15,6 @@ import net.minecraft.world.item.SplashPotionItem;
 public final class ItemCooldownHandler {
 
     private ItemCooldownHandler() {}
-
-    private static final List<Runnable> PENDING_COOLDOWNS = new ArrayList<>();
 
     private static ItemStack totemStack;
 
@@ -52,7 +47,7 @@ public final class ItemCooldownHandler {
                     || stack.getItem() instanceof LingeringPotionItem) {
                 if (!player.getCooldowns().isOnCooldown(stack)) {
                     ItemStack stackCopy = stack.copy();
-                    PENDING_COOLDOWNS.add(() -> {
+                    ServerTaskQueue.runAtEndOfTick(() -> {
                         if (!player.isRemoved()) {
                             player.getCooldowns().addCooldown(stackCopy, 20);
                         }
@@ -61,13 +56,6 @@ public final class ItemCooldownHandler {
             }
 
             return InteractionResult.PASS;
-        });
-
-        ServerTickEvents.END_SERVER_TICK.register(_ -> {
-            if (!PENDING_COOLDOWNS.isEmpty()) {
-                PENDING_COOLDOWNS.forEach(Runnable::run);
-                PENDING_COOLDOWNS.clear();
-            }
         });
     }
 }

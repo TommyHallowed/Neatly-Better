@@ -18,6 +18,10 @@ public final class TorchIgnite {
 
     private record IgniteProfile(float chance, int seconds) {}
 
+    private static final IgniteProfile PROFILE_EASY   = new IgniteProfile(0.6F, 6);
+    private static final IgniteProfile PROFILE_NORMAL = new IgniteProfile(0.4F, 5);
+    private static final IgniteProfile PROFILE_HARD   = new IgniteProfile(0.2F, 4);
+
     public static void init() {
         AttackEntityCallback.EVENT.register((player, world, _, entity, _) -> {
             if (!(world instanceof ServerLevel serverLevel)) return InteractionResult.PASS;
@@ -42,9 +46,9 @@ public final class TorchIgnite {
 
     private static IgniteProfile profileFor(Difficulty difficulty) {
         return switch (difficulty) {
-            case PEACEFUL, EASY -> new IgniteProfile(0.6F, 6);
-            case NORMAL -> new IgniteProfile(0.4F, 5);
-            case HARD -> new IgniteProfile(0.2F, 4);
+            case PEACEFUL, EASY -> PROFILE_EASY;
+            case NORMAL -> PROFILE_NORMAL;
+            case HARD -> PROFILE_HARD;
         };
     }
 }

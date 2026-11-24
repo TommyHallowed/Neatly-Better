@@ -5,6 +5,8 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.hallowed.neatlybetter.api.NTCompat;
 import net.hallowed.neatlybetter.config.NTServerConfig;
 
+import net.hallowed.neatlybetter.util.CropUtil;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
@@ -40,7 +42,7 @@ public class CropHarvester {
         BlockPos pos = hitResult.getBlockPos();
         BlockState state = level.getBlockState(pos);
 
-        if (!isMature(state)) {
+        if (!CropUtil.isMature(state)) {
             return InteractionResult.PASS;
         }
 
@@ -62,7 +64,7 @@ public class CropHarvester {
                     BlockPos targetPos = pos.offset(x, 0, z);
                     BlockState targetState = serverLevel.getBlockState(targetPos);
 
-                    if (isMature(targetState)) {
+                    if (CropUtil.isMature(targetState)) {
                         harvestAndReplant(serverLevel, targetPos, targetState, player, tool, slot);
                     }
                 }
@@ -74,15 +76,6 @@ public class CropHarvester {
         return InteractionResult.SUCCESS;
     }
 
-    private static boolean isMature(BlockState state) {
-        if (state.getBlock() instanceof CropBlock crop) {
-            return crop.isMaxAge(state);
-        }
-        if (state.getBlock() instanceof NetherWartBlock) {
-            return state.getValue(NetherWartBlock.AGE) >= NetherWartBlock.MAX_AGE; // Max age for Nether Warts is 3
-        }
-        return false;
-    }
 
     private static void harvestAndReplant(ServerLevel level, BlockPos pos, BlockState state, Player player, ItemStack tool, EquipmentSlot slot) {
         Block block = state.getBlock();

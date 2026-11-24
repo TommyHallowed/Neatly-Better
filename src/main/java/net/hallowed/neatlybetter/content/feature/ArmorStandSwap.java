@@ -57,7 +57,6 @@ public class ArmorStandSwap {
 
                 if (swapped) {
                     player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
-                    return InteractionResult.SUCCESS;
                 }
 
                 return InteractionResult.SUCCESS;

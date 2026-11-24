@@ -32,7 +32,6 @@ public final class CauldronCleaning {
     }
 
     private static InteractionResult onUseBlock(Player player, Level world, InteractionHand hand, BlockHitResult hit) {
-        if (player == null) return InteractionResult.PASS;
 
         final ItemStack stack = player.getItemInHand(hand);
         if (stack.isEmpty()) return InteractionResult.PASS;

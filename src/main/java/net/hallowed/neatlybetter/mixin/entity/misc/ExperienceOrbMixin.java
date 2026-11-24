@@ -49,6 +49,8 @@ public abstract class ExperienceOrbMixin {
     @Unique private static final Logger LOGGER = LoggerFactory.getLogger("neatly-better");
 
     @Unique private static boolean neatlybetter$inBurst = false;
+    @Unique private static int neatlybetter$lastBurstPlayerId = -1;
+    @Unique private static long neatlybetter$lastBurstTick = -1L;
 
     @Unique private int neatlybetter$repairDepth = 0;
 
@@ -247,6 +249,12 @@ public abstract class ExperienceOrbMixin {
         if (neatlybetter$inBurst) return;
         if (MAX_BURST_ORBS <= 0) return;
         if (!(player.level() instanceof ServerLevel serverLevel)) return;
+
+        // Every orb touching the player runs this; the first burst already collects the rest.
+        long now = serverLevel.getGameTime();
+        if (player.getId() == neatlybetter$lastBurstPlayerId && now == neatlybetter$lastBurstTick) return;
+        neatlybetter$lastBurstPlayerId = player.getId();
+        neatlybetter$lastBurstTick = now;
 
         try {
             neatlybetter$inBurst = true;

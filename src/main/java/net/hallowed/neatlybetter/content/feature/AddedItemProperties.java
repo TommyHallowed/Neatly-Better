@@ -39,30 +39,26 @@ public final class AddedItemProperties {
     );
 
     public static void register() {
-        DefaultItemComponentEvents.MODIFY.register(ctx ->
-                ctx.modify(Items.GLISTERING_MELON_SLICE, builder -> {
-                    FoodProperties food = new FoodProperties.Builder()
-                            .nutrition(4)
-                            .saturationModifier(0.6F)
-                            .build();
-                    builder.set(DataComponents.FOOD, food);
-                    builder.set(DataComponents.CONSUMABLE, Consumables.DEFAULT_FOOD);
-                })
-        );
-        DefaultItemComponentEvents.MODIFY.register(ctx ->
-                ctx.modify(Items.GLOW_BERRIES, builder -> {
-                    Consumable consumable = Consumables.defaultFood()
-                            .onConsume(new ApplyStatusEffectsConsumeEffect(
-                                    new MobEffectInstance(MobEffects.GLOWING, 200, 0)))
-                            .build();
-                    builder.set(DataComponents.CONSUMABLE, consumable);
-                })
-        );
-        DefaultItemComponentEvents.MODIFY.register(ctx ->
-                ctx.modify(Items.TRIDENT, builder -> {
-                    HolderSet<Item> repairItems = HolderSet.direct(BuiltInRegistries.ITEM.wrapAsHolder(Items.PRISMARINE_SHARD));
-                    builder.set(DataComponents.REPAIRABLE, new Repairable(repairItems));
-                })
-        );
+        DefaultItemComponentEvents.MODIFY.register(ctx -> {
+            ctx.modify(Items.GLISTERING_MELON_SLICE, builder -> {
+                FoodProperties food = new FoodProperties.Builder()
+                        .nutrition(4)
+                        .saturationModifier(0.6F)
+                        .build();
+                builder.set(DataComponents.FOOD, food);
+                builder.set(DataComponents.CONSUMABLE, Consumables.DEFAULT_FOOD);
+            });
+            ctx.modify(Items.GLOW_BERRIES, builder -> {
+                Consumable consumable = Consumables.defaultFood()
+                        .onConsume(new ApplyStatusEffectsConsumeEffect(
+                                new MobEffectInstance(MobEffects.GLOWING, 200, 0)))
+                        .build();
+                builder.set(DataComponents.CONSUMABLE, consumable);
+            });
+            ctx.modify(Items.TRIDENT, builder -> {
+                HolderSet<Item> repairItems = HolderSet.direct(BuiltInRegistries.ITEM.wrapAsHolder(Items.PRISMARINE_SHARD));
+                builder.set(DataComponents.REPAIRABLE, new Repairable(repairItems));
+            });
+        });
     }
 }

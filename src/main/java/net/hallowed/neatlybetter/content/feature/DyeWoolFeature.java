@@ -1,6 +1,5 @@
 package net.hallowed.neatlybetter.content.feature;
 
-import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 
 import net.hallowed.neatlybetter.config.NTServerConfig;
@@ -13,9 +12,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
@@ -25,9 +22,25 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-import java.util.Optional;
+import java.util.EnumMap;
+import java.util.Map;
 
-public class DyeWoolFeature {
+public final class DyeWoolFeature {
+    private DyeWoolFeature() {}
+
+    /** Vanilla wool / carpet / bed per color, looked up once. */
+    private static final Map<DyeColor, Block> WOOL   = byColor("_wool");
+    private static final Map<DyeColor, Block> CARPET = byColor("_carpet");
+    private static final Map<DyeColor, Block> BED    = byColor("_bed");
+
+    private static Map<DyeColor, Block> byColor(String suffix) {
+        Map<DyeColor, Block> map = new EnumMap<>(DyeColor.class);
+        for (DyeColor color : DyeColor.values()) {
+            BuiltInRegistries.BLOCK.getOptional(Identifier.withDefaultNamespace(color.getName() + suffix))
+                    .ifPresent(block -> map.put(color, block));
+        }
+        return map;
+    }
 
     public static void register() {
 
@@ -49,13 +62,10 @@ public class DyeWoolFeature {
             DyeColor color = stack.get(DataComponents.DYE);
             if (color == null) return InteractionResult.PASS;
 
-            String suffix = isWool ? "_wool" : isCarpet ? "_carpet" : "_bed";
-            Identifier newBlockId = Identifier.withDefaultNamespace(color.getName() + suffix);
+            Block newBlock = (isWool ? WOOL : isCarpet ? CARPET : BED).get(color);
+            if (newBlock == null) return InteractionResult.PASS;
 
-            Optional<Block> newBlock = BuiltInRegistries.BLOCK.getOptional(newBlockId);
-            if (newBlock.isEmpty()) return InteractionResult.PASS;
-
-            if (state.getBlock() == newBlock.get()) return InteractionResult.PASS;
+            if (state.getBlock() == newBlock) return InteractionResult.PASS;
 
             if (!level.isClientSide()) {
                 if (isBed) {
@@ -72,11 +82,11 @@ public class DyeWoolFeature {
                         footPos = pos.relative(facing.getOpposite());
                     }
 
-                    BlockState newFoot = newBlock.get().defaultBlockState()
+                    BlockState newFoot = newBlock.defaultBlockState()
                             .setValue(BlockStateProperties.HORIZONTAL_FACING, facing)
                             .setValue(BlockStateProperties.BED_PART, BedPart.FOOT)
                             .setValue(BlockStateProperties.OCCUPIED, occupied);
-                    BlockState newHead = newBlock.get().defaultBlockState()
+                    BlockState newHead = newBlock.defaultBlockState()
                             .setValue(BlockStateProperties.HORIZONTAL_FACING, facing)
                             .setValue(BlockStateProperties.BED_PART, BedPart.HEAD)
                             .setValue(BlockStateProperties.OCCUPIED, occupied);
@@ -89,7 +99,7 @@ public class DyeWoolFeature {
                     level.setBlock(footPos, newFoot, 19);
 
                 } else {
-                    level.setBlock(pos, newBlock.get().defaultBlockState(), 3);
+                    level.setBlock(pos, newBlock.defaultBlockState(), 3);
                 }
 
                 level.playSound(null, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -102,34 +112,5 @@ public class DyeWoolFeature {
             return InteractionResult.SUCCESS_SERVER;
         });
 
-        EntitySleepEvents.ALLOW_SLEEPING.register((player, sleepingPos) -> {
-            BlockState bedState = player.level().getBlockState(sleepingPos);
-            if (!bedState.is(BlockTags.BEDS)) return null;
-
-            DyeColor heldDye = null;
-            for (InteractionHand hand : InteractionHand.values()) {
-                ItemStack stack = player.getItemInHand(hand);
-                if (stack.getItem() instanceof DyeItem) {
-                    heldDye = stack.get(DataComponents.DYE);
-                    break;
-                }
-            }
-
-            if (heldDye == null) return null;
-
-            String bedColorName = BuiltInRegistries.BLOCK.getKey(bedState.getBlock())
-                    .getPath().replace("_bed", "");
-            DyeColor bedColor = null;
-            for (DyeColor c : DyeColor.values()) {
-                if (c.getName().equals(bedColorName)) {
-                    bedColor = c;
-                    break;
-                }
-            }
-
-            if (bedColor == null) return null;
-
-            return heldDye != bedColor ? Player.BedSleepingProblem.OTHER_PROBLEM : null;
-        });
     }
 }

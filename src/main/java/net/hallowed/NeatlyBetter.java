@@ -34,6 +34,7 @@ public class NeatlyBetter implements ModInitializer {
     public static final String MOD_ID = "neatly-better";
     public static final BooleanProperty SHEARED = BooleanProperty.create("sheared");
     public static final BooleanProperty GLUED = BooleanProperty.create("glued");
+    public static final BooleanProperty INVISIBLE = BooleanProperty.create("invisible");
 
     @Override
     public void onInitialize() {

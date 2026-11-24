@@ -56,7 +56,7 @@ public final class BlockGluing {
 
                 level.playSound(null, pos, SoundEvents.SLIME_BLOCK_HIT, SoundSource.BLOCKS, 1.0F, 1.0F);
 
-                spawnRemoveParticles((ServerLevel) level, pos);
+                spawnSlimeParticles((ServerLevel) level, pos);
 
                 stack.hurtAndBreak(1, (ServerLevel) level, player instanceof ServerPlayer sp ? sp : null,
                         item -> player.onEquippedItemBroken(item, net.minecraft.world.entity.EquipmentSlot.MAINHAND));
@@ -79,7 +79,7 @@ public final class BlockGluing {
 
             level.playSound(null, pos, SoundEvents.SLIME_SQUISH_SMALL, SoundSource.BLOCKS, 1.0F, 0.8F);
 
-            spawnGlueParticles((ServerLevel) level, pos);
+            spawnSlimeParticles((ServerLevel) level, pos);
 
             if (!player.getAbilities().instabuild) {
                 stack.shrink(1);
@@ -89,7 +89,7 @@ public final class BlockGluing {
         return InteractionResult.SUCCESS;
     }
 
-    private static void spawnGlueParticles(ServerLevel level, BlockPos pos) {
+    private static void spawnSlimeParticles(ServerLevel level, BlockPos pos) {
         double cx = pos.getX() + 0.5;
         double cy = pos.getY() + 0.5;
         double cz = pos.getZ() + 0.5;
@@ -103,17 +103,4 @@ public final class BlockGluing {
         }
     }
 
-    private static void spawnRemoveParticles(ServerLevel level, BlockPos pos) {
-        double cx = pos.getX() + 0.5;
-        double cy = pos.getY() + 0.5;
-        double cz = pos.getZ() + 0.5;
-        for (int i = 0; i < 8; i++) {
-            double ox = (level.getRandom().nextDouble() - 0.5) * 0.8;
-            double oy =  level.getRandom().nextDouble()        * 0.6;
-            double oz = (level.getRandom().nextDouble() - 0.5) * 0.8;
-            level.sendParticles(ParticleTypes.ITEM_SLIME,
-                    cx + ox, cy + oy, cz + oz,
-                    1, 0.0, 0.0, 0.0, 0.0);
-        }
-    }
 }

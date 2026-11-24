@@ -30,13 +30,11 @@ public abstract class EntityMixin {
 
     @Inject(method = "collide", at = @At("HEAD"), cancellable = true)
     void neatlybetter$onRecalculateVelocity(Vec3 movement, CallbackInfoReturnable<Vec3> cir) {
-        if ((Object) this instanceof AbstractMinecart minecart) {
-            for (Entity entity : minecart.level().getEntities(minecart, minecart.getBoundingBox().move(movement))) {
-                if (CollisionUtils.shouldCollide(minecart, entity) && minecart.level().getBlockState(minecart.blockPosition()).getBlock() instanceof BaseRailBlock) {
-                    cir.setReturnValue(movement);
-                    return;
-                }
-            }
+        if (!((Object) this instanceof AbstractMinecart minecart)) return;
+        if (!(minecart.level().getBlockState(minecart.blockPosition()).getBlock() instanceof BaseRailBlock)) return;
+        if (!minecart.level().getEntities(minecart, minecart.getBoundingBox().move(movement),
+                entity -> CollisionUtils.shouldCollide(minecart, entity)).isEmpty()) {
+            cir.setReturnValue(movement);
         }
     }
 }

@@ -195,11 +195,9 @@ public abstract class LivingEntityMixin extends Entity {
 
         LivingEntity self = (LivingEntity) (Object) this;
 
-        boolean shifting = self.isShiftKeyDown();
+        if (!self.isShiftKeyDown()) return original;
         AttributeInstance attr = self.getAttribute(Attributes.STEP_HEIGHT);
         AttributeModifier mod = attr != null ? attr.getModifier(neatlybetter$STEP_UP_ID) : null;
-
-        if (!shifting) return original;
         if (mod == null) return original;
 
         return original - (float) mod.amount();

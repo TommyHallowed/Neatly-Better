@@ -24,8 +24,7 @@ public final class TamableDamageByOwnerBypass {
             Entity attacker = source.getEntity();
             if (attacker == null) return true;
             if (attacker.isShiftKeyDown()) return true;
-            Entity owner = animal.getOwner();
-            return owner == null || !attacker.getUUID().equals(owner.getUUID());
+            return !(attacker instanceof LivingEntity living && animal.isOwnedBy(living));
         }
         return true;
     }

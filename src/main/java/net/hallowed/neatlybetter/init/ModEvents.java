@@ -3,11 +3,13 @@ package net.hallowed.neatlybetter.init;
 import net.hallowed.neatlybetter.content.feature.*;
 import net.hallowed.neatlybetter.content.recipe.StrippingRecipe;
 import net.hallowed.neatlybetter.content.spawner.EndPhantomSpawner;
+import net.hallowed.neatlybetter.util.ServerTaskQueue;
 
 public final class ModEvents {
     private ModEvents() {}
 
     public static void init() {
+        ServerTaskQueue.register();
         ShoulderDropOnUse.register();
         AnvilRepair.register();
         AddedItemProperties.register();

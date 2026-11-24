@@ -3,6 +3,9 @@ package net.hallowed.neatlybetter.client.mixin.entity;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.hallowed.neatlybetter.client.config.NTClientConfig;
@@ -35,14 +38,6 @@ public abstract class ItemEntityRendererMixin {
     @Unique
     private static final float PAPER_STACK_JITTER = 0.075f;
 
-    @Unique
-    private static final ThreadLocal<Boolean> neatlybetter$isFlat =
-            ThreadLocal.withInitial(() -> false);
-
-    @Unique
-    private static final ThreadLocal<double[]> neatlybetter$entityPos =
-            ThreadLocal.withInitial(() -> new double[2]);
-
     @Inject(
             method = "submit(Lnet/minecraft/client/renderer/entity/state/ItemEntityRenderState;"
                     + "Lcom/mojang/blaze3d/vertex/PoseStack;"
@@ -52,19 +47,12 @@ public abstract class ItemEntityRendererMixin {
     )
     private void neatlybetter$detectFlatItem(
             ItemEntityRenderState state, PoseStack poseStack,
-            SubmitNodeCollector submitNodeCollector, CameraRenderState camera, CallbackInfo ci) {
+            SubmitNodeCollector submitNodeCollector, CameraRenderState camera, CallbackInfo ci,
+            @Share("flat") LocalBooleanRef flat) {
 
-        if (!NTClientConfig.CONFIG.render2DItems.get()
-                || state.item.isEmpty()
-                || state.item.usesBlockLight()) {
-            neatlybetter$isFlat.set(false);
-            return;
-        }
-
-        neatlybetter$isFlat.set(true);
-        double[] pos = neatlybetter$entityPos.get();
-        pos[0] = state.x;
-        pos[1] = state.z;
+        flat.set(NTClientConfig.CONFIG.render2DItems.get()
+                && !state.item.isEmpty()
+                && !state.item.usesBlockLight());
     }
 
     @ModifyExpressionValue(
@@ -75,12 +63,13 @@ public abstract class ItemEntityRendererMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/item/ItemEntity;getSpin(FF)F")
     )
-    private float neatlybetter$billboardRotation(float spinAngle) {
-        if (!neatlybetter$isFlat.get()) return spinAngle;
+    private float neatlybetter$billboardRotation(float spinAngle,
+            @Local(argsOnly = true) ItemEntityRenderState state,
+            @Share("flat") LocalBooleanRef flat) {
+        if (!flat.get()) return spinAngle;
 
-        double[] pos = neatlybetter$entityPos.get();
         var cam = Minecraft.getInstance().gameRenderer.mainCamera().position();
-        return (float) Math.atan2(cam.x - pos[0], cam.z - pos[1]);
+        return (float) Math.atan2(cam.x - state.x, cam.z - state.z);
     }
 
     @WrapOperation(
@@ -100,9 +89,9 @@ public abstract class ItemEntityRendererMixin {
     private void neatlybetter$submitFlat(
             PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords,
             ItemClusterRenderState state, RandomSource random, AABB modelBoundingBox,
-            Operation<Void> original) {
+            Operation<Void> original, @Share("flat") LocalBooleanRef flat) {
 
-        if (!neatlybetter$isFlat.get()) {
+        if (!flat.get()) {
             original.call(poseStack, submitNodeCollector, lightCoords, state, random, modelBoundingBox);
             return;
         }

@@ -65,16 +65,17 @@ public abstract class NewMinecartBehaviorMixin extends MinecartBehavior {
         Vec3 targetPos = following.position();
 
         double linkDistance = 1.0;
-        double dist = Math.max(Math.abs(myPos.distanceTo(targetPos)) - linkDistance, 0.0);
-
         Vec3 vec3d = targetPos.subtract(myPos);
+        double centerDist = vec3d.length();
+        double dist = Math.max(centerDist - linkDistance, 0.0);
 
         Vec3 myVel = this.minecart.getDeltaMovement();
         Vec3 targetVel = following.getDeltaMovement();
 
-        boolean differentDirection = myVel.length() > 0.15 && targetVel.length() > 0.005
-                && myVel.normalize().distanceTo(targetVel.normalize()) > 1.42
-                && myPos.distanceTo(targetPos) > 0.5;
+        // Squared thresholds: 0.15², 0.005², 1.42²
+        boolean differentDirection = centerDist > 0.5
+                && myVel.lengthSqr() > 0.0225 && targetVel.lengthSqr() > 0.000025
+                && myVel.normalize().distanceToSqr(targetVel.normalize()) > 2.0164;
 
         if (differentDirection) {
             dist += linkDistance;

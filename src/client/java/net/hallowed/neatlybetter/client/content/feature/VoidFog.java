@@ -256,6 +256,7 @@ public final class VoidFog {
     public static final class ColorDarkener extends FogEnvironment {
 
         private float brightness = 0f;
+        private long lastFrameNanos = 0L;
 
         @Override
         public boolean modifiesDarkness() {
@@ -278,8 +279,13 @@ public final class VoidFog {
             float light = getLuminance(cameraEntity, false);
             float targetBrightness = light >= 1f ? 0f : (1f - light);
 
+            // tickProgress is the partial tick (position within the tick), not elapsed time; measure frame time instead.
+            long now = System.nanoTime();
+            float elapsedTicks = lastFrameNanos == 0L ? 1f : Math.min(1f, (now - lastFrameNanos) / 50_000_000f);
+            lastFrameNanos = now;
+
             float transitionTicks = Math.max(1f, cfg().TransitionTicks.get().floatValue());
-            brightness = Mth.lerp(Mth.clamp(tickProgress / transitionTicks, 0f, 1f), brightness, targetBrightness);
+            brightness = Mth.lerp(Mth.clamp(elapsedTicks / transitionTicks, 0f, 1f), brightness, targetBrightness);
 
             return Math.max(darkness, brightness);
         }

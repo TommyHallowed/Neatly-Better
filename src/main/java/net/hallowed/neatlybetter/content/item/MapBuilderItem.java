@@ -353,7 +353,7 @@ public class MapBuilderItem extends Item {
             toolStack.consume(1, player);
         }
 
-        List<MapGenerationTask> unifiedPhase = new ArrayList<>();
+        FastChunkScanner scanner = new FastChunkScanner(world);
         int normalSpawnsRemaining = normalToUse;
 
         for (MapTarget target : pendingMaps) {
@@ -367,10 +367,10 @@ public class MapBuilderItem extends Item {
             itemFrame.setRotation(target.rotation);
             world.addFreshEntity(itemFrame);
 
-            unifiedPhase.add(new FastChunkScanner(world, mapStack, target.targetX, target.targetZ, zoom));
+            scanner.addMap(mapStack, itemFrame, target.targetX, target.targetZ, zoom);
         }
 
-        MapGenerationQueue.addJob((ServerPlayer) player, unifiedPhase);
+        MapGenerationQueue.addJob((ServerPlayer) player, List.of(scanner));
 
         return true;
     }

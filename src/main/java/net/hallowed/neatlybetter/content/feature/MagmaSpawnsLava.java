@@ -36,7 +36,6 @@ public final class MagmaSpawnsLava {
             if (!hasSilkTouch(stack)) {
                 BlockPos targetPos = pos.immutable();
 
-                world.removeBlock(pos, false);
 
                 serverWorld.setBlockAndUpdate(targetPos, Blocks.LAVA.defaultBlockState());
 

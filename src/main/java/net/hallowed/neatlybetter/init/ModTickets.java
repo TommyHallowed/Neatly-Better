@@ -13,7 +13,7 @@ public class ModTickets {
      */
     public static final TicketType MAP_SCAN = Registry.register(
             BuiltInRegistries.TICKET_TYPE,
-            Identifier.fromNamespaceAndPath("old_ways", "map_scan"),
+            Identifier.fromNamespaceAndPath("neatly-better", "map_scan"),
             new TicketType(0L, TicketType.FLAG_LOADING)
     );
 
