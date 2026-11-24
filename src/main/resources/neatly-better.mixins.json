@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "block.BambooStalkBlockMixin",
+    "block.BannerGlowDropMixin",
     "block.BaseFireBlockMixin",
     "block.BaseRailBlockMixin",
     "block.BlockBehaviourMixin",
@@ -31,6 +32,7 @@
     "block.VaultServerMixin",
     "block.VineBlockMixin",
     "block.WallSignBlockMixin",
+    "blockentity.BannerBlockEntityMixin",
     "blockentity.AbstractContainerMenuAccessor",
     "blockentity.BeaconBlockEntityMixin",
     "blockentity.BeaconEffectsListMixin",

@@ -4,6 +4,7 @@ import net.hallowed.neatlybetter.feature.building.AnvilRepair;
 import net.hallowed.neatlybetter.feature.building.ArmorStandSwap;
 import net.hallowed.neatlybetter.feature.building.BlockGluing;
 import net.hallowed.neatlybetter.feature.building.DyeWoolFeature;
+import net.hallowed.neatlybetter.feature.building.GlowingBanners;
 import net.hallowed.neatlybetter.feature.building.FloatingRailExtender;
 import net.hallowed.neatlybetter.feature.building.InvisibleSign;
 import net.hallowed.neatlybetter.feature.building.LadderPillarExtender;
@@ -47,6 +48,7 @@ public final class ModEvents {
         TamableDamageByOwnerBypass.register();
         WolfSpawnsCollarOnDeath.register();
         DyeWoolFeature.register();
+        GlowingBanners.register();
         InvisibleSign.register();
         LegacyCombatDamageValues.register();
         LadderPillarExtender.register();

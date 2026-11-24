@@ -30,6 +30,7 @@
     "render.AtmosphericFogEnvironmentMixin",
     "render.FirstPersonHandsAndItemsMixin",
     "render.LivingEntityRendererMixin",
+    "render.BannerRendererMixin",
     "render.EntityRendererSoulFireMixin",
     "render.FlameFeatureRendererMixin",
     "render.FirstPersonHandsAndItemsRendererMixin",
